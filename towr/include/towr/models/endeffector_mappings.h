@@ -24,56 +24,29 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef XPP_VIS_USER_INTERFACE_H_
-#define XPP_VIS_USER_INTERFACE_H_
-
-#include <ros/publisher.h>
-#include <ros/subscriber.h>
-#include <geometry_msgs/Vector3.h>
-#include <keyboard/Key.h>
-
-#include <xpp_states/state.h>
-
-
-namespace xpp {
-
 /**
- * @brief Translates user input into a ROS message.
+ * @file endeffector_mappings.h
  *
- * This includes high level input about where to go (e.g. converting
- * keyboard input into a goal state), which terrain to visualize, etc.
- *
- * See the CallbackKeyboard function for the Key->Action mappings.
+ * Assigning some semantic information (e.g. name of the foot) to endeffector
+ * indices.
  */
-class UserInterface {
-public:
+#ifndef TOWR_MODELS_ENDEFFECTOR_MAPPINGS_H_
+#define TOWR_MODELS_ENDEFFECTOR_MAPPINGS_H_
 
-  /**
-   * @brief  Constructs default object to interact with framework.
-   */
-  UserInterface ();
-  virtual ~UserInterface () = default;
+namespace towr {
 
-private:
-  ::ros::Subscriber key_sub_;          ///< the input key hits to the node.
-  ::ros::Publisher  user_command_pub_; ///< the output message of the node.
+namespace biped {
+enum FootIDs { L=0, R };
+}
 
-  void CallbackKeyboard(const keyboard::Key& msg);
-  void PublishCommand();
+namespace quad {
+enum FootIDs { LF=0, RF, LH, RH };
+}
 
-  xpp::State3dEuler goal_geom_;
-  int kMaxNumGaits_ = 8;
-  int terrain_id_;
-  int gait_combo_id_;
-  bool replay_trajectory_ = false;
-  bool use_solver_snopt_ = false;
-  bool optimize_ = false;
-  bool publish_optimized_trajectory_ = false;
-  double total_duration_ = 2.0;
+namespace quad_rotor {
+enum RotoIDs { L=0, R, F, H };
+}
 
-  int AdvanceCircularBuffer(int& curr, int max) const;
-};
+} // namespace towr
 
-} /* namespace xpp */
-
-#endif /* XPP_VIS_USER_INTERFACE_H_ */
+#endif /* XPP_STATES_ENDEFFECTOR_MAPPINGS_H_ */

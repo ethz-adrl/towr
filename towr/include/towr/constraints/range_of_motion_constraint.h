@@ -11,10 +11,10 @@
 #include <string>
 #include <vector>
 
-#include <ifopt/composite.h>
-
-#include <xpp_states/endeffectors.h>
-#include <xpp_states/state.h>
+//#include <ifopt/composite.h>
+//
+//#include <xpp_states/endeffectors.h>
+//#include <xpp_states/state.h>
 
 #include <towr/models/kinematic_model.h>
 #include <towr/optimization_parameters.h>
@@ -39,7 +39,8 @@ namespace towr {
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-  using EndeffectorID = xpp::EndeffectorID;
+  using EndeffectorID = uint;
+  using Vector3d = Eigen::Vector3d;
 
   RangeOfMotionBox(const KinematicModel::Ptr& robot_model,
                    const OptimizationParameters& params,

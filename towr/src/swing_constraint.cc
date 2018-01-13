@@ -12,15 +12,11 @@
 #include <vector>
 #include <Eigen/Eigen>
 
-#include <xpp_states/cartesian_declarations.h>
-#include <xpp_states/state.h>
+#include <towr/variables/cartesian_declarations.h>
 
-#include "../include/towr/variables/node_variables.h"
+#include <towr/variables/node_variables.h>
 
 namespace towr {
-
-using namespace ifopt;
-using namespace xpp;
 
 
 SwingConstraint::SwingConstraint (std::string ee_motion)
@@ -45,7 +41,7 @@ towr::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
   SetRows(constraint_count);
 }
 
-VectorXd
+Eigen::VectorXd
 SwingConstraint::GetValues () const
 {
   VectorXd g(GetRows());
@@ -76,7 +72,7 @@ SwingConstraint::GetValues () const
 SwingConstraint::VecBound
 SwingConstraint::GetBounds () const
 {
-  return VecBound(GetRows(), BoundZero);
+  return VecBound(GetRows(), ifopt::BoundZero);
 }
 
 void

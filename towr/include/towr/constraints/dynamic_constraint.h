@@ -11,9 +11,9 @@
 #include <string>
 #include <vector>
 
-#include <ifopt/composite.h>
+//#include <ifopt/composite.h>
 
-#include <xpp_states/cartesian_declarations.h>
+//#include <xpp_states/cartesian_declarations.h>
 
 #include <towr/models/dynamic_model.h>
 #include <towr/variables/spline.h>
@@ -27,6 +27,8 @@ namespace towr {
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using VecTimes = std::vector<double>;
+  using Vector3d = Eigen::Vector3d;
+  using Vector6d = Eigen::Matrix<double, 6, 1>;
 
   DynamicConstraint (const DynamicModel::Ptr& m,
                      const VecTimes& evaluation_times,
@@ -40,11 +42,13 @@ private:
   std::vector<Spline::Ptr> ee_forces_;
   std::vector<Spline::Ptr> ee_motion_;
 
+  int n_ee_;
+
   mutable DynamicModel::Ptr model_;
   double gravity_;
   AngularStateConverter converter_;
 
-  int GetRow(int node, xpp::Coords6D dimension) const;
+  int GetRow(int node, Coords6D dimension) const;
 
   virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
   virtual void UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const override;

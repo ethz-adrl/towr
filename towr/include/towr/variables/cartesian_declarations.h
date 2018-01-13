@@ -24,56 +24,38 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef XPP_VIS_USER_INTERFACE_H_
-#define XPP_VIS_USER_INTERFACE_H_
-
-#include <ros/publisher.h>
-#include <ros/subscriber.h>
-#include <geometry_msgs/Vector3.h>
-#include <keyboard/Key.h>
-
-#include <xpp_states/state.h>
-
-
-namespace xpp {
-
 /**
- * @brief Translates user input into a ROS message.
+ * @file cartesian_declartions.h
  *
- * This includes high level input about where to go (e.g. converting
- * keyboard input into a goal state), which terrain to visualize, etc.
- *
- * See the CallbackKeyboard function for the Key->Action mappings.
+ * Defines common conventions and index values to be used in Cartesian
+ * environments.
  */
-class UserInterface {
-public:
+#ifndef TOWR_VARIABLES_CARTESIAN_DECLARATIONS_H_
+#define TOWR_VARIABLES_CARTESIAN_DECLARATIONS_H_
 
-  /**
-   * @brief  Constructs default object to interact with framework.
-   */
-  UserInterface ();
-  virtual ~UserInterface () = default;
+#include <cassert>
 
-private:
-  ::ros::Subscriber key_sub_;          ///< the input key hits to the node.
-  ::ros::Publisher  user_command_pub_; ///< the output message of the node.
+namespace towr {
 
-  void CallbackKeyboard(const keyboard::Key& msg);
-  void PublishCommand();
+// 2-dimensional
+static constexpr int kDim2d = 2;
+enum Coords2D { X_=0, Y_};
 
-  xpp::State3dEuler goal_geom_;
-  int kMaxNumGaits_ = 8;
-  int terrain_id_;
-  int gait_combo_id_;
-  bool replay_trajectory_ = false;
-  bool use_solver_snopt_ = false;
-  bool optimize_ = false;
-  bool publish_optimized_trajectory_ = false;
-  double total_duration_ = 2.0;
-
-  int AdvanceCircularBuffer(int& curr, int max) const;
+// 3-dimensional
+static constexpr int kDim3d = 3;
+enum Coords3D { X=0, Y, Z };
+static Coords2D To2D(Coords3D dim)
+{
+  assert(dim != Z);
+  return static_cast<Coords2D>(dim);
 };
 
-} /* namespace xpp */
+// 6-dimensional
+// 'A' stands for angular, 'L' for linear.
+static constexpr int kDim6d = 6; // X,Y,Z, roll, pitch, yaw
+enum Coords6D { AX=0, AY, AZ, LX, LY, LZ };
+static const Coords6D AllDim6D[] = {AX, AY, AZ, LX, LY, LZ};
 
-#endif /* XPP_VIS_USER_INTERFACE_H_ */
+} // namespace towr
+
+#endif /* TOWR_VARIABLES_CARTESIAN_DECLARATIONS_H_ */

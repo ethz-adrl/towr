@@ -8,7 +8,7 @@
 #ifndef TOWR_CONSTRAINTS_TOTAL_DURATION_CONSTRAINT_H_
 #define TOWR_CONSTRAINTS_TOTAL_DURATION_CONSTRAINT_H_
 
-#include <ifopt/leaves.h>
+#include <ifopt/constraint_set.h>
 
 #include <towr/variables/contact_schedule.h>
 
@@ -16,6 +16,7 @@ namespace towr {
 
 class TotalDurationConstraint : public ifopt::ConstraintSet {
 public:
+  using EndeffectorID = uint;
 
   TotalDurationConstraint(double T_total, int ee);
   ~TotalDurationConstraint() = default;
@@ -29,7 +30,7 @@ public:
 private:
   ContactSchedule::Ptr schedule_;
   double T_total_;
-  xpp::EndeffectorID ee_;
+  EndeffectorID ee_;
 };
 
 } // namespace towr

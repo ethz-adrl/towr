@@ -7,7 +7,10 @@
 
 #include <towr/models/quadruped_gait_generator.h>
 
-#include <xpp_states/endeffector_mappings.h>
+#include <cassert>
+#include <iostream>
+
+#include <towr/models/endeffector_mappings.h>
 
 namespace towr {
 
@@ -23,10 +26,11 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
   BB_                               = init; // four-leg support phase
 
 
-  using namespace xpp::quad; // only for LF, RF, ... enums
+  using namespace quad; // only for LF, RF, ... enums
 
-  // flight_phase
-  II_.SetAll(false);
+
+//  // flight_phase
+//  II_.SetAll(false);
   // one stanceleg
   PI_.at(LH) = true;
   bI_.at(RH) = true;
@@ -45,7 +49,7 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
   bB_.at(RH) = true; bB_.at(LF) = true;  bB_.at(RF)= true;
   PB_.at(LH) = true; PB_.at(LF) = true;  PB_.at(RF)= true;
   // four stancelgs
-  BB_.SetAll(true);
+  BB_ = ContactState(n_ee, true);
 
   // default gait
   SetGaits({Stand});

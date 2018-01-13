@@ -13,15 +13,12 @@
 #include <utility>
 #include <vector>
 
-#include <xpp_states/cartesian_declarations.h>
-#include <xpp_states/state.h>
+#include <Eigen/Sparse>
 
-#include <ifopt/composite.h> // for Jacobian definition
 
 #include "polynomial.h"
-
-#include "contact_schedule_observer.h"
 #include "nodes_observer.h"
+#include "contact_schedule_observer.h"
 
 
 namespace towr {
@@ -39,16 +36,14 @@ class Spline : public NodesObserver, public ContactScheduleObserver {
 public:
   using Ptr        = std::shared_ptr<Spline>;
   using LocalInfo  = std::pair<int,double>; ///< id and local time
-  using StateLinXd = xpp::StateLinXd;
-  using MotionDerivative = xpp::MotionDerivative;
+  using VectorXd   = Eigen::VectorXd;
+  using Jacobian   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
   using VecTimes = std::vector<double>;
   using Node     = CubicHermitePoly::Node;
   using VecNodes = std::vector<Node>;
   using Side     = CubicHermitePoly::Side;
   using VecPoly  = std::vector<CubicHermitePoly>;
-
-  using Jacobian = ifopt::Component::Jacobian;
 
   // the constructor with constant durations
   // don't take ownership of object

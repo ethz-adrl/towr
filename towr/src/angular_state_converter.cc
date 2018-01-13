@@ -14,23 +14,10 @@
 
 namespace towr {
 
-using namespace xpp;
 
 AngularStateConverter::AngularStateConverter (const Spline::Ptr& euler)
 {
   euler_ = euler;
-}
-
-StateAng3d
-AngularStateConverter::GetState (const StateLin3d& euler)
-{
-  StateAng3d ang;
-
-  ang.q = AngularStateConverter::GetOrientation(euler.p_);
-  ang.w = AngularStateConverter::GetAngularVelocity(euler.p_, euler.v_);
-  ang.wd = AngularStateConverter::GetAngularAcceleration(euler);
-
-  return ang;
 }
 
 Eigen::Quaterniond

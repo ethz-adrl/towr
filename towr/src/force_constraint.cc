@@ -12,16 +12,10 @@
 #include <vector>
 #include <Eigen/Eigen>
 
-#include <xpp_states/cartesian_declarations.h>
-#include <xpp_states/state.h>
-
 #include <towr/variables/variable_names.h>
-#include "../include/towr/variables/node_variables.h"
+#include <towr/variables/node_variables.h>
 
 namespace towr {
-
-using namespace ifopt;
-using namespace xpp;
 
 
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
@@ -48,7 +42,7 @@ ForceConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
   SetRows(constraint_count);
 }
 
-VectorXd
+Eigen::VectorXd
 ForceConstraint::GetValues () const
 {
   VectorXd g(GetRows());
@@ -85,11 +79,11 @@ ForceConstraint::GetBounds () const
   VecBound bounds;
 
   for (int f_node_id : pure_stance_force_node_ids_) {
-    bounds.push_back(Bounds(0.0, force_limit_normal_direction_)); // unilateral forces
-    bounds.push_back(BoundSmallerZero); // f_t1 <  mu*n
-    bounds.push_back(BoundGreaterZero); // f_t1 > -mu*n
-    bounds.push_back(BoundSmallerZero); // f_t2 <  mu*n
-    bounds.push_back(BoundGreaterZero); // f_t2 > -mu*n
+    bounds.push_back(ifopt::Bounds(0.0, force_limit_normal_direction_)); // unilateral forces
+    bounds.push_back(ifopt::BoundSmallerZero); // f_t1 <  mu*n
+    bounds.push_back(ifopt::BoundGreaterZero); // f_t1 > -mu*n
+    bounds.push_back(ifopt::BoundSmallerZero); // f_t2 <  mu*n
+    bounds.push_back(ifopt::BoundGreaterZero); // f_t2 > -mu*n
   }
 
   return bounds;

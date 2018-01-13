@@ -14,7 +14,7 @@
 #include <towr_ros/topic_names.h>
 #include <towr_ros/param_server.h>
 
-using namespace towr;
+using namespace xpp;
 
 int main(int argc, char *argv[])
 {

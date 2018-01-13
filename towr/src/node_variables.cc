@@ -7,17 +7,9 @@
 
 #include <towr/variables/node_variables.h>
 
-#include <array>
-#include <cmath>
-#include <numeric>
-#include <tuple>
-#include <utility>
-#include <Eigen/Eigen>
 
 namespace towr {
 
-using namespace ifopt;
-using namespace xpp;
 
 
 NodeVariables::NodeVariables (int n_dim, const std::string& name)
@@ -30,7 +22,7 @@ void
 NodeVariables::InitMembers(int n_nodes, int n_variables)
 {
   nodes_  = std::vector<Node>(n_nodes);
-  bounds_ = VecBound(n_variables, NoBound);
+  bounds_ = VecBound(n_variables, ifopt::NoBound);
   SetRows(n_variables);
 }
 
@@ -78,16 +70,16 @@ NodeVariables::GetNodeInfoAtOptIndex (int idx) const
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
   IndexInfo node;
-  node.node_deriv_   = internal_id<n_dim_? kPos : kVel;
-  node.node_deriv_dim_     = internal_id%n_dim_;
-  node.node_id_ = std::floor(idx/n_opt_values_per_node_);
+  node.node_deriv_     = internal_id<n_dim_? kPos : kVel;
+  node.node_deriv_dim_ = internal_id%n_dim_;
+  node.node_id_        = std::floor(idx/n_opt_values_per_node_);
 
   nodes.push_back(node);
 
   return nodes;
 }
 
-VectorXd
+Eigen::VectorXd
 NodeVariables::GetValues () const
 {
   VectorXd x(GetRows());
@@ -176,7 +168,7 @@ NodeVariables::AddBound (int node_id, Deriv d, int dim, double val)
   for (int idx=0; idx<GetRows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
       if (info.node_id_==node_id && info.node_deriv_==d && info.node_deriv_dim_==dim)
-        bounds_.at(idx) = Bounds(val, val);
+        bounds_.at(idx) = ifopt::Bounds(val, val);
 }
 
 void

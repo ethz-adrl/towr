@@ -11,10 +11,7 @@
 #include <memory>
 #include <Eigen/Dense>
 
-#include <xpp_states/endeffectors.h>
-#include <xpp_states/state.h>
-#include <xpp_states/endeffector_mappings.h>
-
+#include <towr/models/endeffector_mappings.h>
 #include <towr/models/biped_gait_generator.h>
 #include <towr/models/centroidal_model.h>
 #include <towr/models/monoped_gait_generator.h>
@@ -53,7 +50,7 @@ RobotModel::MakeMonopedModel ()
 void
 RobotModel::MakeBipedModel ()
 {
-  using namespace xpp::biped; // for L, R definitions
+  using namespace biped; // for L, R definitions
   int n_ee = 2;
 
   Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
@@ -76,7 +73,7 @@ RobotModel::MakeBipedModel ()
 void
 RobotModel::MakeHyqModel ()
 {
-  using namespace xpp::quad;
+  using namespace quad;
   int n_ee = 4;
 
 //  Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
@@ -112,7 +109,7 @@ RobotModel::MakeHyqModel ()
 void
 RobotModel::MakeAnymalModel ()
 {
-  using namespace xpp::quad;
+  using namespace quad;
   int n_ee = 4;
 
 //  Eigen::Matrix3d I = BuildInertiaTensor( 0.268388530623900,
@@ -150,40 +147,40 @@ RobotModel::MakeAnymalModel ()
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
 }
 
-void
-RobotModel::SetAnymalInitialState (State3dEuler& base, EndeffectorsPos& feet)
-{
-  using namespace xpp::quad;
-
-  base.lin.p_ << 0.0, 0.0, 0.46;  // for real robot 0.46, in simulation probably higher.
-  base.ang.p_ << 0.0, 0.0, 0.0;    // euler (roll, pitch, yaw)
-
-  int n_ee = 4;
-  double z_start = -0.02; // for real robot approx -0.02, in simulation +0.02.
-  feet.SetCount(n_ee);
-  feet.at(LF) <<  0.34,  0.19, z_start;
-  feet.at(RF) <<  0.34, -0.19, z_start;
-  feet.at(LH) << -0.34,  0.19, z_start;
-  feet.at(RH) << -0.34, -0.19, z_start;
-}
-
-void
-RobotModel::SetInitialState(State3dEuler& base, EndeffectorsPos& feet) const
-{
-  double z_start = kinematic_model_->nominal_stance_.at(0).z();
-
-  base.lin.p_ << 0.0, 0.0, -z_start;  // for real robot 0.46, in simulation probably higher.
-  base.ang.p_ << 0.0, 0.0, 0.0;      // euler (roll, pitch, yaw)
-
-  feet = kinematic_model_->nominal_stance_;
-  for (int i=0; i<feet.GetEECount(); ++i)
-    feet.at(i).z() = 0.0; // ground level
-}
+//void
+//RobotModel::SetAnymalInitialState (State3dEuler& base, EndeffectorsPos& feet)
+//{
+//  using namespace xpp::quad;
+//
+//  base.lin.p_ << 0.0, 0.0, 0.46;  // for real robot 0.46, in simulation probably higher.
+//  base.ang.p_ << 0.0, 0.0, 0.0;    // euler (roll, pitch, yaw)
+//
+//  int n_ee = 4;
+//  double z_start = -0.02; // for real robot approx -0.02, in simulation +0.02.
+//  feet.SetCount(n_ee);
+//  feet.at(LF) <<  0.34,  0.19, z_start;
+//  feet.at(RF) <<  0.34, -0.19, z_start;
+//  feet.at(LH) << -0.34,  0.19, z_start;
+//  feet.at(RH) << -0.34, -0.19, z_start;
+//}
+//
+//void
+//RobotModel::SetInitialState(State3dEuler& base, EndeffectorsPos& feet) const
+//{
+//  double z_start = kinematic_model_->nominal_stance_.at(0).z();
+//
+//  base.lin.p_ << 0.0, 0.0, -z_start;  // for real robot 0.46, in simulation probably higher.
+//  base.ang.p_ << 0.0, 0.0, 0.0;      // euler (roll, pitch, yaw)
+//
+//  feet = kinematic_model_->nominal_stance_;
+//  for (int i=0; i<feet.GetEECount(); ++i)
+//    feet.at(i).z() = 0.0; // ground level
+//}
 
 void
 RobotModel::MakeQuadrotorModel ()
 {
-  using namespace xpp::quad_rotor;
+  using namespace quad_rotor;
   int n_ee = 4;
 
   Eigen::Matrix3d I = BuildInertiaTensor( 0.0023, 0.0023, 0.004, 0.0, 0.0, 0.0);

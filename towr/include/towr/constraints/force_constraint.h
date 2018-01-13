@@ -10,10 +10,10 @@
 
 #include <string>
 
-#include <ifopt/composite.h>
+#include <ifopt/constraint_set.h>
 
 #include <towr/variables/phase_nodes.h>
-#include "height_map.h"
+#include <towr/height_map.h>
 
 namespace towr {
 
@@ -24,6 +24,7 @@ namespace towr {
 class ForceConstraint : public ifopt::ConstraintSet {
 public:
   using EndeffectorID = uint;
+  using Vector3d = Eigen::Vector3d;
 
   ForceConstraint (const HeightMap::Ptr& terrain,
                    double force_limit_in_normal_direction,

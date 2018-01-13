@@ -25,30 +25,32 @@
 
 namespace towr {
 
-using namespace ifopt;
-using namespace xpp;
-
 
 void
 NlpFactory::Init (const OptimizationParameters& params,
                   const HeightMap::Ptr& terrain,
                   const RobotModel& model,
-                  const EndeffectorsPos& ee_pos,
-                  const State3dEuler& initial_base,
-                  const State3dEuler& final_base)
+                  const NewEEPos& ee_pos,
+                  const BaseState& initial_base,
+                  const BaseState& final_base)
 {
   params_   = params;
   terrain_  = terrain;
   model_    = model;
 
-  initial_ee_W_ = ee_pos;
-  initial_base_ = initial_base;
-  final_base_ = final_base;
+//  initial_ee_W_ = ee_pos;
+//  initial_base_ = initial_base;
+//  final_base_ = final_base;
+
+
+  new_initial_base_ = initial_base;
+  new_final_base_   = final_base;
+  new_initial_ee_W_ = ee_pos;
 }
 
 // smell make separate class just for variables
 NlpFactory::VariablePtrVec
-NlpFactory::GetVariableSets () const
+NlpFactory::GetVariableSets (SplineHolder& spline_holder) const
 {
   VariablePtrVec vars;
 
@@ -76,6 +78,7 @@ NlpFactory::GetVariableSets () const
                                 contact_schedule,
                                 params_.OptimizeTimings());
 
+  spline_holder = spline_holder_;
 
   return vars;
 }
@@ -85,38 +88,48 @@ NlpFactory::MakeBaseVariablesHermite () const
 {
   std::vector<NodeVariables::Ptr> vars;
 
-  int n_dim = initial_base_.lin.kNumDim;
+  int n_dim = kDim3d;
   int n_nodes = params_.GetBasePolyDurations().size() + 1;
 
-  auto linear  = std::make_tuple(id::base_lin_nodes,  initial_base_.lin, final_base_.lin);
-  auto angular = std::make_tuple(id::base_ang_nodes, initial_base_.ang, final_base_.ang);
+  auto linear  = std::make_tuple(id::base_lin_nodes,
+                                 new_initial_base_.pos_xyz_,
+                                 new_initial_base_.vel_xyz_,
+                                 new_final_base_.pos_xyz_,
+                                 new_final_base_.vel_xyz_);
+  auto angular = std::make_tuple(id::base_ang_nodes,
+                                 new_initial_base_.pos_rpy_,
+                                 new_initial_base_.vel_rpy_,
+                                 new_final_base_.pos_rpy_,
+                                 new_final_base_.vel_rpy_);
 
   for (auto tuple : {linear, angular}) {
     std::string id   = std::get<0>(tuple);
-    StateLin3d init  = std::get<1>(tuple);
-    StateLin3d final = std::get<2>(tuple);
+    Vector3d init_p  = std::get<1>(tuple);
+    Vector3d init_v  = std::get<2>(tuple);
+    Vector3d final_p = std::get<3>(tuple);
+    Vector3d final_v = std::get<4>(tuple);
 
-    auto nodes = std::make_shared<BaseNodes>(init.kNumDim,  n_nodes, id);
-    nodes->InitializeNodes(init.p_, final.p_, params_.GetTotalTime());
+    auto nodes = std::make_shared<BaseNodes>(n_dim,  n_nodes, id);
+    nodes->InitializeNodes(init_p, final_p, params_.GetTotalTime());
 
     std::vector<int> dimensions = {X,Y,Z};
-    nodes->AddStartBound(kPos, dimensions, init.p_);
-    nodes->AddStartBound(kVel, dimensions, init.v_);
+    nodes->AddStartBound(kPos, dimensions, init_p);
+    nodes->AddStartBound(kVel, dimensions, init_v);
 
-    nodes->AddFinalBound(kVel, dimensions, final.v_);
+    nodes->AddFinalBound(kVel, dimensions, final_v);
 
     if (id == id::base_lin_nodes) {
-      nodes->AddFinalBound(kPos, {X,Y}, final.p_); // only xy, z given by terrain
+      nodes->AddFinalBound(kPos, {X,Y}, final_p); // only xy, z given by terrain
       //      spline->SetBoundsAboveGround();
     }
     if (id == id::base_ang_nodes)
-      nodes->AddFinalBound(kPos, {Z}, final.p_); // roll, pitch, yaw bound
+      nodes->AddFinalBound(kPos, {Z}, final_p); // roll, pitch, yaw bound
 
 
 
     //    // force intermediate jump
     //    if (id == id::base_linear) {
-    //      Vector3d inter = (init.p_ + final.p_)/2.;
+    //      Vector3d inter = (init_p + final.p_)/2.;
     //      inter.z() = 0.8;
     //      spline->AddIntermediateBound(kPos, inter);
     //    }
@@ -156,7 +169,7 @@ NlpFactory::MakeEndeffectorVariables () const
 
   // Endeffector Motions
   double T = params_.GetTotalTime();
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
 
     auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
 
@@ -166,16 +179,20 @@ NlpFactory::MakeEndeffectorVariables () const
                                               params_.ee_splines_per_swing_phase_,
                                               PhaseNodes::Motion);
 
-    double yaw = final_base_.ang.p_.z();
-    Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
-    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
+    double yaw = new_final_base_.pos_rpy_.z();
+
+    // smell adapt to desired yaw state
+//    Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
+    Eigen::Matrix3d w_R_b; w_R_b.setIdentity();
+
+    Vector3d final_ee_pos_W = new_final_base_.pos_xyz_ + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
 
 
 
-    nodes->InitializeNodes(initial_ee_W_.at(ee), final_ee_pos_W, T);
+    nodes->InitializeNodes(new_initial_ee_W_.at(ee), final_ee_pos_W, T);
 
     // actually initial Z position should be constrained as well...-.-
-    nodes->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
+    nodes->AddStartBound(kPos, {X,Y}, new_initial_ee_W_.at(ee));
 
     bool step_taken = nodes->GetNodes().size() > 2;
     if (step_taken) // otherwise overwrites start bound
@@ -195,7 +212,7 @@ NlpFactory::MakeForceVariables () const
   std::vector<NodeVariables::Ptr> vars;
 
   double T = params_.GetTotalTime();
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
 
     auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
 
@@ -219,7 +236,7 @@ NlpFactory::MakeContactScheduleVariables () const
   std::vector<ContactSchedule::Ptr> vars;
 
   double T = params_.GetTotalTime();
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
 
     auto var = std::make_shared<ContactSchedule>(ee,
                                                  model_.gait_generator_->GetContactSchedule(T, ee),
@@ -304,7 +321,7 @@ NlpFactory::MakeRangeOfMotionBoxConstraint () const
 {
   ContraintPtrVec c;
 
-  for (auto ee : GetEEIDs()) {
+  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
     auto rom_constraints = std::make_shared<RangeOfMotionBox>(model_.kinematic_model_,
                                                               params_,
                                                               ee,
@@ -321,7 +338,7 @@ NlpFactory::MakeTotalTimeConstraint () const
   ContraintPtrVec c;
   double T = params_.GetTotalTime();
 
-  for (auto ee : GetEEIDs()) {
+  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
     auto duration_constraint = std::make_shared<TotalDurationConstraint>(T, ee);
     c.push_back(duration_constraint);
   }
@@ -334,7 +351,7 @@ NlpFactory::MakeTerrainConstraint () const
 {
   ContraintPtrVec constraints;
 
-  for (auto ee : GetEEIDs()) {
+  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
     auto c = std::make_shared<TerrainConstraint>(terrain_, id::EEMotionNodes(ee));
     constraints.push_back(c);
   }
@@ -347,7 +364,7 @@ NlpFactory::MakeForceConstraint () const
 {
   ContraintPtrVec constraints;
 
-  for (auto ee : GetEEIDs()) {
+  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
     auto c = std::make_shared<ForceConstraint>(terrain_,
                                                model_.dynamic_model_->GetForceLimit(),
                                                ee);
@@ -362,7 +379,7 @@ NlpFactory::MakeSwingConstraint () const
 {
   ContraintPtrVec constraints;
 
-  for (auto ee : GetEEIDs()) {
+  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
     auto swing = std::make_shared<SwingConstraint>(id::EEMotionNodes(ee));
     constraints.push_back(swing);
   }
@@ -376,7 +393,7 @@ NlpFactory::MakeForcesCost(double weight) const
 {
   CostPtrVec cost;
 
-  for (auto ee : GetEEIDs())
+  for (int ee=0; ee<new_initial_ee_W_.size(); ee++)
     cost.push_back(std::make_shared<NodeCost>(id::EEForceNodes(ee)));
 
   return cost;

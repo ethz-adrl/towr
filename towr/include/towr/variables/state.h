@@ -24,56 +24,62 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef XPP_VIS_USER_INTERFACE_H_
-#define XPP_VIS_USER_INTERFACE_H_
-
-#include <ros/publisher.h>
-#include <ros/subscriber.h>
-#include <geometry_msgs/Vector3.h>
-#include <keyboard/Key.h>
-
-#include <xpp_states/state.h>
+#ifndef TOWR_VARIABLES_STATE_H_
+#define TOWR_VARIABLES_STATE_H_
 
 
-namespace xpp {
+#include <Eigen/Dense>
+
+
+namespace towr {
+
+// smell possibly move to cartesian declarations
+enum MotionDerivative { kPos=0, kVel, kAcc };
 
 /**
- * @brief Translates user input into a ROS message.
- *
- * This includes high level input about where to go (e.g. converting
- * keyboard input into a goal state), which terrain to visualize, etc.
- *
- * See the CallbackKeyboard function for the Key->Action mappings.
+ * @brief Represents position, velocity and acceleration in x-dimensions.
  */
-class UserInterface {
+class StateLinXd {
 public:
+  using VectorXd = Eigen::VectorXd;
+
+  VectorXd p_, v_, a_; ///< position, velocity and acceleration
 
   /**
-   * @brief  Constructs default object to interact with framework.
+   * @brief  Constructs an object of dimensions dim.
+   *
+   * Be careful of default value, as zero dimensional object is bound to
+   * cause seg-fault at some point.
    */
-  UserInterface ();
-  virtual ~UserInterface () = default;
+  explicit StateLinXd(int dim);
 
-private:
-  ::ros::Subscriber key_sub_;          ///< the input key hits to the node.
-  ::ros::Publisher  user_command_pub_; ///< the output message of the node.
+  /**
+   * @brief Constructs object with specific position, velocity and acceleration.
+   * @param  p  Position of the state.
+   * @param  v  Velocity of the state.
+   * @param  a  Acceleration of the state.
+   *
+   * The dimensions are set to the number of rows of p.
+   */
+  explicit StateLinXd(const VectorXd& p, const VectorXd& v, const VectorXd& a);
+  virtual ~StateLinXd() = default;
 
-  void CallbackKeyboard(const keyboard::Key& msg);
-  void PublishCommand();
+  /**
+   * @brief  Read either position, velocity of acceleration by index.
+   * @param  deriv  Index for that specific derivative (pos=0, vel=1, acc=2).
+   * @return  Read only n-dimensional position, velocity or acceleration.
+   */
+  const VectorXd at(MotionDerivative deriv) const;
 
-  xpp::State3dEuler goal_geom_;
-  int kMaxNumGaits_ = 8;
-  int terrain_id_;
-  int gait_combo_id_;
-  bool replay_trajectory_ = false;
-  bool use_solver_snopt_ = false;
-  bool optimize_ = false;
-  bool publish_optimized_trajectory_ = false;
-  double total_duration_ = 2.0;
-
-  int AdvanceCircularBuffer(int& curr, int max) const;
+  /**
+   * @brief  Read and write either position, velocity of acceleration by index.
+   * @param  deriv  Index for that specific derivative (pos=0, vel=1, acc=2).
+   * @return  Read/write n-dimensional position, velocity or acceleration.
+   */
+  VectorXd& at(MotionDerivative deriv);
 };
 
-} /* namespace xpp */
 
-#endif /* XPP_VIS_USER_INTERFACE_H_ */
+} // namespace towr
+
+#endif // TOWR_VARIABLES

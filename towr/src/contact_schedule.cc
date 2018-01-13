@@ -9,7 +9,6 @@
 
 #include <numeric> // std::accumulate
 
-//#include <towr/variables/spline.h>
 #include <towr/variables/variable_names.h>
 
 

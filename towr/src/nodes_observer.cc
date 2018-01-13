@@ -7,7 +7,7 @@
 
 #include <towr/variables/nodes_observer.h>
 
-#include "../include/towr/variables/node_variables.h"
+#include <towr/variables/node_variables.h>
 
 namespace towr {
 

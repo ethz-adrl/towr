@@ -9,12 +9,10 @@
 
 #include <vector>
 
-#include <xpp_states/cartesian_declarations.h>
+#include <towr/variables/cartesian_declarations.h>
 
 
 namespace towr {
-
-using namespace xpp;
 
 CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
                                   int ee_count)
@@ -31,7 +29,7 @@ CentroidalModel::GetBaseAcceleration () const
 {
   Vector3d f_lin, f_ang; f_lin.setZero(); f_ang.setZero();
 
-  for (auto ee : ee_pos_.GetEEsOrdered()) {
+  for (int ee=0; ee<ee_pos_.size(); ++ee) {
     Vector3d f = ee_force_.at(ee);
     f_ang += f.cross(com_pos_-ee_pos_.at(ee));
     f_lin += f;
@@ -52,7 +50,7 @@ CentroidalModel::GetBaseAcceleration () const
 using Jacobian = DynamicModel::Jacobian;
 
 static Jacobian
-BuildCrossProductMatrix(const Vector3d& in)
+BuildCrossProductMatrix(const Eigen::Vector3d& in)
 {
   Jacobian out(3,3);
 
@@ -70,7 +68,7 @@ CentroidalModel::GetJacobianOfAccWrtBaseLin (const Jacobian& jac_pos_base_lin) c
   int n = jac_pos_base_lin.cols();
 
   Jacobian jac_ang(kDim3d, n);
-  for (const Vector3d& f : ee_force_.ToImpl()) {
+  for (const Vector3d& f : ee_force_) {
     Jacobian jac_comp = BuildCrossProductMatrix(f)*jac_pos_base_lin;
     jac_ang += jac_comp;
   }

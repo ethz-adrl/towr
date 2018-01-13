@@ -10,21 +10,17 @@
 #include <cmath>
 #include <Eigen/Eigen>
 
+#include <towr/variables/cartesian_declarations.h>
+
 
 namespace towr {
 
 NodeCost::NodeCost (const std::string& nodes_id) : CostTerm("Node Cost")
 {
-//  SetName("Node Cost");
-
-//  nodes_   = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(nodes_id));
   node_id_ = nodes_id;
 
-  deriv_ = xpp::kPos;
-  dim_   = xpp::Z;
-
-//  SetRows(1); // because cost
-//  AddOptimizationVariables(opt_vars);
+  deriv_ = kPos;
+  dim_   = Z;
 }
 
 void

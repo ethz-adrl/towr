@@ -7,7 +7,9 @@
 
 #include <towr/models/gait_generator.h>
 
+#include <cassert>
 #include <numeric> // std::accumulate
+#include <algorithm> // std::transform
 
 namespace towr {
 
@@ -37,7 +39,7 @@ GaitGenerator::GetContactSchedule (double t_total, EndeffectorID ee) const
 GaitGenerator::FootDurations
 GaitGenerator::GetContactSchedule () const
 {
-  int n_ee = contacts_.front().GetEECount();
+  int n_ee = contacts_.front().size();
   VecTimes d_accumulated(n_ee, 0.0);
 
   FootDurations foot_durations(n_ee);
@@ -46,7 +48,7 @@ GaitGenerator::GetContactSchedule () const
     ContactState curr = contacts_.at(phase);
     ContactState next = contacts_.at(phase+1);
 
-    for (auto ee : curr.GetEEsOrdered()) {
+    for (int ee=0; ee<curr.size(); ++ee) {
       d_accumulated.at(ee) += times_.at(phase);
 
       // if contact will change in next phase, so this phase duration complete
@@ -59,7 +61,7 @@ GaitGenerator::GetContactSchedule () const
   }
 
   // push back last phase
-  for (auto ee : contacts_.back().GetEEsOrdered())
+  for (int ee=0; ee<contacts_.back().size(); ++ee)
     foot_durations.at(ee).push_back(d_accumulated.at(ee) + times_.back());
 
 

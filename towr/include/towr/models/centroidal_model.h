@@ -11,8 +11,6 @@
 #include <memory>
 #include <Eigen/Eigen>
 
-#include <xpp_states/endeffectors.h>
-
 #include "dynamic_model.h"
 
 namespace towr {
@@ -23,6 +21,7 @@ namespace towr {
 class CentroidalModel : public DynamicModel {
 public:
   using Ptr = std::shared_ptr<CentroidalModel>;
+  using Vector3d = Eigen::Vector3d;
 
   CentroidalModel (double mass, const Eigen::Matrix3d& inertia, int ee_count);
   virtual ~CentroidalModel () = default;

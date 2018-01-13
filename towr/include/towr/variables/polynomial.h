@@ -12,8 +12,7 @@
 #include <string>
 #include <vector>
 
-#include <xpp_states/cartesian_declarations.h>
-#include <xpp_states/state.h>
+#include "state.h"
 
 namespace towr {
 
@@ -32,12 +31,10 @@ public:
   using CoeffIDVec = std::vector<PolynomialCoeff>;
   using Ptr        = std::shared_ptr<Polynomial>;
   using VectorXd   = Eigen::VectorXd;
-  using StateLinXd = xpp::StateLinXd;
-  using MotionDerivative = xpp::MotionDerivative;
 
 public:
   Polynomial(int order, int dim);
-  virtual ~Polynomial() {};
+  virtual ~Polynomial() = default;
 
   StateLinXd GetPoint(double t_local) const;
 

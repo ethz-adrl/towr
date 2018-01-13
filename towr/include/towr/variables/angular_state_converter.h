@@ -10,10 +10,8 @@
 
 #include <array>
 
-#include <xpp_states/cartesian_declarations.h>
-#include <xpp_states/state.h>
+#include "cartesian_declarations.h"
 
-#include <ifopt/composite.h>
 
 #include "spline.h"
 
@@ -38,18 +36,17 @@ public:
   using EulerRates  = Vector3d; ///< derivative of the above
   using AngularVel  = Vector3d; ///< expressed in world
   using AngularAcc  = Vector3d; ///< expressed in world
-  using StateAng3d  = xpp::StateAng3d;
-  using StateLin3d  = xpp::StateLin3d;
 
-  using Jacobian    = ifopt::Component::Jacobian;
+
+  using Jacobian    = Eigen::SparseMatrix<double, Eigen::RowMajor>;
   using MatrixSXd   = Jacobian;
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+  using StateLin3d  = StateLinXd;
 
   AngularStateConverter () = default;
   AngularStateConverter (const Spline::Ptr&);
   virtual ~AngularStateConverter () = default;
 
-  static StateAng3d GetState(const StateLin3d& euler);
 
   static Eigen::Quaterniond GetOrientation(const EulerAngles& pos);
 
@@ -111,16 +108,16 @@ private:
    *  @returns    the Jacobians w.r.t the coefficients for each of the 3 rows
    *              of the matrix stacked on top of each other.
    */
-  Jacobian GetDerivMwrtCoeff(double t, xpp::Coords3D dim) const;
+  Jacobian GetDerivMwrtCoeff(double t, Coords3D dim) const;
 
   /** @brief Derivative of the @a dim row of the time derivative of M with
    *         respect to the polynomial coefficients.
    *
    *  @param dim Which dimension of the angular acceleration is desired
    */
-  Jacobian GetDerivMdotwrtCoeff(double t, xpp::Coords3D dim) const;
+  Jacobian GetDerivMdotwrtCoeff(double t, Coords3D dim) const;
 
-  using JacRowMatrix = std::array<std::array<JacobianRow, xpp::kDim3d>, xpp::kDim3d>;
+  using JacRowMatrix = std::array<std::array<JacobianRow, kDim3d>, kDim3d>;
   /** @brief matrix of derivatives of each cell w.r.t spline coefficients
    *
    * This 2d-array has the same dimensions as the rotation matrix M_IB, but
@@ -135,7 +132,7 @@ private:
    */
   int OptVariablesOfCurrentPolyCount(double t) const;
 
-  JacobianRow GetJac(double t, xpp::MotionDerivative deriv, xpp::Coords3D dim) const;
+  JacobianRow GetJac(double t, MotionDerivative deriv, Coords3D dim) const;
 };
 
 } /* namespace towr */

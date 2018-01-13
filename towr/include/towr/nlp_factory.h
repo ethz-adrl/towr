@@ -12,17 +12,17 @@
 #include <string>
 #include <vector>
 
-#include <ifopt/leaves.h>
+#include <ifopt/variable_set.h>
+#include <ifopt/constraint_set.h>
+#include <ifopt/cost_term.h>
 
-#include <xpp_states/cartesian_declarations.h>
-#include <xpp_states/endeffectors.h>
-#include <xpp_states/state.h>
+#include <towr/variables/base_state.h>
 
-#include <towr/constraints/height_map.h>
 #include <towr/models/robot_model.h>
 #include <towr/optimization_parameters.h>
 
 #include <towr/variables/spline_holder.h>
+#include "height_map.h"
 
 
 namespace towr {
@@ -44,9 +44,6 @@ public:
   using VariablePtrVec   = std::vector<ifopt::VariableSet::Ptr>;
   using ContraintPtrVec  = std::vector<ifopt::ConstraintSet::Ptr>;
   using CostPtrVec       = std::vector<ifopt::CostTerm::Ptr>;
-  using EndeffectorsPos  = xpp::EndeffectorsPos;
-  using State3dEuler     = xpp::State3dEuler;
-
 
   NlpFactory () = default;
   virtual ~NlpFactory () = default;
@@ -54,24 +51,27 @@ public:
   void Init(const OptimizationParameters&,
             const HeightMap::Ptr& terrain,
             const RobotModel& model,
-            const xpp::EndeffectorsPos& ee_pos,
-            const xpp::State3dEuler& initial_base,
-            const xpp::State3dEuler& final_base);
+            const NewEEPos& ee_pos,
+            const BaseState& initial_base,
+            const BaseState& final_base);
 
-  VariablePtrVec GetVariableSets() const;
+  VariablePtrVec GetVariableSets(SplineHolder&) const;
   ContraintPtrVec GetConstraint(ConstraintName name) const;
   CostPtrVec GetCost(const CostName& id, double weight) const;
 
-  // smell move to new class at some point
-  mutable SplineHolder spline_holder_;
 
 private:
   OptimizationParameters params_;
   HeightMap::Ptr terrain_;
   RobotModel model_;
-  EndeffectorsPos initial_ee_W_;
-  State3dEuler initial_base_;
-  State3dEuler final_base_;
+
+  mutable SplineHolder spline_holder_;
+
+
+  BaseState new_initial_base_;
+  BaseState new_final_base_;
+  NewEEPos  new_initial_ee_W_;
+
 
 
 
@@ -99,7 +99,7 @@ private:
 
 //  CostPtrVec ToCost(const ConstraintPtr& constraint, double weight) const;
 
-  std::vector<xpp::EndeffectorID> GetEEIDs() const { return initial_ee_W_.GetEEsOrdered(); };
+//  std::vector<xpp::EndeffectorID> GetEEIDs() const { return initial_ee_W_.GetEEsOrdered(); };
 };
 
 } /* namespace towr */

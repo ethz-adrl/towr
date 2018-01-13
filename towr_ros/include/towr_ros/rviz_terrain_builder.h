@@ -37,7 +37,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_msgs/StateLin3d.h>
 
 
-namespace towr {
+namespace xpp {
 
 /**
  * @brief  Constructs RVIZ markers that show different terrains.

@@ -12,7 +12,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include <xpp_states/cartesian_declarations.h>
+#include <towr/variables/cartesian_declarations.h>
 
 namespace towr {
 
@@ -29,13 +29,10 @@ enum TerrainID { FlatID=0,
                  ChimneyLRID,
                  K_TERRAIN_COUNT };
 
-// TODO: use ct_core/test/auto_diff functions to generate these derivatives
-// which should be possible, as it is a very separated class
 class HeightMap {
 public:
   using Ptr         = std::shared_ptr<HeightMap>;
   using Vector3d    = Eigen::Vector3d;
-  using Coords2D    = xpp::Coords2D;
   using Derivatives = std::vector<Coords2D>;
 
   static Ptr MakeTerrain(TerrainID type);

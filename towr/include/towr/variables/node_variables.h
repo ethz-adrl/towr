@@ -8,14 +8,12 @@
 #ifndef TOWR_VARIABLES_NODE_VALUES_H_
 #define TOWR_VARIABLES_NODE_VALUES_H_
 
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <xpp_states/cartesian_declarations.h>
+#include <ifopt/variable_set.h>
 
-#include <ifopt/leaves.h>
 #include "nodes_observer.h"
 #include "polynomial.h"
 
@@ -33,7 +31,7 @@ public:
   using Ptr      = std::shared_ptr<NodeVariables>;
   using Node     = CubicHermitePoly::Node;
   using Side     = CubicHermitePoly::Side;
-  using Deriv    = xpp::MotionDerivative;
+  using Deriv    = MotionDerivative;
   using VecDurations = std::vector<double>;
 
 

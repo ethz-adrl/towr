@@ -30,7 +30,7 @@ DynamicModel::SetCurrent (const ComPos& com_pos,
 double
 DynamicModel::GetStandingZForce () const
 {
-  return m_*g_/ee_pos_.GetEECount();
+  return m_*g_/ee_pos_.size();
 }
 
 } /* namespace towr */

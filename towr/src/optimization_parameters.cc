@@ -13,6 +13,7 @@ namespace towr {
 
 OptimizationParameters::OptimizationParameters ()
 {
+  // dynamic constraints are enforced at this interval as well
   dt_base_polynomial_ = 0.2; // 0.2
 
 
@@ -41,7 +42,7 @@ OptimizationParameters::OptimizationParameters ()
       Terrain,
       Force,
 //      TotalTime, // Attention: this causes segfault in SNOPT
-      Swing, // this is important for lifting leg
+//      Swing, // this is important for lifting leg
 //      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
   };
 

@@ -24,56 +24,50 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef XPP_VIS_USER_INTERFACE_H_
-#define XPP_VIS_USER_INTERFACE_H_
+#include <towr/variables/state.h>
 
-#include <ros/publisher.h>
-#include <ros/subscriber.h>
-#include <geometry_msgs/Vector3.h>
-#include <keyboard/Key.h>
+#include <vector>
 
-#include <xpp_states/state.h>
+namespace towr {
 
+StateLinXd::StateLinXd (int dim)
+{
+  p_ = VectorXd::Zero(dim);
+  v_ = VectorXd::Zero(dim);
+  a_ = VectorXd::Zero(dim);
+}
 
-namespace xpp {
+StateLinXd::StateLinXd (const VectorXd& _p,
+                        const VectorXd& _v,
+                        const VectorXd& _a)
+    :StateLinXd(_p.rows())
+{
+  p_ = _p;
+  v_ = _v;
+  a_ = _a;
+}
 
-/**
- * @brief Translates user input into a ROS message.
- *
- * This includes high level input about where to go (e.g. converting
- * keyboard input into a goal state), which terrain to visualize, etc.
- *
- * See the CallbackKeyboard function for the Key->Action mappings.
- */
-class UserInterface {
-public:
+const Eigen::VectorXd
+StateLinXd::at (MotionDerivative deriv) const
+{
+  switch (deriv) {
+    case kPos:  return p_; break;
+    case kVel:  return v_; break;
+    case kAcc:  return a_; break;
+    default: assert(false); // derivative not part of state
+  }
+}
 
-  /**
-   * @brief  Constructs default object to interact with framework.
-   */
-  UserInterface ();
-  virtual ~UserInterface () = default;
+Eigen::VectorXd&
+StateLinXd::at (MotionDerivative deriv)
+{
+  switch (deriv) {
+    case kPos:  return p_; break;
+    case kVel:  return v_; break;
+    case kAcc:  return a_; break;
+    default: assert(false); // derivative not part of state
+  }
+}
 
-private:
-  ::ros::Subscriber key_sub_;          ///< the input key hits to the node.
-  ::ros::Publisher  user_command_pub_; ///< the output message of the node.
+} // namespace towr
 
-  void CallbackKeyboard(const keyboard::Key& msg);
-  void PublishCommand();
-
-  xpp::State3dEuler goal_geom_;
-  int kMaxNumGaits_ = 8;
-  int terrain_id_;
-  int gait_combo_id_;
-  bool replay_trajectory_ = false;
-  bool use_solver_snopt_ = false;
-  bool optimize_ = false;
-  bool publish_optimized_trajectory_ = false;
-  double total_duration_ = 2.0;
-
-  int AdvanceCircularBuffer(int& curr, int max) const;
-};
-
-} /* namespace xpp */
-
-#endif /* XPP_VIS_USER_INTERFACE_H_ */

@@ -27,7 +27,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_CONSTRAINTS_LINEAR_CONSTRAINT_H_
 #define TOWR_CONSTRAINTS_LINEAR_CONSTRAINT_H_
 
-#include <ifopt/leaves.h>
+#include <ifopt/constraint_set.h>
 
 namespace towr {
 

@@ -9,17 +9,20 @@
 #define TOWR_MODELS_KINEMATIC_MODEL_H_
 
 #include <memory>
+#include <vector>
 
-#include <xpp_states/endeffectors.h>
-#include <xpp_states/state.h>
+#include <Eigen/Dense>
+
+//#include <xpp_states/endeffectors.h>
+//#include <xpp_states/state.h>
 
 namespace towr {
 
 class KinematicModel {
 public:
   using Ptr = std::shared_ptr<KinematicModel>;
-  using EndeffectorsPos = xpp::EndeffectorsPos;
   using Vector3d = Eigen::Vector3d;
+  using EndeffectorsPos = std::vector<Vector3d>;
 
   KinematicModel (int n_ee);
   virtual ~KinematicModel () = default;

@@ -39,9 +39,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr_ros/UserCommand.h>
 #include <towr_ros/topic_names.h>
 
-#include <towr/constraints/height_map.h>
+#include <towr/height_map.h>
 
-namespace towr {
+namespace xpp {
 
 UserInterface::UserInterface ()
 {
@@ -116,7 +116,7 @@ UserInterface::CallbackKeyboard (const keyboard::Key& msg)
 
     // terrains
     case msg.KEY_1:
-      terrain_id_ = AdvanceCircularBuffer(terrain_id_, K_TERRAIN_COUNT-1);
+      terrain_id_ = AdvanceCircularBuffer(terrain_id_, towr::K_TERRAIN_COUNT-1);
       ROS_INFO_STREAM("Switched terrain to " << terrain_id_);
       break;
 

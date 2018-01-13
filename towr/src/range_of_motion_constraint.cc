@@ -10,13 +10,10 @@
 #include <memory>
 #include <Eigen/Eigen>
 
-#include <xpp_states/cartesian_declarations.h>
-
 #include <towr/variables/variable_names.h>
 
-namespace towr {
 
-using namespace xpp;
+namespace towr {
 
 
 RangeOfMotionBox::RangeOfMotionBox (const KinematicModel::Ptr& model,

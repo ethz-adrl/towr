@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include <ifopt/composite.h>
+#include <ifopt/constraint_set.h>
 
 #include <towr/variables/phase_nodes.h>
 
@@ -19,6 +19,8 @@ namespace towr {
 
 class SwingConstraint : public ifopt::ConstraintSet {
 public:
+  using Vector2d = Eigen::Vector2d;
+
   SwingConstraint (std::string ee_motion_id);
   virtual ~SwingConstraint () = default;
 

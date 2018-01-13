@@ -27,7 +27,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_COSTS_SOFT_CONSTRAINT_H_
 #define TOWR_COSTS_SOFT_CONSTRAINT_H_
 
-#include <ifopt/composite.h>
+#include <ifopt/cost_term.h>
 
 namespace towr {
 

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(towr)
 
 find_package(catkin REQUIRED COMPONENTS
-  xpp_states
+#  xpp_states
   ifopt
 )
 
@@ -70,6 +70,7 @@ add_library(${PROJECT_NAME}
 #  src/contact_constraints.cc
 #  src/contact_timings.cc
   # body motion
+  src/state.cc
   src/polynomial.cc
   src/node_variables.cc
   src/phase_nodes.cc

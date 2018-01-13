@@ -34,11 +34,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_states/state.h>
 #include <xpp_vis/rviz_colors.h>
 
-#include <towr/constraints/height_map.h>
+#include <towr/height_map.h>
 
-namespace towr {
+namespace xpp {
 
-using namespace xpp;
 
 RvizTerrainBuilder::Marker
 RvizTerrainBuilder::BuildTerrainBlock (const Vector3d& pos,
@@ -84,13 +83,13 @@ RvizTerrainBuilder::BuildTerrain (int terrain)
   MarkerArray msg;
 
   switch (terrain) {
-    case FlatID:      msg = BuildTerrainFlat(); break;
-    case BlockID:     msg = BuildTerrainBlock(); break;
-    case StairsID:    msg = BuildTerrainStairs(); break;
-    case GapID:       msg = BuildTerrainGap(); break;
-    case SlopeID:     msg = BuildTerrainSlope(); break;
-    case ChimneyID:   msg = BuildTerrainChimney(); break;
-    case ChimneyLRID: msg = BuildTerrainChimneyLR(); break;
+    case towr::FlatID:      msg = BuildTerrainFlat(); break;
+    case towr::BlockID:     msg = BuildTerrainBlock(); break;
+    case towr::StairsID:    msg = BuildTerrainStairs(); break;
+    case towr::GapID:       msg = BuildTerrainGap(); break;
+    case towr::SlopeID:     msg = BuildTerrainSlope(); break;
+    case towr::ChimneyID:   msg = BuildTerrainChimney(); break;
+    case towr::ChimneyLRID: msg = BuildTerrainChimneyLR(); break;
     default: return MarkerArray(); // terrain visualization not implemented
   }
 

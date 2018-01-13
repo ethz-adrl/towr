@@ -9,12 +9,11 @@
 
 #include <memory>
 
+#include <towr/variables/cartesian_declarations.h>
 #include <towr/variables/variable_names.h>
 
 namespace towr {
 
-using namespace ifopt;
-using namespace xpp;
 
 BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params,
                                             const SplineHolder& spline_holder)
@@ -27,11 +26,11 @@ BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params
 
   double dev_rad = 0.1;
   node_bounds_.resize(kDim6d);
-  node_bounds_.at(AX) = NoBound;//Bounds(-dev_rad, dev_rad);
-  node_bounds_.at(AY) = NoBound;//Bounds(-dev_rad, dev_rad);
-  node_bounds_.at(AZ) = NoBound;//Bounds(-dev_rad, dev_rad); // NoBound
-  node_bounds_.at(LX) = NoBound;
-  node_bounds_.at(LY) = NoBound;//Bounds(-0.05, 0.05);
+  node_bounds_.at(AX) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad);
+  node_bounds_.at(AY) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad);
+  node_bounds_.at(AZ) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad); // NoBound
+  node_bounds_.at(LX) = ifopt::NoBound;
+  node_bounds_.at(LY) = ifopt::NoBound;//Bounds(-0.05, 0.05);
 
   double z_init = 0.46;//base_linear_.GetPoint(0.0).p_.z();
   node_bounds_.at(LZ) = Bounds(0.46, 0.55); // allow to move dev_z cm up and down

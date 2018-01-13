@@ -13,7 +13,6 @@
 
 namespace towr {
 
-using namespace ifopt;
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
                                                             const std::string& name)

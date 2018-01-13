@@ -8,12 +8,11 @@
 #include <towr/variables/spline.h>
 
 #include <towr/variables/contact_schedule.h>
-#include "../include/towr/variables/node_variables.h"
+#include <towr/variables/node_variables.h>
 
 
 namespace towr {
 
-using namespace xpp;
 
 
 Spline::Spline(NodesObserver::SubjectPtr const nodes, const VecTimes& phase_durations)
@@ -164,7 +163,7 @@ Spline::GetJacobianOfPosWrtDurations (double t_global) const
   return contact_schedule_->GetJacobianOfPos(current_phase, dx_dT, xd);
 }
 
-VectorXd
+Eigen::VectorXd
 Spline::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 {
   int poly_id; double t_local;

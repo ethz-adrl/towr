@@ -15,6 +15,7 @@
 
 namespace towr {
 
+
 enum ConstraintName  { Dynamic, EndeffectorRom, TotalTime, Terrain,
                        Force, Swing, BaseRom };
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,

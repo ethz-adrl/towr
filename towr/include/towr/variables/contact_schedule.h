@@ -12,9 +12,7 @@
 #include <string>
 #include <vector>
 
-#include <xpp_states/endeffectors.h>
-
-#include <ifopt/leaves.h>
+#include <ifopt/variable_set.h>
 
 #include "contact_schedule_observer.h"
 
@@ -24,7 +22,7 @@ class ContactSchedule : public ifopt::VariableSet {
 public:
   using Ptr           = std::shared_ptr<ContactSchedule>;
   using VecDurations  = std::vector<double>;
-  using EndeffectorID = xpp::EndeffectorID;
+  using EndeffectorID = uint;
 
   ContactSchedule (EndeffectorID ee,
                    const VecDurations& timings,

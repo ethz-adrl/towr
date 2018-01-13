@@ -8,8 +8,6 @@
 #ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_NODES_OBSERVER_H_
 #define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_NODES_OBSERVER_H_
 
-#include <memory>
-
 
 namespace towr {
 

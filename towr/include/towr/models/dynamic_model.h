@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-#include <xpp_states/endeffectors.h>
+//#include <xpp_states/endeffectors.h>
 
 #include <ifopt/composite.h>
 
@@ -23,8 +23,8 @@ public:
   using ComPos        = Eigen::Vector3d;
   using AngVel        = Eigen::Vector3d;
   using BaseAcc       = Eigen::Matrix<double,6,1>;
-  using EEPos         = xpp::EndeffectorsPos;
-  using EndeffectorID = xpp::EndeffectorID;
+  using EndeffectorID = uint;
+  using EEPos         = std::vector<Eigen::Vector3d>;
   using EELoad        = EEPos;
   using Jacobian      = ifopt::Component::Jacobian;
 
@@ -50,7 +50,7 @@ public:
   void SetForceLimit(double val) { normal_force_max_  = val; };
   double GetForceLimit() const {return normal_force_max_; };
 
-  std::vector<EndeffectorID> GetEEIDs() const { return ee_pos_.GetEEsOrdered(); };
+//  std::vector<EndeffectorID> GetEEIDs() const { return ee_pos_.GetEEsOrdered(); };
 
 
 protected:

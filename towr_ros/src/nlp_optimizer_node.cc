@@ -24,6 +24,7 @@
 #include <std_msgs/Int32.h>
 
 #include <xpp_states/state.h>
+#include <xpp_states/endeffectors.h>
 #include <xpp_states/convert.h>
 
 #include <xpp_msgs/topic_names.h>
@@ -32,11 +33,10 @@
 #include <towr_ros/param_server.h>
 #include <towr_ros/topic_names.h>
 
-#include <towr/constraints/height_map.h>
+#include <towr/height_map.h>
+#include <towr/variables/angular_state_converter.h> // smell move into spline_holder
 
-namespace towr {
-
-using namespace xpp;
+namespace xpp {
 
 
 NlpOptimizerNode::NlpOptimizerNode ()
@@ -64,15 +64,18 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
 
   // hardcode initial state
-  RobotStateCartesian init(4);
-  init.base_.lin.p_.z() = 0.46;
+  towr::BaseState b;
+  b.pos_xyz_ = b.vel_xyz_ = b.pos_rpy_ = b.vel_rpy_ = Eigen::Vector3d::Zero();
+  b.pos_xyz_.z() = 0.46;
 
-  init.ee_motion_.at(0).p_ <<  0.34,  0.19, 0.0; // LF
-  init.ee_motion_.at(1).p_ <<  0.34, -0.19, 0.0; // RF
-  init.ee_motion_.at(2).p_ << -0.34,  0.19, 0.0; // LH
-  init.ee_motion_.at(3).p_ << -0.34, -0.19, 0.0; // RH
+  std::vector<Eigen::Vector3d> ee_pos(4);
 
-  motion_optimizer_.SetInitialState(init);
+  ee_pos.at(0) <<  0.34,  0.19, 0.0; // LF
+  ee_pos.at(1) <<  0.34, -0.19, 0.0; // RF
+  ee_pos.at(2) << -0.34,  0.19, 0.0; // LH
+  ee_pos.at(3) << -0.34, -0.19, 0.0; // RH
+
+  towr_.SetInitialState(b, ee_pos);
 }
 
 void
@@ -99,7 +102,18 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 //    save_current_state_ = false; // reached the end of trajectory
 //  }
 
-  motion_optimizer_.SetInitialState(curr_state);
+//  SetInitialState(curr_state);
+
+
+  towr::BaseState initial_base = ToBaseState(curr_state.base_);
+  auto pos = curr_state.ee_motion_.Get(xpp::kPos).ToImpl();
+
+  towr_.SetInitialState(initial_base, {pos.begin(), pos.end()} ); //
+
+
+
+
+
 //  if (first_callback_) {
 //    first_callback_ = false;
 //  }
@@ -115,7 +129,8 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 void
 NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
 {
-  auto terrain = HeightMap::MakeTerrain(static_cast<TerrainID>(msg.terrain_id));
+  auto terrain = HeightMap::MakeTerrain(static_cast<towr::TerrainID>(msg.terrain_id));
+  terrain->SetGroundHeight(0.0); // must be adapted for real robot
 
   State3dEuler final_base;
   final_base.lin = Convert::ToXpp(msg.goal_lin);
@@ -124,7 +139,7 @@ NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
 
   RobotModel model;
   model.MakeAnymalModel();
-  model.gait_generator_->SetCombo(static_cast<GaitGenerator::GaitCombos>(msg.gait_id));
+  model.gait_generator_->SetCombo(static_cast<towr::GaitGenerator::GaitCombos>(msg.gait_id));
   //  model_.MakeMonopedModel();
   //  model_.MakeBipedModel();
   //  model_.MakeHyqModel();
@@ -134,7 +149,8 @@ NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
   robot_parameters_pub_.publish(robot_params_msg);
 
 
-  motion_optimizer_.SetParameters(final_base, msg.total_duration, model, terrain);
+  total_time_ = msg.total_duration;
+  towr_.SetParameters(ToBaseState(final_base), total_time_, model, terrain);
 
 
 
@@ -178,16 +194,113 @@ void
 NlpOptimizerNode::OptimizeMotion ()
 {
   try {
-    motion_optimizer_.SolveNLP();
+    towr_.SolveNLP(towr::TOWR::Solver::Ipopt);
   } catch (const std::runtime_error& e) {
     ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
   }
 }
 
+std::vector<NlpOptimizerNode::RobotStateVec>
+NlpOptimizerNode::GetIntermediateSolutions ()
+{
+  std::vector<RobotStateVec> trajectories;
+
+  for (int iter=0; iter<towr_.GetIterationCount(); ++iter) {
+    towr_.SetSolution(iter); // this changes the values linked to the spline_holder
+    trajectories.push_back(GetTrajectory());
+  }
+
+  return trajectories;
+}
+
+NlpOptimizerNode::RobotStateVec
+NlpOptimizerNode::GetTrajectory () const
+{
+  towr::SplineHolder spline_holder_ = towr_.GetSolution();
+
+  RobotStateVec trajectory;
+  double t=0.0;
+  double T = total_time_;//params_.GetTotalTime();
+
+  while (t<=T+1e-5) {
+
+    int n_ee = spline_holder_.GetEEMotion().size();
+    RobotStateCartesian state(n_ee);
+
+    // here of course the conversions will not work
+    state.base_.lin = ToXpp(spline_holder_.GetBaseLinear()->GetPoint(t));
+    state.base_.ang = GetState(spline_holder_.GetBaseAngular()->GetPoint(t));
+
+    for (auto ee : state.ee_motion_.GetEEsOrdered()) {
+      state.ee_contact_.at(ee) = spline_holder_.GetEEMotion(ee)->IsConstantPhase(t);
+      state.ee_motion_.at(ee)  = ToXpp(spline_holder_.GetEEMotion(ee)->GetPoint(t));
+      state.ee_forces_.at(ee)  = spline_holder_.GetEEForce(ee)->GetPoint(t).p_;
+    }
+
+    state.t_global_ = t;
+    trajectory.push_back(state);
+    t += dt_;
+  }
+
+  return trajectory;
+}
+
+xpp::StateAng3d
+NlpOptimizerNode::GetState (const towr::StateLinXd& euler) const
+{
+  xpp::StateAng3d ang;
+
+  ang.q  = towr::AngularStateConverter::GetOrientation(euler.p_);
+  ang.w  = towr::AngularStateConverter::GetAngularVelocity(euler.p_, euler.v_);
+  ang.wd = towr::AngularStateConverter::GetAngularAcceleration(euler);
+
+  return ang;
+}
+
+xpp::StateLinXd
+NlpOptimizerNode::ToXpp(const towr::StateLinXd& towr) const
+{
+  xpp::StateLinXd xpp(3);
+
+  xpp.p_ = towr.p_;
+  xpp.v_ = towr.v_;
+  xpp.a_ = towr.a_;
+
+  return xpp;
+}
+
+towr::BaseState
+NlpOptimizerNode::ToBaseState(const State3d& base) const
+{
+  towr::BaseState b;
+
+  b.pos_xyz_ = base.lin.p_;
+  b.vel_xyz_ = base.lin.v_;
+
+  b.pos_rpy_ = GetUnique(GetEulerZYXAngles(base.ang.q));
+  b.vel_rpy_ = Vector3d::Zero(); // smell still fill this
+
+  return b;
+}
+
+towr::BaseState
+NlpOptimizerNode::ToBaseState(const State3dEuler& base) const
+{
+  towr::BaseState b;
+
+  b.pos_xyz_ = base.lin.p_;
+  b.vel_xyz_ = base.lin.v_;
+
+  b.pos_rpy_ = base.ang.p_;
+  b.vel_rpy_ = base.ang.v_;
+
+  return b;
+}
+
 xpp_msgs::RobotStateCartesianTrajectory
 NlpOptimizerNode::BuildTrajectoryMsg () const
 {
-  auto cart_traj = motion_optimizer_.GetTrajectory(dt_);
+  auto cart_traj = GetTrajectory();
   return Convert::ToRos(cart_traj);
 }
 
@@ -201,7 +314,7 @@ NlpOptimizerNode::BuildRobotParametersMsg(const RobotModel& model) const
   auto nominal_B = model.kinematic_model_->GetNominalStanceInBase();
   auto ee_names = model.gait_generator_->GetEndeffectorNames();
   params_msg.ee_names = ee_names;
-  for (auto ee : nominal_B.ToImpl()) {
+  for (auto ee : nominal_B) {
     params_msg.nominal_ee_pos.push_back(Convert::ToRos<geometry_msgs::Point>(ee));
   }
 
@@ -215,7 +328,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
                                             const xpp_msgs::RobotParameters& robot_params,
                                             const UserCommand user_command_msg,
                                             const HeightMap::Ptr& terrain,
-                                            bool include_iterations) const
+                                            bool include_iterations)
 {
   rosbag::Bag bag;
   bag.open(bag_name, rosbag::bagmode::Write);
@@ -227,7 +340,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
 
   // save the trajectory of each iteration
   if (include_iterations) {
-    auto trajectories = motion_optimizer_.GetIntermediateSolutions(dt_);
+    auto trajectories = GetIntermediateSolutions();
     int n_iterations = trajectories.size();
     for (int i=0; i<n_iterations; ++i)
       SaveTrajectoryInRosbag(bag, trajectories.at(i), terrain, xpp_msgs::nlp_iterations_name + std::to_string(i));
@@ -240,7 +353,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
 
 
   // save the final trajectory
-  auto final_trajectory = motion_optimizer_.GetTrajectory(dt_);
+  auto final_trajectory = GetTrajectory();
   SaveTrajectoryInRosbag(bag, final_trajectory, terrain, xpp_msgs::robot_state_desired);
 
   // optional: save the entire trajectory as one message
@@ -277,6 +390,93 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
 
 //    bag.write(topic, timestamp, msg);
   }
+}
+
+/*! @brief Returns unique Euler angles in [-pi,pi),[-pi/2,pi/2),[-pi,pi).
+ *
+ * Taken from https://github.com/ethz-asl/kindr
+ *
+ * Copyright (c) 2013, Christian Gehring, Hannes Sommer, Paul Furgale, Remo Diethelm
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Autonomous Systems Lab, ETH Zurich nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL Christian Gehring, Hannes Sommer, Paul Furgale,
+ * Remo Diethelm BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+Vector3d
+NlpOptimizerNode::GetUnique (const Vector3d& zyx_non_unique) const
+{
+  Vector3d zyx = zyx_non_unique;
+  const double tol = 1e-3;
+
+  // wrap angles into [-pi,pi),[-pi/2,pi/2),[-pi,pi)
+  if(zyx.y() < -M_PI/2 - tol)
+  {
+    if(zyx.x() < 0) {
+      zyx.x() = zyx.x() + M_PI;
+    } else {
+      zyx.x() = zyx.x() - M_PI;
+    }
+
+    zyx.y() = -(zyx.y() + M_PI);
+
+    if(zyx.z() < 0) {
+      zyx.z() = zyx.z() + M_PI;
+    } else {
+      zyx.z() = zyx.z() - M_PI;
+    }
+  }
+  else if(-M_PI/2 - tol <= zyx.y() && zyx.y() <= -M_PI/2 + tol)
+  {
+    zyx.x() -= zyx.z();
+    zyx.z() = 0;
+  }
+  else if(-M_PI/2 + tol < zyx.y() && zyx.y() < M_PI/2 - tol)
+  {
+    // ok
+  }
+  else if(M_PI/2 - tol <= zyx.y() && zyx.y() <= M_PI/2 + tol)
+  {
+    // todo: M_PI/2 should not be in range, other formula?
+    zyx.x() += zyx.z();
+    zyx.z() = 0;
+  }
+  else // M_PI/2 + tol < zyx.y()
+  {
+    if(zyx.x() < 0) {
+      zyx.x() = zyx.x() + M_PI;
+    } else {
+      zyx.x() = zyx.x() - M_PI;
+    }
+
+    zyx.y() = -(zyx.y() - M_PI);
+
+    if(zyx.z() < 0) {
+      zyx.z() = zyx.z() + M_PI;
+    } else {
+      zyx.z() = zyx.z() - M_PI;
+    }
+  }
+
+  return zyx;
 }
 
 } /* namespace xpp */

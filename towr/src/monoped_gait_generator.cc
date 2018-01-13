@@ -7,6 +7,9 @@
 
 #include <towr/models/monoped_gait_generator.h>
 
+#include <cassert>
+#include <iostream>
+
 namespace towr {
 
 MonopedGaitGenerator::MonopedGaitGenerator ()

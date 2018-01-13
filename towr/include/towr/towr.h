@@ -8,68 +8,121 @@
 #ifndef TOWR_TOWR_H_
 #define TOWR_TOWR_H_
 
-#include <memory>
 #include <vector>
+
 #include <Eigen/Dense>
 
 #include <ifopt/problem.h>
 
-#include <xpp_states/endeffectors.h>
-#include <xpp_states/robot_state_cartesian.h>
-#include <xpp_states/state.h>
-
-#include <towr/constraints/height_map.h>
-#include <towr/models/robot_model.h>
-#include <towr/optimization_parameters.h>
+#include <towr/variables/base_state.h>
 #include <towr/variables/spline_holder.h>
+#include <towr/models/robot_model.h>
+
+#include "height_map.h"
+#include "optimization_parameters.h"
 
 
 namespace towr {
 
 
-/** Simplified interface to the complete motion optimization framework.
-  */
+/**
+ * @brief TOWR - Trajectory Optimizer for Walking Robots.
+ *
+ * Interface to the motion optimization framework. The user sets the initial
+ * state and the desired motion parameters, then and NLP is constructed and
+ * solved with the chosen solver and finally the solution splines can be
+ * retrieved.
+ */
 class TOWR {
 public:
-  using VariablesCompPtr    = ifopt::Composite::Ptr;
-  using RobotStateCartesian = xpp::RobotStateCartesian;
-  using State3dEuler        = xpp::State3dEuler;
-  using EndeffectorsPos     = xpp::EndeffectorsPos;
-  using RobotStateVec       = std::vector<RobotStateCartesian>;
+  using FeetPos = std::vector<Eigen::Vector3d>;
 
   TOWR () = default;
   virtual ~TOWR () = default;
 
-  void SetInitialState(const RobotStateCartesian&);
-  void SetParameters(const State3dEuler& final_base,
+  /**
+   * @brief The current state of the robot where the optimization starts from.
+   *
+   * @param base  The linear and angular position and velocity of the 6D- base.
+   * @param feet  The current position of the end-effectors.
+   */
+  void SetInitialState(const BaseState& base, const FeetPos& feet);
+
+  /**
+   * @brief  The parameters that determine the type of motion produced.
+   *
+   * @param final_base  The desired final position and velocity of the base.
+   * @param total_time  The time given to reach the final_base.
+   * @param model       The kinematic and dynamic model of the system.
+   * @param terrain     The height map of the terrain to walk over.
+   */
+  void SetParameters(const BaseState& final_base,
                      double total_time,
                      const RobotModel& model,
                      HeightMap::Ptr terrain);
 
-  void SolveNLP();
+  enum Solver { Ipopt, Snopt };
+  /**
+   * @brief Constructs the problem and solves it with the chosen solver.
+   * @param solver  Any solver implemented in ifopt can be used to solve the problem.
+   */
+  void SolveNLP(Solver solver);
 
-  RobotStateVec GetTrajectory(double dt) const;
-  std::vector<RobotStateVec> GetIntermediateSolutions(double dt);
+  /**
+   * @returns the optimized motion for base, feet and force as splines.
+   *
+   * The can then be queried at specific times to get the positions, velocities,
+   * or forces.
+   */
+  SplineHolder GetSolution() const;
 
+  /**
+   * @brief Sets the solution to a previous iteration of solver.
+   * @param solver_iteration  The iteration to be inspected.
+   *
+   * This can be helpful when trying to understand how the NLP solver reached
+   * a particular solution. The initialization of the NLP can also be inspected
+   * by setting the iteration to zero.
+   */
+  void SetSolution(int solver_iteration);
+
+  /**
+   * @returns The number of iterations the solver took to find the solution.
+   */
+  int GetIterationCount() const;
 
 private:
-  State3dEuler inital_base_;
-  EndeffectorsPos initial_ee_W_;
+  /**
+   * @brief The solver independent optimization problem formulation.
+   *
+   * This object holds ownership of the optimization variables, so must
+   * exist to query the spline_holder values.
+   */
+  ifopt::Problem nlp_;
 
+  /**
+   * @brief Holds the splines constructed from pointer to the current variables.
+   *
+   * These variables must exist in memory for the spline_holder to be valid.
+   */
+  SplineHolder spline_holder_;
+
+  // initial state
+  FeetPos foot_pos_;
+  BaseState initial_base_;
+
+  // motion parameters
   RobotModel model_;
   HeightMap::Ptr terrain_;
   OptimizationParameters params_;
-  State3dEuler final_base_;
+  BaseState final_base_;
 
-  ifopt::Problem BuildNLP() const;
-  ifopt::Problem nlp_;
-
-
-  mutable SplineHolder spline_holder_;
-  void SetTerrainHeightFromAvgFootholdHeight(HeightMap::Ptr& terrain) const;
-
-
-  Eigen::Vector3d GetUnique(const Eigen::Vector3d& zyx_non_unique) const;
+  /**
+   * @returns the solver independent optimization problem.
+   *
+   * @param[in/out] splines  Links object to the current optimization variables.
+   */
+  ifopt::Problem BuildNLP(SplineHolder& splines) const;
 };
 
 } /* namespace towr */

@@ -14,7 +14,7 @@
 #include <utility>
 #include <vector>
 
-#include <xpp_states/endeffectors.h>
+//#include <xpp_states/endeffectors.h>
 
 namespace towr {
 
@@ -23,9 +23,9 @@ public:
   using Ptr            = std::shared_ptr<GaitGenerator>;
   using VecTimes       = std::vector<double>;
   using FootDurations  = std::vector<VecTimes>;
-  using ContactState   = xpp::EndeffectorsContact;
+  using ContactState   = std::vector<bool>;
   using GaitInfo       = std::pair<VecTimes,std::vector<ContactState>>;
-  using EndeffectorID  = xpp::EndeffectorID;
+  using EndeffectorID  = uint;
 
   GaitGenerator () = default;
   virtual ~GaitGenerator () = default;

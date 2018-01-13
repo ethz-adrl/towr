@@ -7,21 +7,22 @@
 
 #include <towr/models/biped_gait_generator.h>
 
-#include <xpp_states/endeffector_mappings.h>
+#include <cassert>
+#include <iostream>
+
+#include <towr/models/endeffector_mappings.h>
 
 namespace towr {
-
-using namespace xpp;
 
 BipedGaitGenerator::BipedGaitGenerator ()
 {
   ContactState init(2, false);
   I_ = b_ = P_ = B_ = init;
 
-  I_.SetAll(false);
-  P_.at(biped::L) = true;
-  b_.at(biped::R) = true;
-  B_.SetAll(true);
+  using namespace biped;
+  P_.at(L) = true;
+  b_.at(R) = true;
+  B_       = { true, true };
 
   SetGaits({Stand});
 }

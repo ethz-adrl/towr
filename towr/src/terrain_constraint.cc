@@ -12,16 +12,11 @@
 #include <vector>
 #include <Eigen/Eigen>
 
-#include <xpp_states/cartesian_declarations.h>
-#include <xpp_states/state.h>
-
-#include "../include/towr/variables/node_variables.h"
+#include <towr/variables/node_variables.h>
 
 
 namespace towr {
 
-using namespace ifopt;
-using namespace xpp;
 
 TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
                                       std::string ee_motion)
@@ -44,7 +39,7 @@ TerrainConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
   SetRows(constraint_count);
 }
 
-VectorXd
+Eigen::VectorXd
 TerrainConstraint::GetValues () const
 {
   VectorXd g(GetRows());
@@ -67,9 +62,9 @@ TerrainConstraint::GetBounds () const
   int row = 0;
   for (int id : node_ids_) {
     if (ee_motion_->IsConstantNode(id))
-      bounds.at(row) = BoundZero;
+      bounds.at(row) = ifopt::BoundZero;
     else
-      bounds.at(row) = Bounds(0.0, max_z_distance_above_terrain_);
+      bounds.at(row) = ifopt::Bounds(0.0, max_z_distance_above_terrain_);
     row++;
   }
 

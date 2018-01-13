@@ -9,8 +9,6 @@
 
 namespace towr {
 
-using namespace xpp;
-
 
 Polynomial::Polynomial (int order, int dim)
 {
@@ -24,7 +22,7 @@ Polynomial::Polynomial (int order, int dim)
 }
 
 
-VectorXd
+Eigen::VectorXd
 Polynomial::GetCoefficients (PolynomialCoeff c) const
 {
   return coeff_.at(c);
@@ -46,7 +44,7 @@ StateLinXd Polynomial::GetPoint(double t_local) const
 
   for (auto d : {kPos, kVel, kAcc})
     for (PolynomialCoeff c : coeff_ids_)
-      out.GetByIndex(d) += GetDerivativeWrtCoeff(t_local, d, c)*coeff_.at(c);//GetCoefficients(c);
+      out.at(d) += GetDerivativeWrtCoeff(t_local, d, c)*coeff_.at(c);//GetCoefficients(c);
 
   return out;
 }
@@ -67,7 +65,6 @@ Polynomial::GetDerivativeWrtCoeff (double t, MotionDerivative deriv, PolynomialC
     case kPos:   return               std::pow(t,c);   break;
     case kVel:   return c*            std::pow(t,c-1); break;
     case kAcc:   return c*(c-1)*      std::pow(t,c-2); break;
-    case kJerk:  return c*(c-1)*(c-2)*std::pow(t,c-3); break;
   }
 }
 
@@ -187,7 +184,7 @@ CubicHermitePoly::GetDerivativeOfAccWrt (Side side, MotionDerivative node_value,
   }
 }
 
-VectorXd
+Eigen::VectorXd
 CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
 {
   VectorXd x0 = n0_.val_;
@@ -210,7 +207,7 @@ CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
   return deriv;
 }
 
-const VectorXd
+const Eigen::VectorXd
 CubicHermitePoly::Node::at(MotionDerivative deriv) const {
   if (deriv == kPos)
     return val_;
@@ -220,7 +217,7 @@ CubicHermitePoly::Node::at(MotionDerivative deriv) const {
     assert(false); // derivative not defined
 }
 
-VectorXd&
+Eigen::VectorXd&
 CubicHermitePoly::Node::at(MotionDerivative deriv) {
   if (deriv == kPos)
     return val_;

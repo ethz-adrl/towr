@@ -9,16 +9,10 @@
 
 #include <cassert>
 
-#include <xpp_states/cartesian_declarations.h>
-#include <xpp_states/state.h>
-
+#include <towr/variables/cartesian_declarations.h>
 
 
 namespace towr {
-
-
-using namespace xpp;
-using namespace ifopt;
 
 
 PhaseNodes::PhaseNodes (int phase_count,
@@ -26,7 +20,7 @@ PhaseNodes::PhaseNodes (int phase_count,
                         const std::string& name,
                         int n_polys_in_changing_phase,
                         Type type)
-    :NodeVariables(kDim3d, name)
+    :NodeVariables(3, name)
 {
   polynomial_info_ = BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type);
   optnode_to_node_ = SetNodeMappings(polynomial_info_);
@@ -191,7 +185,7 @@ PhaseNodes::GetPolyIDAtStartOfPhase (int phase) const
       return i;
 }
 
-Vector3d
+Eigen::Vector3d
 PhaseNodes::GetValueAtStartOfPhase (int phase) const
 {
   int node_id = GetNodeIDAtStartOfPhase(phase);
@@ -233,11 +227,11 @@ PhaseNodes::SetBoundsEEMotion ()
     // endeffector is not allowed to move if in stance phase
     if (IsConstantNode(node.node_id_)) {
       if (node.node_deriv_ == kVel)
-        bounds_.at(idx) = BoundZero;
+        bounds_.at(idx) = ifopt::BoundZero;
     }
     else { // node in pure swing-phase
       if (node.node_deriv_ == kVel && node.node_deriv_dim_ == Z)
-        bounds_.at(idx) = BoundZero; // zero velocity at top
+        bounds_.at(idx) = ifopt::BoundZero; // zero velocity at top
     }
 
   }
@@ -267,7 +261,7 @@ PhaseNodes::SetBoundsEEForce ()
 //      }
 
     } else { // swing node
-      bounds_.at(idx) = BoundZero; // force must be zero
+      bounds_.at(idx) = ifopt::BoundZero; // force must be zero
     }
 
   }

@@ -7,13 +7,12 @@
 
 #include <towr/models/kinematic_model.h>
 
-#include <Eigen/Dense>
 
 namespace towr {
 
 KinematicModel::KinematicModel (int n_ee)
 {
-  nominal_stance_.SetCount(n_ee);
+  nominal_stance_.resize(n_ee);
   max_dev_from_nominal_.setZero();
 }
 

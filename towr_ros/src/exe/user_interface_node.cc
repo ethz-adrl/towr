@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "user_iterface_node");
 
-  towr::UserInterface keyboard_user_interface;
+  xpp::UserInterface keyboard_user_interface;
 
   ros::spin();
 

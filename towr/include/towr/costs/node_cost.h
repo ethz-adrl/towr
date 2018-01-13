@@ -11,11 +11,13 @@
 #include <memory>
 #include <string>
 
-#include <ifopt/composite.h>
+#include <ifopt/cost_term.h>
 
-#include <xpp_states/cartesian_declarations.h>
+//#include <xpp_states/cartesian_declarations.h>
 
-#include "../variables/node_variables.h"
+#include <towr/variables/node_variables.h>
+#include <towr/variables/state.h>
+
 
 
 namespace towr {
@@ -36,7 +38,7 @@ private:
   Nodes nodes_;
   std::string node_id_;
 
-  xpp::MotionDerivative deriv_;
+  MotionDerivative deriv_;
   int dim_;
 };
 

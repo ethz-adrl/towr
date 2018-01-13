@@ -27,7 +27,7 @@ BaseNodes::GetNodeInfoAtOptIndex (int idx) const
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
   IndexInfo node;
-  node.node_deriv_     = internal_id<GetDim()? xpp::kPos : xpp::kVel;
+  node.node_deriv_     = internal_id<GetDim()? kPos : kVel;
   node.node_deriv_dim_ = internal_id%GetDim();
   node.node_id_        = std::floor(idx/n_opt_values_per_node_);
 

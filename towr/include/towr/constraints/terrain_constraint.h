@@ -10,10 +10,10 @@
 
 #include <string>
 
-#include <ifopt/composite.h>
+#include <ifopt/constraint_set.h>
 
 #include <towr/variables/phase_nodes.h>
-#include "height_map.h"
+#include <towr/height_map.h>
 
 namespace towr {
 
@@ -23,6 +23,8 @@ namespace towr {
  */
 class TerrainConstraint : public ifopt::ConstraintSet {
 public:
+  using Vector3d = Eigen::Vector3d;
+
   TerrainConstraint (const HeightMap::Ptr& terrain,
                      std::string ee_motion_id);
   virtual ~TerrainConstraint () = default;

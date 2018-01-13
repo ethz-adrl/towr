@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <towr/constraints/height_map.h>
+#include <towr/height_map.h>
 
 #include <cassert>
 #include <cmath>
@@ -13,7 +13,6 @@
 
 namespace towr {
 
-using namespace xpp;
 
 
 HeightMap::Ptr

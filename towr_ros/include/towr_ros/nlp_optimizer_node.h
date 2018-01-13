@@ -14,6 +14,8 @@
 #include <ros/subscriber.h>
 #include <rosbag/bag.h>
 
+#include <xpp_states/robot_state_cartesian.h>
+
 #include <xpp_msgs/RobotStateCartesian.h>
 #include <xpp_msgs/RobotStateCartesianTrajectory.h>
 #include <xpp_msgs/RobotParameters.h>
@@ -22,12 +24,15 @@
 
 #include <towr/towr.h>
 
-namespace towr {
+namespace xpp {
 
 class NlpOptimizerNode {
 public:
   using UserCommand         = towr_ros::UserCommand;
   using RobotStateCartesian = xpp::RobotStateCartesian;
+  using RobotStateVec       = std::vector<RobotStateCartesian>;
+  using HeightMap           = towr::HeightMap;
+  using RobotModel          = towr::RobotModel;
 
   NlpOptimizerNode ();
   virtual ~NlpOptimizerNode () = default;
@@ -44,8 +49,10 @@ private:
   ::ros::Publisher cart_trajectory_pub_;
   ::ros::Publisher robot_parameters_pub_;
 
-  mutable TOWR motion_optimizer_;
+  towr::TOWR towr_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
+
+  double total_time_;
 
   bool first_callback_ = true;
 
@@ -60,12 +67,35 @@ private:
                                 const xpp_msgs::RobotParameters& robot_params,
                                 const UserCommand user_command_msg,
                                 const HeightMap::Ptr& terrain,
-                                bool include_iterations=false) const;
+                                bool include_iterations=false);
   void SaveTrajectoryInRosbag (rosbag::Bag&, const std::vector<RobotStateCartesian>& traj,
                                const HeightMap::Ptr& terrain, const std::string& topic) const;
   xpp_msgs::RobotParameters BuildRobotParametersMsg(const RobotModel& model) const;
 
 
+  RobotStateVec GetTrajectory() const;
+  std::vector<RobotStateVec>GetIntermediateSolutions();
+
+
+  towr::BaseState ToBaseState(const xpp::State3d& base) const;
+  towr::BaseState ToBaseState(const xpp::State3dEuler& base) const;
+
+  StateLinXd ToXpp(const towr::StateLinXd& towr) const;
+//  xpp::StateAng3d ToXpp(const towr::StateAng3d& towr) const;
+
+  StateAng3d GetState (const towr::StateLinXd& euler) const;
+
+
+  Eigen::Vector3d GetUnique(const Eigen::Vector3d& zyx_non_unique) const;
+
+//  void SetTerrainHeightFromAvgFootholdHeight(
+//      HeightMap::Ptr& terrain) const
+//  {
+//    double avg_height=0.0;
+//    for ( auto pos : new_ee_pos_)
+//      avg_height += pos.z()/new_ee_pos_.size();
+//    terrain->SetGroundHeight(avg_height);
+//  }
 };
 
 } /* namespace xpp */

@@ -41,7 +41,7 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   
-  <depend>xpp_states</depend>
+  <!--  <depend>xpp_states</depend>   -->
   <depend>ifopt</depend>
   
     

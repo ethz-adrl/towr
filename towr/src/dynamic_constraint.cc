@@ -11,14 +11,11 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <xpp_states/endeffectors.h>
-#include <xpp_states/state.h>
-
+#include <towr/variables/cartesian_declarations.h>
 #include <towr/variables/variable_names.h>
 
 namespace towr {
 
-using namespace xpp;
 
 
 DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
@@ -36,6 +33,8 @@ DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
 
   ee_forces_ = spline_holder.GetEEForce();
   ee_motion_ = spline_holder.GetEEMotion();
+
+  n_ee_ = ee_motion_.size();
 
   SetRows(GetNumberOfNodes()*kDim6d);
 }
@@ -99,7 +98,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
   }
 
 
-  for (auto ee : model_->GetEEIDs()) {
+  for (int ee=0; ee<n_ee_; ++ee) {
 
     if (var_set == id::EEForceNodes(ee)) {
       Jacobian jac_ee_force = ee_forces_.at(ee)->GetJacobianWrtNodes(t,kPos);
@@ -133,10 +132,10 @@ DynamicConstraint::UpdateModel (double t) const
   auto com_pos   = base_linear_->GetPoint(t).p_;
   Vector3d omega = converter_.GetAngularVelocity(t);
 
-  int n_ee = model_->GetEEIDs().size();
-  EndeffectorsPos ee_pos(n_ee);
-  Endeffectors<Vector3d> ee_force(n_ee);
-  for (auto ee :  ee_pos.GetEEsOrdered()) {
+//  int n_ee = model_->GetEEIDs().size();
+  std::vector<Vector3d> ee_pos(n_ee_);
+  std::vector<Vector3d> ee_force(n_ee_);
+  for (int ee=0; ee<n_ee_; ++ee) {
     ee_force.at(ee) = ee_forces_.at(ee)->GetPoint(t).p_;
     ee_pos.at(ee)   = ee_motion_.at(ee)->GetPoint(t).p_;
   }

@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <ifopt/leaves.h>
+#include <ifopt/constraint_set.h>
 
 namespace towr {
 
@@ -20,6 +20,7 @@ namespace towr {
 class TimeDiscretizationConstraint : public ifopt::ConstraintSet {
 public:
   using EvaluationTimes = std::vector<double>;
+  using Bounds          = ifopt::Bounds;
 
   TimeDiscretizationConstraint (double T, double dt,
                                 const std::string& name);
