@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#include <towr/models/quadruped_gait_generator.h>
+#include <towr_ros/quadruped_gait_generator.h>
 
 #include <cassert>
 #include <iostream>
 
-#include <towr/models/endeffector_mappings.h>
+#include <xpp_states/endeffector_mappings.h>
 
 namespace towr {
 
@@ -26,7 +26,7 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
   BB_                               = init; // four-leg support phase
 
 
-  using namespace quad; // only for LF, RF, ... enums
+  using namespace xpp::quad; // only for LF, RF, ... enums
 
 
 //  // flight_phase
@@ -53,6 +53,11 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
 
   // default gait
   SetGaits({Stand});
+
+  map_id_to_ee_["LF"] = LF;
+  map_id_to_ee_["RF"] = RF;
+  map_id_to_ee_["LH"] = LH;
+  map_id_to_ee_["RH"] = RH;
 }
 
 void

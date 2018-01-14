@@ -9,10 +9,31 @@
 
 #include <vector>
 
-#include <towr/variables/cartesian_declarations.h>
+#include <towr/variables/cartesian_dimensions.h>
 
 
 namespace towr {
+
+static Eigen::Matrix3d BuildInertiaTensor(
+        double Ixx, double Iyy, double Izz,
+        double Ixy, double Ixz, double Iyz)
+{
+  Eigen::Matrix3d I;
+  I <<  Ixx, -Ixy, -Ixz,
+       -Ixy,  Iyy, -Iyz,
+       -Ixz, -Iyz,  Izz;
+  return I;
+}
+
+CentroidalModel::CentroidalModel (double mass,
+                                  double Ixx, double Iyy, double Izz,
+                                  double Ixy, double Ixz, double Iyz,
+                                  int ee_count)
+   : CentroidalModel(mass,
+                     BuildInertiaTensor(Ixx, Iyy, Izz, Ixy, Ixz, Iyz),
+                     ee_count)
+{
+}
 
 CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
                                   int ee_count)
@@ -40,14 +61,14 @@ CentroidalModel::GetBaseAcceleration () const
   // f_lin += fg_W;
 
   BaseAcc acc;
-  acc.segment(AX, kDim3d) = I_inv_*(f_ang - omega_.cross(I_dense_*omega_)); // coriolis terms
-  acc.segment(LX, kDim3d) = 1./m_ *f_lin;
+  acc.segment(AX, k3D) = I_inv_*(f_ang - omega_.cross(I_dense_*omega_)); // coriolis terms
+  acc.segment(LX, k3D) = 1./m_ *f_lin;
 
   return acc;
 }
 
 // just a helper function
-using Jacobian = DynamicModel::Jacobian;
+using Jacobian = DynamicModel::Jac;
 
 static Jacobian
 BuildCrossProductMatrix(const Eigen::Vector3d& in)
@@ -62,68 +83,66 @@ BuildCrossProductMatrix(const Eigen::Vector3d& in)
 }
 
 Jacobian
-CentroidalModel::GetJacobianOfAccWrtBaseLin (const Jacobian& jac_pos_base_lin) const
+CentroidalModel::GetJacobianOfAccWrtBaseLin (const Jac& jac_pos_base_lin) const
 {
   // build the com jacobian
   int n = jac_pos_base_lin.cols();
 
-  Jacobian jac_ang(kDim3d, n);
+  Jac jac_ang(k3D, n);
   for (const Vector3d& f : ee_force_) {
-    Jacobian jac_comp = BuildCrossProductMatrix(f)*jac_pos_base_lin;
+    Jac jac_comp = BuildCrossProductMatrix(f)*jac_pos_base_lin;
     jac_ang += jac_comp;
   }
 
-  Jacobian jac(kDim6d, n);
-  jac.middleRows(AX, kDim3d) = I_inv_*jac_ang;
+  Jac jac(k6D, n);
+  jac.middleRows(AX, k3D) = I_inv_*jac_ang;
 
   // linear acceleration does not depend on base
   return jac;
 }
 
 Jacobian
-CentroidalModel::GetJacobianOfAccWrtBaseAng (const Jacobian& jac_ang_vel) const
+CentroidalModel::GetJacobianOfAccWrtBaseAng (const Jac& jac_ang_vel) const
 {
   int n = jac_ang_vel.cols();
 
   // the 6D base acceleration does not depend on base orientation, but on angular velocity
   // add derivative of w x Iw here!!!
-  Jacobian jac_coriolis  = -BuildCrossProductMatrix(I_*omega_)*jac_ang_vel;
+  Jac jac_coriolis  = -BuildCrossProductMatrix(I_*omega_)*jac_ang_vel;
   jac_coriolis          +=  BuildCrossProductMatrix(omega_)*I_*jac_ang_vel;
 
-  Jacobian jac(kDim6d, n);
-  jac.middleRows(AX, kDim3d) = I_inv_*(-jac_coriolis);
+  Jac jac(k6D, n);
+  jac.middleRows(AX, k3D) = I_inv_*(-jac_coriolis);
 
   return jac;
 }
 
 Jacobian
-CentroidalModel::GetJacobianofAccWrtForce (const Jacobian& ee_force_jac,
-                                           EndeffectorID ee) const
+CentroidalModel::GetJacobianofAccWrtForce (const Jac& ee_force_jac,
+                                           EE ee) const
 {
   Vector3d r = com_pos_-ee_pos_.at(ee);
-  Jacobian jac_ang = -BuildCrossProductMatrix(r)*ee_force_jac;
+  Jac jac_ang = -BuildCrossProductMatrix(r)*ee_force_jac;
 
   int n = ee_force_jac.cols();
-  Jacobian jac(kDim6d, n);
-  jac.middleRows(AX, kDim3d) = I_inv_*jac_ang;
-  jac.middleRows(LX, kDim3d) = 1./m_*ee_force_jac;
+  Jac jac(k6D, n);
+  jac.middleRows(AX, k3D) = I_inv_*jac_ang;
+  jac.middleRows(LX, k3D) = 1./m_*ee_force_jac;
 
   return jac;
 }
 
 Jacobian
-CentroidalModel::GetJacobianofAccWrtEEPos (const Jacobian& jac_ee_pos,
-                                           EndeffectorID ee) const
+CentroidalModel::GetJacobianofAccWrtEEPos (const Jac& jac_ee_pos,
+                                           EE ee) const
 {
   Vector3d f = ee_force_.at(ee);
-  Jacobian jac_ang = BuildCrossProductMatrix(f)*(-jac_ee_pos);
+  Jac jac_ang = BuildCrossProductMatrix(f)*(-jac_ee_pos);
 
-  Jacobian jac(kDim6d, jac_ang.cols());
-  jac.middleRows(AX, kDim3d) = I_inv_*jac_ang;
+  Jac jac(k6D, jac_ang.cols());
+  jac.middleRows(AX, k3D) = I_inv_*jac_ang;
   // linear acceleration does not depend on endeffector position.
   return jac;
 }
 
 } /* namespace towr */
-
-

@@ -22,10 +22,8 @@ public:
   using EvaluationTimes = std::vector<double>;
   using Bounds          = ifopt::Bounds;
 
-  TimeDiscretizationConstraint (double T, double dt,
-                                const std::string& name);
-  TimeDiscretizationConstraint (const EvaluationTimes&,
-                                const std::string& name);
+  TimeDiscretizationConstraint (double T, double dt,const std::string& name);
+  TimeDiscretizationConstraint (const EvaluationTimes&,const std::string& name);
   virtual ~TimeDiscretizationConstraint ();
 
   Eigen::VectorXd GetValues() const override;

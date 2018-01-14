@@ -11,10 +11,6 @@
 #include <string>
 #include <vector>
 
-//#include <ifopt/composite.h>
-
-//#include <xpp_states/cartesian_declarations.h>
-
 #include <towr/models/dynamic_model.h>
 #include <towr/variables/spline.h>
 #include <towr/variables/angular_state_converter.h>
@@ -48,7 +44,7 @@ private:
   double gravity_;
   AngularStateConverter converter_;
 
-  int GetRow(int node, Coords6D dimension) const;
+  int GetRow(int node, Dim6D dimension) const;
 
   virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
   virtual void UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const override;

@@ -29,7 +29,7 @@ void
 NlpFactory::Init (const OptimizationParameters& params,
                   const HeightMap::Ptr& terrain,
                   const RobotModel& model,
-                  const NewEEPos& ee_pos,
+                  const EEPos& ee_pos,
                   const BaseState& initial_base,
                   const BaseState& final_base)
 {
@@ -37,9 +37,9 @@ NlpFactory::Init (const OptimizationParameters& params,
   terrain_  = terrain;
   model_    = model;
 
-  new_initial_base_ = initial_base;
-  new_final_base_   = final_base;
-  new_initial_ee_W_ = ee_pos;
+  initial_base_ = initial_base;
+  final_base_   = final_base;
+  initial_ee_W_ = ee_pos;
 }
 
 // smell make separate class just for variables
@@ -82,19 +82,19 @@ NlpFactory::MakeBaseVariablesHermite () const
 {
   std::vector<NodeVariables::Ptr> vars;
 
-  int n_dim = kDim3d;
+  int n_dim = k3D;
   int n_nodes = params_.GetBasePolyDurations().size() + 1;
 
   auto linear  = std::make_tuple(id::base_lin_nodes,
-                                 new_initial_base_.lin.p(),
-                                 new_initial_base_.lin.v(),
-                                 new_final_base_.lin.p(),
-                                 new_final_base_.lin.v());
+                                 initial_base_.lin.p(),
+                                 initial_base_.lin.v(),
+                                 final_base_.lin.p(),
+                                 final_base_.lin.v());
   auto angular = std::make_tuple(id::base_ang_nodes,
-                                 new_initial_base_.ang.p(),
-                                 new_initial_base_.ang.v(),
-                                 new_final_base_.ang.p(),
-                                 new_final_base_.ang.v());
+                                 initial_base_.ang.p(),
+                                 initial_base_.ang.v(),
+                                 final_base_.ang.p(),
+                                 final_base_.ang.v());
 
   for (auto tuple : {linear, angular}) {
     std::string id   = std::get<0>(tuple);
@@ -163,30 +163,28 @@ NlpFactory::MakeEndeffectorVariables () const
 
   // Endeffector Motions
   double T = params_.GetTotalTime();
-  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
+  for (int ee=0; ee<params_.GetEECount(); ee++) {
 
-    auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
-
-    auto nodes = std::make_shared<PhaseNodes>(contact_schedule.size(),
-                                              model_.gait_generator_->IsInContactAtStart(ee),
+    auto nodes = std::make_shared<PhaseNodes>(params_.GetPhaseCount(ee),
+                                              params_.IsEEInContactAtStart(ee),
                                               id::EEMotionNodes(ee),
                                               params_.ee_splines_per_swing_phase_,
                                               PhaseNodes::Motion);
 
-    double yaw = new_final_base_.ang.p().z();
+    double yaw = final_base_.ang.p().z();
 
     // smell adapt to desired yaw state
 //    Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
     Eigen::Matrix3d w_R_b; w_R_b.setIdentity();
 
-    Vector3d final_ee_pos_W = new_final_base_.lin.p() + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
+    Vector3d final_ee_pos_W = final_base_.lin.p() + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
 
 
 
-    nodes->InitializeNodes(new_initial_ee_W_.at(ee), final_ee_pos_W, T);
+    nodes->InitializeNodes(initial_ee_W_.at(ee), final_ee_pos_W, T);
 
     // actually initial Z position should be constrained as well...-.-
-    nodes->AddStartBound(kPos, {X,Y}, new_initial_ee_W_.at(ee));
+    nodes->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
 
     bool step_taken = nodes->GetNodes().size() > 2;
     if (step_taken) // otherwise overwrites start bound
@@ -206,17 +204,18 @@ NlpFactory::MakeForceVariables () const
   std::vector<NodeVariables::Ptr> vars;
 
   double T = params_.GetTotalTime();
-  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
+  for (int ee=0; ee<params_.GetEECount(); ee++) {
 
-    auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
-
-    auto nodes = std::make_shared<PhaseNodes>(contact_schedule.size(),
-                                              model_.gait_generator_->IsInContactAtStart(ee),
+    auto nodes = std::make_shared<PhaseNodes>(params_.GetPhaseCount(ee),
+                                              params_.IsEEInContactAtStart(ee),
                                               id::EEForceNodes(ee),
                                               params_.force_splines_per_stance_phase_,
                                               PhaseNodes::Force);
 
-    Vector3d f_stance(0.0, 0.0, model_.dynamic_model_->GetStandingZForce());
+    // initialize with mass of robot distributed equally on all legs
+    double m = model_.dynamic_model_->GetMass();
+    double g = model_.dynamic_model_->GetGravityAcceleration();
+    Vector3d f_stance(0.0, 0.0, m*g/params_.GetEECount());
     nodes->InitializeNodes(f_stance, f_stance, T);
     vars.push_back(nodes);
   }
@@ -229,11 +228,10 @@ NlpFactory::MakeContactScheduleVariables () const
 {
   std::vector<ContactSchedule::Ptr> vars;
 
-  double T = params_.GetTotalTime();
-  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
+  for (int ee=0; ee<params_.GetEECount(); ee++) {
 
     auto var = std::make_shared<ContactSchedule>(ee,
-                                                 model_.gait_generator_->GetContactSchedule(T, ee),
+                                                 params_.GetEEPhaseDurations(ee),
                                                  params_.min_phase_duration_,
                                                  params_.max_phase_duration_);
     vars.push_back(var);
@@ -315,7 +313,7 @@ NlpFactory::MakeRangeOfMotionBoxConstraint () const
 {
   ContraintPtrVec c;
 
-  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
+  for (int ee=0; ee<params_.GetEECount(); ee++) {
     auto rom_constraints = std::make_shared<RangeOfMotionBox>(model_.kinematic_model_,
                                                               params_,
                                                               ee,
@@ -332,7 +330,7 @@ NlpFactory::MakeTotalTimeConstraint () const
   ContraintPtrVec c;
   double T = params_.GetTotalTime();
 
-  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
+  for (int ee=0; ee<params_.GetEECount(); ee++) {
     auto duration_constraint = std::make_shared<TotalDurationConstraint>(T, ee);
     c.push_back(duration_constraint);
   }
@@ -345,7 +343,7 @@ NlpFactory::MakeTerrainConstraint () const
 {
   ContraintPtrVec constraints;
 
-  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
+  for (int ee=0; ee<params_.GetEECount(); ee++) {
     auto c = std::make_shared<TerrainConstraint>(terrain_, id::EEMotionNodes(ee));
     constraints.push_back(c);
   }
@@ -358,9 +356,9 @@ NlpFactory::MakeForceConstraint () const
 {
   ContraintPtrVec constraints;
 
-  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
+  for (int ee=0; ee<params_.GetEECount(); ee++) {
     auto c = std::make_shared<ForceConstraint>(terrain_,
-                                               model_.dynamic_model_->GetForceLimit(),
+                                               params_.GetForceLimit(),
                                                ee);
     constraints.push_back(c);
   }
@@ -373,7 +371,7 @@ NlpFactory::MakeSwingConstraint () const
 {
   ContraintPtrVec constraints;
 
-  for (int ee=0; ee<new_initial_ee_W_.size(); ee++) {
+  for (int ee=0; ee<params_.GetEECount(); ee++) {
     auto swing = std::make_shared<SwingConstraint>(id::EEMotionNodes(ee));
     constraints.push_back(swing);
   }
@@ -387,7 +385,7 @@ NlpFactory::MakeForcesCost(double weight) const
 {
   CostPtrVec cost;
 
-  for (int ee=0; ee<new_initial_ee_W_.size(); ee++)
+  for (int ee=0; ee<params_.GetEECount(); ee++)
     cost.push_back(std::make_shared<NodeCost>(id::EEForceNodes(ee)));
 
   return cost;

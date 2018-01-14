@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <towr/models/gait_generator.h>
+#include <towr_ros/gait_generator.h>
 
 #include <cassert>
 #include <numeric> // std::accumulate

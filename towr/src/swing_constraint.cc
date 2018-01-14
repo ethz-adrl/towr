@@ -12,9 +12,8 @@
 #include <vector>
 #include <Eigen/Eigen>
 
-#include <towr/variables/cartesian_declarations.h>
-
 #include <towr/variables/node_variables.h>
+#include "../include/towr/variables/cartesian_dimensions.h"
 
 namespace towr {
 
@@ -36,7 +35,7 @@ towr::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 
   // constrain xy position and velocity of every swing node
   // add +1 per node if swing in apex is constrained
-  int constraint_count =  pure_swing_node_ids_.size()*2*kDim2d;
+  int constraint_count =  pure_swing_node_ids_.size()*2*k2D;
 
   SetRows(constraint_count);
 }
@@ -53,8 +52,8 @@ SwingConstraint::GetValues () const
     // assumes two splines per swingphase and starting and ending in stance
     auto curr = nodes.at(node_id);
 
-    Vector2d prev = nodes.at(node_id-1).p().topRows<kDim2d>();
-    Vector2d next = nodes.at(node_id+1).p().topRows<kDim2d>();
+    Vector2d prev = nodes.at(node_id-1).p().topRows<k2D>();
+    Vector2d next = nodes.at(node_id+1).p().topRows<k2D>();
 
     Vector2d distance_xy    = next - prev;
     Vector2d xy_center      = prev + 0.5*distance_xy;

@@ -10,7 +10,7 @@
 #include <cmath>
 #include <Eigen/Eigen>
 
-#include <towr/variables/cartesian_declarations.h>
+#include "../include/towr/variables/cartesian_dimensions.h"
 
 
 namespace towr {

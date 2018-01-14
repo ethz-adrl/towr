@@ -21,6 +21,7 @@
 #include <xpp_msgs/RobotParameters.h>
 
 #include <towr_ros/UserCommand.h>    // receive from user
+#include <towr_ros/gait_generator.h>
 
 #include <towr/towr.h>
 
@@ -60,6 +61,9 @@ private:
   std::string bag_name_ = "/optimal_traj.bag";
   std::vector<RobotStateCartesian> curr_states_log_;
   bool save_current_state_ = false;
+
+  towr::GaitGenerator::Ptr gait_generator_;
+  towr::RobotModel model_;
 
   xpp_msgs::RobotStateCartesianTrajectory BuildTrajectoryMsg() const;
 

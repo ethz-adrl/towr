@@ -9,8 +9,8 @@
 
 #include <memory>
 
-#include <towr/variables/cartesian_declarations.h>
 #include <towr/variables/variable_names.h>
+#include "../include/towr/variables/cartesian_dimensions.h"
 
 namespace towr {
 
@@ -25,7 +25,7 @@ BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params
   base_angular_ = spline_holder.GetBaseAngular();
 
   double dev_rad = 0.1;
-  node_bounds_.resize(kDim6d);
+  node_bounds_.resize(k6D);
   node_bounds_.at(AX) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad);
   node_bounds_.at(AY) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad);
   node_bounds_.at(AZ) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad); // NoBound
@@ -42,8 +42,8 @@ void
 BaseMotionConstraint::UpdateConstraintAtInstance (double t, int k,
                                                   VectorXd& g) const
 {
-  g.middleRows(GetRow(k, LX), kDim3d) = base_linear_->GetPoint(t).p();
-  g.middleRows(GetRow(k, AX), kDim3d) = base_angular_->GetPoint(t).p();
+  g.middleRows(GetRow(k, LX), k3D) = base_linear_->GetPoint(t).p();
+  g.middleRows(GetRow(k, AX), k3D) = base_angular_->GetPoint(t).p();
 }
 
 void
@@ -59,10 +59,10 @@ BaseMotionConstraint::UpdateJacobianAtInstance (double t, int k,
                                                 std::string var_set) const
 {
   if (var_set == id::base_ang_nodes)
-    jac.middleRows(GetRow(k,AX), kDim3d) = base_angular_->GetJacobianWrtNodes(t, kPos);
+    jac.middleRows(GetRow(k,AX), k3D) = base_angular_->GetJacobianWrtNodes(t, kPos);
 
   if (var_set == id::base_lin_nodes)
-    jac.middleRows(GetRow(k,LX), kDim3d) = base_linear_->GetJacobianWrtNodes(t, kPos);
+    jac.middleRows(GetRow(k,LX), k3D) = base_linear_->GetJacobianWrtNodes(t, kPos);
 }
 
 int

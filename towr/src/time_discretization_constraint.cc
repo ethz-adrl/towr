@@ -27,7 +27,6 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
   }
 
   dts_.push_back(T); // also ensure constraints at very last node/time.
-//  AddOptimizationVariables(opt_vars);
 }
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (const EvaluationTimes& times,
@@ -35,7 +34,6 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (const EvaluationTime
    :ConstraintSet(kSpecifyLater, name) // just placeholder
 {
   dts_ = times;
-//  AddOptimizationVariables(opt_vars);
 }
 
 TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()

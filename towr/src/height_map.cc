@@ -96,7 +96,7 @@ HeightMap::GetNormalizedBasis (BasisVector basis, double x, double y) const
 
 HeightMap::Vector3d
 HeightMap::GetDerivativeOfNormalizedBasisWrt (BasisVector basis,
-                                              Coords2D dim, double x, double y) const
+                                              Dim2D dim, double x, double y) const
 {
   // inner derivative
   Vector3d dv_wrt_dim = GetBasisNotNormalized(basis, x, y, {dim});
@@ -116,7 +116,7 @@ HeightMap::GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex (const Vector3d&
 }
 
 double
-HeightMap::GetDerivativeOfHeightWrt (Coords2D dim, double x, double y) const
+HeightMap::GetDerivativeOfHeightWrt (Dim2D dim, double x, double y) const
 {
   switch (dim) {
     case X: return GetHeightDerivWrtX(x,y);
@@ -126,7 +126,7 @@ HeightMap::GetDerivativeOfHeightWrt (Coords2D dim, double x, double y) const
 }
 
 double
-HeightMap::GetSecondDerivativeOfHeightWrt (Coords2D dim1, Coords2D dim2, double x, double y) const
+HeightMap::GetSecondDerivativeOfHeightWrt (Dim2D dim1, Dim2D dim2, double x, double y) const
 {
   if (dim1 == X) {
     if (dim2 == X) return GetHeightDerivWrtXX(x,y);

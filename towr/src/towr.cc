@@ -25,12 +25,12 @@ TOWR::SetInitialState(const BaseState& initial_base, const FeetPos& feet)
 
 void
 TOWR::SetParameters(const BaseState& final_base,
-                   double total_time,
-                   const RobotModel& model,
-                   HeightMap::Ptr terrain)
+                    const OptimizationParameters& params,
+                    const RobotModel& model,
+                    HeightMap::Ptr terrain)
 {
   final_base_ = final_base;
-  params_.SetTotalDuration(total_time);
+  params_ = params;
   model_ = model;
   terrain_ = terrain;
 }

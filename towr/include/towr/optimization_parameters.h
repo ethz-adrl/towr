@@ -29,6 +29,7 @@ public:
   using CostWeights      = std::vector<std::pair<CostName, double>>;
   using UsedConstraints  = std::vector<ConstraintName>;
   using VecTimes         = std::vector<double>;
+  using EEID             = unsigned int;
 
   OptimizationParameters();
   virtual ~OptimizationParameters() = default;
@@ -36,11 +37,24 @@ public:
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
 
+
+  void SetPhaseDurations(const std::vector<VecTimes>& phase_durations,
+                         const std::vector<bool>& initial_contact);
+
+
+
   void SetTotalDuration(double d) {t_total_ = d; };
   double GetTotalTime() const { return t_total_;} ;
 
   VecTimes GetBasePolyDurations() const;
+  VecTimes GetEEPhaseDurations(EEID) const;
+  bool IsEEInContactAtStart(EEID) const;
+  int GetPhaseCount(EEID) const;
+
   bool OptimizeTimings() const;
+  int GetEECount() const  { return ee_in_contact_at_start_.size(); };
+
+  double GetForceLimit() const { return force_z_limit_; };
 
 
   int ee_splines_per_swing_phase_;
@@ -57,6 +71,12 @@ private:
   double t_total_ = 3.0;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
+
+  std::vector<VecTimes> ee_phase_durations_; // smell make private again
+  std::vector<bool> ee_in_contact_at_start_; // smell make private again
+
+  double force_z_limit_; // limit of force in normal direction
+
 };
 
 } // namespace towr

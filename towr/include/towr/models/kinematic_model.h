@@ -13,24 +13,26 @@
 
 #include <Eigen/Dense>
 
-//#include <xpp_states/endeffectors.h>
-//#include <xpp_states/state.h>
-
 namespace towr {
 
 class KinematicModel {
 public:
-  using Ptr = std::shared_ptr<KinematicModel>;
+  using Ptr      = std::shared_ptr<KinematicModel>;
+  using EEPos    = std::vector<Eigen::Vector3d>;
   using Vector3d = Eigen::Vector3d;
-  using EndeffectorsPos = std::vector<Vector3d>;
 
-  KinematicModel (int n_ee);
+  KinematicModel (int n_ee) {
+    nominal_stance_.resize(n_ee);
+    max_dev_from_nominal_.setZero();
+  }
+
   virtual ~KinematicModel () = default;
 
-  virtual EndeffectorsPos GetNominalStanceInBase() const { return nominal_stance_; };
+  virtual EEPos GetNominalStanceInBase() const { return nominal_stance_; };
   virtual Vector3d GetMaximumDeviationFromNominal() const { return max_dev_from_nominal_; };
 
-  EndeffectorsPos nominal_stance_;
+protected:
+  EEPos nominal_stance_;
   Vector3d max_dev_from_nominal_;
 };
 

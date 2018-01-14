@@ -25,7 +25,7 @@ private:
   GaitInfo GetStrideFlight() const;
   GaitInfo GetStrideHop() const;
 
-  ContactState o_ = ContactState(1, true); // stance
+  ContactState o_ = ContactState(1, true);  // stance
   ContactState x_ = ContactState(1, false); // flight
 
   virtual void SetCombo(GaitCombos combo) override;

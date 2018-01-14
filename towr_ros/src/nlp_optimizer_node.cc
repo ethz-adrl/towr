@@ -32,9 +32,15 @@
 
 #include <towr_ros/param_server.h>
 #include <towr_ros/topic_names.h>
+#include <towr_ros/quadruped_gait_generator.h>
 
 #include <towr/height_map.h>
 #include <towr/variables/angular_state_converter.h> // smell move into spline_holder
+
+#include <towr_ros/models/anymal_model.h>
+#include <towr_ros/models/hyq_model.h>
+#include <towr_ros/models/biped_model.h>
+#include <towr_ros/models/monoped_model.h>
 
 namespace xpp {
 
@@ -76,6 +82,10 @@ NlpOptimizerNode::NlpOptimizerNode ()
   ee_pos.at(3) << -0.34, -0.19, 0.0; // RH
 
   towr_.SetInitialState(b, ee_pos);
+
+  model_.dynamic_model_   = std::make_shared<towr::AnymalDynamicModel>();
+  model_.kinematic_model_ = std::make_shared<towr::AnymalKinematicModel>();
+  gait_generator_         = std::make_shared<towr::QuadrupedGaitGenerator>();
 }
 
 void
@@ -137,20 +147,31 @@ NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
   final_base.ang = Convert::ToXpp(msg.goal_ang);
 
 
-  RobotModel model;
-  model.MakeAnymalModel();
-  model.gait_generator_->SetCombo(static_cast<towr::GaitGenerator::GaitCombos>(msg.gait_id));
-  //  model_.MakeMonopedModel();
-  //  model_.MakeBipedModel();
-  //  model_.MakeHyqModel();
-
   ROS_INFO_STREAM("publishing optimization parameters to " << robot_parameters_pub_.getTopic());
-  xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model);
+  xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model_);
   robot_parameters_pub_.publish(robot_params_msg);
 
-
   total_time_ = msg.total_duration;
-  towr_.SetParameters(ToBaseState(final_base), total_time_, model, terrain);
+  towr::OptimizationParameters params;
+  params.SetTotalDuration(total_time_);
+
+
+  int n_ee = gait_generator_->GetEndeffectorNames().size();
+  gait_generator_->SetCombo(static_cast<towr::GaitGenerator::GaitCombos>(msg.gait_id));
+  std::vector<bool> initial_contact;
+  towr::GaitGenerator::FootDurations ee_durations;
+  for (int ee=0; ee<n_ee; ++ee) {
+    ee_durations.push_back(gait_generator_->GetContactSchedule(total_time_, ee));
+    initial_contact.push_back(gait_generator_->IsInContactAtStart(ee));
+  }
+  params.SetPhaseDurations(ee_durations, initial_contact);
+
+
+
+
+
+
+  towr_.SetParameters(ToBaseState(final_base), params, model_, terrain);
 
 
 
@@ -312,7 +333,7 @@ NlpOptimizerNode::BuildRobotParametersMsg(const RobotModel& model) const
   params_msg.ee_max_dev = Convert::ToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
   auto nominal_B = model.kinematic_model_->GetNominalStanceInBase();
-  auto ee_names = model.gait_generator_->GetEndeffectorNames();
+  auto ee_names = gait_generator_->GetEndeffectorNames();
   params_msg.ee_names = ee_names;
   for (auto ee : nominal_B) {
     params_msg.nominal_ee_pos.push_back(Convert::ToRos<geometry_msgs::Point>(ee));

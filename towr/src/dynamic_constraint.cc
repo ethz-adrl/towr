@@ -11,8 +11,8 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <towr/variables/cartesian_declarations.h>
 #include <towr/variables/variable_names.h>
+#include "../include/towr/variables/cartesian_dimensions.h"
 
 namespace towr {
 
@@ -36,13 +36,13 @@ DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
 
   n_ee_ = ee_motion_.size();
 
-  SetRows(GetNumberOfNodes()*kDim6d);
+  SetRows(GetNumberOfNodes()*k6D);
 }
 
 int
-DynamicConstraint::GetRow (int node, Coords6D dimension) const
+DynamicConstraint::GetRow (int node, Dim6D dimension) const
 {
-  return kDim6d*node + dimension;
+  return k6D*node + dimension;
 }
 
 void
@@ -54,8 +54,8 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 
   // acceleration base polynomial has with current values of optimization variables
   Vector6d acc_parametrization = Vector6d::Zero();
-  acc_parametrization.middleRows(AX, kDim3d) = converter_.GetAngularAcceleration(t);
-  acc_parametrization.middleRows(LX, kDim3d) = base_linear_->GetPoint(t).a();
+  acc_parametrization.middleRows(AX, k3D) = converter_.GetAngularAcceleration(t);
+  acc_parametrization.middleRows(LX, k3D) = base_linear_->GetPoint(t).a();
 
   for (auto dim : AllDim6D)
     g(GetRow(k,dim)) = acc_model(dim) - acc_parametrization(dim);
@@ -81,20 +81,20 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
   UpdateModel(t);
 
   int n = jac.cols();
-  Jacobian jac_model(kDim6d,n);
-  Jacobian jac_parametrization(kDim6d,n);
+  Jacobian jac_model(k6D,n);
+  Jacobian jac_parametrization(k6D,n);
 
   if (var_set == id::base_lin_nodes) {
     Jacobian jac_base_lin_pos = base_linear_->GetJacobianWrtNodes(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseLin(jac_base_lin_pos);
-    jac_parametrization.middleRows(LX, kDim3d) = base_linear_->GetJacobianWrtNodes(t,kAcc);
+    jac_parametrization.middleRows(LX, k3D) = base_linear_->GetJacobianWrtNodes(t,kAcc);
   }
 
   if (var_set == id::base_ang_nodes) {
     Jacobian jac_ang_vel_wrt_coeff = converter_.GetDerivOfAngVelWrtCoeff(t);
 //    Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_ang_vel_wrt_coeff);
-    jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);
+    jac_parametrization.middleRows(AX, k3D) = converter_.GetDerivOfAngAccWrtCoeff(t);
   }
 
 
@@ -123,7 +123,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
   }
 
 
-  jac.middleRows(GetRow(k,AX), kDim6d) = jac_model - jac_parametrization;
+  jac.middleRows(GetRow(k,AX), k6D) = jac_model - jac_parametrization;
 }
 
 void

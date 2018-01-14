@@ -70,6 +70,15 @@ add_library(${PROJECT_NAME}
   src/nlp_optimizer_node.cc
   src/user_interface.cc
   src/rviz_terrain_builder.cc
+  src/gait_generator.cc
+  src/monoped_gait_generator.cc
+  src/biped_gait_generator.cc
+  src/quadruped_gait_generator.cc
+  # robot models
+  src/anymal_model.cc
+  src/hyq_model.cc
+  src/biped_model.cc
+  src/monoped_model.cc
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}

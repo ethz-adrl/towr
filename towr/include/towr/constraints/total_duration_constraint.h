@@ -16,7 +16,7 @@ namespace towr {
 
 class TotalDurationConstraint : public ifopt::ConstraintSet {
 public:
-  using EndeffectorID = uint;
+  using EE = uint;
 
   TotalDurationConstraint(double T_total, int ee);
   ~TotalDurationConstraint() = default;
@@ -30,7 +30,7 @@ public:
 private:
   ContactSchedule::Ptr schedule_;
   double T_total_;
-  EndeffectorID ee_;
+  EE ee_;
 };
 
 } // namespace towr

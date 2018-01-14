@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <towr/models/monoped_gait_generator.h>
+#include <towr_ros/monoped_gait_generator.h>
 
 #include <cassert>
 #include <iostream>

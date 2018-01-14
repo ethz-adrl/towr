@@ -36,6 +36,9 @@ OptimizationParameters::OptimizationParameters ()
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
 
+  force_z_limit_ = 10000; // N
+
+
   constraints_ = {
       EndeffectorRom,
       Dynamic,
@@ -64,6 +67,15 @@ OptimizationParameters::GetUsedConstraints () const
   return constraints_;
 }
 
+void
+OptimizationParameters::SetPhaseDurations (
+    const std::vector<VecTimes>& phase_durations,
+    const std::vector<bool>& initial_contact)
+{
+  ee_phase_durations_ = phase_durations;
+  ee_in_contact_at_start_ = initial_contact;
+}
+
 bool
 OptimizationParameters::OptimizeTimings () const
 {
@@ -88,6 +100,24 @@ OptimizationParameters::GetBasePolyDurations () const
   }
 
   return base_spline_timings_;
+}
+
+OptimizationParameters::VecTimes
+OptimizationParameters::GetEEPhaseDurations(EEID ee) const
+{
+  return ee_phase_durations_.at(ee);
+}
+
+int
+OptimizationParameters::GetPhaseCount(EEID ee) const
+{
+  return ee_phase_durations_.at(ee).size();
+}
+
+bool
+OptimizationParameters::IsEEInContactAtStart(EEID ee) const
+{
+  return ee_in_contact_at_start_.at(ee);
 }
 
 } // namespace towr

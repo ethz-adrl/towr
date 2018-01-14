@@ -18,7 +18,7 @@ namespace towr {
 
 RangeOfMotionBox::RangeOfMotionBox (const KinematicModel::Ptr& model,
                                     const OptimizationParameters& params,
-                                    const EndeffectorID& ee,
+                                    const EE& ee,
                                     const SplineHolder& spline_holder)
     :TimeDiscretizationConstraint(params.GetTotalTime(),
                                   params.dt_range_of_motion_,
@@ -33,13 +33,13 @@ RangeOfMotionBox::RangeOfMotionBox (const KinematicModel::Ptr& model,
 
   max_deviation_from_nominal_ = model->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B_           = model->GetNominalStanceInBase().at(ee);
-  SetRows(GetNumberOfNodes()*kDim3d);
+  SetRows(GetNumberOfNodes()*k3D);
 }
 
 int
 RangeOfMotionBox::GetRow (int node, int dim) const
 {
-  return node*kDim3d + dim;
+  return node*k3D + dim;
 }
 
 void
@@ -49,7 +49,7 @@ RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) cons
   AngularStateConverter::MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
   Vector3d pos_ee_B = b_R_w*(ee_motion_->GetPoint(t).p() - base_W);
 
-  g.middleRows(GetRow(k, X), kDim3d) = pos_ee_B;
+  g.middleRows(GetRow(k, X), k3D) = pos_ee_B;
 }
 
 void
@@ -57,7 +57,7 @@ RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k, VecBound& bounds) con
 {
   using namespace ifopt;
 
-  for (int dim=0; dim<kDim3d; ++dim) {
+  for (int dim=0; dim<k3D; ++dim) {
     Bounds b;
     b += nominal_ee_pos_B_(dim);
     b.upper_ += max_deviation_from_nominal_(dim);
@@ -74,22 +74,22 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   int row_start = GetRow(k,X);
 
   if (var_set == id::base_lin_nodes) {
-    jac.middleRows(row_start, kDim3d) = -1*b_R_w*base_linear_->GetJacobianWrtNodes(t, kPos);
+    jac.middleRows(row_start, k3D) = -1*b_R_w*base_linear_->GetJacobianWrtNodes(t, kPos);
   }
 
   if (var_set == id::base_ang_nodes) {
     Vector3d base_W   = base_linear_->GetPoint(t).p();
     Vector3d ee_pos_W = ee_motion_->GetPoint(t).p();
     Vector3d r_W = ee_pos_W - base_W;
-    jac.middleRows(row_start, kDim3d) = converter_.GetDerivativeOfRotationMatrixRowWrtCoeff(t,r_W, true);
+    jac.middleRows(row_start, k3D) = converter_.GetDerivativeOfRotationMatrixRowWrtCoeff(t,r_W, true);
   }
 
   if (var_set == id::EEMotionNodes(ee_)) {
-    jac.middleRows(row_start, kDim3d) = b_R_w*ee_motion_->GetJacobianWrtNodes(t,kPos);
+    jac.middleRows(row_start, k3D) = b_R_w*ee_motion_->GetJacobianWrtNodes(t,kPos);
   }
 
   if (var_set == id::EESchedule(ee_)) {
-    jac.middleRows(row_start, kDim3d) = b_R_w*ee_motion_->GetJacobianOfPosWrtDurations(t);
+    jac.middleRows(row_start, k3D) = b_R_w*ee_motion_->GetJacobianOfPosWrtDurations(t);
   }
 
 }

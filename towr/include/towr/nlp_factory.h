@@ -42,7 +42,7 @@ public:
   using VariablePtrVec   = std::vector<ifopt::VariableSet::Ptr>;
   using ContraintPtrVec  = std::vector<ifopt::ConstraintSet::Ptr>;
   using CostPtrVec       = std::vector<ifopt::CostTerm::Ptr>;
-  using NewEEPos         = std::vector<Eigen::Vector3d>;
+  using EEPos            = std::vector<Eigen::Vector3d>;
   using Vector3d         = Eigen::Vector3d;
 
   NlpFactory () = default;
@@ -51,7 +51,7 @@ public:
   void Init(const OptimizationParameters&,
             const HeightMap::Ptr& terrain,
             const RobotModel& model,
-            const NewEEPos& ee_pos,
+            const EEPos& ee_pos,
             const BaseState& initial_base,
             const BaseState& final_base);
 
@@ -68,9 +68,9 @@ private:
   mutable SplineHolder spline_holder_;
 
 
-  BaseState new_initial_base_;
-  BaseState new_final_base_;
-  NewEEPos  new_initial_ee_W_;
+  BaseState initial_base_;
+  BaseState final_base_;
+  EEPos  initial_ee_W_;
 
 
 

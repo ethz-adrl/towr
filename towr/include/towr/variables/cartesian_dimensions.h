@@ -30,32 +30,32 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * Defines common conventions and index values to be used in Cartesian
  * environments.
  */
-#ifndef TOWR_VARIABLES_CARTESIAN_DECLARATIONS_H_
-#define TOWR_VARIABLES_CARTESIAN_DECLARATIONS_H_
+#ifndef TOWR_VARIABLES_CARTESIAN_DIMENSIONS_H_
+#define TOWR_VARIABLES_CARTESIAN_DIMENSIONS_H_
 
 #include <cassert>
 
 namespace towr {
 
 // 2-dimensional
-static constexpr int kDim2d = 2;
-enum Coords2D { X_=0, Y_};
+static constexpr int k2D = 2;
+enum Dim2D { X_=0, Y_};
 
 // 3-dimensional
-static constexpr int kDim3d = 3;
-enum Coords3D { X=0, Y, Z };
-static Coords2D To2D(Coords3D dim)
+static constexpr int k3D = 3;
+enum Dim3D { X=0, Y, Z };
+static Dim2D To2D(Dim3D dim)
 {
   assert(dim != Z);
-  return static_cast<Coords2D>(dim);
+  return static_cast<Dim2D>(dim);
 };
 
 // 6-dimensional
 // 'A' stands for angular, 'L' for linear.
-static constexpr int kDim6d = 6; // X,Y,Z, roll, pitch, yaw
-enum Coords6D { AX=0, AY, AZ, LX, LY, LZ };
-static const Coords6D AllDim6D[] = {AX, AY, AZ, LX, LY, LZ};
+static constexpr int k6D = 6; // X,Y,Z, roll, pitch, yaw
+enum Dim6D { AX=0, AY, AZ, LX, LY, LZ };
+static const Dim6D AllDim6D[] = {AX, AY, AZ, LX, LY, LZ};
 
 } // namespace towr
 
-#endif /* TOWR_VARIABLES_CARTESIAN_DECLARATIONS_H_ */
+#endif /* TOWR_VARIABLES_CARTESIAN_DIMENSIONS_H_ */

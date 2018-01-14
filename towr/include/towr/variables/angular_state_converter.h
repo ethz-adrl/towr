@@ -10,9 +10,7 @@
 
 #include <array>
 
-#include "cartesian_declarations.h"
-
-
+#include "cartesian_dimensions.h"
 #include "spline.h"
 
 namespace towr {
@@ -108,16 +106,16 @@ private:
    *  @returns    the Jacobians w.r.t the coefficients for each of the 3 rows
    *              of the matrix stacked on top of each other.
    */
-  Jacobian GetDerivMwrtCoeff(double t, Coords3D dim) const;
+  Jacobian GetDerivMwrtCoeff(double t, Dim3D dim) const;
 
   /** @brief Derivative of the @a dim row of the time derivative of M with
    *         respect to the polynomial coefficients.
    *
    *  @param dim Which dimension of the angular acceleration is desired
    */
-  Jacobian GetDerivMdotwrtCoeff(double t, Coords3D dim) const;
+  Jacobian GetDerivMdotwrtCoeff(double t, Dim3D dim) const;
 
-  using JacRowMatrix = std::array<std::array<JacobianRow, kDim3d>, kDim3d>;
+  using JacRowMatrix = std::array<std::array<JacobianRow, k3D>, k3D>;
   /** @brief matrix of derivatives of each cell w.r.t spline coefficients
    *
    * This 2d-array has the same dimensions as the rotation matrix M_IB, but
@@ -132,7 +130,7 @@ private:
    */
   int OptVariablesOfCurrentPolyCount(double t) const;
 
-  JacobianRow GetJac(double t, Dx deriv, Coords3D dim) const;
+  JacobianRow GetJac(double t, Dx deriv, Dim3D dim) const;
 };
 
 } /* namespace towr */

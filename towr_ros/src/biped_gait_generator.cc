@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#include <towr/models/biped_gait_generator.h>
+#include <towr_ros/biped_gait_generator.h>
 
 #include <cassert>
 #include <iostream>
 
-#include <towr/models/endeffector_mappings.h>
+#include <xpp_states/endeffector_mappings.h>
 
 namespace towr {
 
@@ -19,12 +19,15 @@ BipedGaitGenerator::BipedGaitGenerator ()
   ContactState init(2, false);
   I_ = b_ = P_ = B_ = init;
 
-  using namespace biped;
+  using namespace xpp::biped;
   P_.at(L) = true;
   b_.at(R) = true;
   B_       = { true, true };
 
   SetGaits({Stand});
+
+  map_id_to_ee_["L"] = L;
+  map_id_to_ee_["R"] = R;
 }
 
 void

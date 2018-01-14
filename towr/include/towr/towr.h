@@ -51,12 +51,12 @@ public:
    * @brief  The parameters that determine the type of motion produced.
    *
    * @param final_base  The desired final position and velocity of the base.
-   * @param total_time  The time given to reach the final_base.
+   * @param params      The parameters defining the optimization problem.
    * @param model       The kinematic and dynamic model of the system.
    * @param terrain     The height map of the terrain to walk over.
    */
   void SetParameters(const BaseState& final_base,
-                     double total_time,
+                     const OptimizationParameters& params,
                      const RobotModel& model,
                      HeightMap::Ptr terrain);
 

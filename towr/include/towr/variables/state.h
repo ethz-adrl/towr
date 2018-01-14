@@ -106,7 +106,7 @@ public:
   static const int n_derivatives = 2; ///< value and first derivative.
 
   /**
-   * @brief Constructs a @dim - dimensional node (default zero-dimensional).
+   * @brief Constructs a @a dim - dimensional node (default zero-dimensional).
    */
   explicit Node(int dim = 0) : State(dim, n_derivatives) {};
   virtual ~Node() = default;

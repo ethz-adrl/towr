@@ -27,7 +27,7 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
   force_limit_normal_direction_ = force_limit;
   mu_        = terrain->GetFrictionCoeff();
   ee_ = ee;
-  n_constraints_per_node_ = 1 + 2*kDim2d; // positive normal force + 4 friction pyramid constraints
+  n_constraints_per_node_ = 1 + 2*k2D; // positive normal force + 4 friction pyramid constraints
 }
 
 void

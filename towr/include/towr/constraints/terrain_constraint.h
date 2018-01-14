@@ -25,8 +25,7 @@ class TerrainConstraint : public ifopt::ConstraintSet {
 public:
   using Vector3d = Eigen::Vector3d;
 
-  TerrainConstraint (const HeightMap::Ptr& terrain,
-                     std::string ee_motion_id);
+  TerrainConstraint (const HeightMap::Ptr& terrain, std::string ee_motion_id);
   virtual ~TerrainConstraint () = default;
 
 

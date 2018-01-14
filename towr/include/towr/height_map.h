@@ -12,7 +12,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include <towr/variables/cartesian_declarations.h>
+#include "variables/cartesian_dimensions.h"
 
 namespace towr {
 
@@ -33,17 +33,17 @@ class HeightMap {
 public:
   using Ptr         = std::shared_ptr<HeightMap>;
   using Vector3d    = Eigen::Vector3d;
-  using Derivatives = std::vector<Coords2D>;
+  using Derivatives = std::vector<Dim2D>;
 
   static Ptr MakeTerrain(TerrainID type);
-  virtual ~HeightMap () {};
+  virtual ~HeightMap () = default;
 
   enum BasisVector { Normal, Tangent1, Tangent2 };
 
   virtual double GetHeight(double x, double y) const = 0;
-  double GetDerivativeOfHeightWrt(Coords2D dim, double x, double y) const;
+  double GetDerivativeOfHeightWrt(Dim2D dim, double x, double y) const;
   Vector3d GetNormalizedBasis(BasisVector, double x, double y) const;
-  Vector3d GetDerivativeOfNormalizedBasisWrt(BasisVector, Coords2D dim, double x, double y) const;
+  Vector3d GetDerivativeOfNormalizedBasisWrt(BasisVector, Dim2D dim, double x, double y) const;
 
   double GetFrictionCoeff() const { return friction_coeff_; };
   virtual void SetGroundHeight(double height) {};
@@ -63,7 +63,7 @@ private:
   virtual double GetHeightDerivWrtY(double x, double y) const { return 0.0; };
 
   // second derivatives wrt first letter, then second
-  double GetSecondDerivativeOfHeightWrt(Coords2D dim1, Coords2D dim2, double x, double y) const;
+  double GetSecondDerivativeOfHeightWrt(Dim2D dim1, Dim2D dim2, double x, double y) const;
   virtual double GetHeightDerivWrtXX(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtXY(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYX(double x, double y) const { return 0.0; };

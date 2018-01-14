@@ -11,11 +11,6 @@
 #include <string>
 #include <vector>
 
-//#include <ifopt/composite.h>
-//
-//#include <xpp_states/endeffectors.h>
-//#include <xpp_states/state.h>
-
 #include <towr/models/kinematic_model.h>
 #include <towr/optimization_parameters.h>
 #include <towr/variables/spline.h>
@@ -39,12 +34,12 @@ namespace towr {
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-  using EndeffectorID = uint;
+  using EE = uint;
   using Vector3d = Eigen::Vector3d;
 
   RangeOfMotionBox(const KinematicModel::Ptr& robot_model,
                    const OptimizationParameters& params,
-                   const EndeffectorID& ee,
+                   const EE& ee,
                    const SplineHolder& spline_holder);
   virtual ~RangeOfMotionBox() = default;
 
@@ -64,7 +59,7 @@ private:
   Eigen::Vector3d nominal_ee_pos_B_;
   AngularStateConverter converter_;
 
-  EndeffectorID ee_;
+  EE ee_;
 };
 
 } /* namespace towr */
