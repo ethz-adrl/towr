@@ -24,49 +24,67 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/variables/angular_state_converter.h>
+#include <towr/variables/euler_converter.h>
 
 #include <cassert>
 #include <cmath>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
 
 namespace towr {
 
 
-AngularStateConverter::AngularStateConverter (const Spline::Ptr& euler)
+EulerConverter::EulerConverter (const Spline::Ptr& euler)
 {
   euler_ = euler;
   jac_wrt_nodes_structure_ = Jacobian(k3D, euler->GetNodeVariablesCount());
 }
 
 Eigen::Quaterniond
-AngularStateConverter::GetOrientation (const EulerAngles& pos)
+EulerConverter::GetQuaternionBaseToWorld (double t) const
+{
+  State ori = euler_->GetPoint(t);
+  return GetQuaternionBaseToWorld(ori.p());
+}
+
+Eigen::Quaterniond
+EulerConverter::GetQuaternionBaseToWorld (const EulerAngles& pos)
 {
   Eigen::Matrix3d R_WB = GetRotationMatrixBaseToWorld(pos);
   return Eigen::Quaterniond(R_WB);
 }
 
-AngularStateConverter::AngularVel
-AngularStateConverter::GetAngularVelocity (double t) const
+Eigen::Vector3d
+EulerConverter::GetAngularVelocityInWorld (double t) const
 {
-  StateLin3d ori = euler_->GetPoint(t);
-  return GetAngularVelocity(ori.p(), ori.v());
+  State ori = euler_->GetPoint(t);
+  return GetAngularVelocityInWorld(ori.p(), ori.v());
 }
 
-AngularStateConverter::AngularVel
-AngularStateConverter::GetAngularVelocity (const EulerAngles& pos,
-                                           const EulerAngles& vel)
+Eigen::Vector3d
+EulerConverter::GetAngularVelocityInWorld (const EulerAngles& pos,
+                                    const EulerRates& vel)
 {
   return GetM(pos)*vel;
 }
 
-AngularStateConverter::Jacobian
-AngularStateConverter::GetDerivOfAngVelWrtEulerNodes(double t) const
+Eigen::Vector3d
+EulerConverter::GetAngularAccelerationInWorld (double t) const
+{
+  State ori = euler_->GetPoint(t);
+  return GetAngularAccelerationInWorld(ori);
+}
+
+Eigen::Vector3d
+EulerConverter::GetAngularAccelerationInWorld (State ori)
+{
+  return GetMdot(ori.p(), ori.v())*ori.v() + GetM(ori.p())*ori.a();
+}
+
+EulerConverter::Jacobian
+EulerConverter::GetDerivOfAngVelWrtEulerNodes(double t) const
 {
   Jacobian jac = jac_wrt_nodes_structure_;
 
-  StateLin3d ori = euler_->GetPoint(t);
+  State ori = euler_->GetPoint(t);
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program
   JacobianRow vel = ori.v().transpose().sparseView(1.0, -1.0);
@@ -80,26 +98,13 @@ AngularStateConverter::GetDerivOfAngVelWrtEulerNodes(double t) const
   return jac;
 }
 
-AngularStateConverter::AngularAcc
-AngularStateConverter::GetAngularAcceleration (double t) const
-{
-  StateLin3d ori = euler_->GetPoint(t);
-  return GetAngularAcceleration(ori);
-}
-
-AngularStateConverter::AngularAcc
-AngularStateConverter::GetAngularAcceleration (StateLin3d ori)
-{
-  return GetMdot(ori.p(), ori.v())*ori.v() + GetM(ori.p())*ori.a();
-}
-
-AngularStateConverter::Jacobian
-AngularStateConverter::GetDerivOfAngAccWrtEulerNodes (double t) const
+EulerConverter::Jacobian
+EulerConverter::GetDerivOfAngAccWrtEulerNodes (double t) const
 {
   Jacobian jac = jac_wrt_nodes_structure_;
 
 
-  StateLin3d ori = euler_->GetPoint(t);
+  State ori = euler_->GetPoint(t);
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program
   JacobianRow vel = ori.v().transpose().sparseView(1.0, -1.0);
@@ -123,8 +128,8 @@ AngularStateConverter::GetDerivOfAngAccWrtEulerNodes (double t) const
   return jac;
 }
 
-AngularStateConverter::MatrixSXd
-AngularStateConverter::GetM (const EulerAngles& xyz)
+EulerConverter::MatrixSXd
+EulerConverter::GetM (const EulerAngles& xyz)
 {
   double z = xyz(Z);
   double y = xyz(Y);
@@ -133,15 +138,15 @@ AngularStateConverter::GetM (const EulerAngles& xyz)
   // http://docs.leggedrobotics.com/kindr/cheatsheet_latest.pdf
   Jacobian M(k3D, k3D);
 
-                          M.coeffRef(0,Y) = -sin(z);  M.coeffRef(0,X) =  cos(y)*cos(z);
-                          M.coeffRef(1,Y) =  cos(z);  M.coeffRef(1,X) =  cos(y)*sin(z);
-  M.coeffRef(2,Z) = 1.0;                              M.coeffRef(2,X) =  -sin(y);
+       /* - */           M.coeffRef(0,Y) = -sin(z);  M.coeffRef(0,X) =  cos(y)*cos(z);
+       /* - */           M.coeffRef(1,Y) =  cos(z);  M.coeffRef(1,X) =  cos(y)*sin(z);
+  M.coeffRef(2,Z) = 1.0;          /* - */            M.coeffRef(2,X) =  -sin(y);
 
   return M;
 }
 
-AngularStateConverter::MatrixSXd
-AngularStateConverter::GetMdot (const EulerAngles& xyz,
+EulerConverter::MatrixSXd
+EulerConverter::GetMdot (const EulerAngles& xyz,
                                 const EulerRates& xyz_d)
 {
   double z  = xyz(Z);
@@ -153,22 +158,22 @@ AngularStateConverter::GetMdot (const EulerAngles& xyz,
 
   Mdot.coeffRef(0,Y) = -cos(z)*zd; Mdot.coeffRef(0,X) = -cos(z)*sin(y)*yd - cos(y)*sin(z)*zd;
   Mdot.coeffRef(1,Y) = -sin(z)*zd; Mdot.coeffRef(1,X) =  cos(y)*cos(z)*zd - sin(y)*sin(z)*yd;
-                                   Mdot.coeffRef(2,X) = -cos(y)*yd;
+              /* - */              Mdot.coeffRef(2,X) = -cos(y)*yd;
 
  return Mdot;
 }
 
-AngularStateConverter::Jacobian
-AngularStateConverter::GetDerivMwrtCoeff (double t, Dim3D ang_acc_dim) const
+EulerConverter::Jacobian
+EulerConverter::GetDerivMwrtCoeff (double t, Dim3D ang_acc_dim) const
 {
-  StateLin3d ori = euler_->GetPoint(t);
+  State ori = euler_->GetPoint(t);
 
   double z = ori.p()(Z);
   double y = ori.p()(Y);
   JacobianRow jac_z = GetJac(t, kPos, Z);
   JacobianRow jac_y = GetJac(t, kPos, Y);
 
-  Jacobian jac = jac_wrt_nodes_structure_; //(k3D, OptVariablesOfCurrentPolyCount(t));
+  Jacobian jac = jac_wrt_nodes_structure_;
 
   switch (ang_acc_dim) {
     case X: // basically derivative of top row (3 elements) of matrix M
@@ -190,15 +195,15 @@ AngularStateConverter::GetDerivMwrtCoeff (double t, Dim3D ang_acc_dim) const
   return jac;
 }
 
-AngularStateConverter::MatrixSXd
-AngularStateConverter::GetRotationMatrixBaseToWorld (double t) const
+EulerConverter::MatrixSXd
+EulerConverter::GetRotationMatrixBaseToWorld (double t) const
 {
-  StateLin3d ori = euler_->GetPoint(t);
+  State ori = euler_->GetPoint(t);
   return GetRotationMatrixBaseToWorld(ori.p());
 }
 
-AngularStateConverter::MatrixSXd
-AngularStateConverter::GetRotationMatrixBaseToWorld (const EulerAngles& xyz)
+EulerConverter::MatrixSXd
+EulerConverter::GetRotationMatrixBaseToWorld (const EulerAngles& xyz)
 {
   double x = xyz(X);
   double y = xyz(Y);
@@ -213,10 +218,10 @@ AngularStateConverter::GetRotationMatrixBaseToWorld (const EulerAngles& xyz)
   return M.sparseView(1.0, -1.0);
 }
 
-AngularStateConverter::Jacobian
-AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtEulerNodes (double t,
-                                                                 const Vector3d& v,
-                                                                 bool inverse) const
+EulerConverter::Jacobian
+EulerConverter::GetDerivativeOfRotationMatrixRowWrtEulerNodes (double t,
+                                                               const Vector3d& v,
+                                                               bool inverse) const
 {
   JacRowMatrix Rd = GetDerivativeOfRotationMatrixWrtCoeff(t);
   Jacobian jac = jac_wrt_nodes_structure_;
@@ -234,12 +239,12 @@ AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtEulerNodes (double t,
   return jac;
 }
 
-AngularStateConverter::JacRowMatrix
-AngularStateConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
+EulerConverter::JacRowMatrix
+EulerConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
 {
   JacRowMatrix jac;
 
-  StateLin3d ori = euler_->GetPoint(t);
+  State ori = euler_->GetPoint(t);
   double x = ori.p()(X);
   double y = ori.p()(Y);
   double z = ori.p()(Z);
@@ -249,8 +254,8 @@ AngularStateConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
   JacobianRow jac_z = GetJac(t, kPos, Z);
 
   jac.at(X).at(X) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
-  jac.at(X).at(Y) = sin(x)*sin(z)*jac_x - cos(x)*cos(z)*jac_z - sin(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(z)*sin(y)*jac_x + cos(y)*cos(z)*sin(x)*jac_y;
-  jac.at(X).at(Z) = cos(x)*sin(z)*jac_x + cos(z)*sin(x)*jac_z - cos(z)*sin(x)*sin(y)*jac_x - cos(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(y)*cos(z)*jac_y;
+  jac.at(X).at(Y) =  sin(x)*sin(z)*jac_x - cos(x)*cos(z)*jac_z - sin(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(z)*sin(y)*jac_x + cos(y)*cos(z)*sin(x)*jac_y;
+  jac.at(X).at(Z) =  cos(x)*sin(z)*jac_x + cos(z)*sin(x)*jac_z - cos(z)*sin(x)*sin(y)*jac_x - cos(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(y)*cos(z)*jac_y;
 
   jac.at(Y).at(X) = cos(y)*cos(z)*jac_z - sin(y)*sin(z)*jac_y;
   jac.at(Y).at(Y) = cos(x)*sin(y)*sin(z)*jac_x - cos(x)*sin(z)*jac_z - cos(z)*sin(x)*jac_x + cos(y)*sin(x)*sin(z)*jac_y + cos(z)*sin(x)*sin(y)*jac_z;
@@ -258,15 +263,15 @@ AngularStateConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
 
   jac.at(Z).at(X) = -cos(y)*jac_y;
   jac.at(Z).at(Y) =  cos(x)*cos(y)*jac_x - sin(x)*sin(y)*jac_y;
-  jac.at(Z).at(Z) = - cos(y)*sin(x)*jac_x - cos(x)*sin(y)*jac_y;
+  jac.at(Z).at(Z) = -cos(y)*sin(x)*jac_x - cos(x)*sin(y)*jac_y;
 
   return jac;
 }
 
-AngularStateConverter::Jacobian
-AngularStateConverter::GetDerivMdotwrtCoeff (double t, Dim3D ang_acc_dim) const
+EulerConverter::Jacobian
+EulerConverter::GetDerivMdotwrtCoeff (double t, Dim3D ang_acc_dim) const
 {
-  StateLin3d ori = euler_->GetPoint(t);
+  State ori = euler_->GetPoint(t);
 
   double z  = ori.p()(Z);
   double zd = ori.v()(Z);
@@ -299,11 +304,10 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Dim3D ang_acc_dim) const
   return jac;
 }
 
-AngularStateConverter::JacobianRow
-AngularStateConverter::GetJac (double t, Dx deriv, Dim3D dim) const
+EulerConverter::JacobianRow
+EulerConverter::GetJac (double t, Dx deriv, Dim3D dim) const
 {
   return euler_->GetJacobianWrtNodes(t, deriv).row(dim);
 }
 
 } /* namespace towr */
-

@@ -32,8 +32,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/models/dynamic_model.h>
 #include <towr/variables/spline.h>
-#include <towr/variables/angular_state_converter.h>
 #include <towr/variables/spline_holder.h>
+#include "../variables/euler_converter.h"
 
 #include "time_discretization_constraint.h"
 
@@ -53,7 +53,7 @@ public:
 private:
 
   Spline::Ptr base_linear_;
-  Spline::Ptr base_angular_;
+  EulerConverter base_angular_;
   std::vector<Spline::Ptr> ee_forces_;
   std::vector<Spline::Ptr> ee_motion_;
 
@@ -61,7 +61,6 @@ private:
 
   mutable DynamicModel::Ptr model_;
   double gravity_;
-  AngularStateConverter converter_;
 
   int GetRow(int node, Dim6D dimension) const;
 

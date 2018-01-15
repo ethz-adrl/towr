@@ -35,12 +35,11 @@
 #include <towr_ros/quadruped_gait_generator.h>
 
 #include <towr/height_map.h>
-#include <towr/variables/angular_state_converter.h> // smell move into spline_holder
-
 #include <towr_ros/models/anymal_model.h>
 #include <towr_ros/models/hyq_model.h>
 #include <towr_ros/models/biped_model.h>
 #include <towr_ros/models/monoped_model.h>
+#include <towr/variables/euler_converter.h> // smell move into spline_holder
 
 namespace xpp {
 
@@ -243,6 +242,8 @@ NlpOptimizerNode::GetTrajectory () const
   double t=0.0;
   double T = total_time_;//params_.GetTotalTime();
 
+  towr::EulerConverter base_angular(spline_holder_.GetBaseAngular());
+
   while (t<=T+1e-5) {
 
     int n_ee = spline_holder_.GetEEMotion().size();
@@ -250,7 +251,10 @@ NlpOptimizerNode::GetTrajectory () const
 
     // here of course the conversions will not work
     state.base_.lin = ToXpp(spline_holder_.GetBaseLinear()->GetPoint(t));
-    state.base_.ang = GetState(spline_holder_.GetBaseAngular()->GetPoint(t));
+
+    state.base_.ang.q  = base_angular.GetQuaternionBaseToWorld(t);
+    state.base_.ang.w  = base_angular.GetAngularVelocityInWorld(t);
+    state.base_.ang.wd = base_angular.GetAngularAccelerationInWorld(t);
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
       state.ee_contact_.at(ee) = spline_holder_.GetEEMotion(ee)->IsConstantPhase(t);
@@ -264,18 +268,6 @@ NlpOptimizerNode::GetTrajectory () const
   }
 
   return trajectory;
-}
-
-xpp::StateAng3d
-NlpOptimizerNode::GetState (const towr::State& euler) const
-{
-  xpp::StateAng3d ang;
-
-  ang.q  = towr::AngularStateConverter::GetOrientation(euler.p());
-  ang.w  = towr::AngularStateConverter::GetAngularVelocity(euler.p(), euler.v());
-  ang.wd = towr::AngularStateConverter::GetAngularAcceleration(euler);
-
-  return ang;
 }
 
 xpp::StateLinXd

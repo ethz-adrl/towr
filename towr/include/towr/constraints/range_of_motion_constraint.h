@@ -33,8 +33,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/models/kinematic_model.h>
 #include <towr/optimization_parameters.h>
 #include <towr/variables/spline.h>
-#include <towr/variables/angular_state_converter.h>
 #include <towr/variables/spline_holder.h>
+#include "../variables/euler_converter.h"
 
 #include "time_discretization_constraint.h"
 
@@ -71,12 +71,11 @@ private:
   int GetRow(int node, int dimension) const;
 
   Spline::Ptr base_linear_;
-  Spline::Ptr base_angular_;
+  EulerConverter base_angular_;
   Spline::Ptr ee_motion_;
 
   Eigen::Vector3d max_deviation_from_nominal_;
   Eigen::Vector3d nominal_ee_pos_B_;
-  AngularStateConverter converter_;
 
   EE ee_;
 };

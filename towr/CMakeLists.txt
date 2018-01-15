@@ -50,7 +50,7 @@ add_library(${PROJECT_NAME}
   src/nodes_observer.cc
   src/contact_schedule_observer.cc
   src/spline_holder.cc
-  src/angular_state_converter.cc
+  src/euler_converter.cc
   src/contact_schedule.cc
   src/dynamic_model.cc
   src/centroidal_model.cc

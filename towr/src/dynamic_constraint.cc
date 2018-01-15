@@ -46,8 +46,7 @@ DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
 
   // link with up-to-date spline variables
   base_linear_  = spline_holder.GetBaseLinear();
-  base_angular_ = spline_holder.GetBaseAngular();
-  converter_    = AngularStateConverter(base_angular_);
+  base_angular_ = EulerConverter(spline_holder.GetBaseAngular());
 
   ee_forces_ = spline_holder.GetEEForce();
   ee_motion_ = spline_holder.GetEEMotion();
@@ -72,7 +71,7 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 
   // acceleration base polynomial has with current values of optimization variables
   Vector6d acc_parametrization = Vector6d::Zero();
-  acc_parametrization.middleRows(AX, k3D) = converter_.GetAngularAcceleration(t);
+  acc_parametrization.middleRows(AX, k3D) = base_angular_.GetAngularAccelerationInWorld(t);
   acc_parametrization.middleRows(LX, k3D) = base_linear_->GetPoint(t).a();
 
   for (auto dim : AllDim6D)
@@ -109,10 +108,10 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
   }
 
   if (var_set == id::base_ang_nodes) {
-    Jacobian jac_ang_vel_wrt_coeff = converter_.GetDerivOfAngVelWrtEulerNodes(t);
+    Jacobian jac_ang_vel_wrt_coeff = base_angular_.GetDerivOfAngVelWrtEulerNodes(t);
 //    Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_ang_vel_wrt_coeff);
-    jac_parametrization.middleRows(AX, k3D) = converter_.GetDerivOfAngAccWrtEulerNodes(t);
+    jac_parametrization.middleRows(AX, k3D) = base_angular_.GetDerivOfAngAccWrtEulerNodes(t);
   }
 
 
@@ -148,7 +147,7 @@ void
 DynamicConstraint::UpdateModel (double t) const
 {
   auto com_pos   = base_linear_->GetPoint(t).p();
-  Vector3d omega = converter_.GetAngularVelocity(t);
+  Vector3d omega = base_angular_.GetAngularVelocityInWorld(t);
 
 //  int n_ee = model_->GetEEIDs().size();
   std::vector<Vector3d> ee_pos(n_ee_);

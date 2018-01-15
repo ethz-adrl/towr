@@ -46,9 +46,8 @@ RangeOfMotionBox::RangeOfMotionBox (const KinematicModel::Ptr& model,
   ee_ = ee;
 
   base_linear_  = spline_holder.GetBaseLinear();
-  base_angular_ = spline_holder.GetBaseAngular();
+  base_angular_ = EulerConverter(spline_holder.GetBaseAngular());
   ee_motion_    = spline_holder.GetEEMotion(ee);
-  converter_    = AngularStateConverter(base_angular_);
 
   max_deviation_from_nominal_ = model->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B_           = model->GetNominalStanceInBase().at(ee);
@@ -65,7 +64,7 @@ void
 RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
   Vector3d base_W = base_linear_->GetPoint(t).p();
-  AngularStateConverter::MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
+  EulerConverter::MatrixSXd b_R_w = base_angular_.GetRotationMatrixBaseToWorld(t).transpose();
   Vector3d pos_ee_B = b_R_w*(ee_motion_->GetPoint(t).p() - base_W);
 
   g.middleRows(GetRow(k, X), k3D) = pos_ee_B;
@@ -89,7 +88,7 @@ void
 RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
                                             std::string var_set) const
 {
-  AngularStateConverter::MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
+  EulerConverter::MatrixSXd b_R_w = base_angular_.GetRotationMatrixBaseToWorld(t).transpose();
   int row_start = GetRow(k,X);
 
   if (var_set == id::base_lin_nodes) {
@@ -100,7 +99,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
     Vector3d base_W   = base_linear_->GetPoint(t).p();
     Vector3d ee_pos_W = ee_motion_->GetPoint(t).p();
     Vector3d r_W = ee_pos_W - base_W;
-    jac.middleRows(row_start, k3D) = converter_.GetDerivativeOfRotationMatrixRowWrtEulerNodes(t,r_W, true);
+    jac.middleRows(row_start, k3D) = base_angular_.GetDerivativeOfRotationMatrixRowWrtEulerNodes(t,r_W, true);
   }
 
   if (var_set == id::EEMotionNodes(ee_)) {

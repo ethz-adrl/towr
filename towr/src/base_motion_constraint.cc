@@ -45,7 +45,7 @@ BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params
 
   double dev_rad = 0.1;
   node_bounds_.resize(k6D);
-  node_bounds_.at(AX) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad);
+  node_bounds_.at(AX) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad); euler angles bounds!
   node_bounds_.at(AY) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad);
   node_bounds_.at(AZ) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad); // NoBound
   node_bounds_.at(LX) = ifopt::NoBound;
