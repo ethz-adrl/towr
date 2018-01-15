@@ -46,5 +46,4 @@ DynamicModel::SetCurrent (const ComPos& com_pos,
   ee_pos_   = ee_pos;
 }
 
-
 } /* namespace towr */

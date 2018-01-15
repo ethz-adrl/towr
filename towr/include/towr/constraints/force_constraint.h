@@ -27,47 +27,62 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_CONSTRAINTS_FORCE_CONSTRAINT_H_
 #define TOWR_CONSTRAINTS_FORCE_CONSTRAINT_H_
 
-#include <string>
-
 #include <ifopt/constraint_set.h>
 
 #include <towr/variables/phase_nodes.h>
-#include <towr/height_map.h>
+#include <towr/height_map.h> // for friction cone
 
 namespace towr {
 
-/** Ensures the end-effector force lies inside friction cone.
+/**
+ * @brief Ensures foot force that is unilateral and inside friction cone.
  *
- * Attention: This is enforced only at the spline nodes.
+ * This class is responsible for constraining the endeffector xyz-forces to
+ * only push into the terrain and additionally stay inside the friction cone
+ * according to the current slope.
+ *
+ * In order to keep the constraint linear and simple for the solver to solve,
+ * we approximate the friction cone by a 4-sided pyramid.
+ *
+ * Attention: Constraint is enforced only at the spline nodes. In between
+ * violations of this contraint can occur.
  */
 class ForceConstraint : public ifopt::ConstraintSet {
 public:
-  using EndeffectorID = uint;
   using Vector3d = Eigen::Vector3d;
+  using EE = uint;
 
+  /**
+   * @brief Constructs a force contraint.
+   * @param terrain  The gradient information of the terrain for friction cone.
+   * @param force_limit_in_normal_direction  Maximum pushing force [N].
+   * @param endeffector_id Which endeffector force should be constrained.
+   */
   ForceConstraint (const HeightMap::Ptr& terrain,
                    double force_limit_in_normal_direction,
-                   EndeffectorID ee);
+                   EE endeffector_id);
   virtual ~ForceConstraint () = default;
 
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
-  /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
-
 private:
-  PhaseNodes::Ptr ee_force_;
-  PhaseNodes::Ptr ee_motion_;
+  PhaseNodes::Ptr ee_force_;  ///< the current xyz foot forces.
+  PhaseNodes::Ptr ee_motion_; ///< the current xyz foot positions.
 
-  HeightMap::Ptr terrain_;
-  double force_limit_normal_direction_;
-  double mu_; // friction coeff
-  int n_constraints_per_node_;
+  HeightMap::Ptr terrain_; ///< gradient information at every position (x,y).
+  double fn_max_;          ///< force limit in normal direction.
+  double mu_;              ///< friction coeff between robot feet and terrain.
+  int n_constraints_per_node_; ///< number of constraint for each node.
+  EE ee_;                  ///< The endeffector force to be constrained.
 
-  EndeffectorID ee_;
+  /**
+   * The are those Hermite-nodes that shape the polynomial during the
+   * stance phases, while all the others are already set to zero force (swing)
+   **/
   std::vector<int> pure_stance_force_node_ids_;
 };
 

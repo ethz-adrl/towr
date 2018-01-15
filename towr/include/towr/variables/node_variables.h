@@ -27,15 +27,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_VARIABLES_NODE_VALUES_H_
 #define TOWR_VARIABLES_NODE_VALUES_H_
 
-#include <memory>
-#include <string>
-#include <vector>
-
 #include <ifopt/variable_set.h>
 
 #include "nodes_observer.h"
 #include "state.h"
-
 
 namespace towr {
 
@@ -47,16 +42,14 @@ namespace towr {
  */
 class NodeVariables : public ifopt::VariableSet {
 public:
-  using Ptr      = std::shared_ptr<NodeVariables>;
-  using Deriv    = Dx;
+  using Ptr          = std::shared_ptr<NodeVariables>;
   using VecDurations = std::vector<double>;
 
   enum Side {Start=0, End};
 
-
   struct IndexInfo {
     int node_id_;
-    Deriv node_deriv_;
+    Dx node_deriv_;
     int node_deriv_dim_;
 
     int operator==(const IndexInfo& right) const;
@@ -98,14 +91,14 @@ public:
   static int GetNodeId(int poly_id, Side);
 
   // basically opposite of above
-  int Index(int node_id, Deriv, int dim) const;
+  int Index(int node_id, Dx, int dim) const;
 
   void AddObserver(NodesObserver* const o);
 
   int GetDim() const;
 
-  void AddStartBound (Deriv d, const std::vector<int>& dimensions, const VectorXd& val);
-  void AddFinalBound(Deriv d, const std::vector<int>& dimensions, const VectorXd& val);
+  void AddStartBound (Dx d, const std::vector<int>& dimensions, const VectorXd& val);
+  void AddFinalBound(Dx d, const std::vector<int>& dimensions, const VectorXd& val);
 
 protected:
   NodeVariables (int n_dim, const std::string& name);
@@ -123,8 +116,8 @@ private:
   std::vector<Node> nodes_;
   int n_dim_;
 
-  void AddBounds(int node_id, Deriv, const std::vector<int>& dim, const VectorXd& val);
-  void AddBound(int node_id, Deriv, int dim, double val);
+  void AddBounds(int node_id, Dx, const std::vector<int>& dim, const VectorXd& val);
+  void AddBound(int node_id, Dx, int dim, double val);
 };
 
 } /* namespace towr */

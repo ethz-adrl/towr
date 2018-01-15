@@ -91,7 +91,7 @@ EulerConverter::GetDerivOfAngVelWrtEulerNodes(double t) const
   Jacobian dVel_du  = euler_->GetJacobianWrtNodes(t, kVel);
 
   for (auto dim : {X,Y,Z}) {
-    Jacobian dM_du = GetDerivMwrtCoeff(t,dim);
+    Jacobian dM_du = GetDerivMwrtNodes(t,dim);
     jac.row(dim) = vel*dM_du + GetM(ori.p()).row(dim)*dVel_du;
   }
 
@@ -116,8 +116,8 @@ EulerConverter::GetDerivOfAngAccWrtEulerNodes (double t) const
 
   for (auto dim : {X,Y,Z}) {
 
-    Jacobian dMdot_du = GetDerivMdotwrtCoeff(t,dim);
-    Jacobian dM_du    = GetDerivMwrtCoeff(t,dim);
+    Jacobian dMdot_du = GetDerivMdotwrtNodes(t,dim);
+    Jacobian dM_du    = GetDerivMwrtNodes(t,dim);
 
     jac.row(dim) = vel                               * dMdot_du
                    + GetMdot(ori.p(), ori.v()).row(dim)* dVel_du
@@ -164,7 +164,7 @@ EulerConverter::GetMdot (const EulerAngles& xyz,
 }
 
 EulerConverter::Jacobian
-EulerConverter::GetDerivMwrtCoeff (double t, Dim3D ang_acc_dim) const
+EulerConverter::GetDerivMwrtNodes (double t, Dim3D ang_acc_dim) const
 {
   State ori = euler_->GetPoint(t);
 
@@ -219,11 +219,11 @@ EulerConverter::GetRotationMatrixBaseToWorld (const EulerAngles& xyz)
 }
 
 EulerConverter::Jacobian
-EulerConverter::GetDerivativeOfRotationMatrixRowWrtEulerNodes (double t,
+EulerConverter::GetDerivOfRotMatRowWrtEulerNodes (double t,
                                                                const Vector3d& v,
                                                                bool inverse) const
 {
-  JacRowMatrix Rd = GetDerivativeOfRotationMatrixWrtCoeff(t);
+  JacRowMatrix Rd = GetDerivativeOfRotationMatrixWrtNodes(t);
   Jacobian jac = jac_wrt_nodes_structure_;
 
   for (int row : {X,Y,Z}) {
@@ -240,7 +240,7 @@ EulerConverter::GetDerivativeOfRotationMatrixRowWrtEulerNodes (double t,
 }
 
 EulerConverter::JacRowMatrix
-EulerConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
+EulerConverter::GetDerivativeOfRotationMatrixWrtNodes (double t) const
 {
   JacRowMatrix jac;
 
@@ -269,7 +269,7 @@ EulerConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
 }
 
 EulerConverter::Jacobian
-EulerConverter::GetDerivMdotwrtCoeff (double t, Dim3D ang_acc_dim) const
+EulerConverter::GetDerivMdotwrtNodes (double t, Dim3D ang_acc_dim) const
 {
   State ori = euler_->GetPoint(t);
 

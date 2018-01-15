@@ -25,23 +25,31 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/models/centroidal_model.h>
-
-#include <vector>
-
 #include <towr/variables/cartesian_dimensions.h>
-
 
 namespace towr {
 
-static Eigen::Matrix3d BuildInertiaTensor(
-        double Ixx, double Iyy, double Izz,
-        double Ixy, double Ixz, double Iyz)
+// some Eigen helper functions
+static Eigen::Matrix3d BuildInertiaTensor( double Ixx, double Iyy, double Izz,
+                                           double Ixy, double Ixz, double Iyz)
 {
   Eigen::Matrix3d I;
   I <<  Ixx, -Ixy, -Ixz,
        -Ixy,  Iyy, -Iyz,
        -Ixz, -Iyz,  Izz;
   return I;
+}
+
+CentroidalModel::Jac
+BuildCrossProductMatrix(const Eigen::Vector3d& in)
+{
+  CentroidalModel::Jac out(3,3);
+
+  out.coeffRef(0,1) = -in(2); out.coeffRef(0,2) =  in(1);
+  out.coeffRef(1,0) =  in(2); out.coeffRef(1,2) = -in(0);
+  out.coeffRef(2,0) = -in(1); out.coeffRef(2,1) =  in(0);
+
+  return out;
 }
 
 CentroidalModel::CentroidalModel (double mass,
@@ -65,7 +73,7 @@ CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
 }
 
 CentroidalModel::BaseAcc
-CentroidalModel::GetBaseAcceleration () const
+CentroidalModel::GetBaseAccelerationInWorld () const
 {
   Vector3d f_lin, f_ang; f_lin.setZero(); f_ang.setZero();
 
@@ -81,27 +89,12 @@ CentroidalModel::GetBaseAcceleration () const
 
   BaseAcc acc;
   acc.segment(AX, k3D) = I_inv_*(f_ang - omega_.cross(I_dense_*omega_)); // coriolis terms
-  acc.segment(LX, k3D) = 1./m_ *f_lin;
+  acc.segment(LX, k3D) = 1./m() *f_lin;
 
   return acc;
 }
 
-// just a helper function
-using Jacobian = DynamicModel::Jac;
-
-static Jacobian
-BuildCrossProductMatrix(const Eigen::Vector3d& in)
-{
-  Jacobian out(3,3);
-
-  out.coeffRef(0,1) = -in(2); out.coeffRef(0,2) =  in(1);
-  out.coeffRef(1,0) =  in(2); out.coeffRef(1,2) = -in(0);
-  out.coeffRef(2,0) = -in(1); out.coeffRef(2,1) =  in(0);
-
-  return out;
-}
-
-Jacobian
+CentroidalModel::Jac
 CentroidalModel::GetJacobianOfAccWrtBaseLin (const Jac& jac_pos_base_lin) const
 {
   // build the com jacobian
@@ -120,7 +113,7 @@ CentroidalModel::GetJacobianOfAccWrtBaseLin (const Jac& jac_pos_base_lin) const
   return jac;
 }
 
-Jacobian
+CentroidalModel::Jac
 CentroidalModel::GetJacobianOfAccWrtBaseAng (const Jac& jac_ang_vel) const
 {
   int n = jac_ang_vel.cols();
@@ -136,7 +129,7 @@ CentroidalModel::GetJacobianOfAccWrtBaseAng (const Jac& jac_ang_vel) const
   return jac;
 }
 
-Jacobian
+CentroidalModel::Jac
 CentroidalModel::GetJacobianofAccWrtForce (const Jac& ee_force_jac,
                                            EE ee) const
 {
@@ -146,12 +139,12 @@ CentroidalModel::GetJacobianofAccWrtForce (const Jac& ee_force_jac,
   int n = ee_force_jac.cols();
   Jac jac(k6D, n);
   jac.middleRows(AX, k3D) = I_inv_*jac_ang;
-  jac.middleRows(LX, k3D) = 1./m_*ee_force_jac;
+  jac.middleRows(LX, k3D) = 1./m()*ee_force_jac;
 
   return jac;
 }
 
-Jacobian
+CentroidalModel::Jac
 CentroidalModel::GetJacobianofAccWrtEEPos (const Jac& jac_ee_pos,
                                            EE ee) const
 {

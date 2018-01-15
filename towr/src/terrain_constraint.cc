@@ -26,13 +26,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/constraints/terrain_constraint.h>
 
-#include <array>
-#include <memory>
-#include <vector>
-#include <Eigen/Eigen>
-
-#include <towr/variables/node_variables.h>
-
 
 namespace towr {
 
@@ -77,13 +70,14 @@ TerrainConstraint::VecBound
 TerrainConstraint::GetBounds () const
 {
   VecBound bounds(GetRows());
+  double max_distance_above_terrain = 1e20; // [m]
 
   int row = 0;
   for (int id : node_ids_) {
     if (ee_motion_->IsConstantNode(id))
       bounds.at(row) = ifopt::BoundZero;
     else
-      bounds.at(row) = ifopt::Bounds(0.0, max_z_distance_above_terrain_);
+      bounds.at(row) = ifopt::Bounds(0.0, max_distance_above_terrain);
     row++;
   }
 
@@ -91,8 +85,7 @@ TerrainConstraint::GetBounds () const
 }
 
 void
-TerrainConstraint::FillJacobianBlock (std::string var_set,
-                                      Jacobian& jac) const
+TerrainConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 {
   if (var_set == ee_motion_->GetName()) {
 

@@ -27,14 +27,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/constraints/time_discretization_constraint.h>
 
 #include <cmath>
-#include <initializer_list>
-#include <Eigen/Dense>
 
 namespace towr {
 
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
-                                                            const std::string& name)
+                                                            std::string name)
     :ConstraintSet(kSpecifyLater, name)
 {
   double t = 0.0;
@@ -48,15 +46,11 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
   dts_.push_back(T); // also ensure constraints at very last node/time.
 }
 
-TimeDiscretizationConstraint::TimeDiscretizationConstraint (const EvaluationTimes& times,
-                                                            const std::string& name)
+TimeDiscretizationConstraint::TimeDiscretizationConstraint (const VecTimes& times,
+                                                            std::string name)
    :ConstraintSet(kSpecifyLater, name) // just placeholder
 {
   dts_ = times;
-}
-
-TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()
-{
 }
 
 int
@@ -95,7 +89,7 @@ TimeDiscretizationConstraint::FillJacobianBlock (std::string var_set,
 {
   int k = 0;
   for (double t : dts_)
-    UpdateJacobianAtInstance(t, k++, jac, var_set);
+    UpdateJacobianAtInstance(t, k++, var_set, jac);
 }
 
 } /* namespace towr */

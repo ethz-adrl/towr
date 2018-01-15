@@ -33,16 +33,23 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ifopt/cost_term.h>
 
 #include <towr/variables/node_variables.h>
-#include <towr/variables/state.h>
 
 
 namespace towr {
 
+/**
+ * @brief  Assigns a cost to node values.
+ */
 class NodeCost : public ifopt::CostTerm {
 public:
-  using Nodes = std::shared_ptr<NodeVariables>;
 
-  NodeCost (const std::string& nodes_id);
+  /**
+   * @brief Constructs a cost term for the optimization problem.
+   * @param nodes_id  The name of the node variables.
+   * @param deriv     The node derivative (pos, vel) which should be penalized.
+   * @param dim       The node dimension which should be penalized.
+   */
+  NodeCost (const std::string& nodes_id, Dx deriv, int dim);
   virtual ~NodeCost () = default;
 
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
@@ -50,12 +57,13 @@ public:
   double GetCost () const override;
 
 private:
-  void FillJacobianBlock(std::string var_set, Jacobian&) const override;
-  Nodes nodes_;
-  std::string node_id_;
+  std::shared_ptr<NodeVariables> nodes_;
 
+  std::string node_id_;
   Dx deriv_;
   int dim_;
+
+  void FillJacobianBlock(std::string var_set, Jacobian&) const override;
 };
 
 } /* namespace towr */

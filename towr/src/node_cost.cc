@@ -27,25 +27,21 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/costs/node_cost.h>
 
 #include <cmath>
-#include <Eigen/Eigen>
-
-#include <towr/variables/cartesian_dimensions.h>
-
 
 namespace towr {
 
-NodeCost::NodeCost (const std::string& nodes_id) : CostTerm("Node Cost")
+NodeCost::NodeCost (const std::string& nodes_id, Dx deriv, int dim)
+    : CostTerm("Node Cost")
 {
   node_id_ = nodes_id;
-
-  deriv_ = kPos;
-  dim_   = Z;
+  deriv_ = deriv;
+  dim_   = dim;
 }
 
 void
 NodeCost::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  nodes_ = std::dynamic_pointer_cast<NodeVariables>(x->GetComponent(node_id_));
+  nodes_ = x->GetComponent<NodeVariables>(node_id_);
 }
 
 double
@@ -75,5 +71,4 @@ NodeCost::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 }
 
 } /* namespace towr */
-
 

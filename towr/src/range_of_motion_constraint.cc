@@ -25,17 +25,11 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/constraints/range_of_motion_constraint.h>
-
-#include <memory>
-#include <Eigen/Eigen>
-
 #include <towr/variables/variable_names.h>
-
 
 namespace towr {
 
-
-RangeOfMotionBox::RangeOfMotionBox (const KinematicModel::Ptr& model,
+RangeOfMotionConstraint::RangeOfMotionConstraint (const KinematicModel::Ptr& model,
                                     const OptimizationParameters& params,
                                     const EE& ee,
                                     const SplineHolder& spline_holder)
@@ -43,40 +37,41 @@ RangeOfMotionBox::RangeOfMotionBox (const KinematicModel::Ptr& model,
                                   params.dt_range_of_motion_,
                                   "RangeOfMotionBox-" + std::to_string(ee))
 {
-  ee_ = ee;
-
   base_linear_  = spline_holder.GetBaseLinear();
   base_angular_ = EulerConverter(spline_holder.GetBaseAngular());
   ee_motion_    = spline_holder.GetEEMotion(ee);
 
   max_deviation_from_nominal_ = model->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B_           = model->GetNominalStanceInBase().at(ee);
+  ee_ = ee;
+
   SetRows(GetNumberOfNodes()*k3D);
 }
 
 int
-RangeOfMotionBox::GetRow (int node, int dim) const
+RangeOfMotionConstraint::GetRow (int node, int dim) const
 {
   return node*k3D + dim;
 }
 
 void
-RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
+RangeOfMotionConstraint::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
-  Vector3d base_W = base_linear_->GetPoint(t).p();
+  Vector3d base_W  = base_linear_->GetPoint(t).p();
+  Vector3d pos_ee_W = ee_motion_->GetPoint(t).p();
   EulerConverter::MatrixSXd b_R_w = base_angular_.GetRotationMatrixBaseToWorld(t).transpose();
-  Vector3d pos_ee_B = b_R_w*(ee_motion_->GetPoint(t).p() - base_W);
 
-  g.middleRows(GetRow(k, X), k3D) = pos_ee_B;
+  Vector3d vector_base_to_ee_W = pos_ee_W - base_W;
+  Vector3d vector_base_to_ee_B = b_R_w*(vector_base_to_ee_W);
+
+  g.middleRows(GetRow(k, X), k3D) = vector_base_to_ee_B;
 }
 
 void
-RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k, VecBound& bounds) const
+RangeOfMotionConstraint::UpdateBoundsAtInstance (double t, int k, VecBound& bounds) const
 {
-  using namespace ifopt;
-
   for (int dim=0; dim<k3D; ++dim) {
-    Bounds b;
+    ifopt::Bounds b;
     b += nominal_ee_pos_B_(dim);
     b.upper_ += max_deviation_from_nominal_(dim);
     b.lower_ -= max_deviation_from_nominal_(dim);
@@ -85,8 +80,9 @@ RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k, VecBound& bounds) con
 }
 
 void
-RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
-                                            std::string var_set) const
+RangeOfMotionConstraint::UpdateJacobianAtInstance (double t, int k,
+                                                   std::string var_set,
+                                                   Jacobian& jac) const
 {
   EulerConverter::MatrixSXd b_R_w = base_angular_.GetRotationMatrixBaseToWorld(t).transpose();
   int row_start = GetRow(k,X);
@@ -99,7 +95,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
     Vector3d base_W   = base_linear_->GetPoint(t).p();
     Vector3d ee_pos_W = ee_motion_->GetPoint(t).p();
     Vector3d r_W = ee_pos_W - base_W;
-    jac.middleRows(row_start, k3D) = base_angular_.GetDerivativeOfRotationMatrixRowWrtEulerNodes(t,r_W, true);
+    jac.middleRows(row_start, k3D) = base_angular_.GetDerivOfRotMatRowWrtEulerNodes(t,r_W, true);
   }
 
   if (var_set == id::EEMotionNodes(ee_)) {

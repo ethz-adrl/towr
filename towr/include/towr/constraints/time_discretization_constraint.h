@@ -34,16 +34,34 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-/** @brief Constraints evaluated at discretized times along a trajectory.
-  */
+/**
+ * @brief Constraints evaluated at discretized times along a trajectory.
+ *
+ * Often one want to check the values of a specific constraint, e.g.
+ * @ref RangeOfMotion, or @ref DynamicConstraint at specific times t along
+ * the trajectory. This class is responsible for building the overall
+ * Jacobian from the individual Jacobians at each time instance.
+ */
 class TimeDiscretizationConstraint : public ifopt::ConstraintSet {
 public:
-  using EvaluationTimes = std::vector<double>;
-  using Bounds          = ifopt::Bounds;
+  using VecTimes = std::vector<double>;
+  using Bounds   = ifopt::Bounds;
 
-  TimeDiscretizationConstraint (double T, double dt,const std::string& name);
-  TimeDiscretizationConstraint (const EvaluationTimes&,const std::string& name);
-  virtual ~TimeDiscretizationConstraint ();
+  /**
+   * @brief Constructs a constraint for ifopt.
+   * @param T  The total duration of the trajectory.
+   * @param dt The discretization interval at which each constraint is evaluated.
+   * @param constraint_name  The name of the constraint.
+   */
+  TimeDiscretizationConstraint (double T, double dt, std::string constraint_name);
+
+  /**
+   * @brief construct a constraint for ifopt.
+   * @param dts  Time instances at which to evaluate the constraints.
+   * @param name The name of the constraint.
+   */
+  TimeDiscretizationConstraint (const VecTimes& dts, std::string name);
+  virtual ~TimeDiscretizationConstraint () = default;
 
   Eigen::VectorXd GetValues() const override;
   VecBound GetBounds() const override;
@@ -51,21 +69,37 @@ public:
 
 protected:
   int GetNumberOfNodes() const;
-  EvaluationTimes dts_; ///< times at which the constraint is evaluated.
+  VecTimes dts_; ///< times at which the constraint is evaluated.
 
 private:
-  /** Sets the constraint value a specific time t, corresponding to node k.
+  /**
+   * @brief Sets the constraint value a specific time t, corresponding to node k.
+   * @param t  The time along the trajectory to set the constraint.
+   * @param k  The index of the time t, so t=k*dt
+   * @param[in/out] g  The complete vector of constraint values, for which the
+   *                   corresponding row must be filled.
    */
-  virtual void UpdateConstraintAtInstance(double t, int k, VectorXd&) const = 0;
+  virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const = 0;
 
-  /** Sets upper/lower bound a specific time t, corresponding to node k.
+  /**
+   * @brief Sets upper/lower bound a specific time t, corresponding to node k.
+   * @param t  The time along the trajectory to set the bounds.
+   * @param k  The index of the time t, so t=k*dt
+   * @param[in/out] b The complete vector of bounds, for which the corresponding
+   *                  row must be set.
    */
-  virtual void UpdateBoundsAtInstance(double t, int k, VecBound&) const = 0;
+  virtual void UpdateBoundsAtInstance(double t, int k, VecBound& b) const = 0;
 
-  /** Sets Jacobian rows at a specific time t, corresponding to node k.
+  /**
+   * @brief Sets Jacobian rows at a specific time t, corresponding to node k.
+   * @param t  The time along the trajcetory to set the bounds.
+   * @param k  The index of the time t, so t=k*dt
+   * @param var_set The name of the ifopt variables currently being queried for.
+   * @param[in/out] jac  The complete Jacobian, for which the corresponding
+   *                     row and columns must be set.
    */
-  virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const = 0;
-
+  virtual void UpdateJacobianAtInstance(double t, int k, std::string var_set,
+                                        Jacobian& jac) const = 0;
 };
 
 } /* namespace towr */

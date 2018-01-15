@@ -35,6 +35,20 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+/**
+ * @brief A interface for the the system dynamics of a legged robot.
+ *
+ * This class is responsible for providing the current acceleration of a
+ * system given a specific robot state and input forces, so:
+ * xdd(t) = f(x(t), f(t)).
+ *
+ * This model is used in @ref DynamicConstraint to ensure that the optimized
+ * motion trajectory complies to this.
+ *
+ * Currently, only @ref CentroidalModel is implemented, but this can be
+ * extended in the future to also incorporate full rigid body dynamics. This
+ * interface to the solver should remain the same.
+ */
 class DynamicModel {
 public:
   using Ptr      = std::shared_ptr<DynamicModel>;
@@ -42,35 +56,96 @@ public:
   using ComPos   = Eigen::Vector3d;
   using AngVel   = Eigen::Vector3d;
   using BaseAcc  = Eigen::Matrix<double,6,1>;
-  using EE       = uint;
+  using Jac      = Eigen::SparseMatrix<double, Eigen::RowMajor>;
   using EEPos    = std::vector<Eigen::Vector3d>;
   using EELoad   = EEPos;
-  using Jac      = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+  using EE       = uint;
 
+  /**
+   * @brief Sets the current state and input of the system.
+   * @param com_W    The current Center-of-Mass (x,y,z) position.
+   * @param omega_W  The current angular velocity in world frame.
+   * @param force_W  The force at each foot expressed in world frame.
+   * @param pos_W    The position of each foot expressed in world frame
+   */
+  void SetCurrent(const ComPos& com_W, const AngVel& omega_W,
+                  const EELoad& force_W, const EEPos& pos_W);
+
+  /**
+   * @brief  The acceleration as defined by the system dynamics.
+   * @return The 6-dimension accelerations (angular + linear) in World frame.
+   */
+  virtual BaseAcc GetBaseAccelerationInWorld() const = 0;
+
+  /**
+   * @brief How the base position affects the base acceleration.
+   * @param jac_base_lin_pos  The 3xn Jacobian of the base linear position.
+   *
+   * @return The 6xn Jacobian of base acceleration with respect to
+   *         variables defining the base linear spline (e.g. node values).
+   */
+  virtual Jac GetJacobianOfAccWrtBaseLin(const Jac& jac_base_lin_pos) const = 0;
+
+  /**
+   * @brief How the base orientation affects the base acceleration.
+   * @param jac_base_ang_pos  The 3xn Jacobian of the base angular position.
+   *
+   * @return The 6xn Jacobian of base acceleration with respect to
+   *         variables defining the base angular spline (e.g. node values).
+   */
+  virtual Jac GetJacobianOfAccWrtBaseAng(const Jac& jac_base_ang_pos) const = 0;
+
+  /**
+   * @brief How the endeffector forces affect the base acceleration.
+   * @param ee_force  The 3xn Jacobian of the foot force x,y,z.
+   * @param ee        The endeffector for which the senstivity is required.
+   *
+   * @return The 6xn Jacobian of base acceleration with respect to
+   *         variables defining the endeffector forces (e.g. node values).
+   */
+  virtual Jac GetJacobianofAccWrtForce(const Jac& ee_force, EE ee) const = 0;
+
+  /**
+   * @brief How the endeffector positions affect the base acceleration.
+   * @param ee_force  The 3xn Jacobian of the foot position x,y,z.
+   * @param ee        The endeffector for which the senstivity is required.
+   *
+   * @return The 6xn Jacobian of base acceleration with respect to
+   *         variables defining the foot positions (e.g. node values).
+   */
+  virtual Jac GetJacobianofAccWrtEEPos(const Jac& ee_pos, EE ee) const = 0;
+
+  /**
+   * @returns The gravity acceleration [m/s^2] (positive)
+   */
+  double g() const { return g_; };
+
+  /**
+   * @returns The mass of the robot [kg].
+   */
+  double m() const { return m_; };
+
+  /**
+   * @brief the number of endeffectors that this robot has.
+   */
+  int GetEECount() const { return ee_pos_.size(); };
+
+protected:
+  EEPos  ee_pos_;  ///< The x-y-z position of each endeffector.
+  ComPos com_pos_; ///< The x-y-z position of the Center-of-Mass.
+  AngVel omega_;   ///< The angular velocity expressed in world frame.
+  EELoad ee_force_;///< The endeffector force expressed in world frame.
+
+  /**
+   * @brief Construct a dynamic object. Protected as this is abstract base class.
+   * @param mass The mass of the system.
+   */
   DynamicModel(double mass);
   virtual ~DynamicModel () = default;
 
-  void SetCurrent(const ComPos& com, const AngVel& w, const EELoad&, const EEPos&);
-
-  virtual BaseAcc GetBaseAcceleration() const = 0;
-
-  virtual Jac GetJacobianOfAccWrtBaseLin(const Jac& jac_base_lin_pos) const = 0;
-  virtual Jac GetJacobianOfAccWrtBaseAng(const Jac& jac_base_ang_pos) const = 0;
-  virtual Jac GetJacobianofAccWrtForce(const Jac& ee_force, EE) const = 0;
-  virtual Jac GetJacobianofAccWrtEEPos(const Jac&, EE) const = 0;
-
-
-  double GetGravityAcceleration() const { return g_; };
-  double GetMass() const { return m_; };
-
-protected:
-  EEPos  ee_pos_;
-  ComPos com_pos_;
-  AngVel omega_;
-  EELoad ee_force_;
-
-  double g_; // gravity acceleration [m/s^2]
-  double m_; // mass of the robot
+private:
+  double g_; ///< gravity acceleration [m/s^2]
+  double m_; ///< mass of the robot
 };
 
 } /* namespace towr */

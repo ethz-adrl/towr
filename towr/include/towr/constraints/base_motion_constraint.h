@@ -28,32 +28,40 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_
 
 #include <towr/optimization_parameters.h>
-#include <towr/variables/spline.h>
 #include <towr/variables/spline_holder.h>
+#include <towr/variables/spline.h>
 
 #include "time_discretization_constraint.h"
 
 namespace towr {
 
 /**
- * Keeps the 6D base motion in a specified range.
+ * @brief Keeps the 6D base motion in a specified range.
  *
+ * In general this constraint should be avoided, since a similar affect can be
+ * achieved with @ref RangeOfMotion.
  */
 class BaseMotionConstraint : public TimeDiscretizationConstraint {
 public:
+
+  /**
+   * @brief Links the base variables and sets hardcoded bounds on the state.
+   * @param params  The variables describing the optimization problem.
+   * @param spline_holder  Holds pointers to the base variables.
+   */
   BaseMotionConstraint (const OptimizationParameters& params,
                         const SplineHolder& spline_holder);
   virtual ~BaseMotionConstraint () = default;
 
   void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;
   void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
-  virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
+  virtual void UpdateJacobianAtInstance(double t, int k, std::string, Jacobian&) const override;
 
 private:
   Spline::Ptr base_linear_;
   Spline::Ptr base_angular_;
 
-  VecBound node_bounds_; ///< same bounds for each discretized node
+  VecBound node_bounds_;     ///< same bounds for each discretized node
   int GetRow (int node, int dim) const;
 };
 

@@ -27,9 +27,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_VARIABLES_PHASE_NODES_H_
 #define TOWR_VARIABLES_PHASE_NODES_H_
 
-#include <string>
-#include <vector>
-
 #include "node_variables.h"
 
 namespace towr {

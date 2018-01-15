@@ -27,8 +27,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_CONSTRAINTS_TERRAIN_CONSTRAINT_H_
 #define TOWR_CONSTRAINTS_TERRAIN_CONSTRAINT_H_
 
-#include <string>
-
 #include <ifopt/constraint_set.h>
 
 #include <towr/variables/phase_nodes.h>
@@ -36,7 +34,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-/** Ensures the endeffector position always lays on or above terrain height.
+/**
+ * @brief Ensures the endeffectors always lays on or above terrain height.
+ *
+ * When using interior point solvers such as IPOPT to solve the problem, this
+ * constraint also keeps the foot nodes far from the terrain, causing a leg
+ * lifting during swing-phase. This is convenient.
  *
  * Attention: This is enforced only at the spline nodes.
  */
@@ -44,27 +47,26 @@ class TerrainConstraint : public ifopt::ConstraintSet {
 public:
   using Vector3d = Eigen::Vector3d;
 
+  /**
+   * @brief Constructs a terrain constraint.
+   * @param terrain  The terrain height value and slope for each position x,y.
+   * @param ee_motion_id The name of the endeffector variable set.
+   */
   TerrainConstraint (const HeightMap::Ptr& terrain, std::string ee_motion_id);
   virtual ~TerrainConstraint () = default;
 
-
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
-  /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
-
 private:
-  PhaseNodes::Ptr ee_motion_;
-  HeightMap::Ptr terrain_;
+  PhaseNodes::Ptr ee_motion_; ///< the position of the endeffector.
+  HeightMap::Ptr terrain_;    ///< the height map of the current terrain.
 
-  std::string ee_motion_id_;
-
-  std::vector<int> node_ids_;
-
-  double max_z_distance_above_terrain_ = 1e20; // [m]
+  std::string ee_motion_id_;  ///< the name of the endeffector variable set.
+  std::vector<int> node_ids_; ///< the indices of the nodes constrained.
 };
 
 } /* namespace towr */

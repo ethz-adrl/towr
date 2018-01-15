@@ -114,9 +114,6 @@ public:
    */
   Vector3d GetAngularAccelerationInWorld(double t) const;
 
-
-  // Derivatives of the above with respect to the Euler angle node values.
-
   /**
    * @brief Jacobian of the angular velocity with respect to the Euler nodes.
    * @param t  The current time in the Euler angles spline.
@@ -145,9 +142,8 @@ public:
    * @param inverse  if true, the derivative for M^(-1)*v is evaluated.
    * @returns        3 x n dimensional matrix (n = number of Euler node values).
    */
-  Jacobian GetDerivativeOfRotationMatrixRowWrtEulerNodes(double t,
-                                                    const Vector3d& v,
-                                                    bool inverse) const;
+  Jacobian GetDerivOfRotMatRowWrtEulerNodes(double t, const Vector3d& v,
+                                            bool inverse) const;
 private:
   Spline::Ptr euler_;
 
@@ -169,27 +165,27 @@ private:
 
   /**
    *  @brief Derivative of the @a dim row of matrix M with respect to
-   *         the polynomial coefficients.
+   *         the node values.
    *
    *  @param dim  Which dimension of the angular acceleration is desired.
    *  @returns    the Jacobian w.r.t the coefficients for each of the 3 rows
    *              of the matrix stacked on top of each other.
    */
-  Jacobian GetDerivMwrtCoeff(double t, Dim3D dim) const;
+  Jacobian GetDerivMwrtNodes(double t, Dim3D dim) const;
 
   /** @brief Derivative of the @a dim row of the time derivative of M with
-   *         respect to the polynomial coefficients.
+   *         respect to the node values.
    *
-   *  @param dim Which dimension of the angular acceleration is desired
+   *  @param dim Which dimension of the angular acceleration is desired.
    */
-  Jacobian GetDerivMdotwrtCoeff(double t, Dim3D dim) const;
+  Jacobian GetDerivMdotwrtNodes(double t, Dim3D dim) const;
 
-  /** @brief matrix of derivatives of each cell w.r.t spline coefficients
+  /** @brief matrix of derivatives of each cell w.r.t node values.
    *
    * This 2d-array has the same dimensions as the rotation matrix M_IB, but
    * each cell if filled with a row vector.
    */
-  JacRowMatrix GetDerivativeOfRotationMatrixWrtCoeff(double t) const;
+  JacRowMatrix GetDerivativeOfRotationMatrixWrtNodes(double t) const;
 
   /** @see GetRotationMatrixBaseToWorld(t)  */
   static MatrixSXd GetRotationMatrixBaseToWorld(const EulerAngles& xyz);

@@ -30,7 +30,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-
 NodeVariables::NodeVariables (int n_dim, const std::string& name)
     : VariableSet(kSpecifyLater, name)
 {
@@ -62,7 +61,7 @@ NodeVariables::InitializeNodes(const VectorXd& initial_pos,
 }
 
 int
-NodeVariables::Index(int node_id, Deriv deriv, int dim) const
+NodeVariables::Index(int node_id, Dx deriv, int dim) const
 {
   IndexInfo n;
   n.node_id_ = node_id;
@@ -173,7 +172,7 @@ NodeVariables::GetNodes() const
 }
 
 void
-NodeVariables::AddBounds(int node_id, Deriv deriv,
+NodeVariables::AddBounds(int node_id, Dx deriv,
                       const std::vector<int>& dimensions,
                       const VectorXd& val)
 {
@@ -182,7 +181,7 @@ NodeVariables::AddBounds(int node_id, Deriv deriv,
 }
 
 void
-NodeVariables::AddBound (int node_id, Deriv d, int dim, double val)
+NodeVariables::AddBound (int node_id, Dx d, int dim, double val)
 {
   for (int idx=0; idx<GetRows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
@@ -191,7 +190,7 @@ NodeVariables::AddBound (int node_id, Deriv d, int dim, double val)
 }
 
 void
-NodeVariables::AddStartBound (Deriv d,
+NodeVariables::AddStartBound (Dx d,
                            const std::vector<int>& dimensions,
                            const VectorXd& val)
 {
@@ -199,7 +198,7 @@ NodeVariables::AddStartBound (Deriv d,
 }
 
 void
-NodeVariables::AddFinalBound (Deriv deriv,
+NodeVariables::AddFinalBound (Dx deriv,
                            const std::vector<int>& dimensions,
                            const VectorXd& val)
 {

@@ -27,23 +27,20 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_CONSTRAINTS_RANGE_OF_MOTION_CONSTRAINT_H_
 #define TOWR_CONSTRAINTS_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include <string>
-#include <vector>
-
-#include <towr/models/kinematic_model.h>
 #include <towr/optimization_parameters.h>
 #include <towr/variables/spline.h>
 #include <towr/variables/spline_holder.h>
-#include "../variables/euler_converter.h"
+#include <towr/variables/euler_converter.h>
+
+#include <towr/models/kinematic_model.h>
 
 #include "time_discretization_constraint.h"
 
-
 namespace towr {
 
-/** @brief Constrains the contact to lie in a box around the nominal stance
+/** @brief Constrains an endeffector to lie in a box around the nominal stance.
   *
-  * These constraints are necessary to avoid choosing contact locations
+  * These constraints are necessary to avoid configurations
   * that are outside the kinematic reach of the robot. The constraint
   * is defined by Cartesian estimates of the reachability of each endeffector.
   *
@@ -51,33 +48,39 @@ namespace towr {
   * current CoM frame and constrains it to lie in a box around the nominal/
   * natural contact position for that leg.
   */
-class RangeOfMotionBox : public TimeDiscretizationConstraint {
+class RangeOfMotionConstraint : public TimeDiscretizationConstraint {
 public:
   using EE = uint;
   using Vector3d = Eigen::Vector3d;
 
-  RangeOfMotionBox(const KinematicModel::Ptr& robot_model,
-                   const OptimizationParameters& params,
-                   const EE& ee,
-                   const SplineHolder& spline_holder);
-  virtual ~RangeOfMotionBox() = default;
-
+  /**
+   * @brief Constructs a constraint instance.
+   * @param robot_model   The kinematic restrictions of the robot.
+   * @param params        Parameters defining the optimization problem.
+   * @param ee            The endeffector for which to constrain the range.
+   * @param spline_holder Pointer to the current variables.
+   */
+  RangeOfMotionConstraint(const KinematicModel::Ptr& robot_model,
+                          const OptimizationParameters& params,
+                          const EE& ee,
+                          const SplineHolder& spline_holder);
+  virtual ~RangeOfMotionConstraint() = default;
 
 private:
-  void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;
-  void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
-  virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
-
-  int GetRow(int node, int dimension) const;
-
-  Spline::Ptr base_linear_;
-  EulerConverter base_angular_;
-  Spline::Ptr ee_motion_;
+  Spline::Ptr base_linear_;     ///< the linear position of the base.
+  EulerConverter base_angular_; ///< the orientation of the base.
+  Spline::Ptr ee_motion_;       ///< the linear position of the endeffectors.
 
   Eigen::Vector3d max_deviation_from_nominal_;
   Eigen::Vector3d nominal_ee_pos_B_;
-
   EE ee_;
+
+  // see TimeDiscretizationConstraint for documentation
+  void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;
+  void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
+  virtual void UpdateJacobianAtInstance(double t, int k, std::string, Jacobian&) const override;
+
+  int GetRow(int node, int dimension) const;
 };
 
 } /* namespace towr */

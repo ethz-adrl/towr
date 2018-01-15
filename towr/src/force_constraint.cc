@@ -26,26 +26,21 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/constraints/force_constraint.h>
 
-#include <array>
-#include <memory>
-#include <vector>
-#include <Eigen/Eigen>
-
 #include <towr/variables/variable_names.h>
-#include <towr/variables/node_variables.h>
 
 namespace towr {
 
 
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   double force_limit,
-                                  EndeffectorID ee)
+                                  EE ee)
     :ifopt::ConstraintSet(kSpecifyLater, "Force-Constraint-" + id::EEForceNodes(ee))
 {
-  terrain_   = terrain;
-  force_limit_normal_direction_ = force_limit;
-  mu_        = terrain->GetFrictionCoeff();
-  ee_ = ee;
+  terrain_ = terrain;
+  fn_max_  = force_limit;
+  mu_      = terrain->GetFrictionCoeff();
+  ee_      = ee;
+
   n_constraints_per_node_ = 1 + 2*k2D; // positive normal force + 4 friction pyramid constraints
 }
 
@@ -70,7 +65,7 @@ ForceConstraint::GetValues () const
   auto force_nodes = ee_force_->GetNodes();
   for (int f_node_id : pure_stance_force_node_ids_) {
 
-      int phase  = ee_force_->GetPhase(f_node_id);
+    int phase  = ee_force_->GetPhase(f_node_id);
     Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during stance phase
     Vector3d n = terrain_->GetNormalizedBasis(HeightMap::Normal, p.x(), p.y());
     Vector3d f = force_nodes.at(f_node_id).p();
@@ -86,7 +81,6 @@ ForceConstraint::GetValues () const
     Vector3d t2 = terrain_->GetNormalizedBasis(HeightMap::Tangent2, p.x(), p.y());
     g(row++) = f.transpose() * (t2 - mu_*n); // t2 < mu*n
     g(row++) = f.transpose() * (t2 + mu_*n); // t2 > -mu*n
-
   }
 
   return g;
@@ -98,7 +92,7 @@ ForceConstraint::GetBounds () const
   VecBound bounds;
 
   for (int f_node_id : pure_stance_force_node_ids_) {
-    bounds.push_back(ifopt::Bounds(0.0, force_limit_normal_direction_)); // unilateral forces
+    bounds.push_back(ifopt::Bounds(0.0, fn_max_)); // unilateral forces
     bounds.push_back(ifopt::BoundSmallerZero); // f_t1 <  mu*n
     bounds.push_back(ifopt::BoundGreaterZero); // f_t1 > -mu*n
     bounds.push_back(ifopt::BoundSmallerZero); // f_t2 <  mu*n

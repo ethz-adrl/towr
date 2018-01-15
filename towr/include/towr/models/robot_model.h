@@ -31,11 +31,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "kinematic_model.h"
 
 namespace towr {
-/**
- * @brief Holds the robot specific values.
- */
-struct RobotModel {
 
+/**
+ * @brief Holds pointers to the robot specific kinematics and dynamics.
+ */
+struct RobotModel
+{
   KinematicModel::Ptr kinematic_model_;
   DynamicModel::Ptr   dynamic_model_;
 };

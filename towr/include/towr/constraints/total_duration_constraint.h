@@ -33,6 +33,17 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+/**
+ * @brief Makes sure all the phase durations sum up to the total time.
+ *
+ * When optimizing over the phase durations of each foot, this constraint
+ * makes sure that:
+ * t_phase_1 + ... + t_phase_(n-1) = T_total.
+ *
+ * Attention: At this point last phase duration is not an optimization variable
+ * and a way should be found to optimize over all phases while setting the
+ * total duration by constraint and not through hard parameterization.
+ */
 class TotalDurationConstraint : public ifopt::ConstraintSet {
 public:
   using EE = uint;
@@ -47,7 +58,7 @@ public:
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
 private:
-  ContactSchedule::Ptr schedule_;
+  ContactSchedule::Ptr phase_durations_;
   double T_total_;
   EE ee_;
 };

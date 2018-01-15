@@ -27,48 +27,72 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_CONSTRAINTS_DYNAMIC_CONSTRAINT_H_
 #define TOWR_CONSTRAINTS_DYNAMIC_CONSTRAINT_H_
 
-#include <string>
-#include <vector>
-
-#include <towr/models/dynamic_model.h>
 #include <towr/variables/spline.h>
 #include <towr/variables/spline_holder.h>
-#include "../variables/euler_converter.h"
+#include <towr/variables/euler_converter.h>
+
+#include <towr/models/dynamic_model.h>
 
 #include "time_discretization_constraint.h"
 
 namespace towr {
 
+/**
+ * @brief  Ensure that the optimized motion complies with the system dynamics.
+ *
+ * At specific time instances along the trajecetory, this class checks the
+ * current value of the optimization variables and makes sure that the
+ * current robot state (pos,vel) and forces match the current acceleration
+ * defined by the system dynamics.
+ *
+ * The physics-based acceleration is influenced by the robot state as
+ * xdd(t) = f(x(t), xd(t), f(t))
+ *
+ * The constraint of the optimization variables w is then:
+ * g(t) = acc_spline(t) - xdd(t)
+ *      = acc_spline(t) - xdd(x(t), xd(t), f(t))
+ *      = acc_spline(w) - xdd(w)
+ */
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
-  using VecTimes = std::vector<double>;
-  using Vector3d = Eigen::Vector3d;
   using Vector6d = Eigen::Matrix<double, 6, 1>;
 
-  DynamicConstraint (const DynamicModel::Ptr& m,
+  /**
+   * @brief  Construct a Dynamic constraint
+   * @param model  The system dynamics to enforce (e.g. centroidal, LIP, ...)
+   * @param evaluation_times  The times at which to check the system dynamics.
+   * @param spline_holder     A pointer to the current optimization variables.
+   */
+  DynamicConstraint (const DynamicModel::Ptr& model,
                      const VecTimes& evaluation_times,
                      const SplineHolder& spline_holder);
   virtual ~DynamicConstraint () = default;
 
 private:
+  Spline::Ptr base_linear_;            ///< lin. base pos/vel/acc in world frame
+  EulerConverter base_angular_;        ///< angular base state
+  std::vector<Spline::Ptr> ee_forces_; ///< endeffector forces in world frame.
+  std::vector<Spline::Ptr> ee_motion_; ///< endeffector position in world frame.
 
-  Spline::Ptr base_linear_;
-  EulerConverter base_angular_;
-  std::vector<Spline::Ptr> ee_forces_;
-  std::vector<Spline::Ptr> ee_motion_;
+  mutable DynamicModel::Ptr model_;    ///< the dynamic model (e.g. Centroidal)
 
-  int n_ee_;
+  /**
+   * @brief The row in the overall constraint for this evaluation time.
+   * @param k The index of the constraint evaluation at t=k*dt.
+   * @param dimension Which base acceleration dimension this constraint is for.
+   * @return The constraint index in the overall dynamic constraint.
+   */
+  int GetRow(int k, Dim6D dimension) const;
 
-  mutable DynamicModel::Ptr model_;
-  double gravity_;
-
-  int GetRow(int node, Dim6D dimension) const;
+  /**
+   * @brief Updates the model with the current state and forces.
+   * @param t Time at which to query the state and force splines.
+   */
+  void UpdateModel(double t) const;
 
   virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
   virtual void UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const override;
-  virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
-
-  void UpdateModel(double t) const;
+  virtual void UpdateJacobianAtInstance(double t, int k, std::string, Jacobian&) const override;
 };
 
 } /* namespace towr */

@@ -54,7 +54,8 @@ BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params
   double z_init = 0.46;//base_linear_.GetPoint(0.0).p().z();
   node_bounds_.at(LZ) = Bounds(0.46, 0.55); // allow to move dev_z cm up and down
 
-  SetRows(GetNumberOfNodes()*node_bounds_.size());
+  int n_constraints_per_node = node_bounds_.size();
+  SetRows(GetNumberOfNodes()*n_constraints_per_node);
 }
 
 void
@@ -74,8 +75,8 @@ BaseMotionConstraint::UpdateBoundsAtInstance (double t, int k, VecBound& bounds)
 
 void
 BaseMotionConstraint::UpdateJacobianAtInstance (double t, int k,
-                                                Jacobian& jac,
-                                                std::string var_set) const
+                                                std::string var_set,
+                                                Jacobian& jac) const
 {
   if (var_set == id::base_ang_nodes)
     jac.middleRows(GetRow(k,AX), k3D) = base_angular_->GetJacobianWrtNodes(t, kPos);

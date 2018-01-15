@@ -232,8 +232,8 @@ NlpFactory::MakeForceVariables () const
                                               PhaseNodes::Force);
 
     // initialize with mass of robot distributed equally on all legs
-    double m = model_.dynamic_model_->GetMass();
-    double g = model_.dynamic_model_->GetGravityAcceleration();
+    double m = model_.dynamic_model_->m();
+    double g = model_.dynamic_model_->g();
     Vector3d f_stance(0.0, 0.0, m*g/params_.GetEECount());
     nodes->InitializeNodes(f_stance, f_stance, T);
     vars.push_back(nodes);
@@ -333,7 +333,7 @@ NlpFactory::MakeRangeOfMotionBoxConstraint () const
   ContraintPtrVec c;
 
   for (int ee=0; ee<params_.GetEECount(); ee++) {
-    auto rom_constraints = std::make_shared<RangeOfMotionBox>(model_.kinematic_model_,
+    auto rom_constraints = std::make_shared<RangeOfMotionConstraint>(model_.kinematic_model_,
                                                               params_,
                                                               ee,
                                                               spline_holder_);
@@ -405,7 +405,7 @@ NlpFactory::MakeForcesCost(double weight) const
   CostPtrVec cost;
 
   for (int ee=0; ee<params_.GetEECount(); ee++)
-    cost.push_back(std::make_shared<NodeCost>(id::EEForceNodes(ee)));
+    cost.push_back(std::make_shared<NodeCost>(id::EEForceNodes(ee), kPos, Z));
 
   return cost;
 }

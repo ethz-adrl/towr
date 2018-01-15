@@ -34,21 +34,47 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+/**
+ * @brief  Contains all the robot specific kinematic parameters.
+ *
+ * This class is mainly used to formulate the @ref RangeOfMotionConstraint,
+ * restricting each endeffector to stay inside it's kinematic range.
+ */
 class KinematicModel {
 public:
   using Ptr      = std::shared_ptr<KinematicModel>;
   using EEPos    = std::vector<Eigen::Vector3d>;
   using Vector3d = Eigen::Vector3d;
 
-  KinematicModel (int n_ee) {
+  /**
+   * @brief Constructs a kinematic model of a robot with zero range of motion.
+   * @param n_ee  The number of endeffectors of the robot.
+   */
+  KinematicModel (int n_ee)
+  {
     nominal_stance_.resize(n_ee);
     max_dev_from_nominal_.setZero();
   }
 
   virtual ~KinematicModel () = default;
 
-  virtual EEPos GetNominalStanceInBase() const { return nominal_stance_; };
-  virtual Vector3d GetMaximumDeviationFromNominal() const { return max_dev_from_nominal_; };
+  /**
+   * @brief  The xyz-position [m] of each foot in default stance.
+   * @returns The vector from base to each foot expressed in the base frame.
+   */
+  virtual EEPos GetNominalStanceInBase() const
+  {
+    return nominal_stance_;
+  }
+
+  /**
+   * @brief How far each foot can deviate from its nominal position.
+   * @return The deviation [m] expresed in the base frame.
+   */
+  virtual Vector3d GetMaximumDeviationFromNominal() const
+  {
+    return max_dev_from_nominal_;
+  }
 
 protected:
   EEPos nominal_stance_;

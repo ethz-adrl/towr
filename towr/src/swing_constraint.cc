@@ -25,18 +25,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/constraints/swing_constraint.h>
-
-#include <array>
-#include <memory>
-#include <vector>
-#include <Eigen/Eigen>
-
-#include <towr/variables/node_variables.h>
 #include <towr/variables/cartesian_dimensions.h>
 
-
 namespace towr {
-
 
 SwingConstraint::SwingConstraint (std::string ee_motion)
     :ConstraintSet(kSpecifyLater, "Swing-Constraint-" + ee_motion)

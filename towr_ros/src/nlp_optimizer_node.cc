@@ -331,7 +331,7 @@ NlpOptimizerNode::BuildRobotParametersMsg(const RobotModel& model) const
     params_msg.nominal_ee_pos.push_back(Convert::ToRos<geometry_msgs::Point>(ee));
   }
 
-  params_msg.base_mass = model.dynamic_model_->GetMass();
+  params_msg.base_mass = model.dynamic_model_->m();
 
   return params_msg;
 }

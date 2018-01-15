@@ -27,23 +27,31 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_CONSTRAINTS_SWING_CONSTRAINT_H_
 #define TOWR_CONSTRAINTS_SWING_CONSTRAINT_H_
 
-#include <string>
-
 #include <ifopt/constraint_set.h>
 
 #include <towr/variables/phase_nodes.h>
 
 namespace towr {
 
-
+/**
+ * @brief Constrains the foot position during the swing-phase.
+ *
+ * This avoids very quick swinging of the feet, where the polynomial then
+ * leaves the e.g. range-of-motion in between nodes. This constraint can also
+ * be used to force a leg lift. However, it is cleanest if the optimization
+ * can be performed without this heuristic constraint.
+ */
 class SwingConstraint : public ifopt::ConstraintSet {
 public:
   using Vector2d = Eigen::Vector2d;
 
+  /**
+   * @brief Links the swing constraint with current foot variables.
+   * @param ee_motion_id  The name of the foot variables in the optimization.
+   */
   SwingConstraint (std::string ee_motion_id);
   virtual ~SwingConstraint () = default;
 
-  /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;

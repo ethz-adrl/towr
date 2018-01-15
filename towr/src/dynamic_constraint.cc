@@ -26,10 +26,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/constraints/dynamic_constraint.h>
 
-#include <memory>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-
 #include <towr/variables/variable_names.h>
 #include <towr/variables/cartesian_dimensions.h>
 
@@ -42,34 +38,30 @@ DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
     :TimeDiscretizationConstraint(evaluation_times, "DynamicConstraint")
 {
   model_ = m;
-  gravity_ = m->GetGravityAcceleration();
 
   // link with up-to-date spline variables
   base_linear_  = spline_holder.GetBaseLinear();
   base_angular_ = EulerConverter(spline_holder.GetBaseAngular());
-
   ee_forces_ = spline_holder.GetEEForce();
   ee_motion_ = spline_holder.GetEEMotion();
-
-  n_ee_ = ee_motion_.size();
 
   SetRows(GetNumberOfNodes()*k6D);
 }
 
 int
-DynamicConstraint::GetRow (int node, Dim6D dimension) const
+DynamicConstraint::GetRow (int k, Dim6D dimension) const
 {
-  return k6D*node + dimension;
+  return k6D*k + dimension;
 }
 
 void
 DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) const
 {
-  // acceleration the system should have given by physics
+  // acceleration the system should have, given by physics
   UpdateModel(t);
-  Vector6d acc_model = model_->GetBaseAcceleration();
+  Vector6d acc_model = model_->GetBaseAccelerationInWorld();
 
-  // acceleration base polynomial has with current values of optimization variables
+  // acceleration base polynomial has with current optimization variables
   Vector6d acc_parametrization = Vector6d::Zero();
   acc_parametrization.middleRows(AX, k3D) = base_angular_.GetAngularAccelerationInWorld(t);
   acc_parametrization.middleRows(LX, k3D) = base_linear_->GetPoint(t).a();
@@ -81,19 +73,19 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 void
 DynamicConstraint::UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const
 {
-  using namespace ifopt;
+  double gravity = model_->g();
 
   for (auto dim : AllDim6D) {
     if (dim == LZ)
-      bounds.at(GetRow(k,dim)) = Bounds(gravity_, gravity_);
+      bounds.at(GetRow(k,dim)) = ifopt::Bounds(gravity, gravity);
     else
-      bounds.at(GetRow(k,dim)) = BoundZero;
+      bounds.at(GetRow(k,dim)) = ifopt::BoundZero;
   }
 }
 
 void
-DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
-                                            std::string var_set) const
+DynamicConstraint::UpdateJacobianAtInstance(double t, int k, std::string var_set,
+                                            Jacobian& jac) const
 {
   UpdateModel(t);
 
@@ -101,6 +93,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
   Jacobian jac_model(k6D,n);
   Jacobian jac_parametrization(k6D,n);
 
+  // sensitivity of dynamic constraint w.r.t base variables.
   if (var_set == id::base_lin_nodes) {
     Jacobian jac_base_lin_pos = base_linear_->GetJacobianWrtNodes(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseLin(jac_base_lin_pos);
@@ -109,13 +102,13 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 
   if (var_set == id::base_ang_nodes) {
     Jacobian jac_ang_vel_wrt_coeff = base_angular_.GetDerivOfAngVelWrtEulerNodes(t);
-//    Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_ang_vel_wrt_coeff);
     jac_parametrization.middleRows(AX, k3D) = base_angular_.GetDerivOfAngAccWrtEulerNodes(t);
   }
 
 
-  for (int ee=0; ee<n_ee_; ++ee) {
+  // sensitivity of dynamic constraint w.r.t. endeffector variables
+  for (int ee=0; ee<model_->GetEECount(); ++ee) {
 
     if (var_set == id::EEForceNodes(ee)) {
       Jacobian jac_ee_force = ee_forces_.at(ee)->GetJacobianWrtNodes(t,kPos);
@@ -127,10 +120,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
       jac_model = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
     }
 
-    // is only executed, if ee_timings part of optimization variables,
-    // so otherwise the ee_timings_ pointer can actually be null.
     if (var_set == id::EESchedule(ee)) {
-
       Jacobian jac_f_dT = ee_forces_.at(ee)->GetJacobianOfPosWrtDurations(t);
       jac_model += model_->GetJacobianofAccWrtForce(jac_f_dT, ee);
 
@@ -139,7 +129,6 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
     }
   }
 
-
   jac.middleRows(GetRow(k,AX), k6D) = jac_model - jac_parametrization;
 }
 
@@ -147,14 +136,14 @@ void
 DynamicConstraint::UpdateModel (double t) const
 {
   auto com_pos   = base_linear_->GetPoint(t).p();
-  Vector3d omega = base_angular_.GetAngularVelocityInWorld(t);
+  Eigen::Vector3d omega = base_angular_.GetAngularVelocityInWorld(t);
 
-//  int n_ee = model_->GetEEIDs().size();
-  std::vector<Vector3d> ee_pos(n_ee_);
-  std::vector<Vector3d> ee_force(n_ee_);
-  for (int ee=0; ee<n_ee_; ++ee) {
-    ee_force.at(ee) = ee_forces_.at(ee)->GetPoint(t).p();
-    ee_pos.at(ee)   = ee_motion_.at(ee)->GetPoint(t).p();
+  int n_ee = model_->GetEECount();
+  std::vector<Eigen::Vector3d> ee_pos;
+  std::vector<Eigen::Vector3d> ee_force;
+  for (int ee=0; ee<n_ee; ++ee) {
+    ee_force.push_back(ee_forces_.at(ee)->GetPoint(t).p());
+    ee_pos.push_back(ee_motion_.at(ee)->GetPoint(t).p());
   }
 
   model_->SetCurrent(com_pos, omega, ee_force, ee_pos);
