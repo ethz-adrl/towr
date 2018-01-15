@@ -69,12 +69,12 @@ public:
 
   AngularVel GetAngularVelocity(double t) const;
   static AngularVel GetAngularVelocity(const EulerAngles& pos, const EulerAngles& vel);
-  Jacobian GetDerivOfAngVelWrtCoeff(double t) const;
+  Jacobian GetDerivOfAngVelWrtEulerNodes(double t) const;
 
   static AngularAcc GetAngularAcceleration(StateLin3d euler);
   AngularAcc GetAngularAcceleration(double t) const;
 
-  Jacobian GetDerivOfAngAccWrtCoeff(double t) const;
+  Jacobian GetDerivOfAngAccWrtEulerNodes(double t) const;
 
 
   /** @returns the rotations matrix that rotates a vector
@@ -96,7 +96,7 @@ public:
    * @param inverse  if true, the derivative for M^(-1)*v is evaluated.
    * @returns        3 x n dimensional matrix (n = number of spline parameters).
    */
-  Jacobian GetDerivativeOfRotationMatrixRowWrtCoeff(double t,
+  Jacobian GetDerivativeOfRotationMatrixRowWrtEulerNodes(double t,
                                                     const Vector3d& v,
                                                     bool inverse) const;
 
@@ -142,14 +142,8 @@ private:
    */
   JacRowMatrix GetDerivativeOfRotationMatrixWrtCoeff(double t) const;
 
-  /** number of optimization variables of polynomial active at time t.
-   *
-   * usually these are the polynomial coefficients, but for e.g. cubic
-   * hermite spline these might be the node values and derivatives.
-   */
-  int OptVariablesOfCurrentPolyCount(double t) const;
-
   JacobianRow GetJac(double t, Dx deriv, Dim3D dim) const;
+  Jacobian jac_wrt_nodes_structure_;
 };
 
 } /* namespace towr */

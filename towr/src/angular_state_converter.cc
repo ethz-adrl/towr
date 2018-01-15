@@ -37,6 +37,7 @@ namespace towr {
 AngularStateConverter::AngularStateConverter (const Spline::Ptr& euler)
 {
   euler_ = euler;
+  jac_wrt_nodes_structure_ = Jacobian(k3D, euler->GetNodeVariablesCount());
 }
 
 Eigen::Quaterniond
@@ -61,9 +62,9 @@ AngularStateConverter::GetAngularVelocity (const EulerAngles& pos,
 }
 
 AngularStateConverter::Jacobian
-AngularStateConverter::GetDerivOfAngVelWrtCoeff(double t) const
+AngularStateConverter::GetDerivOfAngVelWrtEulerNodes(double t) const
 {
-  Jacobian jac(k3D, OptVariablesOfCurrentPolyCount(t));
+  Jacobian jac = jac_wrt_nodes_structure_;
 
   StateLin3d ori = euler_->GetPoint(t);
   // convert to sparse, but also regard 0.0 as non-zero element, because
@@ -93,9 +94,9 @@ AngularStateConverter::GetAngularAcceleration (StateLin3d ori)
 }
 
 AngularStateConverter::Jacobian
-AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
+AngularStateConverter::GetDerivOfAngAccWrtEulerNodes (double t) const
 {
-  Jacobian jac(k3D, OptVariablesOfCurrentPolyCount(t));
+  Jacobian jac = jac_wrt_nodes_structure_;
 
 
   StateLin3d ori = euler_->GetPoint(t);
@@ -167,7 +168,7 @@ AngularStateConverter::GetDerivMwrtCoeff (double t, Dim3D ang_acc_dim) const
   JacobianRow jac_z = GetJac(t, kPos, Z);
   JacobianRow jac_y = GetJac(t, kPos, Y);
 
-  Jacobian jac(k3D, OptVariablesOfCurrentPolyCount(t));
+  Jacobian jac = jac_wrt_nodes_structure_; //(k3D, OptVariablesOfCurrentPolyCount(t));
 
   switch (ang_acc_dim) {
     case X: // basically derivative of top row (3 elements) of matrix M
@@ -213,12 +214,12 @@ AngularStateConverter::GetRotationMatrixBaseToWorld (const EulerAngles& xyz)
 }
 
 AngularStateConverter::Jacobian
-AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtCoeff (double t,
+AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtEulerNodes (double t,
                                                                  const Vector3d& v,
                                                                  bool inverse) const
 {
   JacRowMatrix Rd = GetDerivativeOfRotationMatrixWrtCoeff(t);
-  Jacobian jac(k3D, OptVariablesOfCurrentPolyCount(t));
+  Jacobian jac = jac_wrt_nodes_structure_;
 
   for (int row : {X,Y,Z}) {
     for (int col : {X, Y, Z}) {
@@ -277,7 +278,7 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Dim3D ang_acc_dim) const
   JacobianRow jac_zd = GetJac(t, kVel, Z);
   JacobianRow jac_yd = GetJac(t, kVel, Y);
 
-  Jacobian jac(k3D, OptVariablesOfCurrentPolyCount(t));
+  Jacobian jac = jac_wrt_nodes_structure_;
   switch (ang_acc_dim) {
     case X: // derivative of top row (3 elements) of matrix M-dot
       jac.row(Y) = sin(z)*zd*jac_z - cos(z)*jac_zd;
@@ -302,13 +303,6 @@ AngularStateConverter::JacobianRow
 AngularStateConverter::GetJac (double t, Dx deriv, Dim3D dim) const
 {
   return euler_->GetJacobianWrtNodes(t, deriv).row(dim);
-}
-
-int
-AngularStateConverter::OptVariablesOfCurrentPolyCount (double t) const
-{
-  // zmp_ attention, not the same thing
-  return euler_->GetJacobianWrtNodes(t, kPos).cols();
 }
 
 } /* namespace towr */

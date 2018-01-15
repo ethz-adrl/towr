@@ -214,6 +214,12 @@ Spline::IsConstantPhase (double t_global) const
   return node_values_->IsInConstantPhase(poly_id);
 }
 
+int
+Spline::GetNodeVariablesCount() const
+{
+  return node_values_->GetRows();
+};
+
 
 } /* namespace towr */
 

@@ -109,10 +109,10 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
   }
 
   if (var_set == id::base_ang_nodes) {
-    Jacobian jac_ang_vel_wrt_coeff = converter_.GetDerivOfAngVelWrtCoeff(t);
+    Jacobian jac_ang_vel_wrt_coeff = converter_.GetDerivOfAngVelWrtEulerNodes(t);
 //    Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_ang_vel_wrt_coeff);
-    jac_parametrization.middleRows(AX, k3D) = converter_.GetDerivOfAngAccWrtCoeff(t);
+    jac_parametrization.middleRows(AX, k3D) = converter_.GetDerivOfAngAccWrtEulerNodes(t);
   }
 
 

@@ -100,7 +100,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
     Vector3d base_W   = base_linear_->GetPoint(t).p();
     Vector3d ee_pos_W = ee_motion_->GetPoint(t).p();
     Vector3d r_W = ee_pos_W - base_W;
-    jac.middleRows(row_start, k3D) = converter_.GetDerivativeOfRotationMatrixRowWrtCoeff(t,r_W, true);
+    jac.middleRows(row_start, k3D) = converter_.GetDerivativeOfRotationMatrixRowWrtEulerNodes(t,r_W, true);
   }
 
   if (var_set == id::EEMotionNodes(ee_)) {

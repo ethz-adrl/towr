@@ -92,6 +92,9 @@ public:
   // possibly move to different class
   bool IsConstantPhase(double t) const;
 
+
+  int GetNodeVariablesCount() const;
+
 private:
   int GetSegmentID(double t_global, const VecTimes& durations) const;
   LocalInfo GetLocalTime(double t_global, const VecTimes& durations) const;
