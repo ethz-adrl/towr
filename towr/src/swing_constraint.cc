@@ -13,7 +13,8 @@
 #include <Eigen/Eigen>
 
 #include <towr/variables/node_variables.h>
-#include "../include/towr/variables/cartesian_dimensions.h"
+#include <towr/variables/cartesian_dimensions.h>
+
 
 namespace towr {
 
@@ -30,8 +31,6 @@ towr::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
   ee_motion_ = x->GetComponent<PhaseNodes>(ee_motion_id_);
 
   pure_swing_node_ids_ = ee_motion_->GetIndicesOfNonConstantNodes();
-  pure_swing_node_ids_.erase(pure_swing_node_ids_.begin()); // skip first node
-  pure_swing_node_ids_.pop_back(); // because swinging last node has no further node
 
   // constrain xy position and velocity of every swing node
   // add +1 per node if swing in apex is constrained
