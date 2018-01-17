@@ -29,84 +29,115 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <Eigen/Sparse>
 
-
 #include "polynomial.h"
 #include "nodes_observer.h"
-#include "contact_schedule_observer.h"
-
+#include "phase_durations_observer.h"
 
 namespace towr {
 
-
-
-/** @brief Wraps a sequence of polynomials with optimized coefficients.
-  *
-  * This class is responsible for abstracting polynomial coefficients of multiple
-  * polynomials into a spline with position/velocity and acceleration.
-  *
-  * could also have derive from Observer class, with UpdateDurations() and UpdateNodes()
-  */
-class Spline : public NodesObserver, public ContactScheduleObserver {
+/**
+ * @brief A spline built from node values and polynomial durations.
+ *
+ * This class is responsible for combining the optimized node values with
+ * the optimized phase durations to construct a sequence of
+ * CubicHermitePolynomial. For this it observers whether one of the quantities
+ * changed and then updates all the polynomials accordingly.
+ */
+class Spline : public NodesObserver, public PhaseDurationsObserver {
 public:
-  using Ptr        = std::shared_ptr<Spline>;
-  using LocalInfo  = std::pair<int,double>; ///< id and local time
-  using VectorXd   = Eigen::VectorXd;
-  using Jacobian   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-
+  using Ptr      = std::shared_ptr<Spline>;
+  using VectorXd = Eigen::VectorXd;
   using VecTimes = std::vector<double>;
-  using VecNodes = std::vector<Node>;
-  using VecPoly  = std::vector<CubicHermitePoly>;
+  using VecPoly  = std::vector<CubicHermitePolynomial>;
+  using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
-  // the constructor with constant durations
-  // don't take ownership of object
-  Spline(NodesObserver::SubjectPtr const, const VecTimes& phase_durations);
+  /**
+   * @brief Constructs a spline with constant durations.
+   * @param nodes_variables The optimized node variables (pos, vel).
+   * @param phase_durations The fixed duration of each phase.
+   */
+  Spline(NodesObserver::SubjectPtr const node_variables,
+         const VecTimes& phase_durations);
 
-  // the contructor with changing durations
-  Spline(NodesObserver::SubjectPtr const, ContactSchedule* const);
-
+  /**
+   * @brief Constructs a spline with varying/optimized phase durations.
+   * @param node_variables The optimized node variables (pos, vel).
+   * @param phase_durations Pointer to the changing phase duration variables.
+   */
+  Spline(NodesObserver::SubjectPtr const node_variables,
+         PhaseDurations* const phase_durations);
 
   virtual ~Spline () = default;
 
+  /**
+   * @returns The state of the spline at time t.
+   * @param t  The time at which the state of the spline is desired.
+   */
+  const State GetPoint(double t) const;
 
-
-  // some observer kinda stuff
-  // only make one update() function?
-  // triggered when nodes or durations change values
+  /**
+   * @brief Updates the polynomials with the current phase durations.
+   *
+   * Triggered when phase duration variables (subject) changes (observer pattern).
+   */
   void UpdatePhaseDurations();
+
+  /**
+   * @brief Updates the polynomials with the current nodes values and durations.
+   *
+   * Triggered when node values (subject) changes (observer pattern).
+   */
   virtual void UpdatePolynomials() override ;
 
 
 
+  /**
+   * @brief How the spline changes when the node values change.
+   * @param t  The time along the spline at which the sensitivity is required.
+   * @param dxdt  Whether the derivative of the pos, vel or acc is desired.
+   * @return the pxn Jacobian, where:
+   *             p: Number of dimensions of the spline
+   *             n: Number of optimized node variables.
+   */
+  Jacobian GetJacobianWrtNodes(double t, Dx dxdt) const;
 
-  const State GetPoint(double t_global) const;
+  /**
+   * @brief How the spline position changes when the polynomial durations change.
+   * @param t  The time along the spline at which the sensitivity is required.
+   * @return the pxn Jacobian, where:
+   *             p: Number of dimensions of the spline
+   *             n: Number of optimized durations.
+   */
+  Jacobian GetJacobianOfPosWrtDurations(double t) const;
 
-
-  Jacobian GetJacobianWrtNodes(double t_global, Dx dxdt) const;
-  Jacobian GetJacobianOfPosWrtDurations(double t_global) const;
-
-  // possibly move to different class
+  /**
+   * @returns true if the polynomial at time t is non-changing.
+   */
   bool IsConstantPhase(double t) const;
 
-
+  /**
+   * @returns The number of node variables being optimized over.
+   */
   int GetNodeVariablesCount() const;
 
 private:
+  VecPoly cubic_polys_; ///< the polynomials constructed from the variables.
+  VecTimes poly_durations_; ///< the duration of each polynomial
+
+
   int GetSegmentID(double t_global, const VecTimes& durations) const;
-  LocalInfo GetLocalTime(double t_global, const VecTimes& durations) const;
+  std::pair<int,double> GetLocalTime(double t_global, const VecTimes& durations) const;
 
 
   Eigen::VectorXd GetDerivativeOfPosWrtPhaseDuration (double t_global) const;
 
-  // these two elements are combined here into cubic polynomials
-  VecTimes poly_durations_;
 
 
-  VecPoly cubic_polys_;
+
 
   void Init(const VecTimes& durations);
 

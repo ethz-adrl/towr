@@ -25,11 +25,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/constraints/base_motion_constraint.h>
-
-#include <memory>
-
 #include <towr/variables/variable_names.h>
 #include <towr/variables/cartesian_dimensions.h>
+#include <towr/variables/spline_holder.h>
 
 namespace towr {
 
@@ -40,7 +38,7 @@ BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params
                                   params.dt_base_range_of_motion_,
                                   "BaseMotionConstraint")
 {
-  base_linear_ = spline_holder.GetBaseLinear();
+  base_linear_  = spline_holder.GetBaseLinear();
   base_angular_ = spline_holder.GetBaseAngular();
 
   double dev_rad = 0.1;

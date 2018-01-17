@@ -24,15 +24,16 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/variables/contact_schedule_observer.h>
-#include <towr/variables/contact_schedule.h>
+#include <towr/variables/phase_durations_observer.h>
+
+#include <towr/variables/phase_durations.h>
 
 namespace towr {
 
 
-ContactScheduleObserver::ContactScheduleObserver (SubjectPtr subject)
+PhaseDurationsObserver::PhaseDurationsObserver (SubjectPtr subject)
 {
-  contact_schedule_ = subject;
+  phase_durations_ = subject;
 
   // register this observer to subject so this class always up-to-date
   subject->AddObserver(this);

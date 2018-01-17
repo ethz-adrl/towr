@@ -48,10 +48,10 @@ add_library(${PROJECT_NAME}
   src/node_cost.cc
   src/spline.cc
   src/nodes_observer.cc
-  src/contact_schedule_observer.cc
   src/spline_holder.cc
   src/euler_converter.cc
-  src/contact_schedule.cc
+  src/phase_durations.cc
+  src/phase_durations_observer.cc
   src/dynamic_model.cc
   src/centroidal_model.cc
   src/dynamic_constraint.cc

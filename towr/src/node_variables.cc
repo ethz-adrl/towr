@@ -45,9 +45,9 @@ NodeVariables::InitMembers(int n_nodes, int n_variables)
 }
 
 void
-NodeVariables::InitializeNodes(const VectorXd& initial_pos,
-                            const VectorXd& final_pos,
-                            double t_total)
+NodeVariables::InitializeNodesTowardsGoal(const VectorXd& initial_pos,
+                               const VectorXd& final_pos,
+                               double t_total)
 {
   VectorXd dp = final_pos-initial_pos;
   VectorXd average_velocity = dp/t_total;
@@ -60,14 +60,22 @@ NodeVariables::InitializeNodes(const VectorXd& initial_pos,
   }
 }
 
-int
-NodeVariables::Index(int node_id, Dx deriv, int dim) const
+NodeVariables::IndexInfo::IndexInfo(int node_id, Dx deriv, int node_dim)
 {
-  IndexInfo n;
-  n.node_id_ = node_id;
-  n.node_deriv_   = deriv;
-  n.node_deriv_dim_     = dim;
+  node_id_    = node_id;
+  node_deriv_ = deriv;
+  node_dim_   = node_dim;
+}
 
+int
+NodeVariables::Index(int node_id, Dx deriv, int node_dim) const
+{
+  return Index(IndexInfo(node_id, deriv, node_dim));
+}
+
+int
+NodeVariables::Index(const IndexInfo& n) const
+{
   // could also cache this as map for more efficiency, but adding complexity
   for (int idx=0; idx<GetRows(); ++idx)
     for ( IndexInfo node_info : GetNodeInfoAtOptIndex(idx))
@@ -88,9 +96,9 @@ NodeVariables::GetNodeInfoAtOptIndex (int idx) const
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
   IndexInfo node;
-  node.node_deriv_     = internal_id<n_dim_? kPos : kVel;
-  node.node_deriv_dim_ = internal_id%n_dim_;
-  node.node_id_        = std::floor(idx/n_opt_values_per_node_);
+  node.node_deriv_ = internal_id<n_dim_? kPos : kVel;
+  node.node_dim_   = internal_id%n_dim_;
+  node.node_id_    = std::floor(idx/n_opt_values_per_node_);
 
   nodes.push_back(node);
 
@@ -104,7 +112,7 @@ NodeVariables::GetValues () const
 
   for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      x(idx) = nodes_.at(info.node_id_).at(info.node_deriv_)(info.node_deriv_dim_);
+      x(idx) = nodes_.at(info.node_id_).at(info.node_deriv_)(info.node_dim_);
 
   return x;
 }
@@ -114,7 +122,7 @@ NodeVariables::SetVariables (const VectorXd& x)
 {
   for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      nodes_.at(info.node_id_).at(info.node_deriv_)(info.node_deriv_dim_) = x(idx);
+      nodes_.at(info.node_id_).at(info.node_deriv_)(info.node_dim_) = x(idx);
 
   UpdateObservers();
 }
@@ -173,19 +181,19 @@ NodeVariables::GetNodes() const
 
 void
 NodeVariables::AddBounds(int node_id, Dx deriv,
-                      const std::vector<int>& dimensions,
-                      const VectorXd& val)
+                         const std::vector<int>& dimensions,
+                         const VectorXd& val)
 {
   for (auto dim : dimensions)
-    AddBound(node_id, deriv, dim, val(dim));
+    AddBound(IndexInfo(node_id, deriv, dim), val(dim));
 }
 
 void
-NodeVariables::AddBound (int node_id, Dx d, int dim, double val)
+NodeVariables::AddBound (const IndexInfo& node_info, double val)
 {
   for (int idx=0; idx<GetRows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      if (info.node_id_==node_id && info.node_deriv_==d && info.node_deriv_dim_==dim)
+      if (info == node_info)
         bounds_.at(idx) = ifopt::Bounds(val, val);
 }
 
@@ -208,9 +216,9 @@ NodeVariables::AddFinalBound (Dx deriv,
 int
 NodeVariables::IndexInfo::operator==(const IndexInfo& right) const
 {
-  return (node_id_ == right.node_id_)
-      && (node_deriv_   == right.node_deriv_)
-      && (node_deriv_dim_     == right.node_deriv_dim_);
+  return (node_id_    == right.node_id_)
+      && (node_deriv_ == right.node_deriv_)
+      && (node_dim_   == right.node_dim_);
 };
 
 } /* namespace towr */

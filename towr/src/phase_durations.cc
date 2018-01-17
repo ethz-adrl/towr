@@ -24,7 +24,7 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/variables/contact_schedule.h>
+#include <towr/variables/phase_durations.h>
 
 #include <numeric> // std::accumulate
 
@@ -34,10 +34,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-ContactSchedule::ContactSchedule (EndeffectorID ee,
-                                  const VecDurations& timings,
-                                  double min_duration,
-                                  double max_duration)
+PhaseDurations::PhaseDurations (EndeffectorID ee,
+                                const VecDurations& timings,
+                                double min_duration,
+                                double max_duration)
     // -1 since last phase-duration is not optimized over, but comes from total time
     :VariableSet(timings.size()-1, id::EESchedule(ee))
 {
@@ -48,20 +48,20 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
 }
 
 void
-ContactSchedule::AddObserver (ContactScheduleObserver* const o)
+PhaseDurations::AddObserver (PhaseDurationsObserver* const o)
 {
   observers_.push_back(o);
 }
 
 void
-ContactSchedule::UpdateObservers () const
+PhaseDurations::UpdateObservers () const
 {
   for (auto& spline : observers_)
     spline->UpdatePhaseDurations();
 }
 
 Eigen::VectorXd
-ContactSchedule::GetValues () const
+PhaseDurations::GetValues () const
 {
   VectorXd x(GetRows());
 
@@ -72,7 +72,7 @@ ContactSchedule::GetValues () const
 }
 
 void
-ContactSchedule::SetVariables (const VectorXd& x)
+PhaseDurations::SetVariables (const VectorXd& x)
 {
   for (int i=0; i<GetRows(); ++i)
     durations_.at(i) = x(i);
@@ -82,8 +82,8 @@ ContactSchedule::SetVariables (const VectorXd& x)
   UpdateObservers();
 }
 
-ContactSchedule::VecBound
-ContactSchedule::GetBounds () const
+PhaseDurations::VecBound
+PhaseDurations::GetBounds () const
 {
   VecBound bounds;
 
@@ -93,10 +93,16 @@ ContactSchedule::GetBounds () const
   return bounds;
 }
 
-ContactSchedule::Jacobian
-ContactSchedule::GetJacobianOfPos (int current_phase,
-                                   const VectorXd& dx_dT,
-                                   const VectorXd& xd) const
+PhaseDurations::VecDurations
+PhaseDurations::GetPhaseDurations() const
+{
+  return durations_;
+}
+
+PhaseDurations::Jacobian
+PhaseDurations::GetJacobianOfPos (int current_phase,
+                                  const VectorXd& dx_dT,
+                                  const VectorXd& xd) const
 {
   int n_dim = xd.rows();
   Eigen::MatrixXd jac = Eigen::MatrixXd::Zero(n_dim, GetRows());
@@ -122,7 +128,6 @@ ContactSchedule::GetJacobianOfPos (int current_phase,
   // as durations change and t_global falls into different spline
   return jac.sparseView(1.0, -1.0);
 }
-
 
 } /* namespace towr */
 

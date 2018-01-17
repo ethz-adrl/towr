@@ -24,59 +24,48 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef TOWR_VARIABLES_CONTACT_SCHEDULE_H_
-#define TOWR_VARIABLES_CONTACT_SCHEDULE_H_
+#ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_PHASE_DURATIONS_OBSERVER_H_
+#define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_PHASE_DURATIONS_OBSERVER_H_
 
-#include <memory>
-#include <string>
-#include <vector>
-
-#include <ifopt/variable_set.h>
-
-#include "contact_schedule_observer.h"
 
 namespace towr {
 
-class ContactSchedule : public ifopt::VariableSet {
+class PhaseDurations;
+
+/**
+ * @brief Base class to receive up-to-date values of the ContactSchedule.
+ *
+ * This class registers with the contact schedule and everytime those
+ * durations change, the contact schedule updates this class by calling the
+ * UpdatePhaseDurations() method.
+ *
+ * Used by spline.h
+ *
+ * This class implements the observer pattern:
+ * https://sourcemaking.com/design_patterns/observer
+ */
+class PhaseDurationsObserver {
 public:
-  using Ptr           = std::shared_ptr<ContactSchedule>;
-  using VecDurations  = std::vector<double>;
-  using EndeffectorID = uint;
+  using SubjectPtr = PhaseDurations*; // observer shouldn't own subject
 
-  ContactSchedule (EndeffectorID ee,
-                   const VecDurations& timings,
-                   double min_phase_duration,
-                   double max_phase_duration);
-  virtual ~ContactSchedule () = default;
+  PhaseDurationsObserver() = default;
 
-  VecDurations GetDurations() const { return durations_; };
+  /**
+   * @brief Registers this observer with the subject class to receive updates.
+   * @param phase_durations  A pointer to the hase durations subject.
+   */
+  PhaseDurationsObserver(SubjectPtr phase_durations);
+  virtual ~PhaseDurationsObserver() = default;
 
+  /**
+   * @brief Callback method called every time the subject changes.
+   */
+  virtual void UpdatePhaseDurations() = 0;
 
-  void AddObserver(ContactScheduleObserver* const o);
-
-  virtual VectorXd GetValues() const override;
-  virtual void SetVariables(const VectorXd&) override;
-  VecBound GetBounds () const override;
-
-  Jacobian GetJacobianOfPos(int current_phase,
-                            const VectorXd& dx_dT,
-                            const VectorXd& xd) const;
-
-
-private:
-  double t_total_;
-  ifopt::Bounds phase_duration_bounds_;
-
-  std::vector<ContactScheduleObserver*> observers_;
-
-  VecDurations durations_;
-
-
-  void UpdateObservers() const;
+protected:
+  SubjectPtr phase_durations_;
 };
-
-
 
 } /* namespace towr */
 
-#endif /* TOWR_VARIABLES_CONTACT_SCHEDULE_H_ */
+#endif /* TOWR_TOWR_INCLUDE_TOWR_VARIABLES_PHASE_DURATIONS_OBSERVER_H_ */

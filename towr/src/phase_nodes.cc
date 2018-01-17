@@ -25,14 +25,37 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/variables/phase_nodes.h>
-
-#include <cassert>
-
 #include <towr/variables/cartesian_dimensions.h>
-
 
 namespace towr {
 
+std::vector<PhaseNodes::PolyInfo>
+BuildPolyInfos (int phase_count,
+                            bool is_in_contact_at_start,
+                            int n_polys_in_changing_phase,
+                            PhaseNodes::Type type)
+{
+  using PolyInfo = PhaseNodes::PolyInfo;
+  std::vector<PolyInfo> polynomial_info;
+
+  bool first_phase_constant = (is_in_contact_at_start  && type==PhaseNodes::Motion)
+                           || (!is_in_contact_at_start && type==PhaseNodes::Force);
+
+
+  bool phase_constant = first_phase_constant;
+
+  for (int i=0; i<phase_count; ++i) {
+    if (phase_constant)
+      polynomial_info.push_back(PolyInfo(i,0,1, true));
+    else
+      for (int j=0; j<n_polys_in_changing_phase; ++j)
+        polynomial_info.push_back(PolyInfo(i,j,n_polys_in_changing_phase, false));
+
+    phase_constant = !phase_constant; // constant and non-constant phase alternate
+  }
+
+  return polynomial_info;
+}
 
 PhaseNodes::PhaseNodes (int phase_count,
                         bool is_in_contact_at_start,
@@ -42,7 +65,7 @@ PhaseNodes::PhaseNodes (int phase_count,
     :NodeVariables(3, name)
 {
   polynomial_info_ = BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type);
-  optnode_to_node_ = SetNodeMappings(polynomial_info_);
+  optnode_to_node_ = GetOptNodeToNodeMappings(polynomial_info_);
 
   int n_opt_variables = optnode_to_node_.size() * 2*GetDim();
   int n_nodes = polynomial_info_.size()+1;
@@ -63,7 +86,7 @@ PhaseNodes::ConvertPhaseToPolyDurations(const VecDurations& phase_durations) con
 
   for (int i=0; i<GetPolynomialCount(); ++i) {
     auto info = polynomial_info_.at(i);
-    poly_durations.push_back(phase_durations.at(info.phase_)/info.num_polys_in_phase_);
+    poly_durations.push_back(phase_durations.at(info.phase_)/info.n_polys_in_phase_);
   }
 
   return poly_durations;
@@ -72,18 +95,18 @@ PhaseNodes::ConvertPhaseToPolyDurations(const VecDurations& phase_durations) con
 double
 PhaseNodes::GetDerivativeOfPolyDurationWrtPhaseDuration (int poly_id) const
 {
-  int n_polys_in_phase = polynomial_info_.at(poly_id).num_polys_in_phase_;
+  int n_polys_in_phase = polynomial_info_.at(poly_id).n_polys_in_phase_;
   return 1./n_polys_in_phase;
 }
 
 int
 PhaseNodes::GetNumberOfPrevPolynomialsInPhase(int poly_id) const
 {
-  return polynomial_info_.at(poly_id).poly_id_in_phase_;
+  return polynomial_info_.at(poly_id).poly_in_phase_;
 }
 
 std::map<PhaseNodes::OptNodeIs, PhaseNodes::NodeIds>
-PhaseNodes::SetNodeMappings (const std::vector<PolyInfo>& polynomial_info)
+PhaseNodes::GetOptNodeToNodeMappings (const std::vector<PolyInfo>& polynomial_info)
 {
   std::map<OptNodeIs, NodeIds> optnode_to_node;
 
@@ -114,7 +137,7 @@ PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
 
   IndexInfo node;
   node.node_deriv_     = internal_id<GetDim()? kPos : kVel;
-  node.node_deriv_dim_ = internal_id%GetDim();
+  node.node_dim_ = internal_id%GetDim();
 
   // this is different compared to standard node values
   // because one index can represent multiple node (during constant phase)
@@ -125,33 +148,6 @@ PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
   }
 
   return nodes;
-}
-
-std::vector<PhaseNodes::PolyInfo>
-PhaseNodes::BuildPolyInfos (int phase_count,
-                            bool is_in_contact_at_start,
-                            int n_polys_in_changing_phase,
-                            Type type)
-{
-  std::vector<PolyInfo> polynomial_info;
-
-  bool first_phase_constant = (is_in_contact_at_start  && type==Motion)
-                           || (!is_in_contact_at_start && type==Force);
-
-
-  bool phase_constant = first_phase_constant;
-
-  for (int i=0; i<phase_count; ++i) {
-    if (phase_constant)
-      polynomial_info.push_back(PolyInfo(i,0,1, true));
-    else
-      for (int j=0; j<n_polys_in_changing_phase; ++j)
-        polynomial_info.push_back(PolyInfo(i,j,n_polys_in_changing_phase, false));
-
-    phase_constant = !phase_constant; // constant and non-constant phase alternate
-  }
-
-  return polynomial_info;
 }
 
 bool
@@ -249,7 +245,7 @@ PhaseNodes::SetBoundsEEMotion ()
         bounds_.at(idx) = ifopt::BoundZero;
     }
     else { // node in pure swing-phase
-      if (node.node_deriv_ == kVel && node.node_deriv_dim_ == Z)
+      if (node.node_deriv_ == kVel && node.node_dim_ == Z)
         bounds_.at(idx) = ifopt::BoundZero; // zero velocity at top
 
 //      // to not have really fast swing motions
@@ -292,8 +288,8 @@ PhaseNodes::SetBoundsEEForce ()
 PhaseNodes::PolyInfo::PolyInfo(int phase, int poly_id_in_phase,
                                int num_polys_in_phase, bool is_constant)
     :phase_(phase),
-     poly_id_in_phase_(poly_id_in_phase),
-     num_polys_in_phase_(num_polys_in_phase),
+     poly_in_phase_(poly_id_in_phase),
+     n_polys_in_phase_(num_polys_in_phase),
      is_constant_(is_constant)
 {
 }

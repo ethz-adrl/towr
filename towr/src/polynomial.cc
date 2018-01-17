@@ -73,7 +73,7 @@ Polynomial::GetDerivativeWrtCoeff (double t, Dx deriv, Coefficients c) const
 
 
 
-CubicHermitePoly::CubicHermitePoly (int dim)
+CubicHermitePolynomial::CubicHermitePolynomial (int dim)
     : Polynomial(3,dim),
       n0_(dim),
       n1_(dim)
@@ -82,7 +82,7 @@ CubicHermitePoly::CubicHermitePoly (int dim)
 }
 
 void
-CubicHermitePoly::SetNodes (const Node& n0, const Node& n1, double T)
+CubicHermitePolynomial::SetNodes (const Node& n0, const Node& n1, double T)
 {
   coeff_[A] =  n0.p();
   coeff_[B] =  n0.v();
@@ -95,7 +95,7 @@ CubicHermitePoly::SetNodes (const Node& n0, const Node& n1, double T)
 }
 
 double
-CubicHermitePoly::GetDerivativeWrtStartNode (Dx dfdt,
+CubicHermitePolynomial::GetDerivativeWrtStartNode (Dx dfdt,
                                              Dx node_derivative, // pos or velocity node
                                              double t_local) const
 {
@@ -112,7 +112,7 @@ CubicHermitePoly::GetDerivativeWrtStartNode (Dx dfdt,
 }
 
 double
-CubicHermitePoly::GetDerivativeWrtEndNode (Dx dfdt,
+CubicHermitePolynomial::GetDerivativeWrtEndNode (Dx dfdt,
                                            Dx node_derivative, // pos or velocity node
                                            double t_local) const
 {
@@ -129,7 +129,7 @@ CubicHermitePoly::GetDerivativeWrtEndNode (Dx dfdt,
 }
 
 double
-CubicHermitePoly::GetDerivativeOfPosWrtStartNode(Dx node_value,
+CubicHermitePolynomial::GetDerivativeOfPosWrtStartNode(Dx node_value,
                                                  double t) const
 {
   double t2 = std::pow(t,2);
@@ -146,7 +146,7 @@ CubicHermitePoly::GetDerivativeOfPosWrtStartNode(Dx node_value,
 }
 
 double
-CubicHermitePoly::GetDerivativeOfVelWrtStartNode (Dx node_value,
+CubicHermitePolynomial::GetDerivativeOfVelWrtStartNode (Dx node_value,
                                                   double t) const
 {
   double t2 = std::pow(t,2);
@@ -162,7 +162,7 @@ CubicHermitePoly::GetDerivativeOfVelWrtStartNode (Dx node_value,
 }
 
 double
-CubicHermitePoly::GetDerivativeOfAccWrtStartNode (Dx node_value,
+CubicHermitePolynomial::GetDerivativeOfAccWrtStartNode (Dx node_value,
                                                   double t) const
 {
   double T  = T_;
@@ -177,7 +177,7 @@ CubicHermitePoly::GetDerivativeOfAccWrtStartNode (Dx node_value,
 }
 
 double
-CubicHermitePoly::GetDerivativeOfPosWrtEndNode (Dx node_value,
+CubicHermitePolynomial::GetDerivativeOfPosWrtEndNode (Dx node_value,
                                                 double t) const
 {
   double t2 = std::pow(t,2);
@@ -194,7 +194,7 @@ CubicHermitePoly::GetDerivativeOfPosWrtEndNode (Dx node_value,
 }
 
 double
-CubicHermitePoly::GetDerivativeOfVelWrtEndNode (Dx node_value,
+CubicHermitePolynomial::GetDerivativeOfVelWrtEndNode (Dx node_value,
                                                 double t) const
 {
   double t2 = std::pow(t,2);
@@ -210,7 +210,7 @@ CubicHermitePoly::GetDerivativeOfVelWrtEndNode (Dx node_value,
 }
 
 double
-CubicHermitePoly::GetDerivativeOfAccWrtEndNode (Dx node_value,
+CubicHermitePolynomial::GetDerivativeOfAccWrtEndNode (Dx node_value,
                                                 double t) const
 {
   double T  = T_;
@@ -225,7 +225,7 @@ CubicHermitePoly::GetDerivativeOfAccWrtEndNode (Dx node_value,
 }
 
 Eigen::VectorXd
-CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
+CubicHermitePolynomial::GetDerivativeOfPosWrtDuration(double t) const
 {
   VectorXd x0 = n0_.p();
   VectorXd x1 = n1_.p();

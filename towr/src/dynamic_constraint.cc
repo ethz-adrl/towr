@@ -31,7 +31,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-
 DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
                                       const std::vector<double>& evaluation_times,
                                       const SplineHolder& spline_holder)

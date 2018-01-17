@@ -34,7 +34,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "state.h"
 
-
 namespace towr {
 
 /**
@@ -98,10 +97,10 @@ private:
  * start and end of the polynomial as well as the duration. This way of
  * specifying a polynomial is called "Hermite".
  */
-class CubicHermitePoly : public Polynomial {
+class CubicHermitePolynomial : public Polynomial {
 public:
-  CubicHermitePoly(int dim);
-  virtual ~CubicHermitePoly() = default;
+  CubicHermitePolynomial(int dim);
+  virtual ~CubicHermitePolynomial() = default;
 
   /**
    * @brief Fully defines the polynomial by the node values and duration.

@@ -40,7 +40,7 @@ TotalDurationConstraint::TotalDurationConstraint (double T_total, int ee)
 void
 TotalDurationConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  phase_durations_ = x->GetComponent<ContactSchedule>(id::EESchedule(ee_));
+  phase_durations_ = x->GetComponent<PhaseDurations>(id::EESchedule(ee_));
 }
 
 Eigen::VectorXd

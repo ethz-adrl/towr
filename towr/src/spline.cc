@@ -26,27 +26,26 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/variables/spline.h>
 
-#include <towr/variables/contact_schedule.h>
 #include <towr/variables/node_variables.h>
-
+#include <towr/variables/phase_durations.h>
 
 namespace towr {
 
-
-
-Spline::Spline(NodesObserver::SubjectPtr const nodes, const VecTimes& phase_durations)
+Spline::Spline(NodesObserver::SubjectPtr const nodes,
+               const VecTimes& phase_durations)
    : NodesObserver(nodes)
 {
   Init(phase_durations);
   jac_wrt_nodes_structure_ = Jacobian(node_values_->GetDim(), node_values_->GetRows());
 }
 
-Spline::Spline(NodesObserver::SubjectPtr const nodes, ContactSchedule* const contact_schedule)
+Spline::Spline(NodesObserver::SubjectPtr const nodes,
+               PhaseDurations* const contact_schedule)
     :NodesObserver(nodes),
-     ContactScheduleObserver(contact_schedule)
+     PhaseDurationsObserver(contact_schedule)
 
 {
-  Init(contact_schedule->GetDurations());
+  Init(contact_schedule->GetPhaseDurations());
 
   // if durations change, the polynomial active at a specified global time
   // changes. Therefore, all elements of the Jacobian could be non-zero
@@ -64,7 +63,7 @@ void Spline::Init(const VecTimes& durations)
   uint n_polys = node_values_->GetPolynomialCount();
   assert(n_polys == poly_durations_.size());
 
-  cubic_polys_.assign(n_polys, CubicHermitePoly(node_values_->GetDim()));
+  cubic_polys_.assign(n_polys, CubicHermitePolynomial(node_values_->GetDim()));
 
   UpdatePolynomials();
 }
@@ -89,7 +88,7 @@ Spline::GetSegmentID(double t_global, const VecTimes& durations) const
    assert(false); // this should never be reached
 }
 
-Spline::LocalInfo
+std::pair<int,double>
 Spline::GetLocalTime (double t_global, const VecTimes& durations) const
 {
   int id = GetSegmentID(t_global, durations);
@@ -114,14 +113,14 @@ void
 Spline::UpdatePolynomials ()
 {
   for (int i=0; i<cubic_polys_.size(); ++i) {
-    VecNodes nodes = node_values_->GetBoundaryNodes(i);
+    auto nodes = node_values_->GetBoundaryNodes(i);
     cubic_polys_.at(i).SetNodes(nodes.front(), nodes.back(), poly_durations_.at(i));
   }
 }
 
 void Spline::UpdatePhaseDurations()
 {
-  SetPolyFromPhaseDurations(contact_schedule_->GetDurations());
+  SetPolyFromPhaseDurations(phase_durations_->GetPhaseDurations());
   UpdatePolynomials();
 }
 
@@ -130,7 +129,6 @@ Spline::SetPolyFromPhaseDurations(const VecTimes& phase_durations)
 {
   poly_durations_ = node_values_->ConvertPhaseToPolyDurations(phase_durations);
 }
-
 
 Spline::Jacobian
 Spline::GetJacobianWrtNodes (double t_global, Dx dxdt) const
@@ -172,7 +170,7 @@ Spline::FillJacobian (int poly_id, double t_local, Dx dxdt,
           if (fill_with_zeros)
             val = 0.0;
 
-          jac.coeffRef(info.node_deriv_dim_, idx) += val;
+          jac.coeffRef(info.node_dim_, idx) += val;
         }
       }
     }
@@ -184,9 +182,9 @@ Spline::GetJacobianOfPosWrtDurations (double t_global) const
 {
   VectorXd dx_dT  = GetDerivativeOfPosWrtPhaseDuration(t_global);
   VectorXd xd     = GetPoint(t_global).v();
-  int current_phase = GetSegmentID(t_global, contact_schedule_->GetDurations());
+  int current_phase = GetSegmentID(t_global, phase_durations_->GetPhaseDurations());
 
-  return contact_schedule_->GetJacobianOfPos(current_phase, dx_dT, xd);
+  return phase_durations_->GetJacobianOfPos(current_phase, dx_dT, xd);
 }
 
 Eigen::VectorXd

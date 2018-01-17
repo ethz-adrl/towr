@@ -35,89 +35,215 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-/** Holds position and velocity of nodes used to generate a cubic Hermite spline.
+/**
+ * @brief Position and velocity of nodes used to generate a Hermite spline.
  *
- * This however should know nothing about polynomials, or splines or anything.
- * Purely the nodes, everything else handled by spline.h
+ * Instead of setting the polynomial coefficients directly, a third-order
+ * polynomial is also fully defined by the value and first-derivative of the
+ * start and end of the polynomial as well as the duration. This way of
+ * specifying a polynomial is called "Hermite". These are the node values
+ * of position and velocity.
+ *
+ * @sa class CubicHermitePolynomial
  */
 class NodeVariables : public ifopt::VariableSet {
 public:
   using Ptr          = std::shared_ptr<NodeVariables>;
   using VecDurations = std::vector<double>;
 
-  enum Side {Start=0, End};
-
+  /**
+   * @brief Holds information about the node the optimization index represents.
+   */
   struct IndexInfo {
-    int node_id_;
-    Dx node_deriv_;
-    int node_deriv_dim_;
+    int node_id_;   ///< The ID of the node of the optimization index.
+    Dx node_deriv_; ///< The derivative (pos,vel) of that optimziation index.
+    int node_dim_;  ///< the dimension (x,y,z) of that optimization index.
 
+    IndexInfo() = default;
+    IndexInfo(int node_id, Dx deriv, int node_dim);
     int operator==(const IndexInfo& right) const;
   };
 
-
-
+  /**
+   * @brief The node information that the optimization index represents.
+   * @param idx  The index (=row) of the node optimization variable.
+   * @return Semantic information on what that optimization variables means.
+   *
+   * One optimization variables can also represent multiple nodes in the spline
+   * if they are always equal (e.g. constant phases). This is why this function
+   * returns a vector.
+   */
   virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const = 0;
-  virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const = 0;
-  virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const = 0;
-  virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const = 0;
-  virtual bool IsInConstantPhase(int polynomial_id) const = 0;
 
+  /**
+   * @brief The index at which a specific node variable is stored.
+   * @param node_info The node variable we want to know the index for.
+   * @return The position of this node value in the optimization variables.
+   */
+  int Index(const IndexInfo& node_info) const;
+  int Index(int node_id, Dx deriv, int node_dim) const;
 
-
-
-
-
-  void InitializeNodes(const VectorXd& initial_pos,const VectorXd& final_pos,
-                       double t_total);
-
-
+  /**
+   * @brief Sets nodes pos/vel equally spaced from initial to final position.
+   * @param initial_pos  The position of the first node.
+   * @param final_pos  The position of the final node.
+   * @param t_total  The total duration to reach final node (to set velocities).
+   */
+  void InitializeNodesTowardsGoal(const VectorXd& initial_pos,
+                                  const VectorXd& final_pos,
+                                  double t_total);
+  /**
+   * @returns the stacked node position and velocity values.
+   */
   VectorXd GetValues () const override;
-  void SetVariables (const VectorXd& x) override;
 
+  /**
+   * @brief Sets the node position and velocity optimization variables.
+   * @param x The stacked variables.
+   */
+  void SetVariables (const VectorXd&x) override;
 
-
-
-
-
+  /**
+   * @returns the bounds on position and velocity of each node and dimension.
+   */
   virtual VecBound GetBounds () const override;
 
+  /**
+   * @returns All the nodes that can be used to reconstruct the spline.
+   */
   const std::vector<Node> GetNodes() const;
+
+  /**
+   * @returns the number of polynomials that can be built with these nodes.
+   */
   int GetPolynomialCount() const;
 
-  // returns the two nodes that make up polynomial with "poly_id"
+  /**
+   * @returns the two nodes that make up polynomial with "poly_id".
+   */
   const std::vector<Node> GetBoundaryNodes(int poly_id) const;
 
-  static int GetNodeId(int poly_id, Side);
+  enum Side {Start=0, End};
+  /**
+   * @brief The node ID that belongs to a specific side of a specific polynomial.
+   * @param poly_id The ID of the polynomial within the spline.
+   * @param side The side from which the node ID is required.
+   */
+  static int GetNodeId(int poly_id, Side side);
 
-  // basically opposite of above
-  int Index(int node_id, Dx, int dim) const;
+  /**
+   * @brief Adds a dependent observer that gets notified when the nodes change.
+   * @param spline Usually a pointer to a spline which uses the node values.
+   */
+  void AddObserver(NodesObserver* const spline);
 
-  void AddObserver(NodesObserver* const o);
-
+  /**
+   * @returns  The dimensions (x,y,z) of every node.
+   */
   int GetDim() const;
 
-  void AddStartBound (Dx d, const std::vector<int>& dimensions, const VectorXd& val);
-  void AddFinalBound(Dx d, const std::vector<int>& dimensions, const VectorXd& val);
+  /**
+   * @brief Restricts the first node in the spline.
+   * @param deriv Which derivative (pos,vel,...) should be restricted.
+   * @param dimensions Which dimensions (x,y,z) should be restricted.
+   * @param val The values the fist node should be set to.
+   */
+  void AddStartBound (Dx deriv, const std::vector<int>& dimensions,
+                      const VectorXd& val);
+
+  /**
+   * @brief Restricts the last node in the spline.
+   * @param deriv Which derivative (pos,vel,...) should be restricted.
+   * @param dimensions Which dimensions (x,y,z) should be restricted.
+   * @param val The values the last node should be set to.
+   */
+  void AddFinalBound(Dx deriv, const std::vector<int>& dimensions,
+                     const VectorXd& val);
+
+  // these interfaces correspond to phases and should be moved to phase_nodes.h
+  /**
+   * @brief Converts durations of swing and stance phases to polynomial durations.
+   * @param phase_durations  The durations of alternating swing and stance phases.
+   * @return  The durations of each polynomial, where multiple polynomials can
+   *          be used to represent one phase.
+   */
+  virtual VecDurations
+  ConvertPhaseToPolyDurations(const VecDurations& phase_durations) const = 0;
+
+  /**
+   * @brief How a change in the phase duration affects the polynomial duration.
+   * @param polynomial_id  The ID of the polynomial within the spline.
+   *
+   * If a phase is represented by multiple (3) equally timed polynomials, then
+   * T_poly = 1/3 * T_phase.
+   * The derivative of T_poly is then 1/3.
+   */
+  virtual double
+  GetDerivativeOfPolyDurationWrtPhaseDuration(int polynomial_id) const = 0;
+
+  /**
+   * @brief How many polynomials in the current phase come before.
+   * @param polynomial_id  The ID of the polynomial within the spline.
+   *
+   * If a phase is represented by multiple (3) polynomials, and the current
+   * polynomial corresponds to the third one in the phase, then 2 polynomials
+   * come before it.
+   */
+  virtual int
+  GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const = 0;
+
+  /**
+   * @brief Is the polynomial constant, so not changing the value.
+   * @param polynomial_id The ID of the polynomial within the spline.
+   */
+  virtual bool IsInConstantPhase(int polynomial_id) const = 0;
 
 protected:
-  NodeVariables (int n_dim, const std::string& name);
+
+  /**
+   * @param n_dim  The number of dimensions (x,y,..) each node has.
+   * @param variable_name  The name of the variables in the optimization problem.
+   */
+  NodeVariables (int n_dim, const std::string& variable_name);
   virtual ~NodeVariables () = default;
 
-  VecBound bounds_;
+  VecBound bounds_; ///< the bounds on the node values.
 
+  /**
+   * @brief initializes the member variables.
+   * @param n_nodes  The number of nodes composing the spline.
+   * @param n_variables  The number of variables being optimized over.
+   *
+   * Not every node value must be optimized, so n_variables can be different
+   * than 2*n_nodes*n_dim.
+   */
   void InitMembers(int n_nodes, int n_variables);
 
-
-
 private:
-  void UpdateObservers() const;
-  std::vector<NodesObserver*> observers_;
   std::vector<Node> nodes_;
   int n_dim_;
 
-  void AddBounds(int node_id, Dx, const std::vector<int>& dim, const VectorXd& val);
-  void AddBound(int node_id, Dx, int dim, double val);
+  /**
+   * @brief Notifies the subscribed observers that the node values changes.
+   */
+  void UpdateObservers() const;
+  std::vector<NodesObserver*> observers_;
+
+  /**
+   * @brief Bounds a specific node variables.
+   * @param node_id  The ID of the node to bound.
+   * @param deriv    The derivative of the node to set.
+   * @param dim      The dimension of the node to bound.
+   * @param values   The values to set the bounds to.
+   */
+  void AddBounds(int node_id, Dx deriv, const std::vector<int>& dim,
+                 const VectorXd& values);
+  /**
+   * @brief Restricts a specific optimization variables.
+   * @param node_info The specs of the optimization variables to restrict.
+   * @param value     The value to set the bounds to.
+   */
+  void AddBound(const IndexInfo& node_info, double value);
 };
 
 } /* namespace towr */

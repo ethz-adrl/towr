@@ -31,70 +31,125 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+/**
+ * @brief Nodes that are associated to either swing or stance phases.
+ *
+ * In the node values, not every node is an optimization variable, but two
+ * consecutive nodes forming a e.g. stance position spline belong to the
+ * same optimization variable. This is because a foot in stance cannot
+ * move (or a force in flight must be zero). This makes the number of
+ * optimization variables less than the total node values.
+ */
 class PhaseNodes : public NodeVariables {
 public:
-  using Ptr = std::shared_ptr<PhaseNodes>;
+  using Ptr       = std::shared_ptr<PhaseNodes>;
   using OptNodeIs = int;
   using NodeIds   = std::vector<int>;
 
-
   enum Type {Force, Motion};
-  PhaseNodes (int phase_count,
-              bool is_in_contact_at_start,
-              const std::string& name,
-              int n_polys_in_changing_phase,
-              Type type);
+
+  /**
+   * @brief Holds semantic information each polynomial in spline.
+   */
+  struct PolyInfo {
+    int phase_; ///< The phase ID this polynomial represents.
+    int poly_in_phase_; ///< is this the 1st, 2nd, ... polynomial or this phase.
+    int n_polys_in_phase_; ///< the number of polynomials used for this phase.
+    bool is_constant_; ///< Does this polynomial represent a constant phase.
+    PolyInfo(int phase, int poly_in_phase, int n_polys_in_phase, bool is_const);
+  };
+
+  /**
+   * @brief Constructs a variable set of node variables.
+   * @param phase_count  The number of phases (swing, stance) to represent.
+   * @param in_contact__start  Whether the first node belongs to a stance phase.
+   * @param var_name  The name given to this set of optimization variables.
+   * @param n_polys_in_changing_phase  How many polynomials should be used to
+   *                                   paramerize each non-constant phase.
+   * @param type  These nodes represent either force evolution or foot motions.
+   */
+  PhaseNodes (int phase_count, bool in_contact_start, const std::string& var_name,
+              int n_polys_in_changing_phase, Type type);
 
   virtual ~PhaseNodes() = default;
 
-
-
+  /**
+   * @returns the value of the first node of the phase.
+   */
   Eigen::Vector3d GetValueAtStartOfPhase(int phase) const;
+
+  /**
+   * @returns the ID of the first node in the phase.
+   */
   int GetNodeIDAtStartOfPhase(int phase) const;
 
-  // because one node soemtimes represents two
-  virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const override;
-  virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const override;
-  virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const override;
-  virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const override;
-  bool IsInConstantPhase(int poly_id) const override;
-
+  /**
+   * @returns The phase ID belonging to node with node_id.
+   *
+   * Only makes sense if left and right polynomial belong to same phase.
+   */
   int GetPhase(int node_id) const;
 
-  // node is considered constant if either left or right polynomial
-  // belongs to a constant phase.
+  /**
+   * @brief node is constant if either left or right polynomial belongs to a
+   * constant phase.
+   */
   virtual bool IsConstantNode(int node_id) const;
-  // those that are not fixed by bounds
+
+  /**
+   * @brief The indices of those nodes that don't belong to a constant phase.
+   *
+   * For forces nodes these are the stance phases (can produce force), and for
+   * feet these are the swing phases (can move end-effector).
+   */
   NodeIds GetIndicesOfNonConstantNodes() const;
 
+  // see base class for documention
+  virtual std::vector<IndexInfo>
+  GetNodeInfoAtOptIndex(int idx) const override;
+
+  virtual VecDurations
+  ConvertPhaseToPolyDurations (const VecDurations& phase) const override;
+
+  virtual double
+  GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const override;
+
+  virtual int
+  GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const override;
+
+  bool IsInConstantPhase(int poly_id) const override;
 
 private:
+  std::vector<PolyInfo> polynomial_info_;
+
+  // maps from the nodes that are actually optimized over to all the nodes.
+  // Optimized nodes are sometimes used twice in a constant phase.
+  // This is where the constant phases are enforced.
+  std::map<OptNodeIs, NodeIds > optnode_to_node_;
+
+  /**
+   * @returns the ID of the polynomial at the start of phase phase.
+   */
   int GetPolyIDAtStartOfPhase(int phase) const;
 
-  struct PolyInfo {
-    int phase_;
-    int poly_id_in_phase_;
-    int num_polys_in_phase_;
-    bool is_constant_;
-    PolyInfo(int phase, int poly_id_in_phase, int n_polys_in_phase, bool is_constant);
-  };
-  std::vector<PolyInfo> polynomial_info_;
-  static std::vector<PolyInfo> BuildPolyInfos(int phase_count,
-                             bool is_in_contact_at_start,
-                             int n_polys_in_changing_phase,
-                             Type type);
+  static std::map<OptNodeIs, NodeIds>
+  GetOptNodeToNodeMappings(const std::vector<PolyInfo>&);
 
-  static std::map<OptNodeIs, NodeIds> SetNodeMappings(const std::vector<PolyInfo>&);
-  std::vector<int> GetAdjacentPolyIds(int node_id) const;
-
-
-  // maps from the nodes that are actually optimized over
-  // to all the nodes. Optimized nodes are sometimes used
-  // twice in a constant phase.
-  std::map<OptNodeIs, NodeIds > optnode_to_node_; // lookup
-
+  /**
+   * @brief Sets the bounds on the node variables to model foot motions.
+   *
+   * For this the velocity of the stance nodes is bounds to zero.
+   */
   void SetBoundsEEMotion();
+
+  /**
+   * @brief Sets the bounds on the node variables to model foot forces.
+   *
+   * For this the force for nodes representing swing-phases is set to zero.
+   */
   void SetBoundsEEForce();
+
+  std::vector<int> GetAdjacentPolyIds(int node_id) const;
 
 };
 } /* namespace towr */

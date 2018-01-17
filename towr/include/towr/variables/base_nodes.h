@@ -31,15 +31,23 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-
+/**
+ * @brief Node variables used to construct the base motion spline.
+ *
+ * These nodes don't need to know anything about phases, since the base
+ * Hermite-Spline usually has fixed durations.
+ */
 class BaseNodes : public NodeVariables {
 public:
-  BaseNodes (int n_dim, int n_nodes, const std::string& name);
+  /**
+   * @param n_nodes  The number of nodes to construct the spline.
+   * @param variable_id  The name of this variables set in the optimization.
+   */
+  BaseNodes (int n_nodes, std::string variable_id);
   virtual ~BaseNodes () = default;
 
   virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const override;
 
-  // these should probably go into phase class
   virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const override;
   virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const override;
   virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const override;

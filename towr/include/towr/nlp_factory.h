@@ -98,7 +98,7 @@ private:
   std::vector<NodeVariables::Ptr> MakeBaseVariablesHermite() const;
   std::vector<NodeVariables::Ptr> MakeEndeffectorVariables() const;
   std::vector<NodeVariables::Ptr> MakeForceVariables() const;
-  std::vector<ContactSchedule::Ptr> MakeContactScheduleVariables() const;
+  std::vector<PhaseDurations::Ptr> MakeContactScheduleVariables() const;
 
   // constraints
   ContraintPtrVec MakeDynamicConstraint() const;

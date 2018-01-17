@@ -29,7 +29,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ifopt/constraint_set.h>
 
-#include <towr/variables/contact_schedule.h>
+#include "../variables/phase_durations.h"
 
 namespace towr {
 
@@ -58,7 +58,7 @@ public:
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
 private:
-  ContactSchedule::Ptr phase_durations_;
+  PhaseDurations::Ptr phase_durations_;
   double T_total_;
   EE ee_;
 };

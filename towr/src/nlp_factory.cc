@@ -27,7 +27,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/nlp_factory.h>
 
 #include <towr/variables/variable_names.h>
-#include <towr/variables/contact_schedule.h>
 #include <towr/variables/base_nodes.h>
 
 #include <towr/constraints/base_motion_constraint.h>
@@ -40,6 +39,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/costs/node_cost.h>
 #include <towr/models/dynamic_model.h>
+#include "../include/towr/variables/phase_durations.h"
 
 
 namespace towr {
@@ -101,7 +101,6 @@ NlpFactory::MakeBaseVariablesHermite () const
 {
   std::vector<NodeVariables::Ptr> vars;
 
-  int n_dim = k3D;
   int n_nodes = params_.GetBasePolyDurations().size() + 1;
 
   auto linear  = std::make_tuple(id::base_lin_nodes,
@@ -122,8 +121,8 @@ NlpFactory::MakeBaseVariablesHermite () const
     Vector3d final_p = std::get<3>(tuple);
     Vector3d final_v = std::get<4>(tuple);
 
-    auto nodes = std::make_shared<BaseNodes>(n_dim,  n_nodes, id);
-    nodes->InitializeNodes(init_p, final_p, params_.GetTotalTime());
+    auto nodes = std::make_shared<BaseNodes>(n_nodes, id);
+    nodes->InitializeNodesTowardsGoal(init_p, final_p, params_.GetTotalTime());
 
     std::vector<int> dimensions = {X,Y,Z};
     nodes->AddStartBound(kPos, dimensions, init_p);
@@ -200,7 +199,7 @@ NlpFactory::MakeEndeffectorVariables () const
 
 
 
-    nodes->InitializeNodes(initial_ee_W_.at(ee), final_ee_pos_W, T);
+    nodes->InitializeNodesTowardsGoal(initial_ee_W_.at(ee), final_ee_pos_W, T);
 
     // actually initial Z position should be constrained as well...-.-
     nodes->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
@@ -235,21 +234,21 @@ NlpFactory::MakeForceVariables () const
     double m = model_.dynamic_model_->m();
     double g = model_.dynamic_model_->g();
     Vector3d f_stance(0.0, 0.0, m*g/params_.GetEECount());
-    nodes->InitializeNodes(f_stance, f_stance, T);
+    nodes->InitializeNodesTowardsGoal(f_stance, f_stance, T);
     vars.push_back(nodes);
   }
 
   return vars;
 }
 
-std::vector<ContactSchedule::Ptr>
+std::vector<PhaseDurations::Ptr>
 NlpFactory::MakeContactScheduleVariables () const
 {
-  std::vector<ContactSchedule::Ptr> vars;
+  std::vector<PhaseDurations::Ptr> vars;
 
   for (int ee=0; ee<params_.GetEECount(); ee++) {
 
-    auto var = std::make_shared<ContactSchedule>(ee,
+    auto var = std::make_shared<PhaseDurations>(ee,
                                                  params_.GetEEPhaseDurations(ee),
                                                  params_.min_phase_duration_,
                                                  params_.max_phase_duration_);

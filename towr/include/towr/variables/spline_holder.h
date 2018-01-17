@@ -33,46 +33,50 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_SPLINE_HOLDER_H_
 #define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_SPLINE_HOLDER_H_
 
-#include "contact_schedule.h"
 #include "node_variables.h"
+#include "phase_durations.h"
 #include "spline.h"
-
 
 namespace towr {
 
 /**
- * This class is responsible for holding Pointers to fully constructed
- * splines, that are linked to the optimization variables.
+ * @brief Holds pointers to fully constructed splines, that are linked to the
+ *        optimization variables.
  *
- * This is independent from whether they are added as optimization variables
+ * This is independent from whether they are added as optimization variables.
  */
 class SplineHolder {
 public:
-  using EndeffectorID = uint;
+  using EE = uint;
 
-
-  // smell remove this
-  SplineHolder () = default;
-  virtual ~SplineHolder () = default;
-
-
+  /**
+   * @brief Fully initializes this object.
+   * @param base_lin  The nodes describing the base linear motion.
+   * @param base_ang  The nodes describing the base angular motion.
+   * @param base_poly_durations The durations of each base polynomial.
+   * @param ee_motion The nodes describing the endeffector motions.
+   * @param ee_force  The nodes describing the endeffector forces.
+   * @param phase_durations  The phase durations of each endeffector.
+   * @param ee_durations_change  True if the ee durations are optimized over.
+   */
   SplineHolder (NodeVariables::Ptr base_lin,
                 NodeVariables::Ptr base_ang,
                 const std::vector<double>& base_poly_durations,
                 std::vector<NodeVariables::Ptr> ee_motion,
                 std::vector<NodeVariables::Ptr> ee_force,
-                std::vector<ContactSchedule::Ptr> contact_schedule,
+                std::vector<PhaseDurations::Ptr> phase_durations,
                 bool ee_durations_change);
 
+  SplineHolder () = default;
+  virtual ~SplineHolder () = default;
 
   Spline::Ptr GetBaseLinear() const { return base_linear_; };
   Spline::Ptr GetBaseAngular() const { return base_angular_; };
 
   std::vector<Spline::Ptr> GetEEMotion() const { return ee_motion_; };
   std::vector<Spline::Ptr> GetEEForce()  const { return ee_force_; };
-  Spline::Ptr GetEEMotion(EndeffectorID ee) const { return ee_motion_.at(ee); };
-  Spline::Ptr GetEEForce(EndeffectorID ee)  const { return ee_force_.at(ee); };
-
+  Spline::Ptr GetEEMotion(EE ee) const { return ee_motion_.at(ee); };
+  Spline::Ptr GetEEForce(EE ee)  const { return ee_force_.at(ee); };
 
 private:
   Spline::Ptr base_linear_;
