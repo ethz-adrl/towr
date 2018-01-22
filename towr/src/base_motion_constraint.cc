@@ -32,10 +32,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params,
+BaseMotionConstraint::BaseMotionConstraint (const Parameters& params,
                                             const SplineHolder& spline_holder)
-    :TimeDiscretizationConstraint(params.GetTotalTime(),
-                                  params.dt_base_range_of_motion_,
+    :TimeDiscretizationConstraint(params.t_total_,
+                                  params.dt_constraint_base_motion_,
                                   "BaseMotionConstraint")
 {
   base_linear_  = spline_holder.GetBaseLinear();

@@ -27,73 +27,83 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_OPTIMIZATION_PARAMETERS_H_
 #define TOWR_OPTIMIZATION_PARAMETERS_H_
 
-
-#include <utility>
 #include <vector>
 
 
 namespace towr {
 
-
-enum ConstraintName  { Dynamic, EndeffectorRom, TotalTime, Terrain,
+enum ConstraintName { Dynamic, EndeffectorRom, TotalTime, Terrain,
                        Force, Swing, BaseRom };
-enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
-                       FinalComCostID, FinalStanceCostID, ForcesCostID };
+enum CostName       { ForcesCostID };
 
-/** This class holds all the hardcoded values describing a motion.
-  * This is specific to the robot and the type of motion desired.
-  */
-class OptimizationParameters {
-public:
+/**
+ * @brief Holds the parameters to tune the optimization problem.
+ */
+struct Parameters {
+
   using CostWeights      = std::vector<std::pair<CostName, double>>;
   using UsedConstraints  = std::vector<ConstraintName>;
   using VecTimes         = std::vector<double>;
   using EEID             = unsigned int;
 
-  OptimizationParameters();
-  virtual ~OptimizationParameters() = default;
+  /**
+   * @brief Default parameters to use.
+   */
+  Parameters();
+  virtual ~Parameters() = default;
 
-  UsedConstraints GetUsedConstraints() const;
-  CostWeights GetCostWeights() const;
+  /// Which constraints should be used in the optimization problem.
+  UsedConstraints constraints_;
 
+  /// Which costs should be used in the optimiation problem.
+  CostWeights costs_;
 
-  void SetPhaseDurations(const std::vector<VecTimes>& phase_durations,
-                         const std::vector<bool>& initial_contact);
+  /// Total duration [s] of the walking motion.
+  double t_total_;
 
-  void SetTotalDuration(double d) {t_total_ = d; };
-  double GetTotalTime() const { return t_total_;} ;
+  /// Interval at which the range of motion constraint is enforced.
+  double dt_constraint_range_of_motion_;
 
-  VecTimes GetBasePolyDurations() const;
-  VecTimes GetEEPhaseDurations(EEID) const;
-  bool IsEEInContactAtStart(EEID) const;
-  int GetPhaseCount(EEID) const;
+  /// Interval at which the base motion constraint is enforced.
+  double dt_constraint_base_motion_;
 
-  bool OptimizeTimings() const;
-  int GetEECount() const  { return ee_in_contact_at_start_.size(); };
+  /// Fixed duration of each cubic polynomial describing the base motion.
+  double duration_base_polynomial_;
 
-  double GetForceLimit() const { return force_z_limit_; };
+  /// Number and initial duration of each foot's swing and stance phases.
+  std::vector<VecTimes> ee_phase_durations_;
 
+  /// True if the foot is initially in contact with the terrain.
+  std::vector<bool> ee_in_contact_at_start_;
 
-  int ee_splines_per_swing_phase_;
-  int force_splines_per_stance_phase_;
-
-  double dt_base_polynomial_;
-  double dt_range_of_motion_;
-  double dt_base_range_of_motion_;
-
+  /// When optimizing over phase duration, this is the minimum allowed.
   double min_phase_duration_;
+
+  /// When optimizing over phase duration, this is is maximum allowed.
   double max_phase_duration_;
 
-private:
-  double t_total_ = 3.0;
-  UsedConstraints constraints_;
-  CostWeights cost_weights_;
+  /// Number of polynomials to parameterize foot movement during swing phases.
+  int ee_polynomials_per_swing_phase_;
 
-  std::vector<VecTimes> ee_phase_durations_; // smell make private again
-  std::vector<bool> ee_in_contact_at_start_; // smell make private again
+  /// Number of polynomials to parameterize each contact force during stance phase.
+  int force_polynomials_per_stance_phase_;
 
-  double force_z_limit_; // limit of force in normal direction
+  /// The maximum allowable force [N] in normal direction
+  double force_limit_in_norm_;
 
+
+
+  /// The durations of each base polynomial in the spline (lin+ang).
+  VecTimes GetBasePolyDurations() const;
+
+  /// The number of phases allowed for endeffector ee.
+  int GetPhaseCount(EEID ee) const;
+
+  /// True if the phase durations should be optimized over.
+  bool OptimizeTimings() const;
+
+  /// The number of endeffectors.
+  int GetEECount() const;
 };
 
 } // namespace towr

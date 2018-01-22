@@ -42,7 +42,7 @@ add_library(${PROJECT_NAME}
   src/total_duration_constraint.cc
   src/state.cc
   src/polynomial.cc
-  src/node_variables.cc
+  src/nodes.cc
   src/phase_nodes.cc
   src/base_nodes.cc
   src/node_cost.cc
@@ -58,7 +58,7 @@ add_library(${PROJECT_NAME}
   src/centroidal_model.cc
   src/dynamic_constraint.cc
   src/range_of_motion_constraint.cc
-  src/optimization_parameters.cc
+  src/parameters.cc
   src/linear_constraint.cc
   src/soft_constraint.cc
 )   

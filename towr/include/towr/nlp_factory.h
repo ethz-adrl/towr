@@ -27,8 +27,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_NLP_FACTORY_H_
 #define TOWR_NLP_FACTORY_H_
 
-#include <memory>
-#include <string>
 #include <vector>
 
 #include <ifopt/variable_set.h>
@@ -36,25 +34,18 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ifopt/cost_term.h>
 
 #include <towr/models/robot_model.h>
-#include <towr/optimization_parameters.h>
-
 #include <towr/variables/spline_holder.h>
-#include "height_map.h"
 
+#include "height_map.h"
+#include "parameters.h"
 
 namespace towr {
 
-
-/** Builds all types of constraints/costs for the user.
+/** Builds variables, cost and constraints for the legged locomotion problem.
  *
  * Abstracts the entire problem of Trajectory Optimization for walking
  * robots into the formulation of variables, constraints and cost, solvable
  * by any NLP solver.
- *
- * Implements the factory method, hiding object creation from the client.
- * The client specifies which object it wants, and this class is responsible
- * for the object creation. Factory method is like template method pattern
- * for object creation.
  */
 class NlpFactory {
 public:
@@ -67,40 +58,40 @@ public:
   NlpFactory () = default;
   virtual ~NlpFactory () = default;
 
-  void Init(const OptimizationParameters&,
-            const HeightMap::Ptr& terrain,
-            const RobotModel& model,
-            const EEPos& ee_pos,
-            const BaseState& initial_base,
-            const BaseState& final_base);
+  /**
+   * @returns The ifopt variable sets that will be optimized over.
+   */
+  VariablePtrVec GetVariableSets();
 
-  VariablePtrVec GetVariableSets(SplineHolder&) const;
-  ContraintPtrVec GetConstraint(ConstraintName name) const;
-  CostPtrVec GetCost(const CostName& id, double weight) const;
+  /**
+   * @returns The ifopt constraints that enforce feasible motions.
+   */
+  ContraintPtrVec GetConstraints() const;
 
-
-private:
-  OptimizationParameters params_;
-  HeightMap::Ptr terrain_;
-  RobotModel model_;
-
-  mutable SplineHolder spline_holder_;
+  /**
+   * @returns The ifopt costs to tune the motion.
+   */
+  ContraintPtrVec GetCosts() const;
 
 
   BaseState initial_base_;
   BaseState final_base_;
   EEPos  initial_ee_W_;
+  RobotModel model_;
+  HeightMap::Ptr terrain_;
+  Parameters params_;
 
+  SplineHolder spline_holder_;
 
-
-
+private:
   // variables
-  std::vector<NodeVariables::Ptr> MakeBaseVariablesHermite() const;
+  std::vector<Nodes::Ptr> MakeBaseVariables() const;
   std::vector<PhaseNodes::Ptr> MakeEndeffectorVariables() const;
   std::vector<PhaseNodes::Ptr> MakeForceVariables() const;
   std::vector<PhaseDurations::Ptr> MakeContactScheduleVariables() const;
 
   // constraints
+  ContraintPtrVec GetConstraint(ConstraintName name) const;
   ContraintPtrVec MakeDynamicConstraint() const;
   ContraintPtrVec MakeRangeOfMotionBoxConstraint() const;
   ContraintPtrVec MakeTotalTimeConstraint() const;
@@ -110,15 +101,8 @@ private:
   ContraintPtrVec MakeBaseRangeOfMotionConstraint() const;
 
   // costs
+  CostPtrVec GetCost(const CostName& id, double weight) const;
   CostPtrVec MakeForcesCost(double weight) const;
-//  CostPtrVec MakeMotionCost(double weight) const;
-//  CostPtrVec MakePolynomialCost(const std::string& poly_id,
-//                                   const Vector3d& weight_dimensions,
-//                                   double weight) const;
-
-//  CostPtrVec ToCost(const ConstraintPtr& constraint, double weight) const;
-
-//  std::vector<xpp::EndeffectorID> GetEEIDs() const { return initial_ee_W_.GetEEsOrdered(); };
 };
 
 } /* namespace towr */

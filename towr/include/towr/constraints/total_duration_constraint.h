@@ -29,7 +29,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ifopt/constraint_set.h>
 
-#include "../variables/phase_durations.h"
+#include <towr/variables/phase_durations.h>
 
 namespace towr {
 

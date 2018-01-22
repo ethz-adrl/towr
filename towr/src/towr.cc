@@ -38,47 +38,42 @@ namespace towr {
 void
 TOWR::SetInitialState(const BaseState& initial_base, const FeetPos& feet)
 {
-  initial_base_ = initial_base;
-  foot_pos_ = feet;
+  factory_.initial_base_ = initial_base;
+  factory_.initial_ee_W_ = feet;
 }
 
 void
 TOWR::SetParameters(const BaseState& final_base,
-                    const OptimizationParameters& params,
+                    const Parameters& params,
                     const RobotModel& model,
                     HeightMap::Ptr terrain)
 {
-  final_base_ = final_base;
-  params_ = params;
-  model_ = model;
-  terrain_ = terrain;
+  factory_.final_base_ = final_base;
+  factory_.params_ = params;
+  factory_.model_ = model;
+  factory_.terrain_ = terrain;
 }
 
 ifopt::Problem
-TOWR::BuildNLP (SplineHolder& spline_holder) const
+TOWR::BuildNLP ()
 {
   ifopt::Problem nlp;
 
-  NlpFactory factory;
-  factory.Init(params_, terrain_, model_, foot_pos_, initial_base_, final_base_);
-
-  for (auto c : factory.GetVariableSets(spline_holder))
+  for (auto c : factory_.GetVariableSets())
     nlp.AddVariableSet(c);
 
-  for (ConstraintName name : params_.GetUsedConstraints())
-    for (auto c : factory.GetConstraint(name))
-      nlp.AddConstraintSet(c);
+  for (auto c : factory_.GetConstraints())
+    nlp.AddConstraintSet(c);
 
-  for (const auto& pair : params_.GetCostWeights())
-    for (auto c : factory.GetCost(pair.first, pair.second))
-      nlp.AddCostSet(c);
+  for (auto c : factory_.GetCosts())
+    nlp.AddCostSet(c);
 
   return nlp;
 }
 
 void TOWR::SolveNLP(Solver solver)
 {
-  nlp_ = BuildNLP(spline_holder_);
+  nlp_ = BuildNLP();
 
   switch (solver) {
     case Ipopt: ifopt::IpoptAdapter::Solve(nlp_); break;
@@ -92,7 +87,7 @@ void TOWR::SolveNLP(Solver solver)
 SplineHolder
 TOWR::GetSolution() const
 {
-  return spline_holder_;
+  return factory_.spline_holder_;
 }
 
 void

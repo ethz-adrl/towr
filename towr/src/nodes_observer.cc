@@ -25,7 +25,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/variables/nodes_observer.h>
-#include <towr/variables/node_variables.h>
+
+#include "../include/towr/variables/nodes.h"
 
 namespace towr {
 

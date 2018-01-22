@@ -32,7 +32,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ifopt/cost_term.h>
 
-#include <towr/variables/node_variables.h>
+#include "../variables/nodes.h"
 
 
 namespace towr {
@@ -57,7 +57,7 @@ public:
   double GetCost () const override;
 
 private:
-  std::shared_ptr<NodeVariables> nodes_;
+  std::shared_ptr<Nodes> nodes_;
 
   std::string node_id_;
   Dx deriv_;

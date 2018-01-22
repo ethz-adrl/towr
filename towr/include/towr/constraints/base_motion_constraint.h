@@ -27,9 +27,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_
 #define TOWR_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_
 
-#include <towr/optimization_parameters.h>
 #include <towr/variables/spline_holder.h>
 #include <towr/variables/spline.h>
+#include <towr/parameters.h>
 
 #include "time_discretization_constraint.h"
 
@@ -49,7 +49,7 @@ public:
    * @param params  The variables describing the optimization problem.
    * @param spline_holder  Holds pointers to the base variables.
    */
-  BaseMotionConstraint (const OptimizationParameters& params,
+  BaseMotionConstraint (const Parameters& params,
                         const SplineHolder& spline_holder);
   virtual ~BaseMotionConstraint () = default;
 

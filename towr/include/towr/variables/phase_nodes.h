@@ -27,7 +27,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_VARIABLES_PHASE_NODES_H_
 #define TOWR_VARIABLES_PHASE_NODES_H_
 
-#include "node_variables.h"
+#include "nodes.h"
 
 namespace towr {
 
@@ -40,7 +40,7 @@ namespace towr {
  * move (or a force in flight must be zero). This makes the number of
  * optimization variables less than the total node values.
  */
-class PhaseNodes : public NodeVariables {
+class PhaseNodes : public Nodes {
 public:
   using Ptr       = std::shared_ptr<PhaseNodes>;
   using OptNodeIs = int;

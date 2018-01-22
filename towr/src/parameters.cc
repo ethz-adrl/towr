@@ -24,39 +24,40 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/optimization_parameters.h>
+#include <towr/parameters.h>
 
 #include <algorithm>
 
 namespace towr {
 
-OptimizationParameters::OptimizationParameters ()
+Parameters::Parameters ()
 {
+  t_total_ = 3.0; // [s]
+
   // dynamic constraints are enforced at this interval as well
-  dt_base_polynomial_ = 0.2; // 0.2
+  duration_base_polynomial_ = 0.2;
 
 
-  // 2 also works quite well. Remember that inbetween the nodes, forces
+  // 2 also works quite well. Remember that in between the nodes, forces
   // could still be violating unilateral and friction constraints by
   // polynomial interpolation
-  force_splines_per_stance_phase_ = 3; // this makes it a lot bigger
+  force_polynomials_per_stance_phase_ = 3; // this makes it a lot bigger
 
 
   // range of motion constraint
-  dt_range_of_motion_ = 0.1; // 0.1
-  ee_splines_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
+  dt_constraint_range_of_motion_ = 0.1;
+  ee_polynomials_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
 
-  dt_base_range_of_motion_ = dt_base_polynomial_/4.;
+  dt_constraint_base_motion_ = duration_base_polynomial_/4.;
 
 
   min_phase_duration_ = 0.1;
   double max_time = 2.0; // this helps convergence
-  max_phase_duration_ = max_time>GetTotalTime()?  GetTotalTime() : max_time;
+  max_phase_duration_ = max_time>t_total_?  t_total_ : max_time;
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
 
-  force_z_limit_ = 1000; // [N] this affects convergence when optimizing gait
-
+  force_limit_in_norm_ = 1000; // [N] this affects convergence when optimizing gait
 
   constraints_ = {
       EndeffectorRom,
@@ -68,46 +69,24 @@ OptimizationParameters::OptimizationParameters ()
 //      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
   };
 
-  cost_weights_ = {
-//      {ForcesCostID, 1.0},
-//      {ComCostID, 1.0}
+  costs_ = {
+//    {ForcesCostID, 1.0},
   };
 }
 
-OptimizationParameters::CostWeights
-OptimizationParameters::GetCostWeights () const
-{
-  return cost_weights_;
-}
-
-OptimizationParameters::UsedConstraints
-OptimizationParameters::GetUsedConstraints () const
-{
-  return constraints_;
-}
-
-void
-OptimizationParameters::SetPhaseDurations (
-    const std::vector<VecTimes>& phase_durations,
-    const std::vector<bool>& initial_contact)
-{
-  ee_phase_durations_ = phase_durations;
-  ee_in_contact_at_start_ = initial_contact;
-}
-
 bool
-OptimizationParameters::OptimizeTimings () const
+Parameters::OptimizeTimings () const
 {
   ConstraintName c = TotalTime;
   auto v = constraints_; // shorthand
   return std::find(v.begin(), v.end(), c) != v.end();
 }
 
-OptimizationParameters::VecTimes
-OptimizationParameters::GetBasePolyDurations () const
+Parameters::VecTimes
+Parameters::GetBasePolyDurations () const
 {
   std::vector<double> base_spline_timings_;
-  double dt = dt_base_polynomial_;
+  double dt = duration_base_polynomial_;
   double t_left = t_total_;
 
   double eps = 1e-10; // since repeated subtraction causes inaccuracies
@@ -121,22 +100,16 @@ OptimizationParameters::GetBasePolyDurations () const
   return base_spline_timings_;
 }
 
-OptimizationParameters::VecTimes
-OptimizationParameters::GetEEPhaseDurations(EEID ee) const
-{
-  return ee_phase_durations_.at(ee);
-}
-
 int
-OptimizationParameters::GetPhaseCount(EEID ee) const
+Parameters::GetPhaseCount(EEID ee) const
 {
   return ee_phase_durations_.at(ee).size();
 }
 
-bool
-OptimizationParameters::IsEEInContactAtStart(EEID ee) const
+int
+Parameters::GetEECount() const
 {
-  return ee_in_contact_at_start_.at(ee);
+  return ee_in_contact_at_start_.size();
 }
 
 } // namespace towr

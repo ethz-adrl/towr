@@ -27,12 +27,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_CONSTRAINTS_RANGE_OF_MOTION_CONSTRAINT_H_
 #define TOWR_CONSTRAINTS_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include <towr/optimization_parameters.h>
 #include <towr/variables/spline.h>
 #include <towr/variables/spline_holder.h>
 #include <towr/variables/euler_converter.h>
 
 #include <towr/models/kinematic_model.h>
+#include <towr/parameters.h>
 
 #include "time_discretization_constraint.h"
 
@@ -61,7 +61,7 @@ public:
    * @param spline_holder Pointer to the current variables.
    */
   RangeOfMotionConstraint(const KinematicModel::Ptr& robot_model,
-                          const OptimizationParameters& params,
+                          const Parameters& params,
                           const EE& ee,
                           const SplineHolder& spline_holder);
   virtual ~RangeOfMotionConstraint() = default;

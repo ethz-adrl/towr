@@ -29,7 +29,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-BaseNodes::BaseNodes (int n_nodes, std::string name) : NodeVariables(k3D, name)
+BaseNodes::BaseNodes (int n_nodes, std::string name) : Nodes(k3D, name)
 {
   int n_derivs = 2; // position and velocity
   int n_variables = n_nodes*n_derivs*k3D;

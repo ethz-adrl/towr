@@ -46,9 +46,9 @@ namespace towr {
  *
  * @sa class CubicHermitePolynomial
  */
-class NodeVariables : public ifopt::VariableSet {
+class Nodes : public ifopt::VariableSet {
 public:
-  using Ptr          = std::shared_ptr<NodeVariables>;
+  using Ptr          = std::shared_ptr<Nodes>;
   using VecDurations = std::vector<double>;
   using ObserverPtr  = NodesObserver*;
 
@@ -167,8 +167,8 @@ protected:
    * @param n_dim  The number of dimensions (x,y,..) each node has.
    * @param variable_name  The name of the variables in the optimization problem.
    */
-  NodeVariables (int n_dim, const std::string& variable_name);
-  virtual ~NodeVariables () = default;
+  Nodes (int n_dim, const std::string& variable_name);
+  virtual ~Nodes () = default;
 
   VecBound bounds_; ///< the bounds on the node values.
 

@@ -27,7 +27,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_BASE_NODES_H_
 #define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_BASE_NODES_H_
 
-#include "node_variables.h"
+#include "nodes.h"
 
 namespace towr {
 
@@ -37,7 +37,7 @@ namespace towr {
  * Every node is optimized over, in contrast to PhaseNodes, where multiple
  * nodes in the spline are represented by the same optimization variables.
  */
-class BaseNodes : public NodeVariables {
+class BaseNodes : public Nodes {
 public:
   /**
    * @param n_nodes  The number of nodes to construct the spline.

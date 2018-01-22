@@ -152,8 +152,8 @@ NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
   robot_parameters_pub_.publish(robot_params_msg);
 
   total_time_ = msg.total_duration;
-  towr::OptimizationParameters params;
-  params.SetTotalDuration(total_time_);
+  towr::Parameters params;
+  params.t_total_ = total_time_;
 
 
   int n_ee = gait_generator_->GetEndeffectorNames().size();
@@ -164,7 +164,9 @@ NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
     ee_durations.push_back(gait_generator_->GetContactSchedule(total_time_, ee));
     initial_contact.push_back(gait_generator_->IsInContactAtStart(ee));
   }
-  params.SetPhaseDurations(ee_durations, initial_contact);
+
+  params.ee_phase_durations_ = ee_durations;
+  params.ee_in_contact_at_start_ = initial_contact;
 
 
 

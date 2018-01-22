@@ -30,11 +30,11 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 RangeOfMotionConstraint::RangeOfMotionConstraint (const KinematicModel::Ptr& model,
-                                    const OptimizationParameters& params,
-                                    const EE& ee,
-                                    const SplineHolder& spline_holder)
-    :TimeDiscretizationConstraint(params.GetTotalTime(),
-                                  params.dt_range_of_motion_,
+                                                  const Parameters& params,
+                                                  const EE& ee,
+                                                  const SplineHolder& spline_holder)
+    :TimeDiscretizationConstraint(params.t_total_,
+                                  params.dt_constraint_range_of_motion_,
                                   "RangeOfMotionBox-" + std::to_string(ee))
 {
   base_linear_  = spline_holder.GetBaseLinear();

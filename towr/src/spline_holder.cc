@@ -29,8 +29,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr{
 
-SplineHolder::SplineHolder (NodeVariables::Ptr base_lin_nodes,
-                            NodeVariables::Ptr base_ang_nodes,
+SplineHolder::SplineHolder (Nodes::Ptr base_lin_nodes,
+                            Nodes::Ptr base_ang_nodes,
                             const std::vector<double>& base_poly_durations,
                             std::vector<PhaseNodes::Ptr> ee_motion_nodes,
                             std::vector<PhaseNodes::Ptr> ee_force_nodes,

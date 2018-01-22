@@ -37,7 +37,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/models/robot_model.h>
 
 #include "height_map.h"
-#include "optimization_parameters.h"
+#include "nlp_factory.h"
+#include "parameters.h"
 
 
 namespace towr {
@@ -75,7 +76,7 @@ public:
    * @param terrain     The height map of the terrain to walk over.
    */
   void SetParameters(const BaseState& final_base,
-                     const OptimizationParameters& params,
+                     const Parameters& params,
                      const RobotModel& model,
                      HeightMap::Ptr terrain);
 
@@ -118,29 +119,12 @@ private:
    */
   ifopt::Problem nlp_;
 
-  /**
-   * @brief Holds the splines constructed from pointer to the current variables.
-   *
-   * These variables must exist in memory for the spline_holder to be valid.
-   */
-  SplineHolder spline_holder_;
-
-  // initial state
-  FeetPos foot_pos_;
-  BaseState initial_base_;
-
-  // motion parameters
-  RobotModel model_;
-  HeightMap::Ptr terrain_;
-  OptimizationParameters params_;
-  BaseState final_base_;
+  NlpFactory factory_;
 
   /**
    * @returns the solver independent optimization problem.
-   *
-   * @param[in/out] splines  Links object to the current optimization variables.
    */
-  ifopt::Problem BuildNLP(SplineHolder& splines) const;
+  ifopt::Problem BuildNLP();
 };
 
 } /* namespace towr */
