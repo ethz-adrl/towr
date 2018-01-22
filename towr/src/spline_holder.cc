@@ -25,32 +25,36 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/variables/spline_holder.h>
+#include <towr/variables/phase_spline.h>
 
 namespace towr{
 
 SplineHolder::SplineHolder (NodeVariables::Ptr base_lin_nodes,
                             NodeVariables::Ptr base_ang_nodes,
                             const std::vector<double>& base_poly_durations,
-                            std::vector<NodeVariables::Ptr> ee_motion_nodes,
-                            std::vector<NodeVariables::Ptr> ee_force_nodes,
-                            std::vector<PhaseDurations::Ptr> contact_schedule,
+                            std::vector<PhaseNodes::Ptr> ee_motion_nodes,
+                            std::vector<PhaseNodes::Ptr> ee_force_nodes,
+                            std::vector<PhaseDurations::Ptr> phase_durations,
                             bool durations_change)
 {
-  base_linear_ = std::make_shared<Spline>(base_lin_nodes.get(), base_poly_durations);
-  base_angular_ = std::make_shared<Spline>(base_ang_nodes.get(), base_poly_durations);
+  base_linear_  = std::make_shared<NodeSpline>(base_lin_nodes.get(), base_poly_durations);
+  base_angular_ = std::make_shared<NodeSpline>(base_ang_nodes.get(), base_poly_durations);
+  phase_durations_ = phase_durations;
 
   for (uint ee=0; ee<ee_motion_nodes.size(); ++ee) {
 
     if (durations_change) {
-      // spline without changing the polynomial durations
-      ee_motion_.push_back(std::make_shared<Spline>(ee_motion_nodes.at(ee).get(), contact_schedule.at(ee).get()));
-      ee_force_.push_back(std::make_shared<Spline>(ee_force_nodes.at(ee).get(), contact_schedule.at(ee).get()));
-    } else {
       // spline that changes the polynomial durations (affects Jacobian)
-      ee_motion_.push_back(std::make_shared<Spline>(ee_motion_nodes.at(ee).get(), contact_schedule.at(ee)->GetPhaseDurations()));
-      ee_force_.push_back(std::make_shared<Spline>(ee_force_nodes.at(ee).get(), contact_schedule.at(ee)->GetPhaseDurations()));
-    }
+      ee_motion_.push_back(std::make_shared<PhaseSpline>(ee_motion_nodes.at(ee), phase_durations.at(ee).get()));
+      ee_force_.push_back(std::make_shared<PhaseSpline>(ee_force_nodes.at(ee), phase_durations.at(ee).get()));
+    } else {
+      // spline without changing the polynomial durations
+      auto ee_motion_poly_durations = ee_motion_nodes.at(ee)->ConvertPhaseToPolyDurations(phase_durations.at(ee)->GetPhaseDurations());
+      auto ee_force_poly_durations = ee_force_nodes.at(ee)->ConvertPhaseToPolyDurations(phase_durations.at(ee)->GetPhaseDurations());
 
+      ee_motion_.push_back(std::make_shared<NodeSpline>(ee_motion_nodes.at(ee).get(), ee_motion_poly_durations));
+      ee_force_.push_back (std::make_shared<NodeSpline>(ee_force_nodes.at(ee).get(), ee_force_poly_durations));
+    }
   }
 }
 

@@ -58,8 +58,8 @@ public:
   virtual void UpdateJacobianAtInstance(double t, int k, std::string, Jacobian&) const override;
 
 private:
-  Spline::Ptr base_linear_;
-  Spline::Ptr base_angular_;
+  NodeSpline::Ptr base_linear_;
+  NodeSpline::Ptr base_angular_;
 
   VecBound node_bounds_;     ///< same bounds for each discretized node
   int GetRow (int node, int dim) const;

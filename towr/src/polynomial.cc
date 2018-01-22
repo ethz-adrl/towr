@@ -82,16 +82,25 @@ CubicHermitePolynomial::CubicHermitePolynomial (int dim)
 }
 
 void
-CubicHermitePolynomial::SetNodes (const Node& n0, const Node& n1, double T)
+CubicHermitePolynomial::SetNodes (const Node& n0, const Node& n1)
 {
-  coeff_[A] =  n0.p();
-  coeff_[B] =  n0.v();
-  coeff_[C] = -( 3*(n0.p() - n1.p()) +  T*(2*n0.v() + n1.v()) ) / std::pow(T,2);
-  coeff_[D] =  ( 2*(n0.p() - n1.p()) +  T*(  n0.v() + n1.v()) ) / std::pow(T,3);
-
-  T_ = T;
   n0_ = n0;
   n1_ = n1;
+}
+
+void
+CubicHermitePolynomial::SetDuration(double duration)
+{
+  T_ = duration;
+}
+
+void
+CubicHermitePolynomial::UpdateCoeff()
+{
+  coeff_[A] =  n0_.p();
+  coeff_[B] =  n0_.v();
+  coeff_[C] = -( 3*(n0_.p() - n1_.p()) +  T_*(2*n0_.v() + n1_.v()) ) / std::pow(T_,2);
+  coeff_[D] =  ( 2*(n0_.p() - n1_.p()) +  T_*(  n0_.v() + n1_.v()) ) / std::pow(T_,3);
 }
 
 double
@@ -130,7 +139,7 @@ CubicHermitePolynomial::GetDerivativeWrtEndNode (Dx dfdt,
 
 double
 CubicHermitePolynomial::GetDerivativeOfPosWrtStartNode(Dx node_value,
-                                                 double t) const
+                                                       double t) const
 {
   double t2 = std::pow(t,2);
   double t3 = std::pow(t,3);

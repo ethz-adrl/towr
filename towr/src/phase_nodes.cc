@@ -30,10 +30,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 std::vector<PhaseNodes::PolyInfo>
-BuildPolyInfos (int phase_count,
-                            bool is_in_contact_at_start,
-                            int n_polys_in_changing_phase,
-                            PhaseNodes::Type type)
+BuildPolyInfos (int phase_count, bool is_in_contact_at_start,
+                int n_polys_in_changing_phase, PhaseNodes::Type type)
 {
   using PolyInfo = PhaseNodes::PolyInfo;
   std::vector<PolyInfo> polynomial_info;
@@ -235,22 +233,29 @@ PhaseNodes::GetAdjacentPolyIds (int node_id) const
 void
 PhaseNodes::SetBoundsEEMotion ()
 {
-  for (int idx=0; idx<GetRows(); ++idx) {
+  for (int i=0; i<GetRows(); ++i) {
 
-    auto node = GetNodeInfoAtOptIndex(idx).front(); // bound idx by first node it represents
+    auto idx = GetNodeInfoAtOptIndex(i).front(); // bound idx by first node it represents
 
-    // endeffector is not allowed to move if in stance phase
-    if (IsConstantNode(node.node_id_)) {
-      if (node.node_deriv_ == kVel)
-        bounds_.at(idx) = ifopt::BoundZero;
-    }
-    else { // node in pure swing-phase
-      if (node.node_deriv_ == kVel && node.node_dim_ == Z)
-        bounds_.at(idx) = ifopt::BoundZero; // zero velocity at top
+    // stance node
+    if (IsConstantNode(idx.node_id_)) {
 
-//      // to not have really fast swing motions
-//      if (node.node_deriv_ == kVel)
-//        bounds_.at(idx) = ifopt::Bounds(-5.0, 5.0); // zero velocity at top
+      // endeffector is not allowed to move if in stance phase
+      if (idx.node_deriv_ == kVel)
+        bounds_.at(i) = ifopt::BoundZero;
+
+    // swing node
+    } else {
+
+      // zero velocity at top
+      if (idx.node_deriv_ == kVel && idx.node_dim_ == Z)
+        bounds_.at(i) = ifopt::BoundZero;
+
+      /*
+      // to not have really fast swing motions
+      if (idx.node_deriv_ == kVel)
+        bounds_.at(i) = ifopt::Bounds(-5.0, 5.0); // zero velocity at top
+      */
     }
   }
 }
@@ -258,28 +263,23 @@ PhaseNodes::SetBoundsEEMotion ()
 void
 PhaseNodes::SetBoundsEEForce ()
 {
-  for (int idx=0; idx<GetRows(); ++idx) {
+  for (int i=0; i<GetRows(); ++i) {
 
-    IndexInfo n0 = GetNodeInfoAtOptIndex(idx).front(); // only one node anyway
+    IndexInfo idx = GetNodeInfoAtOptIndex(i).front(); // only one node anyway
 
-    if (!IsConstantNode(n0.node_id_)) {
+    // stance node
+    if (!IsConstantNode(idx.node_id_)) {
 
-//      if (n0.deriv_ == kPos) {
-//
-//        if (n0.dim_ == X || n0.dim_ == Y)
-//          bounds_.at(idx) = Bound(-f_max_, f_max_);
-//
-//        // unilateral contact forces ("pulling" on ground not possible)
-//        if (n0.dim_ == Z)
-//          bounds_.at(idx) = Bound(0.0, f_max_);
-//      }
-//
-//      if (n0.deriv_ == kVel) {
-//        bounds_.at(idx) = BoundZero; // zero slope to never exceed zero force between nodes
-//      }
+      /*
+      // zero slope to never exceed zero force between nodes
+      if (idx.node_deriv_ == kVel) {
+        bounds_.at(i) = ifopt::BoundZero;
+      }
+      */
 
-    } else { // swing node
-      bounds_.at(idx) = ifopt::BoundZero; // force must be zero
+    // swing node
+    } else {
+      bounds_.at(i) = ifopt::BoundZero; // force must be zero
     }
 
   }

@@ -34,8 +34,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_SPLINE_HOLDER_H_
 
 #include "node_variables.h"
+#include "phase_nodes.h"
 #include "phase_durations.h"
-#include "spline.h"
+#include "node_spline.h"
 
 namespace towr {
 
@@ -62,28 +63,31 @@ public:
   SplineHolder (NodeVariables::Ptr base_lin,
                 NodeVariables::Ptr base_ang,
                 const std::vector<double>& base_poly_durations,
-                std::vector<NodeVariables::Ptr> ee_motion,
-                std::vector<NodeVariables::Ptr> ee_force,
+                std::vector<PhaseNodes::Ptr> ee_motion,
+                std::vector<PhaseNodes::Ptr> ee_force,
                 std::vector<PhaseDurations::Ptr> phase_durations,
                 bool ee_durations_change);
 
   SplineHolder () = default;
   virtual ~SplineHolder () = default;
 
-  Spline::Ptr GetBaseLinear() const { return base_linear_; };
-  Spline::Ptr GetBaseAngular() const { return base_angular_; };
+  NodeSpline::Ptr GetBaseLinear() const { return base_linear_; };
+  NodeSpline::Ptr GetBaseAngular() const { return base_angular_; };
 
-  std::vector<Spline::Ptr> GetEEMotion() const { return ee_motion_; };
-  std::vector<Spline::Ptr> GetEEForce()  const { return ee_force_; };
-  Spline::Ptr GetEEMotion(EE ee) const { return ee_motion_.at(ee); };
-  Spline::Ptr GetEEForce(EE ee)  const { return ee_force_.at(ee); };
+  std::vector<NodeSpline::Ptr> GetEEMotion() const { return ee_motion_; };
+  std::vector<NodeSpline::Ptr> GetEEForce()  const { return ee_force_; };
+  NodeSpline::Ptr GetEEMotion(EE ee) const { return ee_motion_.at(ee); };
+  NodeSpline::Ptr GetEEForce(EE ee)  const { return ee_force_.at(ee); };
+
+  PhaseDurations::Ptr GetPhaseDurations(EE ee)  const { return phase_durations_.at(ee); };
 
 private:
-  Spline::Ptr base_linear_;
-  Spline::Ptr base_angular_;
+  NodeSpline::Ptr base_linear_;
+  NodeSpline::Ptr base_angular_;
 
-  std::vector<Spline::Ptr> ee_motion_;
-  std::vector<Spline::Ptr> ee_force_;
+  std::vector<NodeSpline::Ptr> ee_motion_;
+  std::vector<NodeSpline::Ptr> ee_force_;
+  std::vector<PhaseDurations::Ptr> phase_durations_;
 };
 
 } /* namespace towr */

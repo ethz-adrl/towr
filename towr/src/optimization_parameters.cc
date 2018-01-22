@@ -55,7 +55,7 @@ OptimizationParameters::OptimizationParameters ()
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
 
-  force_z_limit_ = 10000; // N
+  force_z_limit_ = 1000; // [N] this affects convergence when optimizing gait
 
 
   constraints_ = {
@@ -63,8 +63,8 @@ OptimizationParameters::OptimizationParameters ()
       Dynamic,
       Terrain,
       Force,
-//      TotalTime, // Attention: this causes segfault in SNOPT
-      Swing, // this is important for lifting leg
+      TotalTime, // Attention: this causes segfault in SNOPT
+      Swing, // remove this at some point -> hacky
 //      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
   };
 

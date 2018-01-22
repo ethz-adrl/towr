@@ -131,11 +131,11 @@ void
 NodeVariables::UpdateObservers() const
 {
   for (auto& o : observers_)
-    o->UpdatePolynomials();
+    o->UpdateNodes();
 }
 
 void
-NodeVariables::AddObserver(NodesObserver* const o)
+NodeVariables::AddObserver(ObserverPtr const o)
 {
    observers_.push_back(o);
 }

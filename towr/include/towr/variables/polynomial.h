@@ -102,13 +102,23 @@ public:
   CubicHermitePolynomial(int dim);
   virtual ~CubicHermitePolynomial() = default;
 
+
   /**
-   * @brief Fully defines the polynomial by the node values and duration.
+   * @brief  sets the total duration of the polynomial.
+   */
+  void SetDuration(double duration);
+
+  /**
+   * @brief Fully defines the polynomial by the node values using current duration.
    * @param n0  The value and derivative at the start of the polynomial.
    * @param n1  The value and derivative at the end of the polynomial.
-   * @param T   The duration of the polynomial.
    */
-  void SetNodes(const Node& n0, const Node& n1, double T);
+  void SetNodes(const Node& n0, const Node& n1);
+
+  /**
+   * @brief updates the coefficients using current nodes and durations.
+   */
+  void UpdateCoeff();
 
   /**
    * @brief How the total duration affect the value ("pos") of the polynomial.
@@ -131,6 +141,11 @@ public:
    * @param t  The time along the polynomial.
    */
   double GetDerivativeWrtEndNode(Dx dfdt, Dx node_deriv, double t) const;
+
+  /**
+   * @returns the total duration of the polynomial.
+   */
+  const double GetDuration() const { return T_; };
 
 private:
   double T_;     ///< the total duration of the polynomial.

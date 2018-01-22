@@ -31,7 +31,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-PhaseDurationsObserver::PhaseDurationsObserver (SubjectPtr subject)
+PhaseDurationsObserver::PhaseDurationsObserver (PhaseDurationsSubjectPtr subject)
 {
   phase_durations_ = subject;
 

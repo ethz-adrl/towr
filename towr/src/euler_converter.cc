@@ -32,7 +32,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-EulerConverter::EulerConverter (const Spline::Ptr& euler)
+EulerConverter::EulerConverter (const NodeSpline::Ptr& euler)
 {
   euler_ = euler;
   jac_wrt_nodes_structure_ = Jacobian(k3D, euler->GetNodeVariablesCount());

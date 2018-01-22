@@ -39,7 +39,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/costs/node_cost.h>
 #include <towr/models/dynamic_model.h>
-#include "../include/towr/variables/phase_durations.h"
+#include <towr/variables/phase_durations.h>
 
 
 namespace towr {
@@ -174,10 +174,10 @@ NlpFactory::MakeBaseVariablesHermite () const
   return vars;
 }
 
-std::vector<NodeVariables::Ptr>
+std::vector<PhaseNodes::Ptr>
 NlpFactory::MakeEndeffectorVariables () const
 {
-  std::vector<NodeVariables::Ptr> vars;
+  std::vector<PhaseNodes::Ptr> vars;
 
   // Endeffector Motions
   double T = params_.GetTotalTime();
@@ -216,10 +216,10 @@ NlpFactory::MakeEndeffectorVariables () const
   return vars;
 }
 
-std::vector<NodeVariables::Ptr>
+std::vector<PhaseNodes::Ptr>
 NlpFactory::MakeForceVariables () const
 {
-  std::vector<NodeVariables::Ptr> vars;
+  std::vector<PhaseNodes::Ptr> vars;
 
   double T = params_.GetTotalTime();
   for (int ee=0; ee<params_.GetEECount(); ee++) {
@@ -233,6 +233,8 @@ NlpFactory::MakeForceVariables () const
     // initialize with mass of robot distributed equally on all legs
     double m = model_.dynamic_model_->m();
     double g = model_.dynamic_model_->g();
+
+
     Vector3d f_stance(0.0, 0.0, m*g/params_.GetEECount());
     nodes->InitializeNodesTowardsGoal(f_stance, f_stance, T);
     vars.push_back(nodes);
@@ -249,9 +251,10 @@ NlpFactory::MakeContactScheduleVariables () const
   for (int ee=0; ee<params_.GetEECount(); ee++) {
 
     auto var = std::make_shared<PhaseDurations>(ee,
-                                                 params_.GetEEPhaseDurations(ee),
-                                                 params_.min_phase_duration_,
-                                                 params_.max_phase_duration_);
+                                                params_.GetEEPhaseDurations(ee),
+                                                params_.IsEEInContactAtStart(ee),
+                                                params_.min_phase_duration_,
+                                                params_.max_phase_duration_);
     vars.push_back(var);
   }
 

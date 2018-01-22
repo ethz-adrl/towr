@@ -47,6 +47,8 @@ add_library(${PROJECT_NAME}
   src/base_nodes.cc
   src/node_cost.cc
   src/spline.cc
+  src/phase_spline.cc
+  src/node_spline.cc
   src/nodes_observer.cc
   src/spline_holder.cc
   src/euler_converter.cc

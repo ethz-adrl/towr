@@ -257,7 +257,7 @@ NlpOptimizerNode::GetTrajectory () const
     state.base_.ang.wd = base_angular.GetAngularAccelerationInWorld(t);
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
-      state.ee_contact_.at(ee) = spline_holder_.GetEEMotion(ee)->IsConstantPhase(t);
+      state.ee_contact_.at(ee) = spline_holder_.GetPhaseDurations(ee)->IsContactPhase(t);
       state.ee_motion_.at(ee)  = ToXpp(spline_holder_.GetEEMotion(ee)->GetPoint(t));
       state.ee_forces_.at(ee)  = spline_holder_.GetEEForce(ee)->GetPoint(t).p();
     }

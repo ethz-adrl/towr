@@ -29,7 +29,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-NodesObserver::NodesObserver(SubjectPtr subject)
+NodesObserver::NodesObserver(NodeSubjectPtr subject)
 {
   node_values_ = subject;
 

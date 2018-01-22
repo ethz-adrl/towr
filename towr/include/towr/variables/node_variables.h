@@ -29,8 +29,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ifopt/variable_set.h>
 
-#include "nodes_observer.h"
 #include "state.h"
+#include "nodes_observer.h"
 
 namespace towr {
 
@@ -50,6 +50,7 @@ class NodeVariables : public ifopt::VariableSet {
 public:
   using Ptr          = std::shared_ptr<NodeVariables>;
   using VecDurations = std::vector<double>;
+  using ObserverPtr  = NodesObserver*;
 
   /**
    * @brief Holds information about the node the optimization index represents.
@@ -135,7 +136,7 @@ public:
    * @brief Adds a dependent observer that gets notified when the nodes change.
    * @param spline Usually a pointer to a spline which uses the node values.
    */
-  void AddObserver(NodesObserver* const spline);
+  void AddObserver(ObserverPtr const spline);
 
   /**
    * @returns  The dimensions (x,y,z) of every node.
@@ -159,44 +160,6 @@ public:
    */
   void AddFinalBound(Dx deriv, const std::vector<int>& dimensions,
                      const VectorXd& val);
-
-  // these interfaces correspond to phases and should be moved to phase_nodes.h
-  /**
-   * @brief Converts durations of swing and stance phases to polynomial durations.
-   * @param phase_durations  The durations of alternating swing and stance phases.
-   * @return  The durations of each polynomial, where multiple polynomials can
-   *          be used to represent one phase.
-   */
-  virtual VecDurations
-  ConvertPhaseToPolyDurations(const VecDurations& phase_durations) const = 0;
-
-  /**
-   * @brief How a change in the phase duration affects the polynomial duration.
-   * @param polynomial_id  The ID of the polynomial within the spline.
-   *
-   * If a phase is represented by multiple (3) equally timed polynomials, then
-   * T_poly = 1/3 * T_phase.
-   * The derivative of T_poly is then 1/3.
-   */
-  virtual double
-  GetDerivativeOfPolyDurationWrtPhaseDuration(int polynomial_id) const = 0;
-
-  /**
-   * @brief How many polynomials in the current phase come before.
-   * @param polynomial_id  The ID of the polynomial within the spline.
-   *
-   * If a phase is represented by multiple (3) polynomials, and the current
-   * polynomial corresponds to the third one in the phase, then 2 polynomials
-   * come before it.
-   */
-  virtual int
-  GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const = 0;
-
-  /**
-   * @brief Is the polynomial constant, so not changing the value.
-   * @param polynomial_id The ID of the polynomial within the spline.
-   */
-  virtual bool IsInConstantPhase(int polynomial_id) const = 0;
 
 protected:
 
@@ -227,7 +190,7 @@ private:
    * @brief Notifies the subscribed observers that the node values changes.
    */
   void UpdateObservers() const;
-  std::vector<NodesObserver*> observers_;
+  std::vector<ObserverPtr> observers_;
 
   /**
    * @brief Bounds a specific node variables.

@@ -32,7 +32,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Eigen/Eigen>
 
 #include "cartesian_dimensions.h"
-#include "spline.h"
+#include "node_spline.h"
 
 namespace towr {
 
@@ -83,7 +83,7 @@ public:
    * double pitch = euler_angles->GetPoint(t).y();
    * double yaw   = euler_angles->GetPoint(t).z();
    */
-  EulerConverter (const Spline::Ptr& euler_angles);
+  EulerConverter (const NodeSpline::Ptr& euler_angles);
   virtual ~EulerConverter () = default;
 
   /**
@@ -145,7 +145,7 @@ public:
   Jacobian GetDerivOfRotMatRowWrtEulerNodes(double t, const Vector3d& v,
                                             bool inverse) const;
 private:
-  Spline::Ptr euler_;
+  NodeSpline::Ptr euler_;
 
   // Internal calculations for the conversion from euler rates to angular
   // velocities and accelerations. These are done using the matrix M defined

@@ -67,9 +67,9 @@ public:
   virtual ~RangeOfMotionConstraint() = default;
 
 private:
-  Spline::Ptr base_linear_;     ///< the linear position of the base.
+  NodeSpline::Ptr base_linear_;     ///< the linear position of the base.
   EulerConverter base_angular_; ///< the orientation of the base.
-  Spline::Ptr ee_motion_;       ///< the linear position of the endeffectors.
+  NodeSpline::Ptr ee_motion_;       ///< the linear position of the endeffectors.
 
   Eigen::Vector3d max_deviation_from_nominal_;
   Eigen::Vector3d nominal_ee_pos_B_;

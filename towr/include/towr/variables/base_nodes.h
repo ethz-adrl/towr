@@ -34,8 +34,8 @@ namespace towr {
 /**
  * @brief Node variables used to construct the base motion spline.
  *
- * These nodes don't need to know anything about phases, since the base
- * Hermite-Spline usually has fixed durations.
+ * Every node is optimized over, in contrast to PhaseNodes, where multiple
+ * nodes in the spline are represented by the same optimization variables.
  */
 class BaseNodes : public NodeVariables {
 public:
@@ -47,11 +47,6 @@ public:
   virtual ~BaseNodes () = default;
 
   virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const override;
-
-  virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const override;
-  virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const override;
-  virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const override;
-  virtual bool IsInConstantPhase(int polynomial_id) const override;
 };
 
 } /* namespace towr */

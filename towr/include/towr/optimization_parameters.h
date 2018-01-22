@@ -60,8 +60,6 @@ public:
   void SetPhaseDurations(const std::vector<VecTimes>& phase_durations,
                          const std::vector<bool>& initial_contact);
 
-
-
   void SetTotalDuration(double d) {t_total_ = d; };
   double GetTotalTime() const { return t_total_;} ;
 

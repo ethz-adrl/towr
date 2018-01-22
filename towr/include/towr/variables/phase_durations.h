@@ -56,6 +56,7 @@ public:
    */
   PhaseDurations (EndeffectorID ee,
                   const VecDurations& initial_durations,
+                  bool is_first_phase_in_contact,
                   double min_phase_duration,
                   double max_phase_duration);
   virtual ~PhaseDurations () = default;
@@ -103,10 +104,17 @@ public:
    */
   void AddObserver(PhaseDurationsObserver* const spline);
 
+  /**
+   * @brief Whether the endeffector is in contact with the environment.
+   * @param t  global time along the trajectory.
+   */
+  bool IsContactPhase(double t) const;
+
 private:
   VecDurations durations_;
 
   double t_total_;
+  bool initial_contact_state_; ///< true if first phase in contact
   ifopt::Bounds phase_duration_bounds_;
 
   std::vector<PhaseDurationsObserver*> observers_;

@@ -36,7 +36,6 @@ BaseNodes::BaseNodes (int n_nodes, std::string name) : NodeVariables(k3D, name)
   InitMembers(n_nodes, n_variables);
 }
 
-// reverse of the above
 std::vector<BaseNodes::IndexInfo>
 BaseNodes::GetNodeInfoAtOptIndex (int idx) const
 {
@@ -46,37 +45,13 @@ BaseNodes::GetNodeInfoAtOptIndex (int idx) const
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
   IndexInfo node;
-  node.node_deriv_     = internal_id<GetDim()? kPos : kVel;
-  node.node_dim_ = internal_id%GetDim();
-  node.node_id_        = std::floor(idx/n_opt_values_per_node_);
+  node.node_deriv_ = internal_id<GetDim()? kPos : kVel;
+  node.node_dim_   = internal_id%GetDim();
+  node.node_id_    = std::floor(idx/n_opt_values_per_node_);
 
   nodes.push_back(node);
 
   return nodes;
 }
-
-BaseNodes::VecDurations
-BaseNodes::ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const
-{
-  return phase_durations; // each polynomial lasts one phase durations
-}
-
-double
-BaseNodes::GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const
-{
-  return 1.0; // default every polynomial durations represents one phase
-}
-
-int
-BaseNodes::GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const
-{
-  return 0; // every phase is represented by single polynomial
-}
-
-bool
-BaseNodes::IsInConstantPhase(int polynomial_id) const
-{
-  return false;
-};
 
 } /* namespace towr */

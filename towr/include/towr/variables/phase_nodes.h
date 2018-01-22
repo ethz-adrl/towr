@@ -73,6 +73,8 @@ public:
 
   virtual ~PhaseNodes() = default;
 
+  virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const override;
+
   /**
    * @returns the value of the first node of the phase.
    */
@@ -104,20 +106,42 @@ public:
    */
   NodeIds GetIndicesOfNonConstantNodes() const;
 
-  // see base class for documention
-  virtual std::vector<IndexInfo>
-  GetNodeInfoAtOptIndex(int idx) const override;
-
+  /**
+   * @brief Converts durations of swing and stance phases to polynomial durations.
+   * @param phase_durations  The durations of alternating swing and stance phases.
+   * @return  The durations of each polynomial, where multiple polynomials can
+   *          be used to represent one phase.
+   */
   virtual VecDurations
-  ConvertPhaseToPolyDurations (const VecDurations& phase) const override;
+  ConvertPhaseToPolyDurations(const VecDurations& phase_durations) const;
 
+  /**
+   * @brief How a change in the phase duration affects the polynomial duration.
+   * @param polynomial_id  The ID of the polynomial within the spline.
+   *
+   * If a phase is represented by multiple (3) equally timed polynomials, then
+   * T_poly = 1/3 * T_phase.
+   * The derivative of T_poly is then 1/3.
+   */
   virtual double
-  GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const override;
+  GetDerivativeOfPolyDurationWrtPhaseDuration(int polynomial_id) const;
 
+  /**
+   * @brief How many polynomials in the current phase come before.
+   * @param polynomial_id  The ID of the polynomial within the spline.
+   *
+   * If a phase is represented by multiple (3) polynomials, and the current
+   * polynomial corresponds to the third one in the phase, then 2 polynomials
+   * come before it.
+   */
   virtual int
-  GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const override;
+  GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const;
 
-  bool IsInConstantPhase(int poly_id) const override;
+  /**
+   * @brief Is the polynomial constant, so not changing the value.
+   * @param polynomial_id The ID of the polynomial within the spline.
+   */
+  virtual bool IsInConstantPhase(int polynomial_id) const;
 
 private:
   std::vector<PolyInfo> polynomial_info_;

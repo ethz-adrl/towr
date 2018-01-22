@@ -69,10 +69,10 @@ public:
   virtual ~DynamicConstraint () = default;
 
 private:
-  Spline::Ptr base_linear_;            ///< lin. base pos/vel/acc in world frame
+  NodeSpline::Ptr base_linear_;   ///< lin. base pos/vel/acc in world frame
   EulerConverter base_angular_;        ///< angular base state
-  std::vector<Spline::Ptr> ee_forces_; ///< endeffector forces in world frame.
-  std::vector<Spline::Ptr> ee_motion_; ///< endeffector position in world frame.
+  std::vector<NodeSpline::Ptr> ee_forces_; ///< endeffector forces in world frame.
+  std::vector<NodeSpline::Ptr> ee_motion_; ///< endeffector position in world frame.
 
   mutable DynamicModel::Ptr model_;    ///< the dynamic model (e.g. Centroidal)
 

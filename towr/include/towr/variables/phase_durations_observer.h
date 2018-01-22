@@ -46,7 +46,7 @@ class PhaseDurations;
  */
 class PhaseDurationsObserver {
 public:
-  using SubjectPtr = PhaseDurations*; // observer shouldn't own subject
+  using PhaseDurationsSubjectPtr = PhaseDurations*; // observer shouldn't own subject
 
   PhaseDurationsObserver() = default;
 
@@ -54,16 +54,16 @@ public:
    * @brief Registers this observer with the subject class to receive updates.
    * @param phase_durations  A pointer to the hase durations subject.
    */
-  PhaseDurationsObserver(SubjectPtr phase_durations);
+  PhaseDurationsObserver(PhaseDurationsSubjectPtr phase_durations);
   virtual ~PhaseDurationsObserver() = default;
 
   /**
    * @brief Callback method called every time the subject changes.
    */
-  virtual void UpdatePhaseDurations() = 0;
+  virtual void UpdatePolynomialDurations() = 0;
 
 protected:
-  SubjectPtr phase_durations_;
+  PhaseDurationsSubjectPtr phase_durations_;
 };
 
 } /* namespace towr */

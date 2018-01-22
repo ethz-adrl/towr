@@ -29,6 +29,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <numeric> // std::accumulate
 
 #include <towr/variables/variable_names.h>
+#include <towr/variables/spline.h> // for Spline::GetSegmentID()
 
 
 namespace towr {
@@ -36,6 +37,7 @@ namespace towr {
 
 PhaseDurations::PhaseDurations (EndeffectorID ee,
                                 const VecDurations& timings,
+                                bool is_first_phase_in_contact,
                                 double min_duration,
                                 double max_duration)
     // -1 since last phase-duration is not optimized over, but comes from total time
@@ -43,8 +45,8 @@ PhaseDurations::PhaseDurations (EndeffectorID ee,
 {
   durations_ = timings;
   t_total_ = std::accumulate(timings.begin(), timings.end(), 0.0);
-
   phase_duration_bounds_ = ifopt::Bounds(min_duration, max_duration);
+  initial_contact_state_ = is_first_phase_in_contact;
 }
 
 void
@@ -57,7 +59,7 @@ void
 PhaseDurations::UpdateObservers () const
 {
   for (auto& spline : observers_)
-    spline->UpdatePhaseDurations();
+    spline->UpdatePolynomialDurations();
 }
 
 Eigen::VectorXd
@@ -99,6 +101,13 @@ PhaseDurations::GetPhaseDurations() const
   return durations_;
 }
 
+bool
+PhaseDurations::IsContactPhase (double t) const
+{
+  int phase_id = Spline::GetSegmentID(t, durations_);
+  return phase_id%2 == 0? initial_contact_state_ : !initial_contact_state_;
+}
+
 PhaseDurations::Jacobian
 PhaseDurations::GetJacobianOfPos (int current_phase,
                                   const VectorXd& dx_dT,
@@ -130,4 +139,5 @@ PhaseDurations::GetJacobianOfPos (int current_phase,
 }
 
 } /* namespace towr */
+
 

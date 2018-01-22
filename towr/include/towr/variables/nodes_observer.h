@@ -46,22 +46,22 @@ class NodeVariables;
  */
 class NodesObserver {
 public:
-  using SubjectPtr = NodeVariables*; // observer shouldn't own subject
+  using NodeSubjectPtr = NodeVariables*; // observer shouldn't own subject
 
   /**
    * @brief Registers this observer with the subject class to receive updates.
    * @param node_values  The subject holding the Hermite node values.
    */
-  NodesObserver(SubjectPtr node_values);
+  NodesObserver(NodeSubjectPtr node_values);
   virtual ~NodesObserver() = default;
 
   /**
    * @brief Callback method called every time the subject changes.
    */
-  virtual void UpdatePolynomials() = 0;
+  virtual void UpdateNodes() = 0;
 
 protected:
-  SubjectPtr node_values_;
+  NodeSubjectPtr node_values_;
 };
 
 } /* namespace towr */
