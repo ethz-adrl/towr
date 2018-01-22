@@ -79,6 +79,7 @@ add_library(${PROJECT_NAME}
   src/hyq_model.cc
   src/biped_model.cc
   src/monoped_model.cc
+  src/height_map_examples.cc
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}

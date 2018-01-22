@@ -63,7 +63,7 @@ OptimizationParameters::OptimizationParameters ()
       Dynamic,
       Terrain,
       Force,
-      TotalTime, // Attention: this causes segfault in SNOPT
+//      TotalTime, // Attention: this causes segfault in SNOPT
       Swing, // remove this at some point -> hacky
 //      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
   };

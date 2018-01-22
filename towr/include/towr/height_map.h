@@ -24,8 +24,8 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef TOWR_CONSTRAINTS_HEIGHT_MAP_H_
-#define TOWR_CONSTRAINTS_HEIGHT_MAP_H_
+#ifndef TOWR_HEIGHT_MAP_H_
+#define TOWR_HEIGHT_MAP_H_
 
 #include <memory>
 #include <vector>
@@ -36,180 +36,105 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
- * @brief Terrains IDs corresponding to a draw function in xpp_vis and a
- * detailed (gradient supplying) function in the optimizer.
+ * @brief Holds the height and slope of the terrain.
+ *
+ * This class is responsible for providing the height values and slope at
+ * each position (x,y). This is used to formulate constraints such as
+ * "foot must be touching terrain during stance phase".
+ * @sa TerrainConstraint
+ *
+ * If a height map of the terrain already exists, e.g. Octomap/Gridmap, then
+ * a simple adapter for these can be written to comply to  this minimal
+ * interface and to be used with %towr.
  */
-enum TerrainID { FlatID=0,
-                 BlockID,
-                 StairsID,
-                 GapID,
-                 SlopeID,
-                 ChimneyID,
-                 ChimneyLRID,
-                 K_TERRAIN_COUNT };
-
 class HeightMap {
 public:
-  using Ptr         = std::shared_ptr<HeightMap>;
-  using Vector3d    = Eigen::Vector3d;
-  using Derivatives = std::vector<Dim2D>;
+  using Ptr      = std::shared_ptr<HeightMap>;
+  using Vector3d = Eigen::Vector3d;
 
-  static Ptr MakeTerrain(TerrainID type);
+  enum Direction { Normal, Tangent1, Tangent2 };
+
+  HeightMap() = default;
   virtual ~HeightMap () = default;
 
-  enum BasisVector { Normal, Tangent1, Tangent2 };
-
+  /**
+   * @returns The height of the terrain [m] at a specific 2D position.
+   * @param x The x position.
+   * @param y The y position.
+   */
   virtual double GetHeight(double x, double y) const = 0;
+
+  /**
+   * @brief How the height value changes at a 2D position in direction dim.
+   * @param dim  The direction (x,y) w.r.t. which the height change is desired.
+   * @param x  The x position on the terrain.
+   * @param y  The y position on the terrain.
+   * @return  The derivative of the height with respect to the dimension.
+   */
   double GetDerivativeOfHeightWrt(Dim2D dim, double x, double y) const;
-  Vector3d GetNormalizedBasis(BasisVector, double x, double y) const;
-  Vector3d GetDerivativeOfNormalizedBasisWrt(BasisVector, Dim2D dim, double x, double y) const;
 
+  /**
+   * @brief Returns either the vector normal or tangent to the terrain patch.
+   * @param direction  The terrain normal or tangent vectors.
+   * @param x  The x position on the terrain.
+   * @param y  The y position on the terrain.
+   * @return The normalized 3D vector in the specified direction.
+   */
+  Vector3d GetNormalizedBasis(Direction direction, double x, double y) const;
+
+  /**
+   * @brief How the terrain normal/tangent vectors change when moving in x or y.
+   * @param direction  The terrain normal or tangent vectors.
+   * @param dim  The dimension w.r.t which the change is searched for.
+   * @param x  The x position on the terrain.
+   * @param y  The y position on the terrain.
+   * @return The normalized 3D derivative w.r.t dimension dim.
+   */
+  Vector3d GetDerivativeOfNormalizedBasisWrt(Direction direction, Dim2D dim,
+                                             double x, double y) const;
+  /**
+   * @returns The constant friction coefficient over the whole terrain.
+   */
   double GetFrictionCoeff() const { return friction_coeff_; };
-  virtual void SetGroundHeight(double height) {};
 
-private:
+protected:
   double friction_coeff_ = 0.5;
 
-  // not normalized basis vectors of basis vector derivatives
-  Vector3d GetBasisNotNormalized(BasisVector, double x, double y, const Derivatives& = {}) const;
-  Vector3d GetNormalNotNormalized(double x, double y, const Derivatives& = {}) const;
-  Vector3d GetTangent1NotNormalized(double x, double y, const Derivatives& = {}) const;
-  Vector3d GetTangent2NotNormalized(double x, double y, const Derivatives& = {}) const;
+private:
+  using DimDerivs = std::vector<Dim2D>; ///< dimensional derivatives
+  /**
+   * @brief returns either the terrain normal/tangent or its derivative.
+   * @param direction Terrain normal or tangent vector.
+   * @param x The x position on the terrain.
+   * @param y The y position on the terrain.
+   * @param dim_deriv If empty, the vector is returned, if e.g. X_ is set, the
+   *                  derivative of the vector w.r.t. x is returned.
+   * @returns the 3D @b not-normalized vector.
+   */
+  Vector3d GetBasis(Direction direction, double x, double y,
+                    const DimDerivs& dim_deriv= {}) const;
 
+  Vector3d GetNormal(double x,   double y, const DimDerivs& = {}) const;
+  Vector3d GetTangent1(double x, double y, const DimDerivs& = {}) const;
+  Vector3d GetTangent2(double x, double y, const DimDerivs& = {}) const;
 
-  // first derivaties that must be implemented by the user
+  double GetSecondDerivativeOfHeightWrt(Dim2D dim1, Dim2D dim2,
+                                        double x, double y) const;
+
+  Vector3d GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(
+      const Vector3d& non_normalized, int index) const;
+
+  // first derivatives that must be implemented by the user
   virtual double GetHeightDerivWrtX(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtY(double x, double y) const { return 0.0; };
 
-  // second derivatives wrt first letter, then second
-  double GetSecondDerivativeOfHeightWrt(Dim2D dim1, Dim2D dim2, double x, double y) const;
+  // second derivatives with respect to first letter, then second
   virtual double GetHeightDerivWrtXX(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtXY(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYX(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYY(double x, double y) const { return 0.0; };
-
-
-  Vector3d GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(const Vector3d& non_normalized, int index) const;
 };
-
-
-class FlatGround : public HeightMap {
-public:
-  virtual double GetHeight(double x, double y)  const override { return height_; };
-
-private:
-  virtual void SetGroundHeight(double h) override { height_ = h; };
-  double height_ = 0.0; // [m]
-};
-
-class Block : public HeightMap {
-public:
-  virtual double GetHeight(double x, double y)  const override;
-  virtual double GetHeightDerivWrtX(double x, double y) const override;
-
-private:
-  double block_start = 1.5;
-  double length_     = 3.5;
-  double height_     = 0.8; // [m]
-
-  double eps_ = 0.03; // approximate as slope
-  const double slope_ = height_/eps_;
-};
-
-
-
-class Stairs : public HeightMap {
-public:
-  virtual double GetHeight(double x, double y) const override;
-
-private:
-  double first_step_start_  = 1.5;
-  double first_step_width_  = 0.4;
-  double height_first_step  = 0.2;
-  double height_second_step = 0.4;
-  double width_top = 1.0;
-};
-
-
-
-
-class Gap : public HeightMap {
-public:
-  virtual double GetHeight(double x, double y) const override;
-  virtual double GetHeightDerivWrtX(double x, double y) const override;
-  virtual double GetHeightDerivWrtXX(double x, double y) const override;
-
-private:
-  const double gap_start_ = 1.5;
-  const double w = 1.0; // gap width or 0.5 for ANYmal
-  const double h = 1.0; // 1.6 was
-
-  const double slope_ = h/w;
-  const double dx = w/2.0; // gap witdh 2
-  const double xc = gap_start_ + dx; // gap center
-  const double gap_end_x = gap_start_ + w;
-
-
-
-  // generated with matlab
-  // see /matlab/gap_model.m
-  // coefficients of 2nd order polynomial
-  // h = a*x^2 + b*x + c
-  const double a = (4*h)/(w*w);
-  const double b = -(8*h*xc)/(w*w);
-  const double c = -(h*(w - 2*xc)*(w + 2*xc))/(w*w);
-};
-
-
-class Slope : public HeightMap {
-public:
-  virtual double GetHeight(double x, double y) const override;
-  virtual double GetHeightDerivWrtX(double x, double y) const override;
-
-private:
-  const double slope_start_ = 1.0;
-  const double up_length_   = 1.0;
-  const double down_length_ = 1.0;
-  const double height_center = 0.7;
-
-  const double x_down_start_ = slope_start_+up_length_;
-  const double x_flat_start_ = x_down_start_ + down_length_;
-  const double slope_ = height_center/up_length_;
-};
-
-
-
-class Chimney : public HeightMap {
-public:
-  virtual double GetHeight(double x, double y) const override;
-  virtual double GetHeightDerivWrtY(double x, double y) const override;
-
-private:
-  const double x_start_ = 1.5;
-  const double length_  = 1.5;
-  const double y_start_ = 0.5; // distance to start of slope from center at z=0
-  const double slope_   = 3;   // 2 or 3
-
-  const double x_end_ = x_start_+length_;
-};
-
-
-class ChimneyLR : public HeightMap {
-public:
-  virtual double GetHeight(double x, double y) const override;
-  virtual double GetHeightDerivWrtY(double x, double y) const override;
-
-private:
-  const double x_start_ = 0.5;
-  const double length_  = 1.0;
-  const double y_start_ = 0.5; // distance to start of slope from center at z=0
-  const double slope_   = 2;
-
-  const double x_end1_ = x_start_+length_;
-  const double x_end2_ = x_start_+2*length_;
-};
-
 
 } /* namespace towr */
 
-#endif /* TOWR_CONSTRAINTS_HEIGHT_MAP_H_ */
+#endif /* TOWR_HEIGHT_MAP_H_ */

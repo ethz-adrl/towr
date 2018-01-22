@@ -34,7 +34,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_states/state.h>
 #include <xpp_vis/rviz_colors.h>
 
-#include <towr/height_map.h>
+#include <towr_ros/height_map_examples.h>
 
 namespace xpp {
 

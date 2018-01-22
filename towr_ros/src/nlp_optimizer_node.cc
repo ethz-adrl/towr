@@ -34,7 +34,7 @@
 #include <towr_ros/topic_names.h>
 #include <towr_ros/quadruped_gait_generator.h>
 
-#include <towr/height_map.h>
+#include <towr_ros/height_map_examples.h>
 #include <towr_ros/models/anymal_model.h>
 #include <towr_ros/models/hyq_model.h>
 #include <towr_ros/models/biped_model.h>
@@ -138,8 +138,9 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 void
 NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
 {
-  auto terrain = HeightMap::MakeTerrain(static_cast<towr::TerrainID>(msg.terrain_id));
-  terrain->SetGroundHeight(0.0); // must be adapted for real robot
+  double ground_height = 0.0; // must possibly be adapted for real robot
+  auto terrain_id = static_cast<towr::TerrainID>(msg.terrain_id);
+  auto terrain = towr::HeightMapFactory::MakeTerrain(terrain_id, ground_height);
 
   State3dEuler final_base;
   final_base.lin = Convert::ToXpp(msg.goal_lin);

@@ -38,8 +38,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr_ros/UserCommand.h>
 #include <towr_ros/topic_names.h>
+#include <towr_ros/height_map_examples.h>
 
-#include <towr/height_map.h>
 
 namespace xpp {
 
