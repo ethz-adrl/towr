@@ -27,15 +27,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_NLP_FACTORY_H_
 #define TOWR_NLP_FACTORY_H_
 
-#include <vector>
-
 #include <ifopt/variable_set.h>
 #include <ifopt/constraint_set.h>
 #include <ifopt/cost_term.h>
 
-#include <towr/models/robot_model.h>
 #include <towr/variables/spline_holder.h>
 
+#include "robot_model.h"
 #include "height_map.h"
 #include "parameters.h"
 

@@ -27,8 +27,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_MODELS_ROBOT_MODEL_H_
 #define TOWR_MODELS_ROBOT_MODEL_H_
 
-#include "dynamic_model.h"
-#include "kinematic_model.h"
+#include <towr/models/dynamic_model.h>
+#include <towr/models/kinematic_model.h>
 
 namespace towr {
 

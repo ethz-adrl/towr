@@ -27,22 +27,17 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_H_
 #define TOWR_TOWR_H_
 
-#include <vector>
-
-#include <Eigen/Dense>
-
 #include <ifopt/problem.h>
 
 #include <towr/variables/spline_holder.h>
-#include <towr/models/robot_model.h>
 
+#include "robot_model.h"
 #include "height_map.h"
 #include "nlp_factory.h"
 #include "parameters.h"
 
 
 namespace towr {
-
 
 /**
  * @brief TOWR - Trajectory Optimizer for Walking Robots.

@@ -37,9 +37,9 @@ RangeOfMotionConstraint::RangeOfMotionConstraint (const KinematicModel::Ptr& mod
                                   params.dt_constraint_range_of_motion_,
                                   "RangeOfMotionBox-" + std::to_string(ee))
 {
-  base_linear_  = spline_holder.GetBaseLinear();
-  base_angular_ = EulerConverter(spline_holder.GetBaseAngular());
-  ee_motion_    = spline_holder.GetEEMotion(ee);
+  base_linear_  = spline_holder.base_linear_;
+  base_angular_ = EulerConverter(spline_holder.base_angular_);
+  ee_motion_    = spline_holder.ee_motion_.at(ee);
 
   max_deviation_from_nominal_ = model->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B_           = model->GetNominalStanceInBase().at(ee);

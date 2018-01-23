@@ -39,10 +39,10 @@ DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
   model_ = m;
 
   // link with up-to-date spline variables
-  base_linear_  = spline_holder.GetBaseLinear();
-  base_angular_ = EulerConverter(spline_holder.GetBaseAngular());
-  ee_forces_    = spline_holder.GetEEForce();
-  ee_motion_    = spline_holder.GetEEMotion();
+  base_linear_  = spline_holder.base_linear_;
+  base_angular_ = EulerConverter(spline_holder.base_angular_);
+  ee_forces_    = spline_holder.ee_force_;
+  ee_motion_    = spline_holder.ee_motion_;
 
   SetRows(GetNumberOfNodes()*k6D);
 }

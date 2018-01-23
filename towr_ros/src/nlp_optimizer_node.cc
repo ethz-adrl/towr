@@ -245,24 +245,24 @@ NlpOptimizerNode::GetTrajectory () const
   double t=0.0;
   double T = total_time_;//params_.GetTotalTime();
 
-  towr::EulerConverter base_angular(spline_holder_.GetBaseAngular());
+  towr::EulerConverter base_angular(spline_holder_.base_angular_);
 
   while (t<=T+1e-5) {
 
-    int n_ee = spline_holder_.GetEEMotion().size();
+    int n_ee = spline_holder_.ee_motion_.size();
     RobotStateCartesian state(n_ee);
 
     // here of course the conversions will not work
-    state.base_.lin = ToXpp(spline_holder_.GetBaseLinear()->GetPoint(t));
+    state.base_.lin = ToXpp(spline_holder_.base_linear_->GetPoint(t));
 
     state.base_.ang.q  = base_angular.GetQuaternionBaseToWorld(t);
     state.base_.ang.w  = base_angular.GetAngularVelocityInWorld(t);
     state.base_.ang.wd = base_angular.GetAngularAccelerationInWorld(t);
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
-      state.ee_contact_.at(ee) = spline_holder_.GetPhaseDurations(ee)->IsContactPhase(t);
-      state.ee_motion_.at(ee)  = ToXpp(spline_holder_.GetEEMotion(ee)->GetPoint(t));
-      state.ee_forces_.at(ee)  = spline_holder_.GetEEForce(ee)->GetPoint(t).p();
+      state.ee_contact_.at(ee) = spline_holder_.phase_durations_.at(ee)->IsContactPhase(t);
+      state.ee_motion_.at(ee)  = ToXpp(spline_holder_.ee_motion_.at(ee)->GetPoint(t));
+      state.ee_forces_.at(ee)  = spline_holder_.ee_force_.at(ee)->GetPoint(t).p();
     }
 
     state.t_global_ = t;

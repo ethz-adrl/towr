@@ -38,8 +38,8 @@ BaseMotionConstraint::BaseMotionConstraint (const Parameters& params,
                                   params.dt_constraint_base_motion_,
                                   "BaseMotionConstraint")
 {
-  base_linear_  = spline_holder.GetBaseLinear();
-  base_angular_ = spline_holder.GetBaseAngular();
+  base_linear_  = spline_holder.base_linear_;
+  base_angular_ = spline_holder.base_angular_;
 
   double dev_rad = 0.1;
   node_bounds_.resize(k6D);

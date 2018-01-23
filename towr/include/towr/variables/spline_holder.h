@@ -1,9 +1,3 @@
-/*
- * spline_holder.h
- *
- *  Created on: Jan 9, 2018
- *      Author: winklera
- */
 /******************************************************************************
 Copyright (c) 2017, Alexander W. Winkler, ETH Zurich. All rights reserved.
 
@@ -46,9 +40,7 @@ namespace towr {
  *
  * This is independent from whether they are added as optimization variables.
  */
-class SplineHolder {
-public:
-  using EE = uint;
+struct SplineHolder {
 
   /**
    * @brief Fully initializes this object.
@@ -69,19 +61,7 @@ public:
                 bool ee_durations_change);
 
   SplineHolder () = default;
-  virtual ~SplineHolder () = default;
 
-  NodeSpline::Ptr GetBaseLinear() const { return base_linear_; };
-  NodeSpline::Ptr GetBaseAngular() const { return base_angular_; };
-
-  std::vector<NodeSpline::Ptr> GetEEMotion() const { return ee_motion_; };
-  std::vector<NodeSpline::Ptr> GetEEForce()  const { return ee_force_; };
-  NodeSpline::Ptr GetEEMotion(EE ee) const { return ee_motion_.at(ee); };
-  NodeSpline::Ptr GetEEForce(EE ee)  const { return ee_force_.at(ee); };
-
-  PhaseDurations::Ptr GetPhaseDurations(EE ee)  const { return phase_durations_.at(ee); };
-
-private:
   NodeSpline::Ptr base_linear_;
   NodeSpline::Ptr base_angular_;
 
