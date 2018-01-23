@@ -25,13 +25,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <ros/ros.h>
-#include <towr_ros/nlp_optimizer_node.h>
+
+#include <towr_ros/towr_ros_interface.h>
 
 
 int main(int argc, char *argv[])
 {
-  ros::init(argc, argv, "nlp_optimizer_node");
-  towr::NlpOptimizerNode xpp_optimizer_node;
+  ros::init(argc, argv, "towr_ros");
+  towr::TowrRosInterface towr_ros;
   ros::spin();
 
   return 1;

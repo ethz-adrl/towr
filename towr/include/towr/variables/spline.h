@@ -60,6 +60,11 @@ public:
    */
   static int GetSegmentID(double t_global, const VecTimes& durations);
 
+  /**
+   * @returns The total time of the spline.
+   */
+  double GetTotalTime() const;
+
 protected:
   VecPoly cubic_polys_; ///< the sequence of polynomials making up the spline.
 

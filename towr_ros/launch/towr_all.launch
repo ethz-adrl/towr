@@ -10,6 +10,6 @@
   <include file="$(find towr_ros)/launch/towr_vis.launch"></include>
   
   <!-- Start the optimizer-->
-  <include file="$(find towr_ros)/launch/towr.launch"></include>
+  <include file="$(find towr_ros)/launch/towr_core.launch"></include>
        
 </launch>

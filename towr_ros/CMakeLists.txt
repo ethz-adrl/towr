@@ -30,7 +30,7 @@ include_directories(
 
 # Declare a C++ library
 add_library(${PROJECT_NAME}
-  src/nlp_optimizer_node.cc
+  src/towr_ros_interface.cc
   src/user_interface.cc
   src/rviz_terrain_builder.cc
   src/gait_generator.cc
@@ -50,8 +50,8 @@ target_link_libraries(${PROJECT_NAME}
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)
 
 
-add_executable(nlp_optimizer_node src/exe/nlp_optimizer_node_exe.cc)
-target_link_libraries(nlp_optimizer_node 
+add_executable(towr_ros_interface src/exe/towr_ros_interface_exe.cc)
+target_link_libraries(towr_ros_interface 
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
@@ -91,7 +91,7 @@ target_link_libraries(goal_pose_publisher
 
 # Mark library for installation
 install(
-  TARGETS ${PROJECT_NAME} nlp_optimizer_node 
+  TARGETS ${PROJECT_NAME} towr_ros_interface 
                           user_interface_node
                           rviz_terrain_node
                           goal_pose_publisher

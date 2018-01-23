@@ -39,8 +39,8 @@ namespace towr {
 /**
  * @brief Converts Euler angles and derivatives to angular quantities.
  *
- * Euler angles, there first derivatives (Euler rates) and their second
- * derivative fully define the angular state of an rigid body in space. This
+ * Euler angles, their first derivatives (Euler rates) and their second
+ * derivatives fully define the angular state of an rigid body in space. This
  * class provides equivalent formulation of these values, specifically:
  * @li Orientation as Rotation matrix or Quaternion.
  * @li Angular velocity (x,y,z)

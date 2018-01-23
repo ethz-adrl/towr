@@ -26,6 +26,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/variables/spline.h>
 
+#include <numeric> // std::accumulate
+
 namespace towr {
 
 Spline::Spline(const VecTimes& poly_durations, int n_dim)
@@ -97,6 +99,14 @@ Spline::GetPolyDurations() const
 
   return poly_durations;
 }
+
+double
+Spline::GetTotalTime() const
+{
+  auto v = GetPolyDurations();
+  return std::accumulate(v.begin(), v.end(), 0.0);
+}
+
 
 } /* namespace towr */
 

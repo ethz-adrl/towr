@@ -24,35 +24,21 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/nlp_optimizer_node.h>
+#include <towr_ros/towr_ros_interface.h>
 
-#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
-#include <vector>
-#include <ctime>
 
-#include <Eigen/Dense>
-
-#include <geometry_msgs/Point.h>
-#include <geometry_msgs/Vector3.h>
-#include <ros/node_handle.h>
-#include <ros/time.h>
-#include <ros/transport_hints.h>
-#include <rosconsole/macros_generated.h>
+#include <ros/ros.h>
 #include <std_msgs/Int32.h>
 
-#include <xpp_states/state.h>
-#include <xpp_states/endeffectors.h>
 #include <xpp_states/convert.h>
-
 #include <xpp_msgs/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
 
 #include <towr_ros/param_server.h>
 #include <towr_ros/topic_names.h>
 #include <towr_ros/quadruped_gait_generator.h>
-
 #include <towr_ros/height_map_examples.h>
 #include <towr_ros/models/anymal_model.h>
 #include <towr_ros/models/hyq_model.h>
@@ -63,17 +49,17 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-NlpOptimizerNode::NlpOptimizerNode ()
+TowrRosInterface::TowrRosInterface ()
 {
   ::ros::NodeHandle n;
 
   user_command_sub_ = n.subscribe(towr_msgs::user_command, 1,
-                                  &NlpOptimizerNode::UserCommandCallback, this);
+                                  &TowrRosInterface::UserCommandCallback, this);
   ROS_INFO_STREAM("Subscribed to " << user_command_sub_.getTopic());
 
   current_state_sub_ = n.subscribe(xpp_msgs::robot_state_current,
                                    1, // take only the most recent information
-                                   &NlpOptimizerNode::CurrentStateCallback, this);
+                                   &TowrRosInterface::CurrentStateCallback, this);
   ROS_INFO_STREAM("Subscribed to " << current_state_sub_.getTopic());
 
   cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
@@ -82,9 +68,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
   robot_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
                                     (xpp_msgs::robot_parameters, 1);
 
-  dt_            = ParamServer::GetDouble("/towr/trajectory_dt");
-  rosbag_folder_ = ParamServer::GetString("/towr/rosbag_name");
-
+  rosbag_folder_ = ParamServer::GetString("/towr/rosbag_folder");
 
 
   // hardcode initial state
@@ -103,104 +87,45 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   model_.dynamic_model_   = std::make_shared<towr::AnymalDynamicModel>();
   model_.kinematic_model_ = std::make_shared<towr::AnymalKinematicModel>();
-  gait_generator_         = std::make_shared<towr::QuadrupedGaitGenerator>();
+  gait_                   = std::make_shared<towr::QuadrupedGaitGenerator>();
+  output_dt_              = 0.0025; // 400 Hz control loop frequency on ANYmal
+
+  terrain_ = std::make_shared<FlatGround>(0.0);
 }
 
 void
-NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
+TowrRosInterface::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
 {
-  auto curr_state = xpp::Convert::ToXpp(msg);
+  towr::BaseState base_initial;
+  base_initial.lin.at(towr::kPos) = xpp::Convert::ToXpp(msg.base.pose.position);
+  base_initial.lin.at(towr::kVel) = xpp::Convert::ToXpp(msg.base.twist.linear);
 
-//  // some logging of the real robot state sent from SL
-//  if (save_current_state_)
-//    curr_states_log_.push_back(curr_state);
-//
-//  // end of current batch
-//  if (curr_state.t_global_ > user_command_msg_.total_duration-10*dt_) {
-//    // get current date and time
-//    std::string subfolder = "/published/";
-//    time_t _tm = time(NULL );
-//    struct tm * curtime = localtime ( &_tm );
-//    std::string name = rosbag_folder_ + subfolder + asctime(curtime) + "_real.bag";
-//
-//    rosbag::Bag bag;
-//    bag.open(name, rosbag::bagmode::Write);
-//    SaveTrajectoryInRosbag(bag, curr_states_log_, xpp_msgs::robot_state_current);
-//    bag.close();
-//    save_current_state_ = false; // reached the end of trajectory
-//  }
+  Eigen::Quaterniond q = xpp::Convert::ToXpp(msg.base.pose.orientation);
+  base_initial.ang.at(towr::kPos) = GetUnique(xpp::GetEulerZYXAngles(q));
+  base_initial.ang.at(towr::kVel) = Vector3d::Zero(); // smell fill this angular_vel->euler rates
 
-//  SetInitialState(curr_state);
+  std::vector<Vector3d> feet_initial;
+  for (auto ee : msg.ee_motion)
+    feet_initial.push_back(xpp::Convert::ToXpp(ee.pos));
 
-
-  towr::BaseState initial_base = ToTOWR(curr_state.base_);
-  auto pos = curr_state.ee_motion_.Get(xpp::kPos).ToImpl();
-
-  towr_.SetInitialState(initial_base, {pos.begin(), pos.end()} ); //
-
-
-
-
-
-//  if (first_callback_) {
-//    first_callback_ = false;
-//  }
-
-
-//  std::cout << "current footholds:\n";
-//  for (auto ee : msg.ee_motion) {
-//    std::cout << ee.pos.z << "\t";
-//  }
-//  std::cout << std::endl;
+  towr_.SetInitialState(base_initial, feet_initial);
 }
 
 void
-NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
+TowrRosInterface::UserCommandCallback(const TowrCommand& msg)
 {
-  double ground_height = 0.0; // must possibly be adapted for real robot
-  auto terrain_id = static_cast<towr::TerrainID>(msg.terrain_id);
-  auto terrain = towr::HeightMapFactory::MakeTerrain(terrain_id, ground_height);
-
-  xpp::State3dEuler final_base;
-  final_base.lin = xpp::Convert::ToXpp(msg.goal_lin);
-  final_base.ang = xpp::Convert::ToXpp(msg.goal_ang);
+  SetTowrParameters(msg);
 
 
-  ROS_INFO_STREAM("publishing optimization parameters to " << robot_parameters_pub_.getTopic());
+  ROS_INFO_STREAM("publishing robot parameters to " << robot_parameters_pub_.getTopic());
   xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model_);
   robot_parameters_pub_.publish(robot_params_msg);
 
-  total_time_ = msg.total_duration;
-  towr::Parameters params;
-  params.t_total_ = total_time_;
 
-
-  int n_ee = gait_generator_->GetEndeffectorNames().size();
-  gait_generator_->SetCombo(static_cast<towr::GaitGenerator::GaitCombos>(msg.gait_id));
-  std::vector<bool> initial_contact;
-  towr::GaitGenerator::FootDurations ee_durations;
-  for (int ee=0; ee<n_ee; ++ee) {
-    ee_durations.push_back(gait_generator_->GetPhaseDurations(total_time_, ee));
-    initial_contact.push_back(gait_generator_->IsInContactAtStart(ee));
-  }
-
-  params.ee_phase_durations_ = ee_durations;
-  params.ee_in_contact_at_start_ = initial_contact;
-
-
-
-
-
-
-  towr_.SetParameters(ToTOWR(final_base), params, model_, terrain);
-
-
-
-
-  std::string bag_file = rosbag_folder_+ bag_name_;
+  std::string bag_file = rosbag_folder_+ "/optimal_traj.bag";
   if (msg.optimize) {
     OptimizeMotion();
-    SaveOptimizationAsRosbag(bag_file, robot_params_msg, msg, terrain, false);
+    SaveOptimizationAsRosbag(bag_file, robot_params_msg, msg, false);
   }
 
   if (msg.replay_trajectory || msg.optimize) {
@@ -216,24 +141,46 @@ NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
     auto traj_msg = BuildTrajectoryMsg();
     cart_trajectory_pub_.publish(traj_msg);
 
-//    // this is where next motion will start from
-//    auto final_state = motion_optimizer_.GetTrajectory(dt_).back();
-//    motion_optimizer_.SetInitialState(final_state);
-//
-//    curr_states_log_.clear();
-//    save_current_state_ = true;
-
-    // get current date and time
+    // save published trajectory with current date and time
     std::string subfolder = "/published/";
     time_t _tm =time(NULL );
     struct tm * curtime = localtime ( &_tm );
     std::string name = rosbag_folder_ + subfolder + asctime(curtime) + ".bag";
-    SaveOptimizationAsRosbag(name, robot_params_msg, msg, terrain, false);
+    SaveOptimizationAsRosbag(name, robot_params_msg, msg, false);
   }
 }
 
 void
-NlpOptimizerNode::OptimizeMotion ()
+TowrRosInterface::SetTowrParameters(const TowrCommand& msg)
+{
+  towr::BaseState goal;
+  goal.lin.at(towr::kPos) = xpp::Convert::ToXpp(msg.goal_lin.pos);
+  goal.lin.at(towr::kVel) = xpp::Convert::ToXpp(msg.goal_lin.vel);
+  goal.ang.at(towr::kPos) = xpp::Convert::ToXpp(msg.goal_ang.pos);
+  goal.ang.at(towr::kVel) = xpp::Convert::ToXpp(msg.goal_ang.vel);
+
+
+  towr::Parameters params;
+  params.t_total_ = msg.total_duration;
+  int n_ee = gait_->GetEndeffectorNames().size();
+  auto gait = static_cast<towr::GaitGenerator::GaitCombos>(msg.gait_id);
+  gait_->SetCombo(gait);
+  for (int ee=0; ee<n_ee; ++ee) {
+    params.ee_phase_durations_.push_back(gait_->GetPhaseDurations(msg.total_duration, ee));
+    params.ee_in_contact_at_start_.push_back(gait_->IsInContactAtStart(ee));
+  }
+
+
+  double ground_height = 0.0; // must possibly be adapted for real robot
+  auto terrain_id = static_cast<towr::TerrainID>(msg.terrain_id);
+  terrain_ = towr::HeightMapFactory::MakeTerrain(terrain_id, ground_height);
+
+
+  towr_.SetParameters(goal, params, model_, terrain_);
+}
+
+void
+TowrRosInterface::OptimizeMotion ()
 {
   try {
     towr_.SolveNLP(towr::TOWR::Solver::Ipopt);
@@ -242,60 +189,59 @@ NlpOptimizerNode::OptimizeMotion ()
   }
 }
 
-std::vector<NlpOptimizerNode::RobotStateVec>
-NlpOptimizerNode::GetIntermediateSolutions ()
+std::vector<TowrRosInterface::RobotStateVec>
+TowrRosInterface::GetIntermediateSolutions ()
 {
   std::vector<RobotStateVec> trajectories;
 
   for (int iter=0; iter<towr_.GetIterationCount(); ++iter) {
-    towr_.SetSolution(iter); // this changes the values linked to the spline_holder
+    towr_.SetSolution(iter);
     trajectories.push_back(GetTrajectory());
   }
 
   return trajectories;
 }
 
-NlpOptimizerNode::RobotStateVec
-NlpOptimizerNode::GetTrajectory () const
+TowrRosInterface::RobotStateVec
+TowrRosInterface::GetTrajectory () const
 {
-  towr::SplineHolder spline_holder_ = towr_.GetSolution();
+  towr::SplineHolder solution = towr_.GetSolution();
 
   RobotStateVec trajectory;
   double t=0.0;
-  double T = total_time_;//params_.GetTotalTime();
+  double T = solution.base_linear_->GetTotalTime();
 
-  towr::EulerConverter base_angular(spline_holder_.base_angular_);
+  towr::EulerConverter base_angular(solution.base_angular_);
 
   while (t<=T+1e-5) {
 
-    int n_ee = spline_holder_.ee_motion_.size();
+    int n_ee = solution.ee_motion_.size();
     RobotStateCartesian state(n_ee);
 
-    // here of course the conversions will not work
-    state.base_.lin = ToXpp(spline_holder_.base_linear_->GetPoint(t));
+    state.base_.lin = ToXpp(solution.base_linear_->GetPoint(t));
 
     state.base_.ang.q  = base_angular.GetQuaternionBaseToWorld(t);
     state.base_.ang.w  = base_angular.GetAngularVelocityInWorld(t);
     state.base_.ang.wd = base_angular.GetAngularAccelerationInWorld(t);
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
-      state.ee_contact_.at(ee) = spline_holder_.phase_durations_.at(ee)->IsContactPhase(t);
-      state.ee_motion_.at(ee)  = ToXpp(spline_holder_.ee_motion_.at(ee)->GetPoint(t));
-      state.ee_forces_.at(ee)  = spline_holder_.ee_force_.at(ee)->GetPoint(t).p();
+      state.ee_contact_.at(ee) = solution.phase_durations_.at(ee)->IsContactPhase(t);
+      state.ee_motion_.at(ee)  = ToXpp(solution.ee_motion_.at(ee)->GetPoint(t));
+      state.ee_forces_.at(ee)  = solution.ee_force_.at(ee)->GetPoint(t).p();
     }
 
     state.t_global_ = t;
     trajectory.push_back(state);
-    t += dt_;
+    t += output_dt_;
   }
 
   return trajectory;
 }
 
 xpp::StateLinXd
-NlpOptimizerNode::ToXpp(const towr::State& towr) const
+TowrRosInterface::ToXpp(const towr::State& towr) const
 {
-  xpp::StateLinXd xpp(3);
+  xpp::StateLinXd xpp(towr.p().rows());
 
   xpp.p_ = towr.p();
   xpp.v_ = towr.v();
@@ -304,50 +250,22 @@ NlpOptimizerNode::ToXpp(const towr::State& towr) const
   return xpp;
 }
 
-towr::BaseState
-NlpOptimizerNode::ToTOWR(const xpp::State3d& base) const
-{
-  towr::BaseState b;
-
-  b.lin.at(towr::kPos) = base.lin.p_;
-  b.lin.at(towr::kVel) = base.lin.v_;
-
-  b.ang.at(towr::kPos) = GetUnique(xpp::GetEulerZYXAngles(base.ang.q));
-  b.ang.at(towr::kVel) = Vector3d::Zero(); // smell still fill this
-
-  return b;
-}
-
-towr::BaseState
-NlpOptimizerNode::ToTOWR(const xpp::State3dEuler& base) const
-{
-  towr::BaseState b;
-
-  b.lin.at(towr::kPos) = base.lin.p_;
-  b.lin.at(towr::kVel) = base.lin.v_;
-
-  b.ang.at(towr::kPos) = base.ang.p_;
-  b.ang.at(towr::kVel) = base.ang.v_;
-
-  return b;
-}
-
 xpp_msgs::RobotStateCartesianTrajectory
-NlpOptimizerNode::BuildTrajectoryMsg () const
+TowrRosInterface::BuildTrajectoryMsg () const
 {
   auto cart_traj = GetTrajectory();
   return xpp::Convert::ToRos(cart_traj);
 }
 
 xpp_msgs::RobotParameters
-NlpOptimizerNode::BuildRobotParametersMsg(const RobotModel& model) const
+TowrRosInterface::BuildRobotParametersMsg(const RobotModel& model) const
 {
   xpp_msgs::RobotParameters params_msg;
   auto max_dev_xyz = model.kinematic_model_->GetMaximumDeviationFromNominal();
   params_msg.ee_max_dev = xpp::Convert::ToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
   auto nominal_B = model.kinematic_model_->GetNominalStanceInBase();
-  auto ee_names = gait_generator_->GetEndeffectorNames();
+  auto ee_names = gait_->GetEndeffectorNames();
   params_msg.ee_names = ee_names;
   for (auto ee : nominal_B) {
     params_msg.nominal_ee_pos.push_back(xpp::Convert::ToRos<geometry_msgs::Point>(ee));
@@ -359,10 +277,9 @@ NlpOptimizerNode::BuildRobotParametersMsg(const RobotModel& model) const
 }
 
 void
-NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
+TowrRosInterface::SaveOptimizationAsRosbag (const std::string& bag_name,
                                             const xpp_msgs::RobotParameters& robot_params,
-                                            const UserCommand user_command_msg,
-                                            const HeightMap::Ptr& terrain,
+                                            const TowrCommand user_command_msg,
                                             bool include_iterations)
 {
   rosbag::Bag bag;
@@ -378,7 +295,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
     auto trajectories = GetIntermediateSolutions();
     int n_iterations = trajectories.size();
     for (int i=0; i<n_iterations; ++i)
-      SaveTrajectoryInRosbag(bag, trajectories.at(i), terrain, towr_msgs::nlp_iterations_name + std::to_string(i));
+      SaveTrajectoryInRosbag(bag, trajectories.at(i), towr_msgs::nlp_iterations_name + std::to_string(i));
 
     // save number of iterations the optimizer took
     std_msgs::Int32 m;
@@ -389,7 +306,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
 
   // save the final trajectory
   auto final_trajectory = GetTrajectory();
-  SaveTrajectoryInRosbag(bag, final_trajectory, terrain, xpp_msgs::robot_state_desired);
+  SaveTrajectoryInRosbag(bag, final_trajectory, xpp_msgs::robot_state_desired);
 
   // optional: save the entire trajectory as one message
   bag.write(xpp_msgs::robot_trajectory_desired, t0, BuildTrajectoryMsg());
@@ -398,9 +315,8 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
 }
 
 void
-NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
+TowrRosInterface::SaveTrajectoryInRosbag (rosbag::Bag& bag,
                                           const std::vector<RobotStateCartesian>& traj,
-                                          const HeightMap::Ptr& terrain,
                                           const std::string& topic) const
 {
   for (const auto state : traj) {
@@ -412,18 +328,12 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
 
     xpp_msgs::TerrainInfo terrain_msg;
     for (auto ee : state.ee_motion_.ToImpl()) {
-      Vector3d n = terrain->GetNormalizedBasis(HeightMap::Normal, ee.p_.x(), ee.p_.y());
+      Vector3d n = terrain_->GetNormalizedBasis(HeightMap::Normal, ee.p_.x(), ee.p_.y());
       terrain_msg.surface_normals.push_back(xpp::Convert::ToRos<geometry_msgs::Vector3>(n));
-      terrain_msg.friction_coeff = terrain->GetFrictionCoeff();
+      terrain_msg.friction_coeff = terrain_->GetFrictionCoeff();
     }
 
     bag.write(xpp_msgs::terrain_info, timestamp, terrain_msg);
-
-
-
-//    Vector3d f = motion_optimizer_.terrain_->GetHeight(state.)
-
-//    bag.write(topic, timestamp, msg);
   }
 }
 
@@ -457,7 +367,7 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 Eigen::Vector3d
-NlpOptimizerNode::GetUnique (const Vector3d& zyx_non_unique) const
+TowrRosInterface::GetUnique (const Vector3d& zyx_non_unique) const
 {
   Eigen::Vector3d zyx = zyx_non_unique;
   const double tol = 1e-3;
@@ -513,5 +423,14 @@ NlpOptimizerNode::GetUnique (const Vector3d& zyx_non_unique) const
 
   return zyx;
 }
+
+//  void SetTerrainHeightFromAvgFootholdHeight(
+//      HeightMap::Ptr& terrain) const
+//  {
+//    double avg_height=0.0;
+//    for ( auto pos : new_ee_pos_)
+//      avg_height += pos.z()/new_ee_pos_.size();
+//    terrain->SetGroundHeight(avg_height);
+//  }
 
 } /* namespace towr */
