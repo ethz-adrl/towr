@@ -1,9 +1,28 @@
-/**
- @file    nlp_optimizer_node.cc
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Jul 21, 2016
- @brief   Defines the ROS node that initializes/calls the NLP optimizer.
- */
+/******************************************************************************
+Copyright (c) 2017, Alexander W. Winkler, ETH Zurich. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of ETH ZURICH nor the names of its contributors may be
+      used to endorse or promote products derived from this software without
+      specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL ETH ZURICH BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+******************************************************************************/
 
 #include <towr_ros/nlp_optimizer_node.h>
 
@@ -41,14 +60,14 @@
 #include <towr_ros/models/monoped_model.h>
 #include <towr/variables/euler_converter.h> // smell move into spline_holder
 
-namespace xpp {
+namespace towr {
 
 
 NlpOptimizerNode::NlpOptimizerNode ()
 {
   ::ros::NodeHandle n;
 
-  user_command_sub_ = n.subscribe(xpp_msgs::user_command, 1,
+  user_command_sub_ = n.subscribe(towr_msgs::user_command, 1,
                                   &NlpOptimizerNode::UserCommandCallback, this);
   ROS_INFO_STREAM("Subscribed to " << user_command_sub_.getTopic());
 
@@ -70,7 +89,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   // hardcode initial state
   towr::BaseState b;
-  b.lin = b.ang = towr::Node(kDim3d);
+  b.lin = b.ang = towr::Node(k3D);
   b.lin.at(towr::kPos).z() = 0.46;
 
   std::vector<Eigen::Vector3d> ee_pos(4);
@@ -90,7 +109,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
 void
 NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
 {
-  auto curr_state = Convert::ToXpp(msg);
+  auto curr_state = xpp::Convert::ToXpp(msg);
 
 //  // some logging of the real robot state sent from SL
 //  if (save_current_state_)
@@ -114,7 +133,7 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 //  SetInitialState(curr_state);
 
 
-  towr::BaseState initial_base = ToBaseState(curr_state.base_);
+  towr::BaseState initial_base = ToTOWR(curr_state.base_);
   auto pos = curr_state.ee_motion_.Get(xpp::kPos).ToImpl();
 
   towr_.SetInitialState(initial_base, {pos.begin(), pos.end()} ); //
@@ -142,9 +161,9 @@ NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
   auto terrain_id = static_cast<towr::TerrainID>(msg.terrain_id);
   auto terrain = towr::HeightMapFactory::MakeTerrain(terrain_id, ground_height);
 
-  State3dEuler final_base;
-  final_base.lin = Convert::ToXpp(msg.goal_lin);
-  final_base.ang = Convert::ToXpp(msg.goal_ang);
+  xpp::State3dEuler final_base;
+  final_base.lin = xpp::Convert::ToXpp(msg.goal_lin);
+  final_base.ang = xpp::Convert::ToXpp(msg.goal_ang);
 
 
   ROS_INFO_STREAM("publishing optimization parameters to " << robot_parameters_pub_.getTopic());
@@ -161,7 +180,7 @@ NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
   std::vector<bool> initial_contact;
   towr::GaitGenerator::FootDurations ee_durations;
   for (int ee=0; ee<n_ee; ++ee) {
-    ee_durations.push_back(gait_generator_->GetContactSchedule(total_time_, ee));
+    ee_durations.push_back(gait_generator_->GetPhaseDurations(total_time_, ee));
     initial_contact.push_back(gait_generator_->IsInContactAtStart(ee));
   }
 
@@ -173,7 +192,7 @@ NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
 
 
 
-  towr_.SetParameters(ToBaseState(final_base), params, model_, terrain);
+  towr_.SetParameters(ToTOWR(final_base), params, model_, terrain);
 
 
 
@@ -286,21 +305,21 @@ NlpOptimizerNode::ToXpp(const towr::State& towr) const
 }
 
 towr::BaseState
-NlpOptimizerNode::ToBaseState(const State3d& base) const
+NlpOptimizerNode::ToTOWR(const xpp::State3d& base) const
 {
   towr::BaseState b;
 
   b.lin.at(towr::kPos) = base.lin.p_;
   b.lin.at(towr::kVel) = base.lin.v_;
 
-  b.ang.at(towr::kPos) = GetUnique(GetEulerZYXAngles(base.ang.q));
+  b.ang.at(towr::kPos) = GetUnique(xpp::GetEulerZYXAngles(base.ang.q));
   b.ang.at(towr::kVel) = Vector3d::Zero(); // smell still fill this
 
   return b;
 }
 
 towr::BaseState
-NlpOptimizerNode::ToBaseState(const State3dEuler& base) const
+NlpOptimizerNode::ToTOWR(const xpp::State3dEuler& base) const
 {
   towr::BaseState b;
 
@@ -317,7 +336,7 @@ xpp_msgs::RobotStateCartesianTrajectory
 NlpOptimizerNode::BuildTrajectoryMsg () const
 {
   auto cart_traj = GetTrajectory();
-  return Convert::ToRos(cart_traj);
+  return xpp::Convert::ToRos(cart_traj);
 }
 
 xpp_msgs::RobotParameters
@@ -325,13 +344,13 @@ NlpOptimizerNode::BuildRobotParametersMsg(const RobotModel& model) const
 {
   xpp_msgs::RobotParameters params_msg;
   auto max_dev_xyz = model.kinematic_model_->GetMaximumDeviationFromNominal();
-  params_msg.ee_max_dev = Convert::ToRos<geometry_msgs::Vector3>(max_dev_xyz);
+  params_msg.ee_max_dev = xpp::Convert::ToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
   auto nominal_B = model.kinematic_model_->GetNominalStanceInBase();
   auto ee_names = gait_generator_->GetEndeffectorNames();
   params_msg.ee_names = ee_names;
   for (auto ee : nominal_B) {
-    params_msg.nominal_ee_pos.push_back(Convert::ToRos<geometry_msgs::Point>(ee));
+    params_msg.nominal_ee_pos.push_back(xpp::Convert::ToRos<geometry_msgs::Point>(ee));
   }
 
   params_msg.base_mass = model.dynamic_model_->m();
@@ -352,19 +371,19 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
 
   // save the a-priori fixed optimization variables
   bag.write(xpp_msgs::robot_parameters, t0, robot_params);
-  bag.write(xpp_msgs::user_command+"_saved", t0, user_command_msg);
+  bag.write(towr_msgs::user_command+"_saved", t0, user_command_msg);
 
   // save the trajectory of each iteration
   if (include_iterations) {
     auto trajectories = GetIntermediateSolutions();
     int n_iterations = trajectories.size();
     for (int i=0; i<n_iterations; ++i)
-      SaveTrajectoryInRosbag(bag, trajectories.at(i), terrain, xpp_msgs::nlp_iterations_name + std::to_string(i));
+      SaveTrajectoryInRosbag(bag, trajectories.at(i), terrain, towr_msgs::nlp_iterations_name + std::to_string(i));
 
     // save number of iterations the optimizer took
     std_msgs::Int32 m;
     m.data = n_iterations;
-    bag.write(xpp_msgs::nlp_iterations_count, t0, m);
+    bag.write(towr_msgs::nlp_iterations_count, t0, m);
   }
 
 
@@ -388,13 +407,13 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
     auto timestamp = ::ros::Time(state.t_global_ +1e-6); // to avoid t=0.0
 
     xpp_msgs::RobotStateCartesian msg;
-    msg = Convert::ToRos(state);
+    msg = xpp::Convert::ToRos(state);
     bag.write(topic, timestamp, msg);
 
     xpp_msgs::TerrainInfo terrain_msg;
     for (auto ee : state.ee_motion_.ToImpl()) {
       Vector3d n = terrain->GetNormalizedBasis(HeightMap::Normal, ee.p_.x(), ee.p_.y());
-      terrain_msg.surface_normals.push_back(Convert::ToRos<geometry_msgs::Vector3>(n));
+      terrain_msg.surface_normals.push_back(xpp::Convert::ToRos<geometry_msgs::Vector3>(n));
       terrain_msg.friction_coeff = terrain->GetFrictionCoeff();
     }
 
@@ -437,10 +456,10 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-Vector3d
+Eigen::Vector3d
 NlpOptimizerNode::GetUnique (const Vector3d& zyx_non_unique) const
 {
-  Vector3d zyx = zyx_non_unique;
+  Eigen::Vector3d zyx = zyx_non_unique;
   const double tol = 1e-3;
 
   // wrap angles into [-pi,pi),[-pi/2,pi/2),[-pi,pi)
@@ -495,4 +514,4 @@ NlpOptimizerNode::GetUnique (const Vector3d& zyx_non_unique) const
   return zyx;
 }
 
-} /* namespace xpp */
+} /* namespace towr */

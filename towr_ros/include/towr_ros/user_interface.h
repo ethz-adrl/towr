@@ -24,21 +24,19 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef XPP_VIS_USER_INTERFACE_H_
-#define XPP_VIS_USER_INTERFACE_H_
+#ifndef TOWR_ROS_USER_INTERFACE_H_
+#define TOWR_ROS_USER_INTERFACE_H_
 
-#include <ros/publisher.h>
-#include <ros/subscriber.h>
-#include <geometry_msgs/Vector3.h>
+#include <ros/ros.h>
 #include <keyboard/Key.h>
 
 #include <xpp_states/state.h>
 
 
-namespace xpp {
+namespace towr {
 
 /**
- * @brief Translates user input into a ROS message.
+ * @brief Translates user input into the ROS message TowrCommand.msg.
  *
  * This includes high level input about where to go (e.g. converting
  * keyboard input into a goal state), which terrain to visualize, etc.
@@ -55,8 +53,8 @@ public:
   virtual ~UserInterface () = default;
 
 private:
-  ::ros::Subscriber key_sub_;          ///< the input key hits to the node.
-  ::ros::Publisher  user_command_pub_; ///< the output message of the node.
+  ::ros::Subscriber key_sub_;          ///< the keyboard keys pressed.
+  ::ros::Publisher  user_command_pub_; ///< the output message to TOWR.
 
   void CallbackKeyboard(const keyboard::Key& msg);
   void PublishCommand();
@@ -74,6 +72,6 @@ private:
   int AdvanceCircularBuffer(int& curr, int max) const;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_VIS_USER_INTERFACE_H_ */
+#endif /* TOWR_ROS_USER_INTERFACE_H_ */

@@ -42,7 +42,7 @@ namespace towr {
 /**
  * @brief TOWR - Trajectory Optimizer for Walking Robots.
  *
- * Interface to the motion optimization framework. The user sets the initial
+ * Facade to the motion optimization framework. The user sets the initial
  * state and the desired motion parameters, then and NLP is constructed and
  * solved with the chosen solver and finally the solution splines can be
  * retrieved.
@@ -110,7 +110,7 @@ private:
    * @brief The solver independent optimization problem formulation.
    *
    * This object holds ownership of the optimization variables, so must
-   * exist to query the spline_holder values.
+   * exist to query the solution values.
    */
   ifopt::Problem nlp_;
 

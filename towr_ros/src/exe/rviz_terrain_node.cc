@@ -27,42 +27,31 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 
-#include <xpp_msgs/topic_names.h>
-
+#include <towr_ros/TowrCommand.h> // listen to goal state
 #include <towr_ros/topic_names.h>
-#include <towr_ros/UserCommand.h>      // listen to goal state
 #include <towr_ros/rviz_terrain_builder.h>
 
 static ros::Publisher rviz_terrain_pub;
-static ros::Publisher rviz_pose_pub;
-static xpp::RvizTerrainBuilder terrain_builder;
+static towr::RvizTerrainBuilder terrain_builder;
 
-void UserCommandCallback(const towr_ros::UserCommand& msg_in)
+void UserCommandCallback(const towr_ros::TowrCommand& msg_in)
 {
   // draw a terrain
   auto msg = terrain_builder.BuildTerrain(msg_in.terrain_id);
   rviz_terrain_pub.publish(msg);
-
-  // publish goal pose
-  auto goal_msg = terrain_builder.BuildPose(msg_in.goal_lin.pos, msg_in.goal_ang);
-  rviz_pose_pub.publish(goal_msg);
 }
 
 int main(int argc, char *argv[])
 {
-  using namespace ros;
+  ros::init(argc, argv, "rviz_terrain_visualizer");
 
-  init(argc, argv, "rviz_terrain_visualizer");
+  ros::NodeHandle n;
 
-  NodeHandle n;
-
-  Subscriber goal_sub;
-  goal_sub = n.subscribe(xpp_msgs::user_command, 1, UserCommandCallback);
-
+  ros::Subscriber goal_sub;
+  goal_sub         = n.subscribe(towr_msgs::user_command, 1, UserCommandCallback);
   rviz_terrain_pub = n.advertise<visualization_msgs::MarkerArray>("xpp/terrain", 1);
-  rviz_pose_pub    = n.advertise<geometry_msgs::PoseStamped>("xpp/goal", 1);
 
-  spin();
+  ros::spin();
 
   return 1;
 }

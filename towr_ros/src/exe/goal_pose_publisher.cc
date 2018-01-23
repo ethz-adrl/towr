@@ -24,24 +24,40 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/models/hyq_model.h>
+#include <ros/ros.h>
+#include <geometry_msgs/PoseStamped.h>
 
-#include <xpp_states/endeffector_mappings.h>
+#include <xpp_states/convert.h>
 
-namespace towr {
+#include <towr_ros/TowrCommand.h>  // listen to goal state
+#include <towr_ros/topic_names.h>
 
-HyqKinematicModel::HyqKinematicModel () : KinematicModel(4)
+static ros::Publisher rviz_pose_pub;
+
+void UserCommandCallback(const towr_ros::TowrCommand& msg_in)
 {
-  const double x_nominal_b = 0.31;
-  const double y_nominal_b = 0.29;
-  const double z_nominal_b = -0.58;
-
-  nominal_stance_.at(xpp::quad::LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
-  nominal_stance_.at(xpp::quad::RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
-  nominal_stance_.at(xpp::quad::LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
-  nominal_stance_.at(xpp::quad::RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
-
-  max_dev_from_nominal_ << 0.15, 0.06, 0.1;
+  // publish goal pose
+  geometry_msgs::PoseStamped goal_msg;
+  goal_msg.header.frame_id = "world";
+  goal_msg.pose.position = msg_in.goal_lin.pos;
+  Eigen::Quaterniond q = xpp::GetQuaternionFromEulerZYX(msg_in.goal_ang.pos.z,
+                                                        msg_in.goal_ang.pos.y,
+                                                        msg_in.goal_ang.pos.x);
+  goal_msg.pose.orientation = xpp::Convert::ToRos(q);
+  rviz_pose_pub.publish(goal_msg);
 }
 
-} /* namespace towr */
+int main(int argc, char *argv[])
+{
+  ros::init(argc, argv, "goal_pose_publisher");
+
+  ros::NodeHandle n;
+
+  ros::Subscriber goal_sub;
+  goal_sub      = n.subscribe(towr_msgs::user_command, 1, UserCommandCallback);
+  rviz_pose_pub = n.advertise<geometry_msgs::PoseStamped>("xpp/goal", 1);
+
+  ros::spin();
+
+  return 1;
+}

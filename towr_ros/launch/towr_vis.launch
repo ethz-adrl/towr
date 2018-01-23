@@ -1,0 +1,28 @@
+<launch>
+
+  <!-- Launches the visualization parts of the towr framework
+  -->
+
+  <!-- This is needed because ANYmal simulation has odom as fixed frame -->
+  <node 
+    name="odom_to_world_pub" 
+    pkg="tf" 
+    type="static_transform_publisher" 
+    args="0 0 0 0 0 0 1 odom world 100">
+  </node>
+
+  <node 
+    name="rviz_terrain_node" 
+    pkg="towr_ros" 
+    type="rviz_terrain_node" 
+    output="screen">
+  </node>
+  
+  <node 
+    name="goal_pose_publisher" 
+    pkg="towr_ros" 
+    type="goal_pose_publisher" 
+    output="screen">
+  </node>
+ 
+</launch>

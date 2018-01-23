@@ -24,20 +24,17 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef XPP_RVIZ_TERRAIN_BUILDER_H_
-#define XPP_RVIZ_TERRAIN_BUILDER_H_
+#ifndef TOWR_ROS_RVIZ_TERRAIN_BUILDER_H_
+#define TOWR_ROS_RVIZ_TERRAIN_BUILDER_H_
 
 #include <string>
 
 #include <Eigen/Dense>
 
 #include <visualization_msgs/MarkerArray.h>
-#include <geometry_msgs/PoseStamped.h>
-
-#include <xpp_msgs/StateLin3d.h>
 
 
-namespace xpp {
+namespace towr {
 
 /**
  * @brief  Constructs RVIZ markers that show different terrains.
@@ -58,20 +55,11 @@ public:
   RvizTerrainBuilder () = default;
   virtual ~RvizTerrainBuilder () = default;
 
-
   /**
    * @brief  Constructs the rviz markers for a specific terrain.
    * @param  terrain_id  The identifier for a specific terrain.
    */
   MarkerArray BuildTerrain(int terrain_id);
-
-  /**
-   * @brief Visualizes a 6D pose in rviz
-   * @param pos  The linear position expressed in world frame (W).
-   * @param orientation  In Euler angles (ZYX-convention).
-   */
-  geometry_msgs::PoseStamped BuildPose(const geometry_msgs::Point pos_W,
-                                       xpp_msgs::StateLin3d orientation) const;
 
 private:
   MarkerArray BuildTerrainFlat()      const;
@@ -91,6 +79,6 @@ private:
   std::string rviz_frame_ = "world";  // the name of the frame set in RVIZ.
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_RVIZ_TERRAIN_BUILDER_H_ */
+#endif /* TOWR_ROS_RVIZ_TERRAIN_BUILDER_H_ */

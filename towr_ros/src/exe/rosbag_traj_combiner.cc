@@ -14,13 +14,16 @@
 #include <towr_ros/topic_names.h>
 #include <towr_ros/param_server.h>
 
-using namespace xpp;
 
+/**
+ * Takes a ROS bag of optimization results (with intermediate iterations), and
+ * strings them together so multiple iterations are played back sequentially.
+ */
 int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "rosbag_trajectory_combiner");
 
-  std::string name = ParamServer::GetString("/xpp/rosbag_name");
+  std::string name = towr::ParamServer::GetString("/xpp/rosbag_name");
 
   rosbag::Bag bag_r;
   bag_r.open(name+".bag", rosbag::bagmode::Read);
@@ -29,12 +32,11 @@ int main(int argc, char *argv[])
 
   // get number of iterations in bag file
   int n_opt_iterations = 0;
-  rosbag::View view1(bag_r, rosbag::TopicQuery(xpp_msgs::nlp_iterations_count));
+  rosbag::View view1(bag_r, rosbag::TopicQuery(towr_msgs::nlp_iterations_count));
   BOOST_FOREACH(rosbag::MessageInstance const m, view1) {
     std_msgs::Int32::ConstPtr i = m.instantiate<std_msgs::Int32>();
     n_opt_iterations = i->data;
   }
-
 
   // select which iterations (message topics) to be included in bag file
   std::vector<std::string> topics;
@@ -43,8 +45,8 @@ int main(int argc, char *argv[])
   int frequency = std::floor(n_opt_iterations/n_visualizations);
 
   for (int i=0; i<n_visualizations; ++i)
-    topics.push_back(xpp_msgs::nlp_iterations_name + std::to_string(frequency*i));
-  topics.push_back(xpp_msgs::nlp_iterations_name + std::to_string(n_opt_iterations-1)); // for sure add final trajectory
+    topics.push_back(towr_msgs::nlp_iterations_name + std::to_string(frequency*i));
+  topics.push_back(towr_msgs::nlp_iterations_name + std::to_string(n_opt_iterations-1)); // for sure add final trajectory
   rosbag::View view(bag_r, rosbag::TopicQuery(topics));
 
 

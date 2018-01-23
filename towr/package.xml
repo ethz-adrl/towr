@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>towr</name>
-  <version>1.0.0</version>
+  <version>6.0.0</version>
   <description>
     Trajectory Optimizer for walking robots (TOWR).
   </description>

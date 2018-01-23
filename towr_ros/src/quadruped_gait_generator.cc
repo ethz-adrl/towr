@@ -1,9 +1,28 @@
-/**
- @file    quadruped_gait_generator.cc
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Sep 4, 2017
- @brief   Brief description
- */
+/******************************************************************************
+Copyright (c) 2017, Alexander W. Winkler, ETH Zurich. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of ETH ZURICH nor the names of its contributors may be
+      used to endorse or promote products derived from this software without
+      specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL ETH ZURICH BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+******************************************************************************/
 
 #include <towr_ros/quadruped_gait_generator.h>
 
@@ -29,8 +48,8 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
   using namespace xpp::quad; // only for LF, RF, ... enums
 
 
-//  // flight_phase
-//  II_.SetAll(false);
+  // flight_phase
+  II_ = ContactState(n_ee, false);
   // one stanceleg
   PI_.at(LH) = true;
   bI_.at(RH) = true;
@@ -64,19 +83,19 @@ void
 QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
 {
   switch (combo) {
-    case Combo0: SetGaits({Stand});  break;
-    case Combo1: SetGaits({Stand, Flight, Stand});                 break; // lift one leg
-    case Combo2: SetGaits({Stand, Run1, Run1, Stand});             break; // trot
-    case Combo3: SetGaits({Stand, Run1, Run1, Run1, Run1, Stand}); break; // long trot
-    case Combo4: SetGaits({Stand, Run2, Run2, Stand});             break; // fly trot
-    case Combo5: SetGaits({Stand, Walk1, Stand});                  break; // walk
-    case Combo6: SetGaits({Stand, Walk2, Walk2E, Stand});          break; // overlap-walk
-    case Combo7: SetGaits({Stand,
+    case C0: SetGaits({Stand});  break;
+    case C1: SetGaits({Stand, Flight, Stand});                 break; // lift one leg
+    case C2: SetGaits({Stand, Run1, Run1, Stand});             break; // trot
+    case C3: SetGaits({Stand, Run1, Run1, Run1, Run1, Stand}); break; // long trot
+    case C4: SetGaits({Stand, Run2, Run2, Stand});             break; // fly trot
+    case C5: SetGaits({Stand, Walk1, Stand});                  break; // walk
+    case C6: SetGaits({Stand, Walk2, Walk2E, Stand});          break; // overlap-walk
+    case C7: SetGaits({Stand,
                            Run2, Run2, Run2, Run2, Run2,
                            Run2, Run2, Run2, Run2, Run2,
                            Stand});
       break; // pace
-    case Combo8: SetGaits({Stand,
+    case C8: SetGaits({Stand,
                            Walk2, Walk2E,
                            Hop3, Hop3E, // gallop
                            Stand,

@@ -1,23 +1,53 @@
-/**
- @file    gait_generator.cc
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Sep 20, 2017
- @brief   Brief description
- */
+/******************************************************************************
+Copyright (c) 2017, Alexander W. Winkler, ETH Zurich. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of ETH ZURICH nor the names of its contributors may be
+      used to endorse or promote products derived from this software without
+      specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL ETH ZURICH BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+******************************************************************************/
 
 #include <towr_ros/gait_generator.h>
 
 #include <cassert>
-#include <numeric> // std::accumulate
+#include <numeric>   // std::accumulate
 #include <algorithm> // std::transform
 
 namespace towr {
 
 
 GaitGenerator::VecTimes
-GaitGenerator::GetNormalizedContactSchedule (EndeffectorID ee) const
+GaitGenerator::GetPhaseDurations (double t_total, EE ee) const
 {
-  auto v = GetContactSchedule().at(ee); // shorthand
+  // scale total time tu t_total
+  std::vector<double> durations;
+  for (auto d : GetNormalizedPhaseDurations(ee))
+    durations.push_back(d*t_total);
+
+  return durations;
+}
+
+GaitGenerator::VecTimes
+GaitGenerator::GetNormalizedPhaseDurations (EE ee) const
+{
+  auto v = GetPhaseDurations().at(ee); // shorthand
   double total_time = std::accumulate(v.begin(), v.end(), 0.0);
   std::transform(v.begin(), v.end(), v.begin(),
                  [total_time](double t_phase){ return t_phase/total_time;});
@@ -25,19 +55,8 @@ GaitGenerator::GetNormalizedContactSchedule (EndeffectorID ee) const
   return v;
 }
 
-GaitGenerator::VecTimes
-GaitGenerator::GetContactSchedule (double t_total, EndeffectorID ee) const
-{
-  // scale total time tu t_total
-  std::vector<double> durations;
-  for (auto d : GetNormalizedContactSchedule(ee))
-    durations.push_back(d*t_total);
-
-  return durations;
-}
-
 GaitGenerator::FootDurations
-GaitGenerator::GetContactSchedule () const
+GaitGenerator::GetPhaseDurations () const
 {
   int n_ee = contacts_.front().size();
   VecTimes d_accumulated(n_ee, 0.0);
@@ -69,7 +88,7 @@ GaitGenerator::GetContactSchedule () const
 }
 
 bool
-GaitGenerator::IsInContactAtStart (EndeffectorID ee) const
+GaitGenerator::IsInContactAtStart (EE ee) const
 {
   return contacts_.front().at(ee);
 }

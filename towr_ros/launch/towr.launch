@@ -6,13 +6,26 @@
   <!--  load the ros parameters  -->
   <include file="$(find towr_ros)/launch/towr_params.launch"></include>
   
+  <!-- for commanding goal positions and tasks -->
   <node 
-    name="rviz_terrain_node" 
-    pkg="towr_ros" 
-    type="rviz_terrain_node" 
-    output="screen">
+    name="keyboard" 
+    pkg="keyboard" 
+    type="keyboard" 
+    output="screen" 
+    cwd="node" >  
   </node>
-
+  
+  
+  <!-- for translating keyboard messages to TOWR commands -->
+  <node 
+    name="user_interface_node" 
+    pkg="towr_ros" 
+    type="user_interface_node" 
+    output="screen" 
+    cwd="node" >  
+  </node>
+   
+  
   <node 
     name="nlp_optimizer_node" 
     pkg="towr_ros" 

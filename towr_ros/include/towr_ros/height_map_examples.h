@@ -1,9 +1,28 @@
-/*
- * height_map_examples.h
- *
- *  Created on: Jan 22, 2018
- *      Author: winklera
- */
+/******************************************************************************
+Copyright (c) 2017, Alexander W. Winkler, ETH Zurich. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of ETH ZURICH nor the names of its contributors may be
+      used to endorse or promote products derived from this software without
+      specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL ETH ZURICH BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+******************************************************************************/
 
 #ifndef TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_HEIGHT_MAP_EXAMPLES_H_
 #define TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_HEIGHT_MAP_EXAMPLES_H_
@@ -25,11 +44,13 @@ enum TerrainID { FlatID=0,
                  ChimneyLRID,
                  K_TERRAIN_COUNT };
 
+/**
+ * @brief Generates some predefined height profiles according to the ID.
+ */
 class HeightMapFactory {
 public:
   static HeightMap::Ptr MakeTerrain(TerrainID type, double ground_height);
 };
-
 
 
 class FlatGround : public HeightMap {
@@ -57,7 +78,6 @@ private:
 };
 
 
-
 class Stairs : public HeightMap {
 public:
   virtual double GetHeight(double x, double y) const override;
@@ -69,8 +89,6 @@ private:
   double height_second_step = 0.4;
   double width_top = 1.0;
 };
-
-
 
 
 class Gap : public HeightMap {
@@ -89,10 +107,8 @@ private:
   const double xc = gap_start_ + dx; // gap center
   const double gap_end_x = gap_start_ + w;
 
-
-
   // generated with matlab
-  // see /matlab/gap_model.m
+  // see towr/matlab/gap_model.m
   // coefficients of 2nd order polynomial
   // h = a*x^2 + b*x + c
   const double a = (4*h)/(w*w);
@@ -116,7 +132,6 @@ private:
   const double x_flat_start_ = x_down_start_ + down_length_;
   const double slope_ = height_center/up_length_;
 };
-
 
 
 class Chimney : public HeightMap {

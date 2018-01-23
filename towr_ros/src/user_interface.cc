@@ -26,22 +26,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr_ros/user_interface.h>
 
-#include <iostream>
-#include <vector>
-#include <Eigen/Dense>
-
-#include <ros/node_handle.h>
-
-
 #include <xpp_states/convert.h>
-#include <xpp_msgs/topic_names.h>
 
-#include <towr_ros/UserCommand.h>
+#include <towr_ros/TowrCommand.h>
 #include <towr_ros/topic_names.h>
 #include <towr_ros/height_map_examples.h>
 
 
-namespace xpp {
+namespace towr {
 
 UserInterface::UserInterface ()
 {
@@ -49,7 +41,7 @@ UserInterface::UserInterface ()
   key_sub_ = n.subscribe("/keyboard/keydown", 1, &UserInterface::CallbackKeyboard, this);
   ROS_INFO("Subscribed to: %s", key_sub_.getTopic().c_str());
 
-  user_command_pub_ = n.advertise<towr_ros::UserCommand>(xpp_msgs::user_command, 1);
+  user_command_pub_ = n.advertise<towr_ros::TowrCommand>(towr_msgs::user_command, 1);
   ROS_INFO("Publishing to: %s", user_command_pub_.getTopic().c_str());
 
   // publish goal zero initially
@@ -168,7 +160,7 @@ UserInterface::CallbackKeyboard (const keyboard::Key& msg)
 
 void UserInterface::PublishCommand()
 {
-  towr_ros::UserCommand msg;
+  towr_ros::TowrCommand msg;
   msg.goal_lin          = xpp::Convert::ToRos(goal_geom_.lin);
   msg.goal_ang          = xpp::Convert::ToRos(goal_geom_.ang);
   msg.replay_trajectory = replay_trajectory_;
@@ -191,4 +183,4 @@ int UserInterface::AdvanceCircularBuffer(int& curr, int max) const
   return curr==max? 0 : curr+1;
 }
 
-} /* namespace xpp */
+} /* namespace towr */

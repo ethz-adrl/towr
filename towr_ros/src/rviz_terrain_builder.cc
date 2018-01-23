@@ -31,13 +31,33 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 
 #include <xpp_states/convert.h>
-#include <xpp_states/state.h>
-#include <xpp_vis/rviz_colors.h>
 
 #include <towr_ros/height_map_examples.h>
 
-namespace xpp {
+namespace towr {
 
+RvizTerrainBuilder::MarkerArray
+RvizTerrainBuilder::BuildTerrain (int terrain)
+{
+  MarkerArray msg;
+
+  switch (terrain) {
+    case FlatID:      msg = BuildTerrainFlat(); break;
+    case BlockID:     msg = BuildTerrainBlock(); break;
+    case StairsID:    msg = BuildTerrainStairs(); break;
+    case GapID:       msg = BuildTerrainGap(); break;
+    case SlopeID:     msg = BuildTerrainSlope(); break;
+    case ChimneyID:   msg = BuildTerrainChimney(); break;
+    case ChimneyLRID: msg = BuildTerrainChimneyLR(); break;
+    default: return MarkerArray(); // terrain visualization not implemented
+  }
+
+  int id = terrain_ids_start_;
+  for (Marker& m : msg.markers)
+    m.id = id++;
+
+  return msg;
+}
 
 RvizTerrainBuilder::Marker
 RvizTerrainBuilder::BuildTerrainBlock (const Vector3d& pos,
@@ -47,57 +67,15 @@ RvizTerrainBuilder::BuildTerrainBlock (const Vector3d& pos,
   Marker m;
 
   m.type = Marker::CUBE;
-  m.pose.position    = Convert::ToRos<geometry_msgs::Point>(pos);
-  m.pose.orientation = Convert::ToRos(ori);
-  m.scale            = Convert::ToRos<geometry_msgs::Vector3>(edge_length);
+  m.pose.position    = xpp::Convert::ToRos<geometry_msgs::Point>(pos);
+  m.pose.orientation = xpp::Convert::ToRos(ori);
+  m.scale            = xpp::Convert::ToRos<geometry_msgs::Vector3>(edge_length);
   m.ns = "terrain";
   m.header.frame_id = rviz_frame_;
-  m.color = color.wheat;
+  m.color.r  = 245./355; m.color.g  = 222./355; m.color.b  = 179./355; // wheat
+  m.color.a = 1.0;
 
   return m;
-}
-
-geometry_msgs::PoseStamped
-RvizTerrainBuilder::BuildPose (const geometry_msgs::Point pos,
-                               xpp_msgs::StateLin3d orientation) const
-{
-  geometry_msgs::PoseStamped msg_out;
-  msg_out.header.frame_id = rviz_frame_;
-
-  // linear part
-  msg_out.pose.position = pos;
-
-  // angular part
-  auto goal_ang = Convert::ToXpp(orientation);
-  Eigen::Quaterniond q = GetQuaternionFromEulerZYX(goal_ang.p_.z(),
-                                                   goal_ang.p_.y(),
-                                                   goal_ang.p_.x());
-  msg_out.pose.orientation = Convert::ToRos(q);
-
-  return msg_out;
-}
-
-RvizTerrainBuilder::MarkerArray
-RvizTerrainBuilder::BuildTerrain (int terrain)
-{
-  MarkerArray msg;
-
-  switch (terrain) {
-    case towr::FlatID:      msg = BuildTerrainFlat(); break;
-    case towr::BlockID:     msg = BuildTerrainBlock(); break;
-    case towr::StairsID:    msg = BuildTerrainStairs(); break;
-    case towr::GapID:       msg = BuildTerrainGap(); break;
-    case towr::SlopeID:     msg = BuildTerrainSlope(); break;
-    case towr::ChimneyID:   msg = BuildTerrainChimney(); break;
-    case towr::ChimneyLRID: msg = BuildTerrainChimneyLR(); break;
-    default: return MarkerArray(); // terrain visualization not implemented
-  }
-
-  int id = terrain_ids_start_;
-  for (Marker& m : msg.markers)
-    m.id = id++;
-
-  return msg;
 }
 
 RvizTerrainBuilder::MarkerArray
@@ -226,7 +204,7 @@ RvizTerrainBuilder::BuildTerrainSlope() const
   double roll = 0.0;
   double pitch = -atan(slope);
   double yaw = 0.0;
-  Eigen::Quaterniond ori =  GetQuaternionFromEulerZYX(yaw, pitch, roll);
+  Eigen::Quaterniond ori =  xpp::GetQuaternionFromEulerZYX(yaw, pitch, roll);
 
 
   double lx = height_center/sin(pitch);
@@ -267,7 +245,7 @@ RvizTerrainBuilder::BuildTerrainChimney() const
   double roll = atan(slope);
   double pitch = 0.0;
   double yaw = 0.0;
-  Eigen::Quaterniond ori =  GetQuaternionFromEulerZYX(yaw, pitch, roll);
+  Eigen::Quaterniond ori =  xpp::GetQuaternionFromEulerZYX(yaw, pitch, roll);
 
 
   double lx = length_;
@@ -318,7 +296,7 @@ RvizTerrainBuilder::BuildTerrainChimneyLR() const
   double roll = atan(slope);
   double pitch = 0.0;
   double yaw = 0.0;
-  Eigen::Quaterniond ori =  GetQuaternionFromEulerZYX(yaw, pitch, roll);
+  Eigen::Quaterniond ori =  xpp::GetQuaternionFromEulerZYX(yaw, pitch, roll);
 
 
   double lx = length_;
@@ -352,4 +330,4 @@ RvizTerrainBuilder::BuildTerrainChimneyLR() const
   return msg;
 }
 
-} /* namespace xpp */
+} /* namespace towr */
