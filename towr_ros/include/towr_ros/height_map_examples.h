@@ -108,7 +108,7 @@ private:
   const double gap_end_x = gap_start_ + w;
 
   // generated with matlab
-  // see towr/matlab/gap_model.m
+  // see matlab/gap_height_map.m
   // coefficients of 2nd order polynomial
   // h = a*x^2 + b*x + c
   const double a = (4*h)/(w*w);

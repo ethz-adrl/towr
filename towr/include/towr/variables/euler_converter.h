@@ -53,7 +53,7 @@ namespace towr {
  * Formulas taken from kindr:
  * http://docs.leggedrobotics.com/kindr/cheatsheet_latest.pdf
  *
- * See matlab script "matlab/euler_angular_conversions.m" for derivation.
+ * See matlab script "matlab/euler_converter.m" for derivation.
  */
 class EulerConverter {
 public:

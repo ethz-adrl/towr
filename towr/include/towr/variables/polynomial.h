@@ -96,6 +96,8 @@ private:
  * polynomial is also fully defined by the value and first-derivative of the
  * start and end of the polynomial as well as the duration. This way of
  * specifying a polynomial is called "Hermite".
+ *
+ * See also matlab/cubic_hermite_polynomial.m for generation of derivatives.
  */
 class CubicHermitePolynomial : public Polynomial {
 public:
@@ -151,7 +153,7 @@ private:
   double T_;     ///< the total duration of the polynomial.
   Node n0_, n1_; ///< the start and final node comprising the polynomial.
 
-  // see matlab/third_order_poly.m script for derivation
+  // see matlab/cubic_hermite_polynomial.m script for derivation
   double GetDerivativeOfPosWrtStartNode(Dx node_deriv, double t_local) const;
   double GetDerivativeOfVelWrtStartNode(Dx node_deriv, double t_local) const;
   double GetDerivativeOfAccWrtStartNode(Dx node_deriv, double t_local) const;
