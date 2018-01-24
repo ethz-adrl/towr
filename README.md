@@ -7,6 +7,9 @@
 |:-------------------------:|:-------------------------:|
 |||
 
+[<img src="https://i.imgur.com/j8lt5SE.png" />](https://youtu.be/0jE46GqzxMM)
+
+
 TOWR - **T**rajectory **O**ptimizer for **W**alking **R**obots generates physically feasible motions for legged robots by solving an Optimization Problem. A Centroidal Model of the Dynamics, physical constraints as well as a desired goal position are given to to solver that then produces the motion plan. 
 
 **Author/Maintainer: [Alexander W. Winkler](https://awinkler.github.io/)**
