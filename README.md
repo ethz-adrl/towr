@@ -1,7 +1,6 @@
 
 <img src="https://i.imgur.com/zm2nwF7.png" height="70" />
 
-## Trajectory Optimizer for Walking Robots ##
 [<img src="https://i.imgur.com/2Rekk4u.png" />](https://youtu.be/0jE46GqzxMM)
 
 TOWR - **T**rajectory **O**ptimizer for **W**alking **R**obots generates physically feasible motions for legged robots by solving an Optimization Problem. A Centroidal Model of the Dynamics, physical constraints as well as a desired goal position are given to to solver that then produces the motion plan. 
@@ -10,7 +9,7 @@ TOWR - **T**rajectory **O**ptimizer for **W**alking **R**obots generates physica
 
 [<img src="https://i.imgur.com/uCvLs2j.png" height="50" />](http://www.adrl.ethz.ch/doku.php)  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="50" />](http://www.rsl.ethz.ch/)           &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/aGOnNTZ.png" height="50" />](https://www.ethz.ch/en.html)       
 
-[<img src="https://i.imgur.com/j8lt5SE.png" target="_blank" />](https://youtu.be/0jE46GqzxMM)
+[<img src="https://i.imgur.com/j8lt5SE.png" />](https://youtu.be/0jE46GqzxMM)
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/fjS3xIe.png"/> Dependencies
