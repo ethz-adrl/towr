@@ -14,19 +14,15 @@
 
 ## <img align="center" height="20" src="https://i.imgur.com/fjS3xIe.png"/> Overview
 
-The core algorithm [**_towr_**](towr) formulates the legged locomotion optimization problem using [ifopt], which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
+The core algorithm [**_towr_**](towr) formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
   * [Eigen]: Library for linear algebra.
   * [ifopt]: Eigen-based interface to Nonlinear Programming Solver such as Ipopt and Snopt.
   * [Ipopt]: Or another supported NLP solver.
   
-The wrapper [**_towr_ros_**](towr_ros) allows to visualize the produced motions over [rviz] using [xpp]. For this we require some [ROS] packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using [ncurses].
-  * roscpp, rosbag, message_generation, std_msgs: Standard ROS packages.
+The wrapper [**_towr_ros_**](towr_ros) allows to visualize the produced motions over _RVIZ_ using _xpp_. For this we require some ROS packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using ncurses.
+  * [roscpp], [rosbag], [message_generation], [std_msgs]: Standard ROS packages.
   * [xpp]: ROS packages for the visualization of legged robots in rviz.
   * [ncurses]: Preinstalled Linux library for text based GUIs.
-
-Therefore, get [ifopt] and examples running with any NLP solver and install additional dependencies with
-      
-    sudo apt-get install libeigen3-dev ros-kinetic-[pkg_names] libncurses5-dev libncursesw5-dev
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/x1morBF.png"/> Building
@@ -75,7 +71,11 @@ Previous version of this code (see [Releases](https://github.com/awinkler/towr/t
 Please report bugs and request features using the [Issue Tracker](https://github.com/ethz-adrl/towr/issues).
 
 
-[A. W. Winkler]: https://awinkler.github.io/publications.html 
+[A. W. Winkler]: https://awinkler.github.io/publications.html
+[std_msgs]: http://wiki.ros.org/std_msgs
+[roscpp]: http://wiki.ros.org/roscpp
+[message_generation]: http://wiki.ros.org/message_generation
+[rosbag]: http://wiki.ros.org/rosbag 
 [HyQ]: https://www.iit.it/research/lines/dynamic-legged-systems
 [ROS]: http://www.ros.org
 [xpp]: http://wiki.ros.org/xpp
