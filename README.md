@@ -58,7 +58,7 @@ To run a simple example type (not working yet)
 The theory on the current Release is explained in this paper:
 * A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2018
 
-Previous version of this code (see [Releases](https://github.com/awinkler/towr/tags)) were used for the following Publications:
+Previous versions of this code (see [Releases](https://github.com/awinkler/towr/tags)) were used for the following Publications:
 * A. W. Winkler, F. Farshidian, D. Pardo, M. Neunert, J. Buchli, [Fast Trajectory Optimization for Legged Robots using Vertex-based ZMP Constraints.](https://awinkler.github.io/publications/mypdfs/17-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2017
 
 * A. W. Winkler, F. Farshidian, M. Neunert, D. Pardo, J. Buchli, [Online Walking Motion and Foothold Optimization for Quadruped Locomotion](https://awinkler.github.io/publications/mypdfs/17-icra-winkler.pdf), IEEE International Conference on Robotics and Automation (ICRA), 2017
