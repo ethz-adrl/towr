@@ -51,7 +51,7 @@ class TOWR {
 public:
   using FeetPos = std::vector<Eigen::Vector3d>;
 
-  TOWR () = default;
+  TOWR ();
   virtual ~TOWR () = default;
 
   /**

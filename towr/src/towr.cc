@@ -26,6 +26,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/towr.h>
 
+#include <iostream>
+
 #include <ifopt/solvers/ipopt_adapter.h>
 #include <ifopt/solvers/snopt_adapter.h>
 
@@ -34,6 +36,17 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+
+TOWR::TOWR ()
+{
+  std::cout << "\n";
+  std::cout << "************************************************************\n";
+  std::cout << " TOWR - Trajectory Optimizer for Walking Robots (v6.1.0)\n";
+  std::cout << "                \u00a9 Alexander W. Winkler\n";
+  std::cout << "           https://github.com/ethz-adrl/towr\n";
+  std::cout << "************************************************************";
+  std::cout << "\n\n";
+}
 
 void
 TOWR::SetInitialState(const BaseState& initial_base, const FeetPos& feet)
@@ -101,6 +114,5 @@ TOWR::GetIterationCount() const
 {
   return nlp_.GetIterationCount();
 }
-
 
 } /* namespace towr */

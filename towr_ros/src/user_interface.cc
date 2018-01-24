@@ -26,6 +26,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr_ros/user_interface.h>
 
+#include <ncurses.h>
+
 #include <xpp_states/convert.h>
 
 #include <towr_ros/TowrCommand.h>
@@ -37,12 +39,18 @@ namespace towr {
 
 UserInterface::UserInterface ()
 {
+  printw("************************************************************\n");
+  printw("              TOWR user interface (v6.1.0) \n");
+  printw("                \u00a9 Alexander W. Winkler \n");
+  printw("            https://github.com/ethz-adrl/towr\n");
+  printw("************************************************************\n\n");
+
+  PrintHelp();
+
   ::ros::NodeHandle n;
-  key_sub_ = n.subscribe("/keyboard/keydown", 1, &UserInterface::CallbackKeyboard, this);
-  ROS_INFO("Subscribed to: %s", key_sub_.getTopic().c_str());
 
   user_command_pub_ = n.advertise<towr_ros::TowrCommand>(towr_msgs::user_command, 1);
-  ROS_INFO("Publishing to: %s", user_command_pub_.getTopic().c_str());
+  printw("Publishing to: %s\n\n", user_command_pub_.getTopic().c_str());
 
   // publish goal zero initially
   goal_geom_.lin.p_.setZero();
@@ -51,104 +59,123 @@ UserInterface::UserInterface ()
 
   terrain_id_    = 0;
   gait_combo_id_ = 3;
+  total_duration_ = 2.0;
+  replay_trajectory_ = false;
+  use_solver_snopt_ = false;
+  optimize_ = false;
+  publish_optimized_trajectory_ = false;
 }
 
 void
-UserInterface::CallbackKeyboard (const keyboard::Key& msg)
+UserInterface::PrintHelp() const
+{
+  printw("\n");
+  printw("The keyboard mappings are as follows:\n\n");
+  printw("h            \t display this help\n");
+  printw("arrow keys   \t move goal position in xy-plane\n");
+  printw("page up/down \t modify goal height\n");
+  printw("keypad       \t modify goal orientation\n");
+  printw("g            \t change gait\n");
+  printw("t            \t change terrain\n");
+  printw("o            \t optimize motion\n");
+  printw("r            \t replay motion\n");
+  printw("+/-          \t increase/decrease total duration\n");
+  printw("s            \t toggle solver between IPOPT and SNOPT\n");
+  printw("ctrl+c       \t abort program\n");
+  printw("\n");
+}
+
+void
+UserInterface::CallbackKey (int c)
 {
   const static double d_lin = 0.1;  // [m]
   const static double d_ang = 0.25; // [rad]
 
-  switch (msg.code) {
-    // desired goal positions
-    case msg.KEY_RIGHT:
+  switch (c) {
+    case 'h':
+      PrintHelp();
+      break;
+    case KEY_RIGHT:
       goal_geom_.lin.p_.x() -= d_lin;
-      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
+      PrintVector(goal_geom_.lin.p_);
       break;
-    case msg.KEY_LEFT:
+    case KEY_LEFT:
       goal_geom_.lin.p_.x() += d_lin;
-      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
+      PrintVector(goal_geom_.lin.p_);
       break;
-    case msg.KEY_DOWN:
+    case KEY_DOWN:
       goal_geom_.lin.p_.y() += d_lin;
-      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
+      PrintVector(goal_geom_.lin.p_);
       break;
-    case msg.KEY_UP:
+    case KEY_UP:
       goal_geom_.lin.p_.y() -= d_lin;
-      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
+      PrintVector(goal_geom_.lin.p_);
       break;
-    case msg.KEY_PAGEUP:
+    case KEY_PPAGE:
       goal_geom_.lin.p_.z() += 0.5*d_lin;
-      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
+      PrintVector(goal_geom_.lin.p_);
       break;
-    case msg.KEY_PAGEDOWN:
+    case KEY_NPAGE:
       goal_geom_.lin.p_.z() -= 0.5*d_lin;
-      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
+      PrintVector(goal_geom_.lin.p_);
       break;
 
     // desired goal orientations
-    case msg.KEY_KP4:
+    case '4':
       goal_geom_.ang.p_.x() -= d_ang; // roll-
       break;
-    case msg.KEY_KP6:
+    case '6':
       goal_geom_.ang.p_.x() += d_ang; // roll+
       break;
-    case msg.KEY_KP8:
+    case '8':
       goal_geom_.ang.p_.y() += d_ang; // pitch+
       break;
-    case msg.KEY_KP2:
+    case '2':
       goal_geom_.ang.p_.y() -= d_ang; // pitch-
       break;
-    case msg.KEY_KP1:
+    case '1':
       goal_geom_.ang.p_.z() += d_ang; // yaw+
       break;
-    case msg.KEY_KP9:
+    case '9':
       goal_geom_.ang.p_.z() -= d_ang; // yaw-
       break;
 
     // terrains
-    case msg.KEY_1:
+    case 't':
       terrain_id_ = AdvanceCircularBuffer(terrain_id_, towr::K_TERRAIN_COUNT-1);
-      ROS_INFO_STREAM("Switched terrain to " << terrain_id_);
+      printw("Switched terrain to %i \n", terrain_id_);
       break;
 
-    case msg.KEY_g:
+    case 'g':
       gait_combo_id_ = AdvanceCircularBuffer(gait_combo_id_, kMaxNumGaits_);
-      ROS_INFO_STREAM("Switched gait to combo " + std::to_string(gait_combo_id_) );
+      printw("Switched gait to combo %s \n", std::to_string(gait_combo_id_).c_str());
       break;
 
     // speed
-    case msg.KEY_KP_PLUS:
+    case '+':
       total_duration_ += 0.2;
-      ROS_INFO_STREAM("Total duration increased to " << total_duration_);
+      printw("Total duration increased to %f \n", total_duration_);
     break;
-    case msg.KEY_KP_MINUS:
+    case '-':
       total_duration_ -= 0.2;
-      ROS_INFO_STREAM("Total duration decreased to " << total_duration_);
+      printw("Total duration decreased to %f \n", total_duration_);
     break;
 
 
-    case msg.KEY_o:
-      ROS_INFO_STREAM("Optimize motion request sent");
+    case 'o':
+      printw("Optimize motion request sent\n");
       optimize_ = true;
       break;
-    case msg.KEY_p:
-//      ROS_INFO_STREAM("ATTENTION: Are you sure you want to send this to the robot?");
-//      ROS_INFO_STREAM("Press y and Enter in this window to continue...");
-//      char input;
-//      std::cin >> input;
-//      if (input == 'y') {
+    case 'p':
         publish_optimized_trajectory_ = true;
-//        ROS_INFO_STREAM("Publish optimized trajectory request sent");
-//      } else
-//        ROS_INFO_STREAM("Aborted");
+        printw("Publish optimized trajectory request sent\n");
       break;
-    case msg.KEY_s:
-      ROS_INFO_STREAM("Toggled NLP solver type");
+    case 's':
+      printw("Toggled NLP solver type\n");
       use_solver_snopt_ = !use_solver_snopt_;
       break;
-    case msg.KEY_r:
-      ROS_INFO_STREAM("Replaying already optimized trajectory");
+    case 'r':
+      printw("Replaying already optimized trajectory\n");
       replay_trajectory_ = true;
       break;
     default:
@@ -183,4 +210,42 @@ int UserInterface::AdvanceCircularBuffer(int& curr, int max) const
   return curr==max? 0 : curr+1;
 }
 
+void
+UserInterface::PrintVector(const Eigen::Vector3d& v) const
+{
+  printw("Goal position set to %f %f %f \n",
+         goal_geom_.lin.p_.x(),
+         goal_geom_.lin.p_.y(),
+         goal_geom_.lin.p_.z()
+         );
+}
+
+
 } /* namespace towr */
+
+
+// the actual ros node
+int main(int argc, char *argv[])
+{
+  ros::init(argc, argv, "user_iterface_node");
+
+  initscr();
+  cbreak();              // disables buffering of types characters
+  noecho();              // suppresses automatic output of typed characters
+  keypad(stdscr, TRUE);  // to capture special keypad characters
+  scrollok(stdscr,TRUE); // so new lines are printed also below terminal
+
+  towr::UserInterface keyboard_user_interface;
+
+  while (ros::ok())
+  {
+    int c = getch(); // call your non-blocking input function
+    keyboard_user_interface.CallbackKey(c);
+    refresh();
+  }
+
+  endwin();
+
+  return 1;
+}
+

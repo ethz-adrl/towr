@@ -28,10 +28,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_ROS_USER_INTERFACE_H_
 
 #include <ros/ros.h>
-#include <keyboard/Key.h>
 
 #include <xpp_states/state.h>
-
 
 namespace towr {
 
@@ -40,8 +38,6 @@ namespace towr {
  *
  * This includes high level input about where to go (e.g. converting
  * keyboard input into a goal state), which terrain to visualize, etc.
- *
- * See the CallbackKeyboard function for the Key->Action mappings.
  */
 class UserInterface {
 public:
@@ -52,24 +48,32 @@ public:
   UserInterface ();
   virtual ~UserInterface () = default;
 
+  /**
+   * Called whenever a keyboard key is pressed.
+   * @param c  Unicode character of that key (see ncurses library).
+   */
+  void CallbackKey(int c);
+
 private:
-  ::ros::Subscriber key_sub_;          ///< the keyboard keys pressed.
   ::ros::Publisher  user_command_pub_; ///< the output message to TOWR.
 
-  void CallbackKeyboard(const keyboard::Key& msg);
+
   void PublishCommand();
 
   xpp::State3dEuler goal_geom_;
   int kMaxNumGaits_ = 8;
   int terrain_id_;
   int gait_combo_id_;
-  bool replay_trajectory_ = false;
-  bool use_solver_snopt_ = false;
-  bool optimize_ = false;
-  bool publish_optimized_trajectory_ = false;
-  double total_duration_ = 2.0;
+  bool replay_trajectory_;
+  bool use_solver_snopt_;
+  bool optimize_;
+  bool publish_optimized_trajectory_;
+  double total_duration_;
 
   int AdvanceCircularBuffer(int& curr, int max) const;
+
+  void PrintVector(const Eigen::Vector3d& v) const;
+  void PrintHelp() const;
 };
 
 } /* namespace towr */

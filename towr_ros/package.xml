@@ -3,7 +3,7 @@
   <name>towr_ros</name>
   <version>6.0.0</version>
   <description>
-    The ROS dependent parts of TOWR
+    The ROS dependent parts of TOWR.
   </description>
 
   <author email="winklera@ethz.ch">Alexander W. Winkler</author>
@@ -15,13 +15,14 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   
+  <depend>ncurses</depend> 
+  
   <depend>message_runtime</depend>
   <depend>message_generation</depend>
   <depend>std_msgs</depend>
   <depend>roscpp</depend>
   <depend>rosbag</depend>
  
-  <depend>keyboard</depend>
   <depend>xpp_states</depend>
   <depend>xpp_msgs</depend>
   

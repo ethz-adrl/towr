@@ -12,7 +12,6 @@
 
 #include <xpp_msgs/topic_names.h>
 #include <towr_ros/topic_names.h>
-#include <towr_ros/param_server.h>
 
 
 /**
@@ -23,7 +22,7 @@ int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "rosbag_trajectory_combiner");
 
-  std::string name = towr::ParamServer::GetString("/xpp/rosbag_name");
+  std::string name = "/home/winklera/bags/optimal_traj";
 
   rosbag::Bag bag_r;
   bag_r.open(name+".bag", rosbag::bagmode::Read);

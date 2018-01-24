@@ -4,7 +4,6 @@ project(towr_ros)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rosbag
-  keyboard
   std_msgs
   xpp_msgs
   message_generation
@@ -19,6 +18,10 @@ add_message_files( FILES TowrCommand.msg )
 generate_messages( DEPENDENCIES std_msgs xpp_msgs )
 
 
+
+
+
+
 ###########
 ## Build ##
 ###########
@@ -28,11 +31,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-# Declare a C++ library
-add_library(${PROJECT_NAME}
-  src/towr_ros_interface.cc
-  src/user_interface.cc
-  src/rviz_terrain_builder.cc
+## The main executable that runs TOWR
+add_executable(towr_ros_interface src/towr_ros_interface.cc
   src/gait_generator.cc
   src/monoped_gait_generator.cc
   src/biped_gait_generator.cc
@@ -43,46 +43,44 @@ add_library(${PROJECT_NAME}
   src/monoped_model.cc
   src/height_map_examples.cc
 )
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
-# so messages are compiled into header files before building library
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)
-
-
-add_executable(towr_ros_interface src/exe/towr_ros_interface_exe.cc)
+add_dependencies(towr_ros_interface ${PROJECT_NAME}_gencpp) # build .msg first
 target_link_libraries(towr_ros_interface 
-  ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
-add_executable(user_interface_node src/exe/user_interface_node.cc)
+## Keyboard interfaces and other helpers
+add_executable(user_interface_node src/user_interface.cc)
+add_dependencies(user_interface_node ${PROJECT_NAME}_gencpp) # build .msg first
 target_link_libraries(user_interface_node 
-  ${PROJECT_NAME}
   ${catkin_LIBRARIES}
+  ncurses
 )
 
-add_executable(rviz_terrain_node src/exe/rviz_terrain_node.cc)
+add_executable(rviz_terrain_node src/exe/rviz_terrain_node.cc
+  src/rviz_terrain_builder.cc
+)
+add_dependencies(rviz_terrain_node ${PROJECT_NAME}_gencpp) # build .msg first
 target_link_libraries(rviz_terrain_node
-  ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
 add_executable(goal_pose_publisher src/exe/goal_pose_publisher.cc)
+add_dependencies(goal_pose_publisher ${PROJECT_NAME}_gencpp) # build .msg first
 target_link_libraries(goal_pose_publisher
-  ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
-#add_executable(rosbag_traj_combiner src/exe/rosbag_traj_combiner.cc)
-#target_link_libraries(rosbag_traj_combiner
-#  ${catkin_LIBRARIES}
-#)
-#
-#add_executable(rosbag_geom_msg_extractor src/exe/rosbag_geom_msg_extractor.cc)
-#target_link_libraries(rosbag_geom_msg_extractor
-#  ${catkin_LIBRARIES}
-#)
+add_executable(rosbag_traj_combiner src/exe/rosbag_traj_combiner.cc)
+target_link_libraries(rosbag_traj_combiner
+  ${catkin_LIBRARIES}
+)
+
+add_executable(rosbag_geom_msg_extractor src/exe/rosbag_geom_msg_extractor.cc)
+target_link_libraries(rosbag_geom_msg_extractor
+  ${catkin_LIBRARIES}
+)
+
+
                                                  
 
 #############
@@ -91,20 +89,13 @@ target_link_libraries(goal_pose_publisher
 
 # Mark library for installation
 install(
-  TARGETS ${PROJECT_NAME} towr_ros_interface 
-                          user_interface_node
-                          rviz_terrain_node
-                          goal_pose_publisher
+  TARGETS towr_ros_interface 
+          user_interface_node
+          rviz_terrain_node
+          goal_pose_publisher
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-# Mark header files for installation
-install(
-  DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
 )
 
 # Mark other files for installation

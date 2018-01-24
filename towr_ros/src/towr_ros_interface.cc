@@ -434,3 +434,14 @@ TowrRosInterface::GetUnique (const Vector3d& zyx_non_unique) const
 //  }
 
 } /* namespace towr */
+
+
+int main(int argc, char *argv[])
+{
+  ros::init(argc, argv, "towr_ros");
+  towr::TowrRosInterface towr_ros;
+  ros::spin();
+
+  return 1;
+}
+

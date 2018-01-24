@@ -1,6 +1,6 @@
 <launch>  
 
-  <!-- for commanding goal positions and tasks -->
+  <!-- for commanding goal positions and tasks 
   <node 
     name="keyboard"
     pkg="keyboard" 
@@ -8,16 +8,18 @@
     output="screen" 
     cwd="node" >  
   </node>
+  -->
   
   
-  <!-- for translating keyboard messages to TOWR commands -->
+  <!-- for translating keyboard messages to TOWR commands
   <node 
     name="user_interface_node" 
     pkg="towr_ros" 
     type="user_interface_node" 
-    output="screen" 
-    cwd="node" >  
+    output="screen">  
   </node>
+  -->
+  
    
   
   <!-- upload some parameters on the parameter server -->
