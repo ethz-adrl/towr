@@ -16,17 +16,17 @@
 
 The core algorithm [**_towr_**](towr) formulates the legged locomotion optimization problem using [ifopt], which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
   * [Eigen]: Library for linear algebra.
-  * [ifopt]: Eigen-based interface to Nonlinear Programming Solver such as [Ipopt] and [Snopt].
+  * [ifopt]: Eigen-based interface to Nonlinear Programming Solver such as Ipopt and Snopt.
   * At least one installed NLP solver, e.g. [Ipopt].
   
-The wrapper [**_towr_ros_**](towr_ros) allows to visualize the produces motions over [rviz] using [xpp]. For this we require some [ROS] packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using [ncurses].
-  * roscpp, rosbag, message_generation, std_msgs: Standard [ROS] packages.
-  * [xpp]: ROS packages for the visualization of legged robots in [rviz].
+The wrapper [**_towr_ros_**](towr_ros) allows to visualize the produced motions over [rviz] using [xpp]. For this we require some [ROS] packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using [ncurses].
+  * roscpp, rosbag, message_generation, std_msgs: Standard ROS packages.
+  * [xpp]: ROS packages for the visualization of legged robots in rviz.
   * [ncurses]: Preinstalled Linux library for text based GUIs.
 
 Therefore, get [ifopt] and examples running with any NLP solver and install additional dependencies with
       
-    sudo apt-get install libeigen3-dev ros-kinetic-[pkg_name] libncurses5-dev libncursesw5-dev
+    sudo apt-get install libeigen3-dev ros-kinetic-[pkg_names] libncurses5-dev libncursesw5-dev
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/x1morBF.png"/> Building
