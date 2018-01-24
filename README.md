@@ -5,16 +5,13 @@
 |:-------------------------:|:-------------------------:|
 |||
 
-
-
-  * xpp_opt: The Trajectory Optimization formulation for floating base systems (ros independent).
-  * xpp_opt_ros: A ros wrapper with interactive keyboard input and sending out the optimized motions to be visualized with 
+TOWR - **T**rajectory **O**ptimizer for **W**alking **R**obots generates physically feasible motions for legged robots by solving an Optimization Problem. A Centroidal Model of the Dynamics, physical constraints as well as a desired goal position are given to to solver that then produces the motion plan. 
 
 **Author/Maintainer: [Alexander W. Winkler](https://awinkler.github.io/)** 
 
-This code was developed at the [Agile and Dexterous Robotics Lab](http://www.adrl.ethz.ch/doku.php), ETH Zurich. It is currently maintained by the [Robotics Systems Lab](http://www.rsl.ethz.ch/), ETH Zurich. See the [list of contributors](AUTHORS.txt) for further contributors.
+This code was developed at the [Agile and Dexterous Robotics Lab](http://www.adrl.ethz.ch/doku.php) and the [Robotics Systems Lab](http://www.rsl.ethz.ch/).
 
- [<img src="https://i.imgur.com/uCvLs2j.png" height="60" />](http://www.adrl.ethz.ch/doku.php)  &nbsp; &nbsp; &nbsp; &nbsp;    [<img src="https://i.imgur.com/aGOnNTZ.png" height="50" />](https://www.ethz.ch/en.html)
+[<img src="https://i.imgur.com/uCvLs2j.png" height="60" />](http://www.adrl.ethz.ch/doku.php)  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="50" />](http://www.rsl.ethz.ch/)           &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/aGOnNTZ.png" height="50" />](https://www.ethz.ch/en.html)       
 
 
 
@@ -25,17 +22,9 @@ The core algorithm [_towr_](towr) formulates the legged locomotion optimization 
   * [ifopt] `git clone https://github.com/ethz-adrl/ifopt.git`
   * At least one installed NLP solver, e.g. [Ipopt]. See [ifopt] for details.
   
-The wrapper [_towr_ros_](towr_ros) for ROS allows to visualize the produces motions over [rviz] using [xpp]. For this we require the following [ROS] packages:
+The wrapper [_towr_ros_](towr_ros) for ROS allows to visualize the produces motions over [rviz] using [xpp]. For this we require some [ROS] packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using [ncurses].
   * roscpp, rosbag, message_generation, std_msgs, [xpp]: `sudo apt-get install ros-kinetic-[pkg_name]`
-  
-We also provide an executable for interactive keyboard input to e.g. set desired goal positions. Herefore we use:
   * [ncurses] `sudo apt-get install libncurses5-dev libncursesw5-dev`
-
-
- 
-[Eigen]
-
-    sudo apt-get install libeigen3-dev
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/x1morBF.png"/> Building
