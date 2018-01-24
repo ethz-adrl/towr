@@ -2,10 +2,7 @@
 <img src="https://i.imgur.com/zm2nwF7.png" height="70" />
 
 #### Trajectory Optimizer for Walking Robots ####
-
-| ![](https://i.imgur.com/NkL8Haw.gif) | ![](https://i.imgur.com/RrEc2Cd.gif) 
-|:-------------------------:|:-------------------------:|
-|||
+[<img src="https://i.imgur.com/2Rekk4u.png" />](https://youtu.be/0jE46GqzxMM)
 
 [<img src="https://i.imgur.com/j8lt5SE.png" />](https://youtu.be/0jE46GqzxMM)
 
