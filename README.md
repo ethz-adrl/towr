@@ -19,7 +19,7 @@ The core algorithm [**_towr_**](towr) formulates the legged locomotion optimizat
   * [ifopt]: Eigen-based interface to Nonlinear Programming Solver such as Ipopt and Snopt.
   * [Ipopt]: Or another supported NLP solver.
   
-The wrapper [**_towr_ros_**](towr_ros) allows to visualize the produced motions over _RVIZ_ using _xpp_. For this we require some ROS packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using ncurses.
+The wrapper [**_towr_ros_**](towr_ros) allows to visualize the produced motions in _RVIZ_ using _xpp_. For this we require some ROS packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using ncurses.
   * [roscpp], [rosbag], [message_generation], [std_msgs]: Standard ROS packages.
   * [xpp]: ROS packages for the visualization of legged robots in rviz.
   * [ncurses]: Preinstalled Linux library for text based GUIs.
