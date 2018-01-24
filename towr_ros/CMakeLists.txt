@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(towr_ros)
 
+add_compile_options(-std=c++11)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rosbag
@@ -11,21 +13,15 @@ find_package(catkin REQUIRED COMPONENTS
   towr
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++11") 
 
 ## Generate messages in the 'msg' folder
 add_message_files( FILES TowrCommand.msg )
 generate_messages( DEPENDENCIES std_msgs xpp_msgs )
 
 
-
-
-
-
 ###########
 ## Build ##
 ###########
-
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
@@ -81,12 +77,9 @@ target_link_libraries(rosbag_geom_msg_extractor
 )
 
 
-                                                 
-
 #############
 ## Install ##
 #############
-
 # Mark library for installation
 install(
   TARGETS towr_ros_interface 
@@ -114,6 +107,3 @@ install(
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)

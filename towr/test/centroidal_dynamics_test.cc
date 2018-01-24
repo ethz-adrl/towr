@@ -7,7 +7,7 @@
 
 #include <gtest/gtest.h>
 
-#include "../include/towr/variables/euler_converter.h"
+#include <towr/variables/euler_converter.h>
 
 namespace towr {
 

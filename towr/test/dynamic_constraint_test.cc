@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#include <Eigen/Sparse>
 #include <gtest/gtest.h>
+#include <Eigen/Sparse>
 
 namespace towr {
 
@@ -46,7 +46,7 @@ using VectorXd = Eigen::VectorXd;
 
 TEST(DynamicConstraintTest, EigenScalar)
 {
-  VectorXd g(2.1);
+  VectorXd g(2);
 
   std::cout << g << std::endl;
 }

@@ -40,7 +40,7 @@ namespace towr {
 UserInterface::UserInterface ()
 {
   printw("************************************************************\n");
-  printw("              TOWR user interface (v6.1.0) \n");
+  printw("              TOWR user interface (v1.0.0) \n");
   printw("                \u00a9 Alexander W. Winkler \n");
   printw("            https://github.com/ethz-adrl/towr\n");
   printw("************************************************************\n\n");

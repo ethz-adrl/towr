@@ -15,5 +15,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <depend>ifopt</depend>
+  <depend>ifopt_ipopt</depend>
+  <depend>ifopt_snopt</depend>
+  
   
 </package>

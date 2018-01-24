@@ -28,8 +28,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
 
-#include <ifopt/solvers/ipopt_adapter.h>
-#include <ifopt/solvers/snopt_adapter.h>
+#include <ifopt_ipopt/ipopt_adapter.h>
+#include <ifopt_snopt/snopt_adapter.h>
 
 #include <towr/nlp_factory.h>
 
@@ -39,13 +39,14 @@ namespace towr {
 
 TOWR::TOWR ()
 {
-  std::cout << "\n";
-  std::cout << "************************************************************\n";
-  std::cout << " TOWR - Trajectory Optimizer for Walking Robots (v6.1.0)\n";
-  std::cout << "                \u00a9 Alexander W. Winkler\n";
-  std::cout << "           https://github.com/ethz-adrl/towr\n";
-  std::cout << "************************************************************";
-  std::cout << "\n\n";
+  using namespace std;
+  cout << "\n";
+  cout << "************************************************************\n";
+  cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.0.0)\n";
+  cout << "                \u00a9 Alexander W. Winkler\n";
+  cout << "           https://github.com/ethz-adrl/towr\n";
+  cout << "************************************************************";
+  cout << "\n\n";
 }
 
 void

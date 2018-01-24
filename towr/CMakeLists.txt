@@ -1,33 +1,32 @@
-# Project configuration
 cmake_minimum_required(VERSION 2.8)
 project(towr)
 
-find_package(catkin REQUIRED COMPONENTS ifopt)
+find_package(catkin REQUIRED COMPONENTS 
+  ifopt
+  ifopt_ipopt
+  ifopt_snopt
+)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++11")
+add_compile_options(-std=c++11)
 
 
 ###################################
 ## catkin specific configuration ##
 ###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS ifopt
-  DEPENDS
 )
 
+
+###########
+## Build ##
+###########
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
 )
-
 
 add_library(${PROJECT_NAME}
   src/towr.cc
@@ -69,7 +68,6 @@ target_link_libraries(${PROJECT_NAME}
 #############
 ## Install ##
 #############
-
 # Mark library for installation
 install(
   TARGETS ${PROJECT_NAME}
@@ -89,17 +87,15 @@ install(
 #############
 ## Testing ##
 #############
-
-if (CATKIN_ENABLE_TESTING)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-catkin_add_gtest(${PROJECT_NAME}_test
-    test/gtest_main.cc 
+catkin_add_gtest(${PROJECT_NAME}-test
+    test/gtest_main.cc
     test/dynamic_constraint_test.cc
     test/centroidal_dynamics_test.cc
 )
-endif()
-
-if(TARGET ${PROJECT_NAME}_test)
-  target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
+if(TARGET ${PROJECT_NAME}-test)
+  target_link_libraries(${PROJECT_NAME}-test
+    ${PROJECT_NAME}
+    pthread
+    )
 endif()
 
