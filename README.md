@@ -17,7 +17,7 @@
 The core algorithm [**_towr_**](towr) formulates the legged locomotion optimization problem using [ifopt], which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
   * [Eigen]: Library for linear algebra.
   * [ifopt]: Eigen-based interface to Nonlinear Programming Solver such as Ipopt and Snopt.
-  * At least one installed NLP solver, e.g. [Ipopt].
+  * [Ipopt]: Or another supported NLP solver.
   
 The wrapper [**_towr_ros_**](towr_ros) allows to visualize the produced motions over [rviz] using [xpp]. For this we require some [ROS] packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using [ncurses].
   * roscpp, rosbag, message_generation, std_msgs: Standard ROS packages.
@@ -59,10 +59,10 @@ To run a simple example type (not working yet)
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/dHQx91Q.png"/> Publications
-The theory on for the current solver is explained in this paper:
+The theory on the current Release is explained in this paper:
 * A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2018
 
-Previous version of this Code (see Releases) were used in the following Publications:
+Previous version of this code (see [Releases](https://github.com/awinkler/towr/tags)) were used for the following Publications:
 * A. W. Winkler, F. Farshidian, D. Pardo, M. Neunert, J. Buchli, [Fast Trajectory Optimization for Legged Robots using Vertex-based ZMP Constraints.](https://awinkler.github.io/publications/mypdfs/17-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2017
 
 * A. W. Winkler, F. Farshidian, M. Neunert, D. Pardo, J. Buchli, [Online Walking Motion and Foothold Optimization for Quadruped Locomotion](https://awinkler.github.io/publications/mypdfs/17-icra-winkler.pdf), IEEE International Conference on Robotics and Automation (ICRA), 2017
