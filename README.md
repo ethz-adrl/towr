@@ -9,11 +9,9 @@
 
 TOWR - **T**rajectory **O**ptimizer for **W**alking **R**obots generates physically feasible motions for legged robots by solving an Optimization Problem. A Centroidal Model of the Dynamics, physical constraints as well as a desired goal position are given to to solver that then produces the motion plan. 
 
-**Author/Maintainer: [Alexander W. Winkler](https://awinkler.github.io/)** 
+**Author/Maintainer: [Alexander W. Winkler](https://awinkler.github.io/)**
 
-This code was developed at the [Agile and Dexterous Robotics Lab](http://www.adrl.ethz.ch/doku.php) and the [Robotics Systems Lab](http://www.rsl.ethz.ch/).
-
-[<img src="https://i.imgur.com/uCvLs2j.png" height="60" />](http://www.adrl.ethz.ch/doku.php)  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="50" />](http://www.rsl.ethz.ch/)           &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/aGOnNTZ.png" height="50" />](https://www.ethz.ch/en.html)       
+[<img src="https://i.imgur.com/uCvLs2j.png" height="50" />](http://www.adrl.ethz.ch/doku.php)  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="50" />](http://www.rsl.ethz.ch/)           &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/aGOnNTZ.png" height="50" />](https://www.ethz.ch/en.html)       
 
 
 
