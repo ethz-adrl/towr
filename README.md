@@ -1,5 +1,5 @@
 
-## <img src="https://i.imgur.com/ct8e7T4.png" height="80" />
+## <img src="https://i.imgur.com/zm2nwF7.png" height="80" />
 
 | ![](https://i.imgur.com/NkL8Haw.gif) | ![](https://i.imgur.com/RrEc2Cd.gif) 
 |:-------------------------:|:-------------------------:|
@@ -22,7 +22,7 @@ The core algorithm [_towr_](towr) formulates the legged locomotion optimization 
   * [ifopt] `git clone https://github.com/ethz-adrl/ifopt.git`
   * At least one installed NLP solver, e.g. [Ipopt]. See [ifopt] for details.
   
-The wrapper [_towr_ros_](towr_ros) for ROS allows to visualize the produces motions over [rviz] using [xpp]. For this we require some [ROS] packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using [ncurses].
+The wrapper [_towr_ros_](towr_ros) allows to visualize the produces motions over [rviz] using [xpp]. For this we require some [ROS] packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using [ncurses].
   * roscpp, rosbag, message_generation, std_msgs, [xpp]: `sudo apt-get install ros-kinetic-[pkg_name]`
   * [ncurses] `sudo apt-get install libncurses5-dev libncursesw5-dev`
 
