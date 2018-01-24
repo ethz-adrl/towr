@@ -30,32 +30,44 @@ Therefore, get [ifopt] and examples running with any NLP solver and install addi
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/x1morBF.png"/> Building
+Prior to building this, install [ifopt] and one of the NLP solvers and make sure the example runs (!). Then, install additional libraries, clone this repo into your catkin workspace and compile.
 
-To build from source, clone the latest version from this repository into your catkin workspace and compile the package using
-
+    sudo apt-get libncurses5-dev libncursesw5-dev
+    sudo apt-get install ros-kinetic-desktop-full
+    sudo apt-get install ros-kinetic-xpp 
     cd catkin_workspace/src
-    git clone https://github.com/legged_robotics/xpp.git
+    git clone https://github.com/ethz-adrl/towr.git
     cd ..
     catkin_make -DCMAKE_BUILD_TYPE=Release
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/026nVBV.png"/> Unit Tests
-
 Make sure everything installed correctly by running the unit tests through
 
     catkin_make run_tests
     
 or if you are using [catkin tools].
 
-    catkin build xpp_vis --no-deps --verbose --catkin-make-args run_tests
+    catkin build towr --no-deps --verbose --catkin-make-args run_tests
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/vAYeCzC.png"/> Usage
+To run a simple example type (not working yet)
+
+    roslaunch towr_ros towr_all.launch
+
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/dHQx91Q.png"/> Publications
+The theory on for the current solver is explained in this paper:
+* A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2018
 
-If you use this work in an academic context, please cite the currently released version <a href="https://doi.org/10.5281/zenodo.1135005"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.1135005.svg" alt="DOI" align="center"></a> as shown [here](https://zenodo.org/record/1135005/export/hx#.Wk3szDCGPmF).
+Previous version of this Code (see Releases) were used in the following Publications:
+* A. W. Winkler, F. Farshidian, D. Pardo, M. Neunert, J. Buchli, [Fast Trajectory Optimization for Legged Robots using Vertex-based ZMP Constraints.](https://awinkler.github.io/publications/mypdfs/17-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2017
+
+* A. W. Winkler, F. Farshidian, M. Neunert, D. Pardo, J. Buchli, [Online Walking Motion and Foothold Optimization for Quadruped Locomotion](https://awinkler.github.io/publications/mypdfs/17-icra-winkler.pdf), IEEE International Conference on Robotics and Automation (ICRA), 2017
+
+* A. W. Winkler, C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, [Planning and Execution of Dynamic Whole-Body Locomotion for a Hydraulic Quadruped on Challenging Terrain](http://iit.it/images/stories/advanced-robotics/hyq_files/publications/winkler15icra.pdf), IEEE International Conference on Robotics and Automation (ICRA), 2015
 
 
 ##  <img align="center" height="20" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests
@@ -63,7 +75,7 @@ If you use this work in an academic context, please cite the currently released 
 Please report bugs and request features using the [Issue Tracker](https://github.com/ethz-adrl/towr/issues).
 
 
-
+[A. W. Winkler]: https://awinkler.github.io/publications.html 
 [HyQ]: https://www.iit.it/research/lines/dynamic-legged-systems
 [ROS]: http://www.ros.org
 [xpp]: http://wiki.ros.org/xpp
