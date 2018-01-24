@@ -12,7 +12,7 @@
 [<img src="https://i.imgur.com/j8lt5SE.png" />](https://youtu.be/0jE46GqzxMM "Play video on Youtube")
 
 
-## <img align="center" height="20" src="https://i.imgur.com/fjS3xIe.png"/> Dependencies
+## <img align="center" height="20" src="https://i.imgur.com/fjS3xIe.png"/> Overview
 
 The core algorithm [**_towr_**](towr) formulates the legged locomotion optimization problem using [ifopt], which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
   * [Eigen]: Library for linear algebra.
