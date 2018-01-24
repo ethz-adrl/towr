@@ -1,6 +1,7 @@
 
-## <img src="https://i.imgur.com/zm2nwF7.png" height="80" />
-### **T**rajectory **O**ptimizer for **W**alking **R**obots ###
+<img src="https://i.imgur.com/zm2nwF7.png" height="80" /> 
+
+### Trajectory Optimizer for Walking Robots ###
 
 | ![](https://i.imgur.com/NkL8Haw.gif) | ![](https://i.imgur.com/RrEc2Cd.gif) 
 |:-------------------------:|:-------------------------:|
