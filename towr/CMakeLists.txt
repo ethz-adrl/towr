@@ -1,21 +1,20 @@
 cmake_minimum_required(VERSION 2.8)
 project(towr)
 
-find_package(catkin REQUIRED COMPONENTS 
-  ifopt
-  ifopt_ipopt
-  ifopt_snopt
-)
+find_package(catkin REQUIRED)
+find_package(ifopt REQUIRED)    # variables/constraints are solver independent.
+find_package(ifopt_ipopt QUIET) # builds solver only if this is installed.
+find_package(ifopt_snopt QUIET) # builds solver only if this is installed.
 
 add_compile_options(-std=c++11)
 
 
-###################################
-## catkin specific configuration ##
-###################################
+##############################################################################
+## Generates cmake config files for this package, used when "find_package() ##
+##############################################################################
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
+  LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_solver
   CATKIN_DEPENDS ifopt
 )
 
@@ -25,11 +24,12 @@ catkin_package(
 ###########
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
+  ${ifopt_INCLUDE_DIRS}
 )
 
+# The motion planning problem formulated through variables and constraints
+# --> solver independent
 add_library(${PROJECT_NAME}
-  src/towr.cc
   src/nlp_factory.cc
   src/time_discretization_constraint.cc
   src/base_motion_constraint.cc
@@ -59,10 +59,27 @@ add_library(${PROJECT_NAME}
   src/parameters.cc
   src/linear_constraint.cc
   src/soft_constraint.cc
-)   
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
 )
+target_link_libraries(${PROJECT_NAME} 
+  ${ifopt_LIBRARIES}
+)
+
+
+## build the actual solver using IPOPT and SNOPT
+if(${ifopt_ipopt_FOUND} AND ${ifopt_snopt_FOUND})
+include_directories(
+  INCLUDE_DIRECTORIES
+  ${ifopt_ipopt_INCLUDE_DIRS}
+  ${ifopt_snopt_INCLUDE_DIRS}
+)
+add_library(${PROJECT_NAME}_solver src/towr.cc)
+target_link_libraries(${PROJECT_NAME}_solver
+  ${PROJECT_NAME}
+  ${ifopt_ipopt_LIBRARIES}
+  ${ifopt_snopt_LIBRARIES}
+)
+
+endif()
 
 
 #############
@@ -70,7 +87,7 @@ target_link_libraries(${PROJECT_NAME}
 #############
 # Mark library for installation
 install(
-  TARGETS ${PROJECT_NAME}
+  TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_solver
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
