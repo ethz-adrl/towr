@@ -12,18 +12,18 @@
 
 ## <img align="center" height="20" src="https://i.imgur.com/fjS3xIe.png"/> Overview
 
-[**_towr_core_**](towr_core): The core algorithm formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are.
-  * [Eigen]: Library for linear algebra.
-  * [ifopt_core]: Eigen-based interface to Nonlinear Programming solvers such as Ipopt and Snopt.
+* [**_towr_core_**](towr_core): The core algorithm formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are.
+    * [Eigen]: Library for linear algebra.
+    * [ifopt_core]: Eigen-based interface to Nonlinear Programming solvers such as Ipopt and Snopt.
   
-[**_towr_examples_**](towr_examples): Provides an example executable solving 
+* [**_towr_examples_**](towr_examples): Provides an example executable solving 
 [towr_core](towr_core) with [Ipopt] to generate a one-legged hopper motion-plan. Additional dependencies:
-  * [Ipopt]: 3rd party NLP solver, [Snopt] can also be used.
+    * [Ipopt]: 3rd party NLP solver, [Snopt] can also be used.
   
-[**_towr_ros_**](towr_ros): Formulates a variety of robots (Monoped, biped, [HyQ], [ANYmal]) and terrains and a keyboard user interface to switch between them. It also allows to visualize the produced motions in _rviz_ using _xpp_. Additional dependencies:
-  * [roscpp], [rosbag], [message_generation], [std_msgs]: Standard ROS packages.
-  * [xpp]: ROS packages for the visualization of legged robots in rviz.
-  * [ncurses], [xterm]: Preinstalled on most Linux distributions.
+* [**_towr_ros_**](towr_ros): Formulates a variety of robots (Monoped, biped, [HyQ], [ANYmal]) and terrains and a keyboard user interface to switch between them. It also allows to visualize the produced motions in _rviz_ using _xpp_. Additional dependencies:
+    * [roscpp], [rosbag], [message_generation], [std_msgs]: Standard ROS packages.
+    * [xpp]: ROS packages for the visualization of legged robots in rviz.
+    * [ncurses], [xterm]: Preinstalled on most Linux distributions.
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/x1morBF.png"/> Building
@@ -45,7 +45,7 @@ Make sure everything installed correctly by running the unit tests through
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/vAYeCzC.png"/> Usage
-To run a simple example type (not working yet)
+To run a simple example type and hit 'o'
 
     roslaunch towr_ros towr_ros.launch
 
