@@ -18,7 +18,7 @@
   
 [**_towr_examples_**](towr_examples): Provides an example executable solving 
 [towr_core](towr_core) with [Ipopt] to generate a one-legged hopper motion-plan. Additional dependencies:
-  * [Ipopt]
+  * [Ipopt]: 3rd party NLP solver, [Snopt] can also be used.
   
 [**_towr_ros_**](towr_ros): Formulates a variety of robots (Monoped, biped, [HyQ], [ANYmal]) and terrains and a keyboard user interface to switch between them. It also allows to visualize the produced motions in [rviz] using [xpp]. Additional dependencies:
   * [roscpp], [rosbag], [message_generation], [std_msgs]: Standard ROS packages.
