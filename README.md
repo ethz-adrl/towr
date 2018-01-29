@@ -12,7 +12,7 @@
 
 ## <img align="center" height="20" src="https://i.imgur.com/fjS3xIe.png"/> Overview
 
-* [**_towr_core_**](towr_core): The core algorithm formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are.
+* [**_towr_core_**](towr_core): The core algorithm formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
     * [Eigen]: Library for linear algebra.
     * [ifopt_core]: Eigen-based interface to Nonlinear Programming solvers such as Ipopt and Snopt.
   
