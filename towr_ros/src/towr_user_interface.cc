@@ -27,7 +27,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/user_interface.h>
+#include <towr_ros/towr_user_interface.h>
 
 #include <ncurses.h>
 
@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-UserInterface::UserInterface ()
+TowrUserInterface::TowrUserInterface ()
 {
   printw("************************************************************\n");
   printw("              TOWR user interface (v1.0.0) \n");
@@ -70,7 +70,7 @@ UserInterface::UserInterface ()
 }
 
 void
-UserInterface::PrintHelp() const
+TowrUserInterface::PrintHelp() const
 {
   printw("\n");
   printw("The keyboard mappings are as follows:\n\n");
@@ -84,12 +84,12 @@ UserInterface::PrintHelp() const
   printw("r            \t replay motion\n");
   printw("+/-          \t increase/decrease total duration\n");
   printw("s            \t toggle solver between IPOPT and SNOPT\n");
-  printw("ctrl+c       \t abort program\n");
+  printw("q            \t close user interface\n");
   printw("\n");
 }
 
 void
-UserInterface::CallbackKey (int c)
+TowrUserInterface::CallbackKey (int c)
 {
   const static double d_lin = 0.1;  // [m]
   const static double d_ang = 0.25; // [rad]
@@ -98,6 +98,9 @@ UserInterface::CallbackKey (int c)
     case 'h':
       PrintHelp();
       break;
+    case 'q':
+      printw("Closing user interface\n");
+      ros::shutdown(); break;
     case KEY_RIGHT:
       goal_geom_.lin.p_.x() -= d_lin;
       PrintVector(goal_geom_.lin.p_);
@@ -188,7 +191,7 @@ UserInterface::CallbackKey (int c)
   PublishCommand();
 }
 
-void UserInterface::PublishCommand()
+void TowrUserInterface::PublishCommand()
 {
   towr_ros::TowrCommand msg;
   msg.goal_lin          = xpp::Convert::ToRos(goal_geom_.lin);
@@ -208,13 +211,13 @@ void UserInterface::PublishCommand()
   publish_optimized_trajectory_ = false;
 }
 
-int UserInterface::AdvanceCircularBuffer(int& curr, int max) const
+int TowrUserInterface::AdvanceCircularBuffer(int& curr, int max) const
 {
   return curr==max? 0 : curr+1;
 }
 
 void
-UserInterface::PrintVector(const Eigen::Vector3d& v) const
+TowrUserInterface::PrintVector(const Eigen::Vector3d& v) const
 {
   printw("Goal position set to %f %f %f \n",
          goal_geom_.lin.p_.x(),
@@ -230,7 +233,7 @@ UserInterface::PrintVector(const Eigen::Vector3d& v) const
 // the actual ros node
 int main(int argc, char *argv[])
 {
-  ros::init(argc, argv, "user_iterface_node");
+  ros::init(argc, argv, "useri_iterface_node");
 
   initscr();
   cbreak();              // disables buffering of types characters
@@ -238,7 +241,7 @@ int main(int argc, char *argv[])
   keypad(stdscr, TRUE);  // to capture special keypad characters
   scrollok(stdscr,TRUE); // so new lines are printed also below terminal
 
-  towr::UserInterface keyboard_user_interface;
+  towr::TowrUserInterface keyboard_user_interface;
 
   while (ros::ok())
   {

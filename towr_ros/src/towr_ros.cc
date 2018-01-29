@@ -27,7 +27,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/towr_ros_interface.h>
+#include <towr_ros/towr_ros.h>
 
 #include <iostream>
 #include <stdexcept>
@@ -43,26 +43,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr_ros/topic_names.h>
 #include <towr_ros/quadruped_gait_generator.h>
 #include <towr_ros/height_map_examples.h>
+#include <towr/variables/euler_converter.h> // smell move into spline_holder
+
 #include <towr_ros/models/anymal_model.h>
 #include <towr_ros/models/hyq_model.h>
 #include <towr_ros/models/biped_model.h>
 #include <towr_ros/models/monoped_model.h>
-#include <towr/variables/euler_converter.h> // smell move into spline_holder
 
 namespace towr {
 
 
-TowrRosInterface::TowrRosInterface ()
+TowrRos::TowrRos ()
 {
   ::ros::NodeHandle n;
 
   user_command_sub_ = n.subscribe(towr_msgs::user_command, 1,
-                                  &TowrRosInterface::UserCommandCallback, this);
+                                  &TowrRos::UserCommandCallback, this);
   ROS_INFO_STREAM("Subscribed to " << user_command_sub_.getTopic());
 
   current_state_sub_ = n.subscribe(xpp_msgs::robot_state_current,
                                    1, // take only the most recent information
-                                   &TowrRosInterface::CurrentStateCallback, this);
+                                   &TowrRos::CurrentStateCallback, this);
   ROS_INFO_STREAM("Subscribed to " << current_state_sub_.getTopic());
 
   cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
@@ -76,19 +77,19 @@ TowrRosInterface::TowrRosInterface ()
 
   // hardcode initial state
   towr::BaseState b;
-  b.lin.at(towr::kPos).z() = 0.46;
+  b.lin.at(towr::kPos).z() = 0.58;
 
   std::vector<Eigen::Vector3d> ee_pos(4);
 
-  ee_pos.at(0) <<  0.34,  0.19, 0.0; // LF
-  ee_pos.at(1) <<  0.34, -0.19, 0.0; // RF
-  ee_pos.at(2) << -0.34,  0.19, 0.0; // LH
-  ee_pos.at(3) << -0.34, -0.19, 0.0; // RH
+  ee_pos.at(0) <<  0.31,  0.29, 0.0; // LF
+  ee_pos.at(1) <<  0.31, -0.29, 0.0; // RF
+  ee_pos.at(2) << -0.31,  0.29, 0.0; // LH
+  ee_pos.at(3) << -0.31, -0.29, 0.0; // RH
 
   towr_.SetInitialState(b, ee_pos);
 
-  model_.dynamic_model_   = std::make_shared<towr::AnymalDynamicModel>();
-  model_.kinematic_model_ = std::make_shared<towr::AnymalKinematicModel>();
+  model_.dynamic_model_   = std::make_shared<towr::HyqDynamicModel>();
+  model_.kinematic_model_ = std::make_shared<towr::HyqKinematicModel>();
   gait_                   = std::make_shared<towr::QuadrupedGaitGenerator>();
   output_dt_              = 0.0025; // 400 Hz control loop frequency on ANYmal
 
@@ -96,7 +97,7 @@ TowrRosInterface::TowrRosInterface ()
 }
 
 void
-TowrRosInterface::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
+TowrRos::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
 {
   towr::BaseState base_initial;
   base_initial.lin.at(towr::kPos) = xpp::Convert::ToXpp(msg.base.pose.position);
@@ -114,7 +115,7 @@ TowrRosInterface::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 }
 
 void
-TowrRosInterface::UserCommandCallback(const TowrCommand& msg)
+TowrRos::UserCommandCallback(const TowrCommand& msg)
 {
   SetTowrParameters(msg);
 
@@ -154,7 +155,7 @@ TowrRosInterface::UserCommandCallback(const TowrCommand& msg)
 }
 
 void
-TowrRosInterface::SetTowrParameters(const TowrCommand& msg)
+TowrRos::SetTowrParameters(const TowrCommand& msg)
 {
   towr::BaseState goal;
   goal.lin.at(towr::kPos) = xpp::Convert::ToXpp(msg.goal_lin.pos);
@@ -183,7 +184,7 @@ TowrRosInterface::SetTowrParameters(const TowrCommand& msg)
 }
 
 void
-TowrRosInterface::OptimizeMotion ()
+TowrRos::OptimizeMotion ()
 {
   try {
     towr_.SolveNLP();
@@ -192,8 +193,8 @@ TowrRosInterface::OptimizeMotion ()
   }
 }
 
-std::vector<TowrRosInterface::RobotStateVec>
-TowrRosInterface::GetIntermediateSolutions ()
+std::vector<TowrRos::RobotStateVec>
+TowrRos::GetIntermediateSolutions ()
 {
   std::vector<RobotStateVec> trajectories;
 
@@ -205,8 +206,8 @@ TowrRosInterface::GetIntermediateSolutions ()
   return trajectories;
 }
 
-TowrRosInterface::RobotStateVec
-TowrRosInterface::GetTrajectory () const
+TowrRos::RobotStateVec
+TowrRos::GetTrajectory () const
 {
   towr::SplineHolder solution = towr_.GetSolution();
 
@@ -242,7 +243,7 @@ TowrRosInterface::GetTrajectory () const
 }
 
 xpp::StateLinXd
-TowrRosInterface::ToXpp(const towr::State& towr) const
+TowrRos::ToXpp(const towr::State& towr) const
 {
   xpp::StateLinXd xpp(towr.p().rows());
 
@@ -254,14 +255,14 @@ TowrRosInterface::ToXpp(const towr::State& towr) const
 }
 
 xpp_msgs::RobotStateCartesianTrajectory
-TowrRosInterface::BuildTrajectoryMsg () const
+TowrRos::BuildTrajectoryMsg () const
 {
   auto cart_traj = GetTrajectory();
   return xpp::Convert::ToRos(cart_traj);
 }
 
 xpp_msgs::RobotParameters
-TowrRosInterface::BuildRobotParametersMsg(const RobotModel& model) const
+TowrRos::BuildRobotParametersMsg(const RobotModel& model) const
 {
   xpp_msgs::RobotParameters params_msg;
   auto max_dev_xyz = model.kinematic_model_->GetMaximumDeviationFromNominal();
@@ -280,7 +281,7 @@ TowrRosInterface::BuildRobotParametersMsg(const RobotModel& model) const
 }
 
 void
-TowrRosInterface::SaveOptimizationAsRosbag (const std::string& bag_name,
+TowrRos::SaveOptimizationAsRosbag (const std::string& bag_name,
                                             const xpp_msgs::RobotParameters& robot_params,
                                             const TowrCommand user_command_msg,
                                             bool include_iterations)
@@ -318,7 +319,7 @@ TowrRosInterface::SaveOptimizationAsRosbag (const std::string& bag_name,
 }
 
 void
-TowrRosInterface::SaveTrajectoryInRosbag (rosbag::Bag& bag,
+TowrRos::SaveTrajectoryInRosbag (rosbag::Bag& bag,
                                           const std::vector<RobotStateCartesian>& traj,
                                           const std::string& topic) const
 {
@@ -370,7 +371,7 @@ TowrRosInterface::SaveTrajectoryInRosbag (rosbag::Bag& bag,
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 Eigen::Vector3d
-TowrRosInterface::GetUnique (const Vector3d& zyx_non_unique) const
+TowrRos::GetUnique (const Vector3d& zyx_non_unique) const
 {
   Eigen::Vector3d zyx = zyx_non_unique;
   const double tol = 1e-3;
@@ -442,7 +443,7 @@ TowrRosInterface::GetUnique (const Vector3d& zyx_non_unique) const
 int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "towr_ros");
-  towr::TowrRosInterface towr_ros;
+  towr::TowrRos towr_ros;
   ros::spin();
 
   return 1;

@@ -30,7 +30,8 @@ include_directories(
 )
 
 ## The main executable that runs TOWR
-add_executable(towr_ros_interface src/towr_ros_interface.cc
+add_executable(towr_ros 
+  src/towr_ros.cc
   src/gait_generator.cc
   src/monoped_gait_generator.cc
   src/biped_gait_generator.cc
@@ -41,24 +42,24 @@ add_executable(towr_ros_interface src/towr_ros_interface.cc
   src/monoped_model.cc
   src/height_map_examples.cc
 )
-add_dependencies(towr_ros_interface ${PROJECT_NAME}_gencpp) # build .msg first
-target_link_libraries(towr_ros_interface
+add_dependencies(towr_ros ${PROJECT_NAME}_gencpp) # build .msg first
+target_link_libraries(towr_ros
   ${catkin_LIBRARIES}
 )
 
 ## Keyboard interfaces and other helpers
-add_executable(user_interface_node src/user_interface.cc)
-add_dependencies(user_interface_node ${PROJECT_NAME}_gencpp) # build .msg first
-target_link_libraries(user_interface_node 
+add_executable(towr_user_interface src/towr_user_interface.cc)
+add_dependencies(towr_user_interface ${PROJECT_NAME}_gencpp) # build .msg first
+target_link_libraries(towr_user_interface 
   ${catkin_LIBRARIES}
   ncurses
 )
 
-add_executable(rviz_terrain_node src/exe/rviz_terrain_node.cc
+add_executable(rviz_terrain_publisher src/exe/rviz_terrain_publisher.cc
   src/rviz_terrain_builder.cc
 )
-add_dependencies(rviz_terrain_node ${PROJECT_NAME}_gencpp) # build .msg first
-target_link_libraries(rviz_terrain_node
+add_dependencies(rviz_terrain_publisher ${PROJECT_NAME}_gencpp) # build .msg first
+target_link_libraries(rviz_terrain_publisher
   ${catkin_LIBRARIES}
 )
 
@@ -84,9 +85,9 @@ target_link_libraries(rosbag_geom_msg_extractor
 #############
 # Mark library for installation
 install(
-  TARGETS towr_ros_interface 
-          user_interface_node
-          rviz_terrain_node
+  TARGETS towr_ros 
+          towr_user_interface
+          rviz_terrain_publisher
           goal_pose_publisher
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

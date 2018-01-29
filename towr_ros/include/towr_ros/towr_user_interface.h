@@ -42,14 +42,14 @@ namespace towr {
  * This includes high level input about where to go (e.g. converting
  * keyboard input into a goal state), which terrain to visualize, etc.
  */
-class UserInterface {
+class TowrUserInterface {
 public:
 
   /**
    * @brief  Constructs default object to interact with framework.
    */
-  UserInterface ();
-  virtual ~UserInterface () = default;
+  TowrUserInterface ();
+  virtual ~TowrUserInterface () = default;
 
   /**
    * Called whenever a keyboard key is pressed.

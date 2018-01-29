@@ -48,15 +48,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-class TowrRosInterface {
+class TowrRos {
 public:
   using RobotStateCartesian = xpp::RobotStateCartesian;
   using RobotStateVec       = std::vector<RobotStateCartesian>;
   using TowrCommand         = towr_ros::TowrCommand;
   using Vector3d            = Eigen::Vector3d;
 
-  TowrRosInterface ();
-  virtual ~TowrRosInterface () = default;
+  TowrRos ();
+  virtual ~TowrRos () = default;
 
 private:
   void OptimizeMotion();

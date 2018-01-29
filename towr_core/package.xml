@@ -4,7 +4,6 @@
   <version>1.0.0</version>
   <description>
     The core algorithm of the Trajectory Optimizer for Walking Robots (TOWR).
-    
     <p>
     This algorithm is independent of the robot, the NLP solver and ROS. The
     user specifies the kinematics and dynamics of the robot (monoped, biped,
