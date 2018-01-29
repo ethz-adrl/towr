@@ -53,12 +53,11 @@ To run a simple example type and hit 'o'
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/dHQx91Q.png"/> Publications
-Previous versions of this code have been used for a variety of 
-[publications](https://awinkler.github.io/publications.html). For 
+Previous versions of this code have been used for a variety of publications. For 
 the respective code and the corresponding paper, see [Releases](https://github.com/awinkler/towr/releases).
 The theory on the current Release can be cited through this paper:
 
-> A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2018:
+> A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications), IEEE Robotics and Automation Letters (RA-L), 2018:
 
     @article{winkler18,
       author    = {Winkler, Alexander W and Bellicoso, Dario C and 
