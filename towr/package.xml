@@ -1,9 +1,34 @@
 <?xml version="1.0"?>
+
 <package format="2">
   <name>towr</name>
   <version>1.0.0</version>
   <description>
-    Trajectory Optimizer for walking robots (TOWR).
+    Meta-package for the Trajectory Optimizer for Walking Robots (TOWR):
+    
+    <p>
+    This core algorithm
+    <a href="http://wiki.ros.org/towr_core">towr_core</a>
+    is independent of the robot, the NLP solver and ROS. The
+    user specifies the kinematics and dynamics of the robot (monoped, biped,
+    quadruped,...) a desired goal state, as well as which 
+    <a href="http://wiki.ros.org/ifopt">Ifopt</a> 
+    solver to use and this algorithm generates the corresponding motion-plan.
+    </p>
+    
+    <p>
+    <a href="http://wiki.ros.org/towr_ros">towr_ros</a> formulates a variety
+    of robots and terrain and a keyboard user interface to switch between them.
+    It also visualizes the produced motions plan in rviz using
+    <a href="http://wiki.ros.org/xpp">xpp</a>. 
+    </p>
+    
+    <p>
+    <a href="http://wiki.ros.org/towr_examples">towr_examples</a> provides a 
+    minimal example of how to use towr to generate motion-plans.
+    <a href="http://wiki.ros.org/xpp">xpp</a>. 
+    </p>
+    
   </description>
 
   <author email="winklera@ethz.ch">Alexander W. Winkler</author>
@@ -12,8 +37,13 @@
   
   <url type="website">http://github.com/ethz-adrl/towr</url>
   <url type="bugtracker">http://github.com/ethz-adrl/towr/issues</url>
-
+  
   <buildtool_depend>catkin</buildtool_depend>
-  <depend>ifopt_core</depend>
- 
+  <exec_depend>towr_core</exec_depend>
+  <exec_depend>towr_examples</exec_depend>
+  <exec_depend>towr_ros</exec_depend>
+
+  <export>
+    <metapackage />
+  </export>
 </package>

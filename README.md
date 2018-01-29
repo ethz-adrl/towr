@@ -12,10 +12,14 @@
 
 ## <img align="center" height="20" src="https://i.imgur.com/fjS3xIe.png"/> Overview
 
-The core algorithm [**_towr_**](towr) formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
+The core algorithm [**_towr_core_**](towr_core) formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
   * [Eigen]: Library for linear algebra.
   * [ifopt]: Eigen-based interface to Nonlinear Programming solvers such as Ipopt and Snopt.
-  * [Ipopt]: Or another supported NLP solver.
+  
+[**_towr_examples_**](towr_examples) provides an example executable solving 
+[towr_core](towr_core) with [Ipopt]
+  * [towr_core](towr_core)
+  * [Ipopt]
   
 The wrapper [**_towr_ros_**](towr_ros) allows to visualize the produced motions in _RVIZ_ using _xpp_. For this we require some ROS packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using ncurses.
   * [roscpp], [rosbag], [message_generation], [std_msgs]: Standard ROS packages.

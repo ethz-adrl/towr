@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   xpp_msgs
   message_generation
   xpp_states
-  towr
+  towr_core
   ifopt_ipopt
   ifopt_snopt
 )

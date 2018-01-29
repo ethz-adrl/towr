@@ -26,7 +26,7 @@
   <depend>xpp_states</depend>
   <depend>xpp_msgs</depend>
   
-  <depend>towr</depend>
+  <depend>towr_core</depend>
   <depend>ifopt_ipopt</depend>
   <depend>ifopt_snopt</depend>
 </package>
