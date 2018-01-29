@@ -1,7 +1,7 @@
 <img src="https://i.imgur.com/zm2nwF7.png" height="70" />
 
 [<img src="https://i.imgur.com/2Rekk4u.png" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
-**TOWR** - **T**rajectory **O**ptimizer for **W**alking **R**obots,  generates physically feasible motions for legged robots by solving an Optimization Problem. A Centroidal Model of the Dynamics, physical constraints as well as a desired goal position are given to to solver that then produces the motion plan. 
+**TOWR** - **T**rajectory **O**ptimizer for **W**alking **R**obots, generates physically feasible motions for legged robots by solving an optimization problem. A Centroidal model of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. 
 
 **Author/Maintainer: [Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
 
@@ -20,7 +20,7 @@
 [towr_core](towr_core) with [Ipopt] to generate a one-legged hopper motion-plan. Additional dependencies:
   * [Ipopt]: 3rd party NLP solver, [Snopt] can also be used.
   
-[**_towr_ros_**](towr_ros): Formulates a variety of robots (Monoped, biped, [HyQ], [ANYmal]) and terrains and a keyboard user interface to switch between them. It also allows to visualize the produced motions in [rviz] using [xpp]. Additional dependencies:
+[**_towr_ros_**](towr_ros): Formulates a variety of robots (Monoped, biped, [HyQ], [ANYmal]) and terrains and a keyboard user interface to switch between them. It also allows to visualize the produced motions in _rviz_ using _xpp_. Additional dependencies:
   * [roscpp], [rosbag], [message_generation], [std_msgs]: Standard ROS packages.
   * [xpp]: ROS packages for the visualization of legged robots in rviz.
   * [ncurses], [xterm]: Preinstalled on most Linux distributions.
@@ -47,30 +47,29 @@ Make sure everything installed correctly by running the unit tests through
 ## <img align="center" height="20" src="https://i.imgur.com/vAYeCzC.png"/> Usage
 To run a simple example type (not working yet)
 
-    roslaunch towr_ros towr_all.launch
+    roslaunch towr_ros towr_ros.launch
 
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/dHQx91Q.png"/> Publications
-The theory on the current Release can be cited through this paper:
-* A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2018:
-
-      @article{winkler18,
-        author    = {Winkler, Alexander W and Bellicoso, Dario C and 
-                     Hutter, Marco and Buchli, Jonas},
-        title     = {Gait and Trajectory Optimization for Legged Systems 
-                     through Phase-based End-Effector Parameterization},
-        journal   = {IEEE Robotics and Automation Letters (RA-L)},
-        year      = {2018},
-        month     = {may},
-        pages     = {},
-        doi       = {},
-      }
-
 Previous versions of this code have been used for a variety of 
 [publications](https://awinkler.github.io/publications.html). For 
 the respective code and the corresponding paper, see [Releases](https://github.com/awinkler/towr/releases).
+The theory on the current Release can be cited through this paper:
 
+> A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2018:
+
+    @article{winkler18,
+      author    = {Winkler, Alexander W and Bellicoso, Dario C and 
+                   Hutter, Marco and Buchli, Jonas},
+      title     = {Gait and Trajectory Optimization for Legged Systems 
+                   through Phase-based End-Effector Parameterization},
+      journal   = {IEEE Robotics and Automation Letters (RA-L)},
+      year      = {2018},
+      month     = {may},
+      pages     = {},
+      doi       = {},
+    }
 
 ##  <img align="center" height="20" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests
 
