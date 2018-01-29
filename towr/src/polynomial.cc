@@ -28,7 +28,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <cassert>
 #include <cmath>
-#include <stdexcept>
 
 
 namespace towr {
@@ -46,14 +45,14 @@ State Polynomial::GetPoint(double t_local) const
 {
   // sanity checks
   if (t_local < 0.0)
-    throw std::runtime_error("spliner.cc called with dt<0");
+    assert(false);//("spliner.cc called with dt<0")
 
   int n_dim = coeff_.front().size();
   State out(n_dim, 3);
 
   for (auto d : {kPos, kVel, kAcc})
     for (Coefficients c : coeff_ids_)
-      out.at(d) += GetDerivativeWrtCoeff(t_local, d, c)*coeff_.at(c);//GetCoefficients(c);
+      out.at(d) += GetDerivativeWrtCoeff(t_local, d, c)*coeff_.at(c);
 
   return out;
 }
@@ -61,13 +60,11 @@ State Polynomial::GetPoint(double t_local) const
 double
 Polynomial::GetDerivativeWrtCoeff (double t, Dx deriv, Coefficients c) const
 {
-  if (c<deriv)  // risky/ugly business...
-    return 0.0; // derivative not depended on this coefficient.
-
   switch (deriv) {
-    case kPos:   return         std::pow(t,c);   break;
-    case kVel:   return c*      std::pow(t,c-1); break;
-    case kAcc:   return c*(c-1)*std::pow(t,c-2); break;
+    case kPos:   return               std::pow(t,c);         break;
+    case kVel:   return c>=B? c*      std::pow(t,c-1) : 0.0; break;
+    case kAcc:   return c>=C? c*(c-1)*std::pow(t,c-2) : 0.0; break;
+    default: assert(false); // derivative not defined
   }
 }
 

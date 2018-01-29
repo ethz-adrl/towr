@@ -132,12 +132,12 @@ double
 HeightMap::GetSecondDerivativeOfHeightWrt (Dim2D dim1, Dim2D dim2,
                                            double x, double y) const
 {
-  if (dim1 == X) {
-    if (dim2 == X) return GetHeightDerivWrtXX(x,y);
-    if (dim2 == Y) return GetHeightDerivWrtXY(x,y);
+  if (dim1 == X_) {
+    if (dim2 == X_) return GetHeightDerivWrtXX(x,y);
+    if (dim2 == Y_) return GetHeightDerivWrtXY(x,y);
   } else {
-    if (dim2 == X) return GetHeightDerivWrtYX(x,y);
-    if (dim2 == Y) return GetHeightDerivWrtYY(x,y);
+    if (dim2 == X_) return GetHeightDerivWrtYX(x,y);
+    if (dim2 == Y_) return GetHeightDerivWrtYY(x,y);
   }
 
   assert(false); // second derivative not specified.

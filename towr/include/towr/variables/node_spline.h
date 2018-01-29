@@ -28,7 +28,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_TOWR_SRC_NODE_SPLINE_H_
 
 #include <memory>
-#include <Eigen/Eigen>
+#include <Eigen/Sparse>
 
 #include "spline.h"
 #include "nodes_observer.h"

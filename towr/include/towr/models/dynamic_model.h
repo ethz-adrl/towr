@@ -30,7 +30,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 #include <vector>
 
-#include <Eigen/Eigen>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 
 namespace towr {

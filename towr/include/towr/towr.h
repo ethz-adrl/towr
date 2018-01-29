@@ -32,7 +32,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 #include <ifopt_ipopt/ipopt_adapter.h>
-#include <ifopt_snopt/snopt_adapter.h>
 
 #include <towr/variables/spline_holder.h>
 
@@ -41,7 +40,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "nlp_factory.h"
 #include "parameters.h"
 #include "nlp_factory.h"
-
 
 
 namespace towr {
@@ -53,6 +51,11 @@ namespace towr {
  * state and the desired motion parameters, then and NLP is constructed and
  * solved with the chosen solver and finally the solution splines can be
  * retrieved.
+ *
+ * @attention
+ * To build this file into an executable, the solvers IPOPT  must be
+ * installed and linked against their ifopt interface via
+ *   "find_package(ifopt_ipopt)
  */
 class TOWR {
 public:
@@ -102,20 +105,18 @@ public:
     factory_.terrain_ = terrain;
   }
 
-  enum Solver { Ipopt, Snopt };
   /**
-   * @brief Constructs the problem and solves it with the chosen solver.
-   * @param solver  Any solver implemented in ifopt can be used to solve the problem.
+   * @brief Constructs the problem and solves it with IPOPT.
+   *
+   * Could use any ifopt solver interface, see (http://wiki.ros.org/ifopt).
+   * Currently IPOPT and SNOPT are implemented.
    */
-  void SolveNLP(Solver solver)
+  void SolveNLP()
   {
     nlp_ = BuildNLP();
 
-    switch (solver) {
-      case Ipopt: ifopt::IpoptAdapter::Solve(nlp_); break;
-      case Snopt: ifopt::SnoptAdapter::Solve(nlp_); break;
-      default:  assert(false); // solver not implemented
-    }
+    ifopt::IpoptAdapter::Solve(nlp_);
+    // ifopt::SnoptAdapter::Solve(nlp_);
 
     nlp_.PrintCurrent();
   }

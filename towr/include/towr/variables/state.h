@@ -117,6 +117,8 @@ public:
  * @brief Can represent the 6Degree-of-Freedom floating base of a robot.
  */
 struct BaseState {
+  BaseState(): lin(3), ang(3) {}
+
   Node lin; ///< linear position x,y,z and velocities.
   Node ang; ///< angular euler roll, pitch, yaw and rates.
 };

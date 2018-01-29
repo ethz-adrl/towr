@@ -1,21 +1,20 @@
 cmake_minimum_required(VERSION 2.8)
 project(towr)
 
-find_package(catkin REQUIRED)
-find_package(ifopt REQUIRED)    # variables/constraints are solver independent.
-find_package(ifopt_ipopt QUIET) # builds solver only if this is installed.
-find_package(ifopt_snopt QUIET) # builds solver only if this is installed.
-
 add_compile_options(-std=c++11)
 
+find_package(catkin REQUIRED)
+find_package(ifopt_core REQUIRED)
 
-##############################################################################
-## Generates cmake config files for this package, used when "find_package() ##
-##############################################################################
+
+#################################
+## Generate cmake config files ##
+#################################
+# These can then be used to "find_package(towr)"
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_solver
-  CATKIN_DEPENDS ifopt
+  LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS ifopt_core
 )
 
 
@@ -24,7 +23,7 @@ catkin_package(
 ###########
 include_directories(
   include
-  ${ifopt_INCLUDE_DIRS}
+  ${ifopt_core_INCLUDE_DIRS}
 )
 
 # The motion planning problem formulated through variables and constraints
@@ -61,25 +60,8 @@ add_library(${PROJECT_NAME}
   src/soft_constraint.cc
 )
 target_link_libraries(${PROJECT_NAME} 
-  ${ifopt_LIBRARIES}
+  ${ifopt_core_LIBRARIES}
 )
-
-
-## build the actual solver using IPOPT and SNOPT
-if(${ifopt_ipopt_FOUND} AND ${ifopt_snopt_FOUND})
-include_directories(
-  INCLUDE_DIRECTORIES
-  ${ifopt_ipopt_INCLUDE_DIRS}
-  ${ifopt_snopt_INCLUDE_DIRS}
-)
-add_library(${PROJECT_NAME}_solver src/towr.cc)
-target_link_libraries(${PROJECT_NAME}_solver
-  ${PROJECT_NAME}
-  ${ifopt_ipopt_LIBRARIES}
-  ${ifopt_snopt_LIBRARIES}
-)
-
-endif()
 
 
 #############
@@ -87,7 +69,7 @@ endif()
 #############
 # Mark library for installation
 install(
-  TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_solver
+  TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -104,15 +86,16 @@ install(
 #############
 ## Testing ##
 #############
+if (CATKIN_ENABLE_TESTING)
 catkin_add_gtest(${PROJECT_NAME}-test
     test/gtest_main.cc
     test/dynamic_constraint_test.cc
     test/centroidal_dynamics_test.cc
 )
-if(TARGET ${PROJECT_NAME}-test)
-  target_link_libraries(${PROJECT_NAME}-test
+
+target_link_libraries(${PROJECT_NAME}-test
     ${PROJECT_NAME}
     pthread
-    )
+)
 endif()
 

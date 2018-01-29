@@ -39,10 +39,6 @@ Prior to building this, install [ifopt] and one of the NLP solvers and make sure
 Make sure everything installed correctly by running the unit tests through
 
     catkin_make run_tests
-    
-or if you are using [catkin tools].
-
-    catkin build towr --no-deps --verbose --catkin-make-args run_tests
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/vAYeCzC.png"/> Usage
@@ -53,15 +49,24 @@ To run a simple example type (not working yet)
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/dHQx91Q.png"/> Publications
-The theory on the current Release is explained in this paper:
-* A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2018
+The theory on the current Release can be cited through this paper:
+* A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2018:
 
-Previous versions of this code (see [Releases](https://github.com/awinkler/towr/tags)) were used for the following Publications:
-* A. W. Winkler, F. Farshidian, D. Pardo, M. Neunert, J. Buchli, [Fast Trajectory Optimization for Legged Robots using Vertex-based ZMP Constraints.](https://awinkler.github.io/publications/mypdfs/17-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2017
+    @article{winkler18,
+      author    = {Winkler, Alexander W and Bellicoso, Dario C and 
+                   Hutter, Marco and Buchli, Jonas},
+      title     = {Gait and Trajectory Optimization for Legged Systems 
+                   through Phase-based End-Effector Parameterization},
+      journal   = {IEEE Robotics and Automation Letters (RA-L)},
+      year      = {2018},
+      month     = {may},
+      pages     = {},
+      doi       = {},
+    }
 
-* A. W. Winkler, F. Farshidian, M. Neunert, D. Pardo, J. Buchli, [Online Walking Motion and Foothold Optimization for Quadruped Locomotion](https://awinkler.github.io/publications/mypdfs/17-icra-winkler.pdf), IEEE International Conference on Robotics and Automation (ICRA), 2017
-
-* A. W. Winkler, C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, [Planning and Execution of Dynamic Whole-Body Locomotion for a Hydraulic Quadruped on Challenging Terrain](http://iit.it/images/stories/advanced-robotics/hyq_files/publications/winkler15icra.pdf), IEEE International Conference on Robotics and Automation (ICRA), 2015
+Previous versions of this code have been used for a variety of 
+[publications](https://awinkler.github.io/publications.html). For 
+the respective code and the corresponding paper, see [Releases](https://github.com/awinkler/towr/releases).
 
 
 ##  <img align="center" height="20" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests

@@ -32,7 +32,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ifopt/cost_term.h>
 
-#include "../variables/nodes.h"
+#include <towr/variables/nodes.h>
 
 
 namespace towr {

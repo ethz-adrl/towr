@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   xpp_states
   towr
+  ifopt_ipopt
+  ifopt_snopt
 )
 
 
@@ -40,7 +42,7 @@ add_executable(towr_ros_interface src/towr_ros_interface.cc
   src/height_map_examples.cc
 )
 add_dependencies(towr_ros_interface ${PROJECT_NAME}_gencpp) # build .msg first
-target_link_libraries(towr_ros_interface 
+target_link_libraries(towr_ros_interface
   ${catkin_LIBRARIES}
 )
 

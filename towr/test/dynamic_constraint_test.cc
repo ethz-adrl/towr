@@ -48,7 +48,7 @@ TEST(DynamicConstraintTest, EigenScalar)
 {
   VectorXd g(2);
 
-  std::cout << g << std::endl;
+//  std::cout << g << std::endl;
 }
 
 } /* namespace towr */

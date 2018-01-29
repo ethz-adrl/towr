@@ -29,7 +29,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <array>
 
-#include <Eigen/Eigen>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 #include "cartesian_dimensions.h"
 #include "node_spline.h"

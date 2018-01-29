@@ -73,7 +73,6 @@ TowrRosInterface::TowrRosInterface ()
 
   // hardcode initial state
   towr::BaseState b;
-  b.lin = b.ang = towr::Node(k3D);
   b.lin.at(towr::kPos).z() = 0.46;
 
   std::vector<Eigen::Vector3d> ee_pos(4);
@@ -130,9 +129,10 @@ TowrRosInterface::UserCommandCallback(const TowrCommand& msg)
 
   if (msg.replay_trajectory || msg.optimize) {
     // play back the rosbag hacky like this, as I can't find appropriate C++ API.
-    system(("rosbag play --topics " + xpp_msgs::robot_state_desired + " "
-                                    + xpp_msgs::terrain_info
-                                    + " --quiet " + bag_file).c_str());
+    int success = system(("rosbag play --topics "
+        + xpp_msgs::robot_state_desired + " "
+        + xpp_msgs::terrain_info
+        + " --quiet " + bag_file).c_str());
   }
 
 
@@ -183,7 +183,7 @@ void
 TowrRosInterface::OptimizeMotion ()
 {
   try {
-    towr_.SolveNLP(towr::TOWR::Solver::Ipopt);
+    towr_.SolveNLP();
   } catch (const std::runtime_error& e) {
     ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
   }
@@ -227,7 +227,7 @@ TowrRosInterface::GetTrajectory () const
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
       state.ee_contact_.at(ee) = solution.phase_durations_.at(ee)->IsContactPhase(t);
       state.ee_motion_.at(ee)  = ToXpp(solution.ee_motion_.at(ee)->GetPoint(t));
-      state.ee_forces_.at(ee)  = solution.ee_force_.at(ee)->GetPoint(t).p();
+      state.ee_forces_ .at(ee)  = solution.ee_force_.at(ee)->GetPoint(t).p();
     }
 
     state.t_global_ = t;
