@@ -29,9 +29,10 @@
 ## <img align="center" height="20" src="https://i.imgur.com/x1morBF.png"/> Building
 Prior to building this, install [ifopt] and one of the NLP solvers and make sure the example runs (!). Then, install additional libraries, clone this repo into your catkin workspace and compile.
 
-    sudo apt-get libncurses5-dev libncursesw5-dev
+    sudo apt-get libncurses5-dev libncursesw5-dev xterm
     sudo apt-get install ros-kinetic-desktop-full
-    sudo apt-get install ros-kinetic-xpp 
+    sudo apt-get install ros-kinetic-xpp
+    
     cd catkin_workspace/src
     git clone https://github.com/ethz-adrl/towr.git
     cd ..
