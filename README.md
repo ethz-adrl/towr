@@ -12,19 +12,18 @@
 
 ## <img align="center" height="20" src="https://i.imgur.com/fjS3xIe.png"/> Overview
 
-The core algorithm [**_towr_core_**](towr_core) formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
+[**_towr_core_**](towr_core): The core algorithm formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are.
   * [Eigen]: Library for linear algebra.
-  * [ifopt]: Eigen-based interface to Nonlinear Programming solvers such as Ipopt and Snopt.
+  * [ifopt_core]: Eigen-based interface to Nonlinear Programming solvers such as Ipopt and Snopt.
   
-[**_towr_examples_**](towr_examples) provides an example executable solving 
-[towr_core](towr_core) with [Ipopt]
-  * [towr_core](towr_core)
+[**_towr_examples_**](towr_examples): Provides an example executable solving 
+[towr_core](towr_core) with [Ipopt] to generate a one-legged hopper motion-plan. Additional dependencies:
   * [Ipopt]
   
-The wrapper [**_towr_ros_**](towr_ros) allows to visualize the produced motions in _RVIZ_ using _xpp_. For this we require some ROS packages. We also provide an executable for interactive keyboard input to e.g. set desired goal positions, using ncurses.
+[**_towr_ros_**](towr_ros): Formulates a variety of robots (Monoped, biped, [HyQ], [ANYmal]) and terrains and a keyboard user interface to switch between them. It also allows to visualize the produced motions in [rviz] using [xpp]. Additional dependencies:
   * [roscpp], [rosbag], [message_generation], [std_msgs]: Standard ROS packages.
   * [xpp]: ROS packages for the visualization of legged robots in rviz.
-  * [ncurses]: Preinstalled Linux library for text based GUIs.
+  * [ncurses], [xterm]: Preinstalled on most Linux distributions.
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/x1morBF.png"/> Building
@@ -56,17 +55,17 @@ To run a simple example type (not working yet)
 The theory on the current Release can be cited through this paper:
 * A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf), IEEE Robotics and Automation Letters (RA-L), 2018:
 
-    @article{winkler18,
-      author    = {Winkler, Alexander W and Bellicoso, Dario C and 
-                   Hutter, Marco and Buchli, Jonas},
-      title     = {Gait and Trajectory Optimization for Legged Systems 
-                   through Phase-based End-Effector Parameterization},
-      journal   = {IEEE Robotics and Automation Letters (RA-L)},
-      year      = {2018},
-      month     = {may},
-      pages     = {},
-      doi       = {},
-    }
+      @article{winkler18,
+        author    = {Winkler, Alexander W and Bellicoso, Dario C and 
+                     Hutter, Marco and Buchli, Jonas},
+        title     = {Gait and Trajectory Optimization for Legged Systems 
+                     through Phase-based End-Effector Parameterization},
+        journal   = {IEEE Robotics and Automation Letters (RA-L)},
+        year      = {2018},
+        month     = {may},
+        pages     = {},
+        doi       = {},
+      }
 
 Previous versions of this code have been used for a variety of 
 [publications](https://awinkler.github.io/publications.html). For 
@@ -84,11 +83,14 @@ Please report bugs and request features using the [Issue Tracker](https://github
 [message_generation]: http://wiki.ros.org/message_generation
 [rosbag]: http://wiki.ros.org/rosbag 
 [HyQ]: https://www.iit.it/research/lines/dynamic-legged-systems
+[ANYmal]: http://www.rsl.ethz.ch/robots-media/anymal.html
 [ROS]: http://www.ros.org
 [xpp]: http://wiki.ros.org/xpp
+[ifopt_core]: https://github.com/ethz-adrl/ifopt
 [ifopt]: https://github.com/ethz-adrl/ifopt
 [Ipopt]: https://projects.coin-or.org/Ipopt
 [ncurses]: http://invisible-island.net/ncurses/man/ncurses.3x.html
+[xterm]: https://linux.die.net/man/1/xterm
 [Snopt]: http://www.sbsi-sol-optimize.com/asp/sol_product_snopt.htm
 [rviz]: http://wiki.ros.org/rviz
 [catkin tools]: http://catkin-tools.readthedocs.org/
