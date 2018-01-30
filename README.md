@@ -1,7 +1,7 @@
 <img src="https://i.imgur.com/zm2nwF7.png" height="70" />
 
 [<img src="https://i.imgur.com/2Rekk4u.png" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
-**TOWR** - **T**rajectory **O**ptimizer for **W**alking **R**obots, generates physically feasible motions for legged robots by solving an optimization problem. A Centroidal model of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. 
+**TOWR** - **T**rajectory **O**ptimizer for **W**alking **R**obots, generates physically feasible motions for legged robots by solving an optimization problem. A Centroidal model of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. _TOWR_ generates 5 step monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations, in less than **100ms**.
 
 **Author/Maintainer: [Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
 
@@ -50,8 +50,8 @@ To run the simplest [example](towr_examples/example.cc)
      
     rosrun towr_examples towr_ipopt_example
 
-For a more advanced example with interactive keyboard input and ROS visualization
-launch the file below and then hit 'o' (=optimize)
+For a more advanced [example](towr_ros/src/towr_ros.cc) with interactive keyboard input and ROS visualization
+launch the file below and then hit 'o' for "optimize"
 
     roslaunch towr_ros towr_ros.launch
 

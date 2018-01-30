@@ -10,7 +10,7 @@
     quadruped,...) a desired goal state, as well as which 
     <a href="http://wiki.ros.org/ifopt">Ifopt</a> 
     solver to use and this algorithm generates the corresponding motion-plan.
-    </p> 
+    </p>
   </description>
 
   <author email="winklera@ethz.ch">Alexander W. Winkler</author>
