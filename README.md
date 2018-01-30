@@ -1,7 +1,7 @@
 <img src="https://i.imgur.com/zm2nwF7.png" height="70" />
 
 [<img src="https://i.imgur.com/2Rekk4u.png" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
-**TOWR** - **T**rajectory **O**ptimizer for **W**alking **R**obots, generates physically feasible motions for legged robots by solving an optimization problem. A Centroidal model of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. _TOWR_ generates 5 step monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations, in less than **100ms**.
+**TOWR** - **T**rajectory **O**ptimizer for **W**alking **R**obots, generates physically feasible motions for legged robots by solving an optimization problem. A Centroidal model of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. 
 
 **Author/Maintainer: [Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
 
