@@ -6,7 +6,7 @@
   <description>
     Meta-package for the Trajectory Optimizer for Walking Robots (TOWR):
     <p>
-    This core algorithm
+    The core algorithm
     <a href="http://wiki.ros.org/towr_core">towr_core</a>
     is independent of the robot, the NLP solver and ROS. The
     user specifies the kinematics and dynamics of the robot (monoped, biped,

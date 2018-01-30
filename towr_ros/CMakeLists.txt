@@ -10,11 +10,12 @@ find_package(catkin REQUIRED COMPONENTS
   xpp_msgs
   message_generation
   xpp_states
-  towr_core
   ifopt_ipopt
   ifopt_snopt
+  towr_core
 )
 
+catkin_package()
 
 ## Generate messages in the 'msg' folder
 add_message_files( FILES TowrCommand.msg )
@@ -96,17 +97,6 @@ install(
 
 # Mark other files for installation
 install(
-  DIRECTORY launch config
+  DIRECTORY launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
-
-
-#############
-## Testing ##
-#############
-
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_xpp_ros.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()

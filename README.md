@@ -46,7 +46,12 @@ Make sure everything installed correctly by running the unit tests through
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/vAYeCzC.png"/> Usage
-To run a simple example type and hit 'o'
+To run the simplest [example](towr_examples/example.cc)
+     
+    rosrun towr_examples example
+
+For a more advanced example with interactive keyboard input and ROS visualization
+launch the file below and then hit 'o' (=optimize)
 
     roslaunch towr_ros towr_ros.launch
 

@@ -3,8 +3,13 @@ project(towr_examples)
 
 add_compile_options(-std=c++11)
 
+find_package(catkin REQUIRED)
 find_package(ifopt_ipopt REQUIRED)
 find_package(towr_core REQUIRED)
+
+
+catkin_package() # so "rosrun towr_examples example" works
+
 
 ###########
 ## Build ##
@@ -19,3 +24,15 @@ target_link_libraries(example
   ${ifopt_ipopt_LIBRARIES}
   ${towr_core_LIBRARIES}
 )
+
+
+#############
+## Install ##
+#############
+install(
+  TARGETS example
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
