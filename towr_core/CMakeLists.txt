@@ -77,8 +77,8 @@ install(
 
 # Mark header files for installation
 install(
-  DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  DIRECTORY include/towr/
+  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/towr
   FILES_MATCHING PATTERN "*.h"
 )
 
@@ -92,7 +92,6 @@ catkin_add_gtest(${PROJECT_NAME}-test
     test/dynamic_constraint_test.cc
     test/centroidal_dynamics_test.cc
 )
-
 target_link_libraries(${PROJECT_NAME}-test
     ${PROJECT_NAME}
     pthread

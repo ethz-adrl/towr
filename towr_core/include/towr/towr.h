@@ -56,8 +56,8 @@ namespace towr {
  * retrieved.
  *
  * @attention
- * To build this file into an executable, the solvers IPOPT  must be
- * installed and linked against their ifopt interface via
+ * To build this file into an executable, the solver IPOPT must be
+ * installed and linked against its ifopt interface via
  *   "find_package(ifopt_ipopt)
  */
 class TOWR {
@@ -69,7 +69,7 @@ public:
     using namespace std;
     cout << "\n";
     cout << "************************************************************\n";
-    cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.0.0)\n";
+    cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.1.0)\n";
     cout << "                \u00a9 Alexander W. Winkler\n";
     cout << "           https://github.com/ethz-adrl/towr\n";
     cout << "************************************************************";
