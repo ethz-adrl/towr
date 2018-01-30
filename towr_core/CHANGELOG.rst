@@ -2,8 +2,8 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2018-01-30)
+------------------
 * add metapackage towr and move algorithm to towr_core
 * create separate ros independent example package "towr_ros"
 * replaced ros-keyboard dependency with ncurses

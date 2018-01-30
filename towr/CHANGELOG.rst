@@ -2,8 +2,8 @@
 Changelog for package towr_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2018-01-30)
+------------------
 * add metapackage towr and move algorithm to towr_core
 * Contributors: Alexander Winkler
 

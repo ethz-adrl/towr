@@ -2,8 +2,8 @@
 Changelog for package towr_examples
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2018-01-30)
+------------------
 * create separate ros independent example package "towr_ros"
 * Contributors: Alexander Winkler
 
