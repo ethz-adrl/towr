@@ -87,7 +87,7 @@ RvizTerrainBuilder::BuildTerrainFlat() const
   MarkerArray msg;
 
   for (int i=0; i<terrain_ids_start_; ++i) {
-    msg.markers.push_back(BuildTerrainBlock(Vector3d(), Vector3d()));
+    msg.markers.push_back(BuildTerrainBlock(Vector3d::Ones(), Vector3d::Ones()));
     msg.markers.back().color.a = 0.0;
   }
 

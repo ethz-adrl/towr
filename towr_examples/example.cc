@@ -33,12 +33,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/models/centroidal_model.h>
 
 
-class FlatGround : public towr::HeightMap {
+using namespace towr;
+
+
+// Generate even ground.
+class FlatGround : public HeightMap {
 public:
   virtual double GetHeight(double x, double y) const override { return 0.0; };
 };
 
-class MonopedKinematicModel : public towr::KinematicModel {
+
+// The kinematic limits of a one-legged hopper
+class MonopedKinematicModel : public KinematicModel {
 public:
   MonopedKinematicModel () : KinematicModel(1)
   {
@@ -47,7 +53,9 @@ public:
   }
 };
 
-class MonopedDynamicModel : public towr::CentroidalModel {
+
+// The Centroidal dynamics of a one-legged hopper
+class MonopedDynamicModel : public CentroidalModel {
 public:
   MonopedDynamicModel()
   : CentroidalModel(20,                              // mass of the robot
@@ -56,43 +64,46 @@ public:
 };
 
 
-
 int main()
 {
-  using namespace towr;
-
-  TOWR towr;
-
-  // start with horizontal base 50cm above ground and foot touching ground
-  BaseState initial_base;
-  initial_base.lin.at(kPos).z() = 0.5;
-  towr.SetInitialState(initial_base, {Eigen::Vector3d::Zero()});
-
-
-  towr::BaseState goal;
-  goal.lin.at(towr::kPos) << 1.0, 0.0, 0.5;
-
+  // Kinematic limits and dynamic parameters of the hopper
   RobotModel model;
   model.dynamic_model_   = std::make_shared<MonopedDynamicModel>();
   model.kinematic_model_ = std::make_shared<MonopedKinematicModel>();
 
 
-  // default parameters set
-  towr::Parameters params;
-  params.t_total_ = 1.6;
+  // set the initial position of the hopper
+  BaseState initial_base;
+  initial_base.lin.at(kPos).z() = 0.5;
+  Eigen::Vector3d initial_foot_pos_W = Eigen::Vector3d::Zero();
+
+
+  // define the desired goal state of the hopper
+  BaseState goal;
+  goal.lin.at(towr::kPos) << 1.0, 0.0, 0.5;
+
+
+  // Parameters that define the motion. See c'tor for default values or
+  // other values that can be modified.
+  Parameters params;
+  params.t_total_ = 1.6; // [s] time to reach goal state
+  // here we define the initial phase durations, that can however be changed
+  // by the optimizer. The number of swing and stance phases however is fixed.
   // alternating stance and swing:     ____-----_____-----_____-----_____
   params.ee_phase_durations_.push_back({0.4, 0.2, 0.4, 0.2, 0.4, 0.2, 0.2});
   params.ee_in_contact_at_start_.push_back(true);
 
 
+  // Pass this information to the actual solver
+  TOWR towr;
+  towr.SetInitialState(initial_base, {initial_foot_pos_W});
   towr.SetParameters(goal, params, model, std::make_shared<FlatGround>());
 
   towr.SolveNLP();
-
-
   auto x = towr.GetSolution();
 
 
+  // Print out the trajecetory at discrete time samples
   using namespace std;
   cout.precision(2);
   cout << fixed;
@@ -123,7 +134,4 @@ int main()
 
     t += 0.2;
   }
-
 }
-
-

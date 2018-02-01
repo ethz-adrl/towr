@@ -11,26 +11,6 @@
     then generates the motion plan. TOWR generates 5 step monoped hopping,
     biped walking, or a complete quadruped trotting cycle, while optimizing 
     over the gait and step durations, in less than 100ms.
-    <p>
-    The core algorithm
-    <a href="http://wiki.ros.org/towr_core">towr_core</a>
-    is independent of the robot, the NLP solver and ROS. The
-    user specifies the kinematics and dynamics of the robot (monoped, biped,
-    quadruped,...) a desired goal state, as well as which 
-    <a href="http://wiki.ros.org/ifopt">Ifopt</a> 
-    solver to use and this algorithm generates the corresponding motion-plan.
-    </p>
-    <p>
-    <a href="http://wiki.ros.org/towr_ros">towr_ros</a> formulates a variety
-    of robots and terrain and a keyboard user interface to switch between them.
-    It also visualizes the produced motions plan in rviz using
-    <a href="http://wiki.ros.org/xpp">xpp</a>. 
-    </p>
-    <p>
-    <a href="http://wiki.ros.org/towr_examples">towr_examples</a> provides a 
-    minimal example of how to use towr to generate motion-plans.
-    <a href="http://wiki.ros.org/xpp">xpp</a>. 
-    </p>  
   </description>
 
   <author email="winklera@ethz.ch">Alexander W. Winkler</author>

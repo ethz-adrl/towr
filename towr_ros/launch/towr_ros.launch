@@ -3,9 +3,6 @@
   <!-- so the logging prints the node name -->
   <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${node}]: ${message}" />
 
-  <!-- XPP: Upload Hyq URDF and IK-->
-  <include file="$(find xpp_hyq)/launch/hyq.launch"></include>
-  
   <!-- XPP: Visualize feet, base and forces -->
   <include file="$(find xpp_vis)/launch/xpp.launch"></include>
     
