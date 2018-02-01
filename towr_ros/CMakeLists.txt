@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   towr_core
 )
 
+
 ## Generate messages in the 'msg' folder
 add_message_files( FILES TowrCommand.msg )
 generate_messages( DEPENDENCIES std_msgs xpp_msgs )
@@ -48,11 +49,12 @@ target_link_libraries(towr_ros
 )
 
 ## Keyboard interfaces and other helpers
+find_package(Curses REQUIRED) # only for this keyboard input
 add_executable(towr_user_interface src/towr_user_interface.cc)
 add_dependencies(towr_user_interface ${PROJECT_NAME}_gencpp) # build .msg first
 target_link_libraries(towr_user_interface 
   ${catkin_LIBRARIES}
-  ncurses
+  ${CURSES_LIBRARIES}
 )
 
 add_executable(rviz_terrain_publisher src/exe/rviz_terrain_publisher.cc
