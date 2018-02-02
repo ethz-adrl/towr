@@ -20,9 +20,7 @@
   <url type="bugtracker">http://github.com/ethz-adrl/towr/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
-  
-  <depend>Curses</depend> 
-  
+    
   <depend>message_runtime</depend>
   <depend>message_generation</depend>
   <depend>std_msgs</depend>
