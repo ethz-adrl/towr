@@ -52,7 +52,7 @@ To run the simplest [example](towr_examples/example.cc)
      
     rosrun towr_examples towr_ipopt_example
 
-For a more advanced [example](towr_ros/src/towr_ros.cc) with interactive keyboard input and ROS visualization
+For a more advanced [example](towr_ros/src/towr_ros.cc) with interactive keyboard input and ROS visualization,
 launch the file below and then hit 'o' for "optimize"
 
     roslaunch towr_ros towr_ros.launch
