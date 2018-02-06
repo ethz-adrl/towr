@@ -2,7 +2,7 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1.0 (2018-01-30)
+1.1.0 (2018-02-06)
 ------------------
 * improve launch files and class names
 * add metapackage towr and move algorithm to towr_core
