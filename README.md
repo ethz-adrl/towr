@@ -1,6 +1,5 @@
 <img src="https://i.imgur.com/zm2nwF7.png" height="70" />
 
-[![Build Status](http://build.ros.org/buildStatus/icon?job=Ldev__towr__ubuntu_xenial_amd64&build=3)](http://build.ros.org/view/Ldev/job/Ldev__towr__ubuntu_xenial_amd64/3/)
 [<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/api/towr_core/html/index.html)
 
 [<img src="https://i.imgur.com/2Rekk4u.png" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
