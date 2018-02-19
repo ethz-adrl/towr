@@ -32,5 +32,4 @@
   
   <depend>towr_core</depend>
   <depend>ifopt_ipopt</depend>
-  <depend>ifopt_snopt</depend>
 </package>

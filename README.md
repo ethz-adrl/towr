@@ -1,6 +1,6 @@
 <img src="https://i.imgur.com/zm2nwF7.png" height="70" />
 
-[![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_ethz-adrl/towr/master)](https://ci.leggedrobotics.com/job/github_ethz-adrl/job/towr/job/master/) [<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/api/towr_core/html/index.html)
+[<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/api/towr_core/html/index.html)
 
 [<img src="https://i.imgur.com/2Rekk4u.png" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
 **TOWR** - **T**rajectory **O**ptimizer for **W**alking **R**obots, generates physically feasible motions for legged robots by solving an optimization problem. A Centroidal model of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. _TOWR_ generates 5 step monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations, in less than **100ms**.
@@ -38,6 +38,7 @@ Prior to building this, install [ifopt] and one of the NLP solvers and make sure
     git clone https://github.com/ethz-adrl/towr.git
     cd ..
     catkin_make -DCMAKE_BUILD_TYPE=Release
+    source ./devel/setup.bash
 
 
 ## <img align="center" height="20" src="https://i.imgur.com/026nVBV.png"/> Unit Tests
@@ -52,7 +53,8 @@ To run the simplest [example](towr_examples/example.cc)
     rosrun towr_examples towr_ipopt_example
 
 For a more advanced [example](towr_ros/src/towr_ros.cc) with interactive keyboard input and ROS visualization,
-launch the file below and then hit 'o' for "optimize"
+launch the file below, click in the xterm terminal and then hit 'o' for "optimize". Check
+the box next to HyQ to visualize that URDF.
 
     roslaunch towr_ros towr_ros.launch
 
