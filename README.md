@@ -76,7 +76,7 @@ The theory on the current Release can be cited through this paper:
       year      = {2018},
       month     = {may},
       pages     = {},
-      doi       = {},
+      doi       = {10.1109/LRA.2018.2798285},
     }
 
 ##  <img align="center" height="20" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests
