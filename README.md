@@ -72,8 +72,9 @@ The theory on the current Release can be cited through this paper:
                    through Phase-based End-Effector Parameterization},
       journal   = {IEEE Robotics and Automation Letters (RA-L)},
       year      = {2018},
-      month     = {may},
-      pages     = {},
+      month     = {July},
+      pages     = {1560-1567},
+      volume    = {3},
       doi       = {10.1109/LRA.2018.2798285},
     }
 
