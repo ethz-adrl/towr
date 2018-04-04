@@ -67,18 +67,21 @@ CentroidalModel::CentroidalModel (double mass,
 
 CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
                                   int ee_count)
-    :DynamicModel(mass)
+    :DynamicModel(mass, ee_count)
 {
-  SetCurrent(ComPos::Zero(), AngVel::Zero(), EELoad(ee_count), EEPos(ee_count));
   I_dense_ = inertia;
   I_       = inertia.sparseView();
   I_inv_   = inertia.inverse().sparseView();
 }
 
+// TODO rename this to give dynamic violation
 CentroidalModel::BaseAcc
 CentroidalModel::GetBaseAccelerationInWorld () const
 {
-  Vector3d f_sum, tau_sum; f_sum.setZero(); tau_sum.setZero();
+  // https://en.wikipedia.org/wiki/Newton%E2%80%93Euler_equations
+
+  Vector3d f_sum, tau_sum;
+  f_sum.setZero(); tau_sum.setZero();
 
   for (int ee=0; ee<ee_pos_.size(); ++ee) {
     Vector3d f = ee_force_.at(ee);
@@ -122,7 +125,6 @@ CentroidalModel::GetJacobianOfAccWrtBaseAng (const Jac& jac_ang_vel) const
 {
   int n = jac_ang_vel.cols();
 
-  // the 6D base acceleration does not depend on base orientation, but on angular velocity
   // add derivative of w x Iw here!!!
   Jac jac_coriolis  = -BuildCrossProductMatrix(I_*omega_)*jac_ang_vel;
   jac_coriolis     +=  BuildCrossProductMatrix(omega_)*I_*jac_ang_vel;

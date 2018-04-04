@@ -131,8 +131,12 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, std::string var_set
 void
 DynamicConstraint::UpdateModel (double t) const
 {
-  auto com_pos   = base_linear_->GetPoint(t).p();
+  Eigen::Vector3d com_pos = base_linear_->GetPoint(t).p();
+  Eigen::Vector3d com_acc = base_linear_->GetPoint(t).a();
+
+  Eigen::Matrix3d w_R_b = base_angular_.GetRotationMatrixBaseToWorld(t);
   Eigen::Vector3d omega = base_angular_.GetAngularVelocityInWorld(t);
+  Eigen::Vector3d omega_dot = base_angular_.GetAngularAccelerationInWorld(t);
 
   int n_ee = model_->GetEECount();
   std::vector<Eigen::Vector3d> ee_pos;
@@ -142,7 +146,7 @@ DynamicConstraint::UpdateModel (double t) const
     ee_pos.push_back(ee_motion_.at(ee)->GetPoint(t).p());
   }
 
-  model_->SetCurrent(com_pos, omega, ee_force, ee_pos);
+  model_->SetCurrent(com_pos, com_acc, w_R_b, omega, omega_dot, ee_force, ee_pos);
 }
 
 } /* namespace towr */

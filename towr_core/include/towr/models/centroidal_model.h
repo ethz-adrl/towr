@@ -43,6 +43,8 @@ namespace towr {
  *
  * This model has the advantage that all required quantities are expressed
  * in Cartesian space, so Inverse Kinematics can be avoided.
+ *
+ * \sa https://en.wikipedia.org/wiki/Newton%E2%80%93Euler_equations
  */
 class CentroidalModel : public DynamicModel {
 public:
