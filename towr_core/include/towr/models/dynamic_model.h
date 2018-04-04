@@ -42,9 +42,10 @@ namespace towr {
 /**
  * @brief A interface for the the system dynamics of a legged robot.
  *
- * This class is responsible for providing the current acceleration of a
- * system given a specific robot state and input forces, so:
- * xdd(t) = f(x(t), f(t)).
+ * This class is responsible for verifying that the current acceleration of a
+ * system given a specific robot state and input forces ensure the system
+ * dynamics, so
+ * g = xdd(t) - f(x(t), f(t)).
  *
  * This model is used in @ref DynamicConstraint to ensure that the optimized
  * motion trajectory complies to this.
@@ -68,61 +69,65 @@ public:
 
   /**
    * @brief Sets the current state and input of the system.
-   * @param com_W        Current Center-of-Mass (x,y,z) position.
-   * @param com_acc      Current Center-of-Mass (x,y,z) acceleration.
+   * @param com_W        Current Center-of-Mass (x,y,z) position in world frame.
+   * @param com_acc_W    Current Center-of-Mass (x,y,z) acceleration in world.
    * @param w_R_b        Current rotation from base to world frame.
    * @param omega_W      Current angular velocity in world frame.
    * @param omega_dot_W  Current angular acceleration in world frame.
    * @param force_W      Force at each foot expressed in world frame.
    * @param pos_W        Position of each foot expressed in world frame
    */
-  void SetCurrent(const ComPos& com_W, const Vector3d com_acc,
+  void SetCurrent(const ComPos& com_W, const Vector3d com_acc_W,
                   const Matrix3d& w_R_b, const AngVel& omega_W, const Vector3d& omega_dot_W,
                   const EELoad& force_W, const EEPos& pos_W);
 
   /**
-   * @brief  The acceleration as defined by the system dynamics.
-   * @return The 6-dimension accelerations (angular + linear) in World frame.
+   * @brief  The violation of the system dynamics incurred by the current values.
+   * @return The 6-dimension generalized force violation (angular + linear).
    */
-  virtual BaseAcc GetBaseAccelerationInWorld() const = 0;
+  virtual BaseAcc GetDynamicViolation() const = 0;
 
   /**
-   * @brief How the base position affects the base acceleration.
+   * @brief How the base position affects the dynamic violation.
    * @param jac_base_lin_pos  The 3xn Jacobian of the base linear position.
+   * @param jac_base_lin_acc  The 3xn Jacobian of the base linear acceleration.
    *
-   * @return The 6xn Jacobian of base acceleration with respect to
+   * @return The 6xn Jacobian of dynamic violations with respect to
    *         variables defining the base linear spline (e.g. node values).
    */
-  virtual Jac GetJacobianOfAccWrtBaseLin(const Jac& jac_base_lin_pos) const = 0;
+  virtual Jac GetJacobianWrtBaseLin(const Jac& jac_base_lin_pos,
+                                         const Jac& jac_base_lin_acc) const = 0;
 
   /**
-   * @brief How the base orientation affects the base acceleration.
-   * @param jac_base_ang_pos  The 3xn Jacobian of the base angular position.
+   * @brief How the base orientation affects the dynamic violation.
+   * @param jac_base_ang_vel  The 3xn Jacobian of the base angular velocity.
+   * @param jac_base_ang_acc  The 3xn Jacobian of the base angular acceleration.
    *
-   * @return The 6xn Jacobian of base acceleration with respect to
+   * @return The 6xn Jacobian of dynamic violations with respect to
    *         variables defining the base angular spline (e.g. node values).
    */
-  virtual Jac GetJacobianOfAccWrtBaseAng(const Jac& jac_base_ang_pos) const = 0;
+  virtual Jac GetJacobianWrtBaseAng(const Jac& jac_base_ang_vel,
+                                    const Jac& jac_base_ang_acc) const = 0;
 
   /**
-   * @brief How the endeffector forces affect the base acceleration.
+   * @brief How the endeffector forces affect the dynamic violation.
    * @param ee_force  The 3xn Jacobian of the foot force x,y,z.
    * @param ee        The endeffector for which the senstivity is required.
    *
-   * @return The 6xn Jacobian of base acceleration with respect to
+   * @return The 6xn Jacobian of dynamic violations with respect to
    *         variables defining the endeffector forces (e.g. node values).
    */
-  virtual Jac GetJacobianofAccWrtForce(const Jac& ee_force, EE ee) const = 0;
+  virtual Jac GetJacobianWrtForce(const Jac& ee_force, EE ee) const = 0;
 
   /**
-   * @brief How the endeffector positions affect the base acceleration.
+   * @brief How the endeffector positions affect the dynamic violation.
    * @param ee_force  The 3xn Jacobian of the foot position x,y,z.
    * @param ee        The endeffector for which the senstivity is required.
    *
-   * @return The 6xn Jacobian of base acceleration with respect to
+   * @return The 6xn Jacobian of dynamic violations with respect to
    *         variables defining the foot positions (e.g. node values).
    */
-  virtual Jac GetJacobianofAccWrtEEPos(const Jac& ee_pos, EE ee) const = 0;
+  virtual Jac GetJacobianWrtEEPos(const Jac& ee_pos, EE ee) const = 0;
 
   /**
    * @returns The gravity acceleration [m/s^2] (positive)

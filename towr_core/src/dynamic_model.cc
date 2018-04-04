@@ -48,12 +48,12 @@ DynamicModel::DynamicModel(double mass, int ee_count)
 }
 
 void
-DynamicModel::SetCurrent (const ComPos& com_W, const Vector3d com_acc,
+DynamicModel::SetCurrent (const ComPos& com_W, const Vector3d com_acc_W,
                           const Matrix3d& w_R_b, const AngVel& omega_W, const Vector3d& omega_dot_W,
                           const EELoad& force_W, const EEPos& pos_W)
 {
   com_pos_   = com_W;
-  com_acc_   = com_acc;
+  com_acc_   = com_acc_W;
 
   w_R_b_     = w_R_b;
   omega_     = omega_W;

@@ -59,17 +59,8 @@ DynamicConstraint::GetRow (int k, Dim6D dimension) const
 void
 DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) const
 {
-  // acceleration the system should have, given by physics
   UpdateModel(t);
-  Vector6d acc_model = model_->GetBaseAccelerationInWorld();
-
-  // acceleration base polynomial has with current optimization variables
-  Vector6d acc_parametrization = Vector6d::Zero();
-  acc_parametrization.middleRows(AX, k3D) = base_angular_.GetAngularAccelerationInWorld(t);
-  acc_parametrization.middleRows(LX, k3D) = base_linear_->GetPoint(t).a();
-
-  for (auto dim : AllDim6D)
-    g(GetRow(k,dim)) = acc_model(dim) - acc_parametrization(dim);
+  g.segment(GetRow(k,AX), k6D) = model_->GetDynamicViolation();
 }
 
 void
@@ -87,19 +78,22 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, std::string var_set
 
   int n = jac.cols();
   Jacobian jac_model(k6D,n);
-  Jacobian jac_parametrization(k6D,n);
 
   // sensitivity of dynamic constraint w.r.t base variables.
   if (var_set == id::base_lin_nodes) {
     Jacobian jac_base_lin_pos = base_linear_->GetJacobianWrtNodes(t,kPos);
-    jac_model = model_->GetJacobianOfAccWrtBaseLin(jac_base_lin_pos);
-    jac_parametrization.middleRows(LX, k3D) = base_linear_->GetJacobianWrtNodes(t,kAcc);
+    Jacobian jac_base_lin_acc = base_linear_->GetJacobianWrtNodes(t,kAcc);
+
+    jac_model = model_->GetJacobianWrtBaseLin(jac_base_lin_pos,
+                                              jac_base_lin_acc);
   }
 
   if (var_set == id::base_ang_nodes) {
-    Jacobian jac_ang_vel_wrt_coeff = base_angular_.GetDerivOfAngVelWrtEulerNodes(t);
-    jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_ang_vel_wrt_coeff);
-    jac_parametrization.middleRows(AX, k3D) = base_angular_.GetDerivOfAngAccWrtEulerNodes(t);
+    Jacobian jac_ang_vel_wrt_euler_nodes = base_angular_.GetDerivOfAngVelWrtEulerNodes(t);
+    Jacobian jac_ang_acc_wrt_euler_nodes = base_angular_.GetDerivOfAngAccWrtEulerNodes(t);
+
+    jac_model = model_->GetJacobianWrtBaseAng(jac_ang_vel_wrt_euler_nodes,
+                                              jac_ang_acc_wrt_euler_nodes);
   }
 
 
@@ -108,31 +102,30 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, std::string var_set
 
     if (var_set == id::EEForceNodes(ee)) {
       Jacobian jac_ee_force = ee_forces_.at(ee)->GetJacobianWrtNodes(t,kPos);
-      jac_model = model_->GetJacobianofAccWrtForce(jac_ee_force, ee);
+      jac_model = model_->GetJacobianWrtForce(jac_ee_force, ee);
     }
 
     if (var_set == id::EEMotionNodes(ee)) {
       Jacobian jac_ee_pos = ee_motion_.at(ee)->GetJacobianWrtNodes(t,kPos);
-      jac_model = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
+      jac_model = model_->GetJacobianWrtEEPos(jac_ee_pos, ee);
     }
 
     if (var_set == id::EESchedule(ee)) {
       Jacobian jac_f_dT = ee_forces_.at(ee)->GetJacobianOfPosWrtDurations(t);
-      jac_model += model_->GetJacobianofAccWrtForce(jac_f_dT, ee);
+      jac_model += model_->GetJacobianWrtForce(jac_f_dT, ee);
 
       Jacobian jac_x_dT = ee_motion_.at(ee)->GetJacobianOfPosWrtDurations(t);
-      jac_model +=  model_->GetJacobianofAccWrtEEPos(jac_x_dT, ee);
+      jac_model +=  model_->GetJacobianWrtEEPos(jac_x_dT, ee);
     }
   }
 
-  jac.middleRows(GetRow(k,AX), k6D) = jac_model - jac_parametrization;
+  jac.middleRows(GetRow(k,AX), k6D) = jac_model;
 }
 
 void
 DynamicConstraint::UpdateModel (double t) const
 {
-  Eigen::Vector3d com_pos = base_linear_->GetPoint(t).p();
-  Eigen::Vector3d com_acc = base_linear_->GetPoint(t).a();
+  auto com = base_linear_->GetPoint(t);
 
   Eigen::Matrix3d w_R_b = base_angular_.GetRotationMatrixBaseToWorld(t);
   Eigen::Vector3d omega = base_angular_.GetAngularVelocityInWorld(t);
@@ -146,7 +139,7 @@ DynamicConstraint::UpdateModel (double t) const
     ee_pos.push_back(ee_motion_.at(ee)->GetPoint(t).p());
   }
 
-  model_->SetCurrent(com_pos, com_acc, w_R_b, omega, omega_dot, ee_force, ee_pos);
+  model_->SetCurrent(com.p(), com.a(), w_R_b, omega, omega_dot, ee_force, ee_pos);
 }
 
 } /* namespace towr */

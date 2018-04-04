@@ -69,14 +69,11 @@ CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
                                   int ee_count)
     :DynamicModel(mass, ee_count)
 {
-  I_dense_ = inertia;
-  I_       = inertia.sparseView();
-  I_inv_   = inertia.inverse().sparseView();
+  I_ = inertia.sparseView();
 }
 
-// TODO rename this to give dynamic violation
 CentroidalModel::BaseAcc
-CentroidalModel::GetBaseAccelerationInWorld () const
+CentroidalModel::GetDynamicViolation () const
 {
   // https://en.wikipedia.org/wiki/Newton%E2%80%93Euler_equations
 
@@ -92,17 +89,17 @@ CentroidalModel::GetBaseAccelerationInWorld () const
   // can also moved gravity to bounds, as this is constant and
   // could mess up SNOPT
   static const Vector3d fg_W(0.0, 0.0, -m()*g());
-  f_sum += fg_W;
 
   BaseAcc acc;
-  acc.segment(AX, k3D) = I_inv_*(tau_sum - omega_.cross(I_dense_*omega_));
-  acc.segment(LX, k3D) = 1./m() *f_sum;
+  acc.segment(AX, k3D) = I_*omega_dot_ + BuildCrossProductMatrix(omega_)*(I_*omega_) - tau_sum;
+  acc.segment(LX, k3D) = m()*com_acc_ - f_sum - fg_W;
 
   return acc;
 }
 
 CentroidalModel::Jac
-CentroidalModel::GetJacobianOfAccWrtBaseLin (const Jac& jac_pos_base_lin) const
+CentroidalModel::GetJacobianWrtBaseLin (const Jac& jac_pos_base_lin,
+                                        const Jac& jac_acc_base_lin) const
 {
   // build the com jacobian
   int n = jac_pos_base_lin.cols();
@@ -114,52 +111,53 @@ CentroidalModel::GetJacobianOfAccWrtBaseLin (const Jac& jac_pos_base_lin) const
   }
 
   Jac jac(k6D, n);
-  jac.middleRows(AX, k3D) = I_inv_*jac_ang;
+  jac.middleRows(AX, k3D) = -jac_ang;
+  jac.middleRows(LX, k3D) = m()*jac_acc_base_lin;
 
   // linear acceleration does not depend on base
   return jac;
 }
 
 CentroidalModel::Jac
-CentroidalModel::GetJacobianOfAccWrtBaseAng (const Jac& jac_ang_vel) const
+CentroidalModel::GetJacobianWrtBaseAng (const Jac& jac_ang_vel,
+                                        const Jac& jac_ang_acc) const
 {
   int n = jac_ang_vel.cols();
 
-  // add derivative of w x Iw here!!!
-  Jac jac_coriolis  = -BuildCrossProductMatrix(I_*omega_)*jac_ang_vel;
-  jac_coriolis     +=  BuildCrossProductMatrix(omega_)*I_*jac_ang_vel;
+  Jac jac_gyrosope  = -BuildCrossProductMatrix(I_*omega_)*jac_ang_vel;
+  jac_gyrosope     +=  BuildCrossProductMatrix(omega_)*I_*jac_ang_vel;
 
   Jac jac(k6D, n);
-  jac.middleRows(AX, k3D) = I_inv_*(-jac_coriolis);
+  jac.middleRows(AX, k3D)  = I_*jac_ang_acc;
+  jac.middleRows(AX, k3D) += jac_gyrosope;
 
   return jac;
 }
 
 CentroidalModel::Jac
-CentroidalModel::GetJacobianofAccWrtForce (const Jac& ee_force_jac,
-                                           EE ee) const
+CentroidalModel::GetJacobianWrtForce (const Jac& ee_force_jac, EE ee) const
 {
   Vector3d r = com_pos_-ee_pos_.at(ee);
-  Jac jac_ang = -BuildCrossProductMatrix(r)*ee_force_jac;
+  Jac jac_tau = -BuildCrossProductMatrix(r)*ee_force_jac;
 
   int n = ee_force_jac.cols();
   Jac jac(k6D, n);
-  jac.middleRows(AX, k3D) = I_inv_*jac_ang;
-  jac.middleRows(LX, k3D) = 1./m()*ee_force_jac;
+  jac.middleRows(AX, k3D) = -jac_tau;
+  jac.middleRows(LX, k3D) = -ee_force_jac;
 
   return jac;
 }
 
 CentroidalModel::Jac
-CentroidalModel::GetJacobianofAccWrtEEPos (const Jac& jac_ee_pos,
-                                           EE ee) const
+CentroidalModel::GetJacobianWrtEEPos (const Jac& jac_ee_pos, EE ee) const
 {
   Vector3d f = ee_force_.at(ee);
-  Jac jac_ang = BuildCrossProductMatrix(f)*(-jac_ee_pos);
+  Jac jac_tau = BuildCrossProductMatrix(f)*(-jac_ee_pos);
 
-  Jac jac(k6D, jac_ang.cols());
-  jac.middleRows(AX, k3D) = I_inv_*jac_ang;
-  // linear acceleration does not depend on endeffector position.
+  Jac jac(k6D, jac_tau.cols());
+  jac.middleRows(AX, k3D) = -jac_tau;
+
+  // linear dynamics don't depend on endeffector position.
   return jac;
 }
 

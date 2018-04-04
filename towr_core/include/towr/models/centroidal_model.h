@@ -72,17 +72,17 @@ public:
   virtual ~CentroidalModel () = default;
 
   // for documentation, see definition in base class DynamicModel
-  virtual BaseAcc GetBaseAccelerationInWorld() const override;
+  virtual BaseAcc GetDynamicViolation() const override;
 
-  virtual Jac GetJacobianOfAccWrtBaseLin(const Jac& jac_base_lin_pos) const override;
-  virtual Jac GetJacobianOfAccWrtBaseAng(const Jac& jac_ang_vel) const override;
-  virtual Jac GetJacobianofAccWrtForce(const Jac& jac_force, EE) const override;
-  virtual Jac GetJacobianofAccWrtEEPos(const Jac& jac_ee_pos, EE) const override;
+  virtual Jac GetJacobianWrtBaseLin(const Jac& jac_base_lin_pos,
+                                         const Jac& jac_acc_base_lin) const override;
+  virtual Jac GetJacobianWrtBaseAng(const Jac& jac_ang_vel,
+                                         const Jac& jac_ang_acc) const override;
+  virtual Jac GetJacobianWrtForce(const Jac& jac_force, EE) const override;
+  virtual Jac GetJacobianWrtEEPos(const Jac& jac_ee_pos, EE) const override;
 
 private:
-  Eigen::Matrix3d I_dense_;                            // base inertia (dense)
   Eigen::SparseMatrix<double, Eigen::RowMajor> I_;     // base inertia (sparse)
-  Eigen::SparseMatrix<double, Eigen::RowMajor> I_inv_; // inverse of base inertia
 };
 
 
