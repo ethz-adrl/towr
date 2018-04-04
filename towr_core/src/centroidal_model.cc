@@ -78,21 +78,22 @@ CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
 CentroidalModel::BaseAcc
 CentroidalModel::GetBaseAccelerationInWorld () const
 {
-  Vector3d f_lin, f_ang; f_lin.setZero(); f_ang.setZero();
+  Vector3d f_sum, tau_sum; f_sum.setZero(); tau_sum.setZero();
 
   for (int ee=0; ee<ee_pos_.size(); ++ee) {
     Vector3d f = ee_force_.at(ee);
-    f_ang += f.cross(com_pos_-ee_pos_.at(ee));
-    f_lin += f;
+    tau_sum += f.cross(com_pos_-ee_pos_.at(ee));
+    f_sum += f;
   }
 
-  // moved gravity to bounds, as this is constant and would mess up SNOPT
-  // static const Vector3d fg_W(0.0, 0.0, -m_*kGravity);
-  // f_lin += fg_W;
+  // can also moved gravity to bounds, as this is constant and
+  // could mess up SNOPT
+  static const Vector3d fg_W(0.0, 0.0, -m()*g());
+  f_sum += fg_W;
 
   BaseAcc acc;
-  acc.segment(AX, k3D) = I_inv_*(f_ang - omega_.cross(I_dense_*omega_)); // coriolis terms
-  acc.segment(LX, k3D) = 1./m() *f_lin;
+  acc.segment(AX, k3D) = I_inv_*(tau_sum - omega_.cross(I_dense_*omega_));
+  acc.segment(LX, k3D) = 1./m() *f_sum;
 
   return acc;
 }
@@ -124,7 +125,7 @@ CentroidalModel::GetJacobianOfAccWrtBaseAng (const Jac& jac_ang_vel) const
   // the 6D base acceleration does not depend on base orientation, but on angular velocity
   // add derivative of w x Iw here!!!
   Jac jac_coriolis  = -BuildCrossProductMatrix(I_*omega_)*jac_ang_vel;
-  jac_coriolis          +=  BuildCrossProductMatrix(omega_)*I_*jac_ang_vel;
+  jac_coriolis     +=  BuildCrossProductMatrix(omega_)*I_*jac_ang_vel;
 
   Jac jac(k6D, n);
   jac.middleRows(AX, k3D) = I_inv_*(-jac_coriolis);

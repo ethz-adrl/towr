@@ -75,14 +75,8 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 void
 DynamicConstraint::UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const
 {
-  double gravity = model_->g();
-
-  for (auto dim : AllDim6D) {
-    if (dim == LZ)
-      bounds.at(GetRow(k,dim)) = ifopt::Bounds(gravity, gravity);
-    else
-      bounds.at(GetRow(k,dim)) = ifopt::BoundZero;
-  }
+  for (auto dim : AllDim6D)
+    bounds.at(GetRow(k,dim)) = ifopt::BoundZero;
 }
 
 void
