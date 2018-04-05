@@ -404,7 +404,6 @@ TowrRos::GetUnique (const Vector3d& zyx_non_unique) const
   }
   else if(M_PI/2 - tol <= zyx.y() && zyx.y() <= M_PI/2 + tol)
   {
-    // todo: M_PI/2 should not be in range, other formula?
     zyx.x() += zyx.z();
     zyx.z() = 0;
   }

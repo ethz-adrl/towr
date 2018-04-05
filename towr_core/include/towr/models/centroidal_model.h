@@ -37,12 +37,16 @@ namespace towr {
 /**
  * @brief Centroidal Dynamics model relating forces to base accelerations.
  *
- * This class implements a Centroidal dynamics model, a reduced dimensional
- * model, lying in terms of accuracy between a simple Linear Inverted Pendulum
- * model and a complex full Rigid-body-dynamics Model.
+ * This class implements a simplified Centroidal dynamics model, a reduced
+ * dimensional model, lying in terms of accuracy between a simple Linear
+ * Inverted Pendulum model and a complex full
+ * Centroidal (https://doi.org/10.1007/s10514-013-9341-4) or
+ * Rigid-body-dynamics Model.
  *
- * This model has the advantage that all required quantities are expressed
- * in Cartesian space, so Inverse Kinematics can be avoided.
+ * This model makes the assumption that the motion of the limbs does not
+ * incur significant momentum and can therefore be neglected. This eliminates
+ * the often very nonnlinear dependency on joint angles and allows to express
+ * all quantities in Cartesian space.
  *
  * \sa https://en.wikipedia.org/wiki/Newton%E2%80%93Euler_equations
  */
@@ -52,11 +56,11 @@ public:
    * @brief Constructs a specific Centroidal model.
    * @param mass         The mass of the robot.
    * @param ee_count     The number of endeffectors/forces.
-   * @param W_inertia_W  The elements of the 3x3 Inertia matrix. This matrix
-   *                     should map angular accelerations expressed in world frame
-   *                     to Moments in world frame.
+   * @param inertia_b    The elements of the 3x3 Inertia matrix around the CoM.
+   *                     This matrix maps angular accelerations expressed in base frame
+   *                     to Moments in base frame.
    */
-  CentroidalModel (double mass, const Eigen::Matrix3d& W_inertia_W, int ee_count);
+  CentroidalModel (double mass, const Eigen::Matrix3d& inertia_b, int ee_count);
 
   /**
    * @brief Constructs a specific Centroidal model.
@@ -75,14 +79,18 @@ public:
   virtual BaseAcc GetDynamicViolation() const override;
 
   virtual Jac GetJacobianWrtBaseLin(const Jac& jac_base_lin_pos,
-                                         const Jac& jac_acc_base_lin) const override;
-  virtual Jac GetJacobianWrtBaseAng(const Jac& jac_ang_vel,
-                                         const Jac& jac_ang_acc) const override;
+                                    const Jac& jac_acc_base_lin) const override;
+  virtual Jac GetJacobianWrtBaseAng(const EulerConverter& base_angular,
+                                    double t) const override;
   virtual Jac GetJacobianWrtForce(const Jac& jac_force, EE) const override;
   virtual Jac GetJacobianWrtEEPos(const Jac& jac_ee_pos, EE) const override;
 
 private:
-  Eigen::SparseMatrix<double, Eigen::RowMajor> I_;     // base inertia (sparse)
+
+  /** Inertia of entire robot around the CoM expressed in a frame anchored
+   *  in the base.
+   */
+  Eigen::SparseMatrix<double, Eigen::RowMajor> I_b;
 };
 
 

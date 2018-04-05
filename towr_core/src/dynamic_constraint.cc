@@ -89,11 +89,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, std::string var_set
   }
 
   if (var_set == id::base_ang_nodes) {
-    Jacobian jac_ang_vel_wrt_euler_nodes = base_angular_.GetDerivOfAngVelWrtEulerNodes(t);
-    Jacobian jac_ang_acc_wrt_euler_nodes = base_angular_.GetDerivOfAngAccWrtEulerNodes(t);
-
-    jac_model = model_->GetJacobianWrtBaseAng(jac_ang_vel_wrt_euler_nodes,
-                                              jac_ang_acc_wrt_euler_nodes);
+    jac_model = model_->GetJacobianWrtBaseAng(base_angular_, t);
   }
 
 

@@ -222,9 +222,7 @@ EulerConverter::GetRotationMatrixBaseToWorld (const EulerAngles& xyz)
 }
 
 EulerConverter::Jacobian
-EulerConverter::GetDerivOfRotMatRowWrtEulerNodes (double t,
-                                                  const Vector3d& v,
-                                                  bool inverse) const
+EulerConverter::DerivOfRotVecMult (double t, const Vector3d& v, bool inverse) const
 {
   JacRowMatrix Rd = GetDerivativeOfRotationMatrixWrtNodes(t);
   Jacobian jac = jac_wrt_nodes_structure_;

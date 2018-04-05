@@ -36,6 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
+#include <towr/variables/euler_converter.h>
 
 namespace towr {
 
@@ -96,18 +97,18 @@ public:
    *         variables defining the base linear spline (e.g. node values).
    */
   virtual Jac GetJacobianWrtBaseLin(const Jac& jac_base_lin_pos,
-                                         const Jac& jac_base_lin_acc) const = 0;
+                                    const Jac& jac_base_lin_acc) const = 0;
 
   /**
    * @brief How the base orientation affects the dynamic violation.
-   * @param jac_base_ang_vel  The 3xn Jacobian of the base angular velocity.
-   * @param jac_base_ang_acc  The 3xn Jacobian of the base angular acceleration.
+   * @param base_angular  provides Euler angles Jacobians.
+   * @param t  Time at which euler angles values are queried.
    *
    * @return The 6xn Jacobian of dynamic violations with respect to
    *         variables defining the base angular spline (e.g. node values).
    */
-  virtual Jac GetJacobianWrtBaseAng(const Jac& jac_base_ang_vel,
-                                    const Jac& jac_base_ang_acc) const = 0;
+  virtual Jac GetJacobianWrtBaseAng(const EulerConverter& base_angular,
+                                    double t) const = 0;
 
   /**
    * @brief How the endeffector forces affect the dynamic violation.
