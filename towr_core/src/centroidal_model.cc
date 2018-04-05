@@ -82,8 +82,8 @@ CentroidalModel::GetDynamicViolation () const
 
   for (int ee=0; ee<ee_pos_.size(); ++ee) {
     Vector3d f = ee_force_.at(ee);
-    tau_sum += f.cross(com_pos_-ee_pos_.at(ee));
-    f_sum += f;
+    tau_sum += f.cross(com_pos_ - ee_pos_.at(ee));
+    f_sum   += f;
   }
 
   // can also moved gravity to bounds, as this is constant and
@@ -91,8 +91,13 @@ CentroidalModel::GetDynamicViolation () const
   static const Vector3d fg_W(0.0, 0.0, -m()*g());
 
   BaseAcc acc;
-  acc.segment(AX, k3D) = I_*omega_dot_ + BuildCrossProductMatrix(omega_)*(I_*omega_) - tau_sum;
-  acc.segment(LX, k3D) = m()*com_acc_ - f_sum - fg_W;
+  acc.setZero();
+  acc.segment(AX, k3D) = I_*omega_dot_
+                         + BuildCrossProductMatrix(omega_)*(I_*omega_)
+                         - tau_sum;
+  acc.segment(LX, k3D) = m()*com_acc_
+                         - f_sum
+                         - fg_W;
 
   return acc;
 }
@@ -104,17 +109,16 @@ CentroidalModel::GetJacobianWrtBaseLin (const Jac& jac_pos_base_lin,
   // build the com jacobian
   int n = jac_pos_base_lin.cols();
 
-  Jac jac_ang(k3D, n);
+  Jac jac_tau_sum(k3D, n);
   for (const Vector3d& f : ee_force_) {
-    Jac jac_comp = BuildCrossProductMatrix(f)*jac_pos_base_lin;
-    jac_ang += jac_comp;
+    Jac jac_tau = BuildCrossProductMatrix(f)*jac_pos_base_lin;
+    jac_tau_sum += jac_tau;
   }
 
   Jac jac(k6D, n);
-  jac.middleRows(AX, k3D) = -jac_ang;
+  jac.middleRows(AX, k3D) = -jac_tau_sum;
   jac.middleRows(LX, k3D) = m()*jac_acc_base_lin;
 
-  // linear acceleration does not depend on base
   return jac;
 }
 
@@ -124,26 +128,23 @@ CentroidalModel::GetJacobianWrtBaseAng (const Jac& jac_ang_vel,
 {
   int n = jac_ang_vel.cols();
 
-  Jac jac_gyrosope  = -BuildCrossProductMatrix(I_*omega_)*jac_ang_vel;
-  jac_gyrosope     +=  BuildCrossProductMatrix(omega_)*I_*jac_ang_vel;
-
   Jac jac(k6D, n);
-  jac.middleRows(AX, k3D)  = I_*jac_ang_acc;
-  jac.middleRows(AX, k3D) += jac_gyrosope;
-
+  jac.middleRows(AX, k3D) = I_*jac_ang_acc
+                            + BuildCrossProductMatrix(omega_)*I_.toDense()*jac_ang_vel
+                            - BuildCrossProductMatrix(I_*omega_)*jac_ang_vel;
   return jac;
 }
 
 CentroidalModel::Jac
-CentroidalModel::GetJacobianWrtForce (const Jac& ee_force_jac, EE ee) const
+CentroidalModel::GetJacobianWrtForce (const Jac& jac_force, EE ee) const
 {
-  Vector3d r = com_pos_-ee_pos_.at(ee);
-  Jac jac_tau = -BuildCrossProductMatrix(r)*ee_force_jac;
+  Vector3d r = com_pos_ - ee_pos_.at(ee);
+  Jac jac_tau = -BuildCrossProductMatrix(r)*jac_force;
 
-  int n = ee_force_jac.cols();
+  int n = jac_force.cols();
   Jac jac(k6D, n);
   jac.middleRows(AX, k3D) = -jac_tau;
-  jac.middleRows(LX, k3D) = -ee_force_jac;
+  jac.middleRows(LX, k3D) = -jac_force;
 
   return jac;
 }
