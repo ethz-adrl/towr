@@ -36,7 +36,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-/** @brief Ensures continuous accelerations between polynomials.
+/**
+ *  @brief Ensures continuous accelerations between polynomials.
  *
  *  This is used to restrict jumps in linear and angular base accelerations,
  *  since this would require jumps in foot positions or endeffector forces,
@@ -53,11 +54,11 @@ public:
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
 private:
-  NodeSpline::Ptr spline_; ///< a spline comprised of polynomials
-  std::string node_variables_id_;
+  NodeSpline::Ptr spline_;        ///< a spline comprised of polynomials
+  std::string node_variables_id_; /// polynomial parameterized node values
 
-  int n_junctions_;  ///< number of junctions between polyomials in spline.
-  int n_dim_;        ///< dimensions that this polyomial represents (e.g. x,y).
+  int n_junctions_;       ///< number of junctions between polynomials in spline.
+  int n_dim_;             ///< dimensions that this polynomial represents (e.g. x,y).
   std::vector<double> T_; ///< Duration of each polynomial in spline.
 };
 

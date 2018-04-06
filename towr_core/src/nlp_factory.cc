@@ -228,27 +228,8 @@ NlpFactory::MakeBaseRangeOfMotionConstraint () const
 NlpFactory::ContraintPtrVec
 NlpFactory::MakeDynamicConstraint() const
 {
-  auto base_poly_durations = params_.GetBasePolyDurations();
-  std::vector<double> dts_;
-  double t_node = 0.0;
-  dts_ = {t_node};
-
-  double eps = 1e-6; // assume all polynomials have equal duration
-  for (int i=0; i<base_poly_durations.size()-1; ++i) {
-    double d = base_poly_durations.at(i);
-    t_node += d;
-
-    dts_.push_back(t_node-eps); // this results in continuous acceleration along junctions
-//    dts_.push_back(t_node+eps);
-  }
-
-  double final_d = base_poly_durations.back();
-  t_node += final_d;
-
-  dts_.push_back(t_node); // also ensure constraints at very last node/time.
-
   auto constraint = std::make_shared<DynamicConstraint>(model_.dynamic_model_,
-                                                        dts_,
+                                                        params_,
                                                         spline_holder_);
   return {constraint};
 }

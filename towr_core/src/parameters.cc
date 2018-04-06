@@ -37,20 +37,17 @@ Parameters::Parameters ()
 {
   t_total_ = 3.0; // [s]
 
-  // dynamic constraints are enforced at this interval as well
   duration_base_polynomial_ = 0.2;
-
 
   // 2 also works quite well. Remember that in between the nodes, forces
   // could still be violating unilateral and friction constraints by
   // polynomial interpolation
   force_polynomials_per_stance_phase_ = 3; // this makes it a lot bigger
-
-
-  // range of motion constraint
-  dt_constraint_range_of_motion_ = 0.1;
   ee_polynomials_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
 
+
+  dt_constraint_range_of_motion_ = 0.1;
+  dt_constraint_dynamic_ = 0.2;
   dt_constraint_base_motion_ = duration_base_polynomial_/4.;
 
 

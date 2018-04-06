@@ -64,6 +64,9 @@ struct Parameters {
   /// Total duration [s] of the walking motion.
   double t_total_;
 
+  /// Interval at which the dynamic constraint is enforced.
+  double dt_constraint_dynamic_;
+
   /// Interval at which the range of motion constraint is enforced.
   double dt_constraint_range_of_motion_;
 
