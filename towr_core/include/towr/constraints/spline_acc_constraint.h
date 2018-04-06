@@ -27,40 +27,41 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/models/dynamic_model.h>
+#ifndef SPLINE_ACC_CONSTRAINT_H_
+#define SPLINE_ACC_CONSTRAINT_H_
+
+#include <ifopt/constraint_set.h>
+
+#include <towr/variables/node_spline.h>
 
 namespace towr {
 
-DynamicModel::DynamicModel(double mass, int ee_count)
-{
-  m_ = mass;
-  g_ = 9.80665;
+/**
+ *  @brief Ensures continuous accelerations between polynomials.
+ *
+ *  This is used to restrict jumps in linear and angular base accelerations,
+ *  since this would require jumps in foot positions or endeffector forces,
+ *  which aren't allowed in our formulation.
+ */
+class SplineAccConstraint : public ifopt::ConstraintSet {
+public:
 
-  com_pos_.setZero();
-  com_acc_.setZero();
+  SplineAccConstraint(const NodeSpline::Ptr& spline, std::string name);
+  virtual ~SplineAccConstraint() = default;
 
-  w_R_b_.setIdentity();
-  omega_.setZero();
-  omega_dot_ .setZero();
+  VectorXd GetValues() const override;
+  VecBound GetBounds() const override;
+  void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
-  ee_force_ = EELoad(ee_count);
-  ee_pos_ = EEPos(ee_count);
-}
+private:
+  NodeSpline::Ptr spline_;        ///< a spline comprised of polynomials
+  std::string node_variables_id_; /// polynomial parameterized node values
 
-void
-DynamicModel::SetCurrent (const ComPos& com_W, const Vector3d com_acc_W,
-                          const Matrix3d& w_R_b, const AngVel& omega_W, const Vector3d& omega_dot_W,
-                          const EELoad& force_W, const EEPos& pos_W)
-{
-  com_pos_   = com_W;
-  com_acc_   = com_acc_W;
-
-  w_R_b_     = w_R_b;
-  omega_     = omega_W;
-  omega_dot_ = omega_dot_W;
-
-  ee_force_  = force_W;
-  ee_pos_    = pos_W;
-}
+  int n_junctions_;       ///< number of junctions between polynomials in spline.
+  int n_dim_;             ///< dimensions that this polynomial represents (e.g. x,y).
+  std::vector<double> T_; ///< Duration of each polynomial in spline.
+};
 
 } /* namespace towr */
+
+#endif /* SPLINE_ACC_CONSTRAINT_H_ */

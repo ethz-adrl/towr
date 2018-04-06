@@ -77,6 +77,17 @@ public:
   Jacobian GetJacobianWrtNodes(double t, Dx dxdt) const;
 
   /**
+   * @brief How the spline changes when the node values change.
+   * @param poly_id  Polynomial for which the sensitivity is desired.
+   * @param t_local  Local time in that specific polynomial.
+   * @param dxdt  Whether the derivative of the pos, vel or acc is desired.
+   * @return the pxn Jacobian, where:
+   *             p: Number of dimensions of the spline
+   *             n: Number of optimized node variables.
+   */
+  Jacobian GetJacobianWrtNodes(int poly_id, double t_local, Dx dxdt) const;
+
+  /**
    * @returns The number of node variables being optimized over.
    */
   int GetNodeVariablesCount() const;

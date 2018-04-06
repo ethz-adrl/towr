@@ -100,6 +100,7 @@ private:
   ContraintPtrVec MakeForceConstraint() const;
   ContraintPtrVec MakeSwingConstraint() const;
   ContraintPtrVec MakeBaseRangeOfMotionConstraint() const;
+  ContraintPtrVec MakeBaseAccConstraint() const;
 
   // costs
   CostPtrVec GetCost(const CostName& id, double weight) const;

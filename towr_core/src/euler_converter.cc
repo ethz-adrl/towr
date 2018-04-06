@@ -64,7 +64,7 @@ EulerConverter::GetAngularVelocityInWorld (double t) const
 
 Eigen::Vector3d
 EulerConverter::GetAngularVelocityInWorld (const EulerAngles& pos,
-                                    const EulerRates& vel)
+                                           const EulerRates& vel)
 {
   return GetM(pos)*vel;
 }
@@ -150,7 +150,7 @@ EulerConverter::GetM (const EulerAngles& xyz)
 
 EulerConverter::MatrixSXd
 EulerConverter::GetMdot (const EulerAngles& xyz,
-                                const EulerRates& xyz_d)
+                         const EulerRates& xyz_d)
 {
   double z  = xyz(Z);
   double zd = xyz_d(Z);
@@ -222,9 +222,7 @@ EulerConverter::GetRotationMatrixBaseToWorld (const EulerAngles& xyz)
 }
 
 EulerConverter::Jacobian
-EulerConverter::GetDerivOfRotMatRowWrtEulerNodes (double t,
-                                                               const Vector3d& v,
-                                                               bool inverse) const
+EulerConverter::DerivOfRotVecMult (double t, const Vector3d& v, bool inverse) const
 {
   JacRowMatrix Rd = GetDerivativeOfRotationMatrixWrtNodes(t);
   Jacobian jac = jac_wrt_nodes_structure_;

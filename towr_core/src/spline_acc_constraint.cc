@@ -27,40 +27,63 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/models/dynamic_model.h>
+#include <towr/constraints/spline_acc_constraint.h>
 
 namespace towr {
 
-DynamicModel::DynamicModel(double mass, int ee_count)
+SplineAccConstraint::SplineAccConstraint (const NodeSpline::Ptr& spline,
+                                          std::string node_variable_name)
+    :ConstraintSet(kSpecifyLater, "SplineAcc-Constraint-" + node_variable_name)
 {
-  m_ = mass;
-  g_ = 9.80665;
+  spline_ = spline;
+  node_variables_id_ = node_variable_name;
 
-  com_pos_.setZero();
-  com_acc_.setZero();
+  n_dim_       = spline->GetPoint(0.0).p().rows();
+  n_junctions_ = spline->GetPolynomialCount() - 1;
+  T_           = spline->GetPolyDurations();
 
-  w_R_b_.setIdentity();
-  omega_.setZero();
-  omega_dot_ .setZero();
+  SetRows(n_dim_*n_junctions_);
+}
 
-  ee_force_ = EELoad(ee_count);
-  ee_pos_ = EEPos(ee_count);
+Eigen::VectorXd
+SplineAccConstraint::GetValues () const
+{
+  VectorXd g(GetRows());
+
+  for (int j=0; j<n_junctions_; ++j) {
+    int p_prev = j; // id of previous polynomial
+    VectorXd acc_prev = spline_->GetPoint(p_prev, T_.at(p_prev)).a();
+
+    int p_next = j+1;
+    VectorXd acc_next = spline_->GetPoint(p_next, 0.0).a();
+
+    g.segment(j*n_dim_, n_dim_) = acc_prev - acc_next;
+  }
+
+  return g;
 }
 
 void
-DynamicModel::SetCurrent (const ComPos& com_W, const Vector3d com_acc_W,
-                          const Matrix3d& w_R_b, const AngVel& omega_W, const Vector3d& omega_dot_W,
-                          const EELoad& force_W, const EEPos& pos_W)
+SplineAccConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 {
-  com_pos_   = com_W;
-  com_acc_   = com_acc_W;
+  if (var_set == node_variables_id_) {
+    for (int j=0; j<n_junctions_; ++j) {
+      int p_prev = j; // id of previous polynomial
+      Jacobian acc_prev = spline_->GetJacobianWrtNodes(p_prev, T_.at(p_prev), kAcc);
 
-  w_R_b_     = w_R_b;
-  omega_     = omega_W;
-  omega_dot_ = omega_dot_W;
+      int p_next = j+1;
+      Jacobian acc_next = spline_->GetJacobianWrtNodes(p_next, 0.0, kAcc);
 
-  ee_force_  = force_W;
-  ee_pos_    = pos_W;
+      jac.middleRows(j*n_dim_, n_dim_) = acc_prev - acc_next;
+    }
+  }
 }
 
-} /* namespace towr */
+SplineAccConstraint::VecBound
+SplineAccConstraint::GetBounds () const
+{
+  return VecBound(GetRows(), ifopt::BoundZero);
+}
+
+} /* namespace xpp */
+

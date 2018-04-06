@@ -136,18 +136,18 @@ public:
    */
   Jacobian GetDerivOfAngAccWrtEulerNodes(double t) const;
 
-  /** @brief Returns the derivative of the linear equation M*v.
+  /** @brief Returns the derivative of result of the linear equation M*v.
    *
-   * M is the rotation matrix from base to world, and v a 3-dimensional
-   * vector expressed in the base frame.
+   * M is the rotation matrix from base to world, defined by the Euler nodes.
+   * v is any vector independent of the Euler nodes. The sensitivity
+   * of the 3-dimensional vector w.r.t the Euler node values is given.
    *
    * @param t        time at which the Euler angles are evaluated.
-   * @param v        vector (e.g. relative position) expressed in base frame.
+   * @param v        vector (e.g. relative position, velocity, acceleration).
    * @param inverse  if true, the derivative for M^(-1)*v is evaluated.
    * @returns        3 x n dimensional matrix (n = number of Euler node values).
    */
-  Jacobian GetDerivOfRotMatRowWrtEulerNodes(double t, const Vector3d& v,
-                                            bool inverse) const;
+  Jacobian DerivOfRotVecMult(double t, const Vector3d& v, bool inverse) const;
 private:
   NodeSpline::Ptr euler_;
 
