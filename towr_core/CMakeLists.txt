@@ -55,6 +55,7 @@ add_library(${PROJECT_NAME}
   src/centroidal_model.cc
   src/dynamic_constraint.cc
   src/range_of_motion_constraint.cc
+  src/spline_acc_constraint.cc
   src/parameters.cc
   src/linear_constraint.cc
   src/soft_constraint.cc

@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/constraints/swing_constraint.h>
 #include <towr/constraints/terrain_constraint.h>
 #include <towr/constraints/total_duration_constraint.h>
+#include <towr/constraints/spline_acc_constraint.h>
 
 #include <towr/costs/node_cost.h>
 
@@ -212,6 +213,7 @@ NlpFactory::GetConstraint (ConstraintName name) const
     case Terrain:        return MakeTerrainConstraint();
     case Force:          return MakeForceConstraint();
     case Swing:          return MakeSwingConstraint();
+    case BaseAcc:        return MakeBaseAccConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -237,7 +239,7 @@ NlpFactory::MakeDynamicConstraint() const
     t_node += d;
 
     dts_.push_back(t_node-eps); // this results in continuous acceleration along junctions
-    dts_.push_back(t_node+eps);
+//    dts_.push_back(t_node+eps);
   }
 
   double final_d = base_poly_durations.back();
@@ -318,6 +320,20 @@ NlpFactory::MakeSwingConstraint () const
     auto swing = std::make_shared<SwingConstraint>(id::EEMotionNodes(ee));
     constraints.push_back(swing);
   }
+
+  return constraints;
+}
+
+NlpFactory::ContraintPtrVec
+NlpFactory::MakeBaseAccConstraint () const
+{
+  ContraintPtrVec constraints;
+
+  constraints.push_back(std::make_shared<SplineAccConstraint>
+                        (spline_holder_.base_linear_, id::base_lin_nodes));
+
+  constraints.push_back(std::make_shared<SplineAccConstraint>
+                        (spline_holder_.base_angular_, id::base_ang_nodes));
 
   return constraints;
 }

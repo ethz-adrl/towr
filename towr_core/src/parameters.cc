@@ -63,6 +63,7 @@ Parameters::Parameters ()
   force_limit_in_norm_ = 1000; // [N] this affects convergence when optimizing gait
 
   constraints_ = {
+      BaseAcc,
       EndeffectorRom,
       Dynamic,
       Terrain,

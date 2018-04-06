@@ -37,7 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
- * @brief A spline built from node values and polynomial durations.
+ * @brief A spline built from a sequence of cubic polynomials.
  *
  * This class is responsible for stitching together multiple individual
  * polynomials into one spline.
@@ -57,6 +57,13 @@ public:
   const State GetPoint(double t) const;
 
   /**
+   * @param poly_id  Polynomial id, 0 is first polynomial.
+   * @param t_local  Time along the current polynomial.
+   * @returns The position, velocity and acceleration of spline.
+   */
+  const State GetPoint(int poly_id, double t_local) const;
+
+  /**
    * @returns The segment (e.g. phase, polynomial) at time t_global.
    * @param t_global  The global time in the spline.
    * @param durations The durations [s] of each segment.
@@ -68,6 +75,16 @@ public:
    */
   double GetTotalTime() const;
 
+  /**
+   * @returns the number of polynomials making up this spline.
+   */
+  int GetPolynomialCount() const;
+
+  /**
+   * @returns the durations of each polynomial.
+   */
+  VecTimes GetPolyDurations() const;
+
 protected:
   VecPoly cubic_polys_; ///< the sequence of polynomials making up the spline.
 
@@ -78,11 +95,6 @@ protected:
    * @return The segment id and the time passed in this segment.
    */
   std::pair<int,double> GetLocalTime(double t_global, const VecTimes& d) const;
-
-  /**
-   * @returns the durations of each polynomial.
-   */
-  VecTimes GetPolyDurations() const;
 
   /**
    * @brief Updates the cubic-Hermite polynomial coefficients using the
