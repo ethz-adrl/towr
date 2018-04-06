@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/variables/euler_converter.h>
 
 #include <towr/models/dynamic_model.h>
+#include <towr/parameters.h>
 
 #include "time_discretization_constraint.h"
 
@@ -67,7 +68,7 @@ public:
    * @param spline_holder     A pointer to the current optimization variables.
    */
   DynamicConstraint (const DynamicModel::Ptr& model,
-                     const VecTimes& evaluation_times,
+                     const Parameters& params,
                      const SplineHolder& spline_holder);
   virtual ~DynamicConstraint () = default;
 

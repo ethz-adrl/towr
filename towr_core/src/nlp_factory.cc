@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/constraints/swing_constraint.h>
 #include <towr/constraints/terrain_constraint.h>
 #include <towr/constraints/total_duration_constraint.h>
+#include <towr/constraints/spline_acc_constraint.h>
 
 #include <towr/costs/node_cost.h>
 
@@ -212,6 +213,7 @@ NlpFactory::GetConstraint (ConstraintName name) const
     case Terrain:        return MakeTerrainConstraint();
     case Force:          return MakeForceConstraint();
     case Swing:          return MakeSwingConstraint();
+    case BaseAcc:        return MakeBaseAccConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -226,27 +228,8 @@ NlpFactory::MakeBaseRangeOfMotionConstraint () const
 NlpFactory::ContraintPtrVec
 NlpFactory::MakeDynamicConstraint() const
 {
-  auto base_poly_durations = params_.GetBasePolyDurations();
-  std::vector<double> dts_;
-  double t_node = 0.0;
-  dts_ = {t_node};
-
-  double eps = 1e-6; // assume all polynomials have equal duration
-  for (int i=0; i<base_poly_durations.size()-1; ++i) {
-    double d = base_poly_durations.at(i);
-    t_node += d;
-
-    dts_.push_back(t_node-eps); // this results in continuous acceleration along junctions
-    dts_.push_back(t_node+eps);
-  }
-
-  double final_d = base_poly_durations.back();
-  t_node += final_d;
-
-  dts_.push_back(t_node); // also ensure constraints at very last node/time.
-
   auto constraint = std::make_shared<DynamicConstraint>(model_.dynamic_model_,
-                                                        dts_,
+                                                        params_,
                                                         spline_holder_);
   return {constraint};
 }
@@ -318,6 +301,20 @@ NlpFactory::MakeSwingConstraint () const
     auto swing = std::make_shared<SwingConstraint>(id::EEMotionNodes(ee));
     constraints.push_back(swing);
   }
+
+  return constraints;
+}
+
+NlpFactory::ContraintPtrVec
+NlpFactory::MakeBaseAccConstraint () const
+{
+  ContraintPtrVec constraints;
+
+  constraints.push_back(std::make_shared<SplineAccConstraint>
+                        (spline_holder_.base_linear_, id::base_lin_nodes));
+
+  constraints.push_back(std::make_shared<SplineAccConstraint>
+                        (spline_holder_.base_angular_, id::base_ang_nodes));
 
   return constraints;
 }

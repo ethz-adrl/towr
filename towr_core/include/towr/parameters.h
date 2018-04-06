@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 enum ConstraintName { Dynamic, EndeffectorRom, TotalTime, Terrain,
-                       Force, Swing, BaseRom };
+                       Force, Swing, BaseRom, BaseAcc };
 enum CostName       { ForcesCostID };
 
 /**
@@ -63,6 +63,9 @@ struct Parameters {
 
   /// Total duration [s] of the walking motion.
   double t_total_;
+
+  /// Interval at which the dynamic constraint is enforced.
+  double dt_constraint_dynamic_;
 
   /// Interval at which the range of motion constraint is enforced.
   double dt_constraint_range_of_motion_;

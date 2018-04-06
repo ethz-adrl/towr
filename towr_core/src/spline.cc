@@ -83,7 +83,13 @@ Spline::GetPoint(double t_global) const
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, GetPolyDurations());
 
-  return cubic_polys_.at(id).GetPoint(t_local);
+  return GetPoint(id, t_local);
+}
+
+const State
+Spline::GetPoint(int poly_id, double t_local) const
+{
+  return cubic_polys_.at(poly_id).GetPoint(t_local);
 }
 
 void
@@ -91,6 +97,12 @@ Spline::UpdatePolynomialCoeff()
 {
   for (auto& p : cubic_polys_)
     p.UpdateCoeff();
+}
+
+int
+Spline::GetPolynomialCount () const
+{
+  return cubic_polys_.size();
 }
 
 Spline::VecTimes
@@ -109,7 +121,6 @@ Spline::GetTotalTime() const
   auto v = GetPolyDurations();
   return std::accumulate(v.begin(), v.end(), 0.0);
 }
-
 
 } /* namespace towr */
 

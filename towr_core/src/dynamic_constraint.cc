@@ -35,9 +35,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
-                                      const std::vector<double>& evaluation_times,
+                                      const Parameters& params,
                                       const SplineHolder& spline_holder)
-    :TimeDiscretizationConstraint(evaluation_times, "DynamicConstraint")
+    :TimeDiscretizationConstraint(params.t_total_,
+                                  params.dt_constraint_dynamic_,
+                                  "DynamicConstraint")
 {
   model_ = m;
 

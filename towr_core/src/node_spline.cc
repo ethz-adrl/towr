@@ -29,7 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/variables/node_spline.h>
 
-#include "../include/towr/variables/nodes.h"
+#include <towr/variables/nodes.h>
 
 namespace towr {
 
@@ -66,6 +66,12 @@ NodeSpline::GetJacobianWrtNodes (double t_global, Dx dxdt) const
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, GetPolyDurations());
 
+  return GetJacobianWrtNodes(id, t_local, dxdt);
+}
+
+NodeSpline::Jacobian
+NodeSpline::GetJacobianWrtNodes (int id, double t_local, Dx dxdt) const
+{
   Jacobian jac = jac_wrt_nodes_structure_;
   FillJacobianWrtNodes(id, t_local, dxdt, jac, false);
 
@@ -78,7 +84,7 @@ NodeSpline::GetJacobianWrtNodes (double t_global, Dx dxdt) const
 
 void
 NodeSpline::FillJacobianWrtNodes (int poly_id, double t_local, Dx dxdt,
-                               Jacobian& jac, bool fill_with_zeros) const
+                                  Jacobian& jac, bool fill_with_zeros) const
 {
   for (int idx=0; idx<jac.cols(); ++idx) {
     for (auto info : node_values_->GetNodeInfoAtOptIndex(idx)) {
