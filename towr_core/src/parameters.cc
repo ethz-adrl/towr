@@ -46,7 +46,7 @@ Parameters::Parameters ()
   ee_polynomials_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
 
 
-  dt_constraint_range_of_motion_ = 0.1;
+  dt_constraint_range_of_motion_ = 0.05;
   dt_constraint_dynamic_ = 0.2;
   dt_constraint_base_motion_ = duration_base_polynomial_/4.;
 
@@ -59,6 +59,7 @@ Parameters::Parameters ()
 
   force_limit_in_norm_ = 1000; // [N] this affects convergence when optimizing gait
 
+
   constraints_ = {
       BaseAcc,
       EndeffectorRom,
@@ -69,6 +70,9 @@ Parameters::Parameters ()
       Swing, // remove this at some point -> hacky
 //      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
   };
+
+  // additional restrictions are set directly on the variable in nlp_factory,
+  // such as e.g. initial and goal state,...
 
   costs_ = {
 //    {ForcesCostID, 1.0},

@@ -89,7 +89,7 @@ NlpFactory::MakeBaseVariables () const
   spline_lin->InitializeNodesTowardsGoal(initial_base_.lin.p(), final_base_.lin.p(), params_.t_total_);
   spline_lin->AddStartBound(kPos, {X,Y,Z}, initial_base_.lin.p());
   spline_lin->AddStartBound(kVel, {X,Y,Z}, initial_base_.lin.v());
-  spline_lin->AddFinalBound(kPos, {X,Y}  , final_base_.lin.p());
+  spline_lin->AddFinalBound(kPos, {X,Y,Z}, final_base_.lin.p());
   spline_lin->AddFinalBound(kVel, {X,Y,Z}, final_base_.lin.v());
   vars.push_back(spline_lin);
 
@@ -97,7 +97,7 @@ NlpFactory::MakeBaseVariables () const
   spline_ang->InitializeNodesTowardsGoal(initial_base_.ang.p(), final_base_.ang.p(), params_.t_total_);
   spline_ang->AddStartBound(kPos, {X,Y,Z}, initial_base_.ang.p());
   spline_ang->AddStartBound(kVel, {X,Y,Z}, initial_base_.ang.v());
-  spline_ang->AddFinalBound(kPos,     {Z}, final_base_.ang.p());
+  spline_ang->AddFinalBound(kPos, {X,Y,Z}, final_base_.ang.p());
   spline_ang->AddFinalBound(kVel, {X,Y,Z}, final_base_.ang.v());
   vars.push_back(spline_ang);
 
@@ -119,14 +119,11 @@ NlpFactory::MakeEndeffectorVariables () const
                                               params_.ee_polynomials_per_swing_phase_,
                                               PhaseNodes::Motion);
 
+
     double yaw = final_base_.ang.p().z();
-
-    // smell adapt to desired yaw state
-//    Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
-    Eigen::Matrix3d w_R_b; w_R_b.setIdentity();
-
+    Eigen::Vector3d euler(0.0, 0.0, yaw);
+    Eigen::Matrix3d w_R_b = EulerConverter::GetRotationMatrixBaseToWorld(euler);
     Vector3d final_ee_pos_W = final_base_.lin.p() + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
-
 
 
     nodes->InitializeNodesTowardsGoal(initial_ee_W_.at(ee), final_ee_pos_W, T);
@@ -135,9 +132,9 @@ NlpFactory::MakeEndeffectorVariables () const
     nodes->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
 
     // fix final endeffector position
-//    bool step_taken = nodes->GetNodes().size() > 2;
-//    if (step_taken) // otherwise overwrites start bound
-//      nodes->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
+    bool step_taken = nodes->GetNodes().size() > 2;
+    if (step_taken) // otherwise this would overwrite start bound
+      nodes->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
 
     vars.push_back(nodes);
   }

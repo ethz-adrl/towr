@@ -61,8 +61,8 @@ TowrUserInterface::TowrUserInterface ()
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
 
   terrain_id_    = 0;
-  gait_combo_id_ = 3;
-  total_duration_ = 2.0;
+  gait_combo_id_ = 0;
+  total_duration_ = 2.5;
   replay_trajectory_ = false;
   use_solver_snopt_ = false;
   optimize_ = false;
@@ -74,7 +74,6 @@ TowrUserInterface::PrintHelp() const
 {
   printw("\n");
   printw("The keyboard mappings are as follows:\n\n");
-  printw("h            \t display this help\n");
   printw("arrow keys   \t move goal position in xy-plane\n");
   printw("page up/down \t modify goal height\n");
   printw("keypad       \t modify goal orientation\n");
@@ -83,8 +82,9 @@ TowrUserInterface::PrintHelp() const
   printw("o            \t optimize motion\n");
   printw("r            \t replay motion\n");
   printw("+/-          \t increase/decrease total duration\n");
-  printw("s            \t toggle solver between IPOPT and SNOPT\n");
+  printw("p            \t publish motion plan as xpp_msg\n");
   printw("q            \t close user interface\n");
+  printw("h            \t display this help\n");
   printw("\n");
 }
 

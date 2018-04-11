@@ -86,32 +86,36 @@ void
 QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
 {
   switch (combo) {
-    case C0: SetGaits({Stand});  break;
-    case C1: SetGaits({Stand, Flight, Stand});                 break; // lift one leg
-    case C2: SetGaits({Stand, Run1, Run1, Stand});             break; // trot
-    case C3: SetGaits({Stand, Run1, Run1, Run1, Run1, Stand}); break; // long trot
-    case C4: SetGaits({Stand, Run2, Run2, Stand});             break; // fly trot
-    case C5: SetGaits({Stand, Walk1, Stand});                  break; // walk
-    case C6: SetGaits({Stand, Walk2, Walk2E, Stand});          break; // overlap-walk
-    case C7: SetGaits({Stand,
-                           Run2, Run2, Run2, Run2, Run2,
-                           Run2, Run2, Run2, Run2, Run2,
-                           Stand});
-      break; // pace
-    case C8: SetGaits({Stand,
-                           Walk2, Walk2E,
-                           Hop3, Hop3E, // gallop
-                           Stand,
-                           Run2, Run2, // flying trot
-                           Run3, Run3, // pace
-                           Stand,
-                           Hop1, Hop1, // bound
-                           Stand,
-                           Hop2,
-                           Stand});
-      break;
+    //case C0: SetGaits({Stand});  break;
+    //case C1: SetGaits({Stand, Flight, Stand});         break; // lift one leg
+    case C0: SetGaits({Stand, Walk1, Walk1, Stand});     break; // walk
+    case C1: SetGaits({Stand, Walk2, Walk2E, Stand});    break; // overlap-walk
+    case C2: SetGaits({Stand, Run1, Run1, Stand});       break; // trot
+    case C3: SetGaits({Stand, Run2, Run2, Stand});       break; // fly trot
+    case C4: SetGaits({Stand, Run3, Run3, Stand});       break; // pace
+    case C5: SetGaits({Stand, Hop3, Hop3, Stand});       break; // gallop
+    case C6: SetGaits({Stand, Hop1, Hop1, Stand});       break; // bound
+
     default: assert(false); std::cout << "Gait not defined\n"; break;
   }
+
+//    case C7: SetGaits({Stand,
+//                           Run2, Run2, Run2, Run2, Run2,
+//                           Run2, Run2, Run2, Run2, Run2,
+//                           Stand});
+//      break; // pace
+//    case C8: SetGaits({Stand,
+//                           Walk2, Walk2E,
+//                           Hop3, Hop3E, // gallop
+//                           Stand,
+//                           Run2, Run2, // flying trot
+//                           Run3, Run3, // pace
+//                           Stand,
+//                           Hop1, Hop1, // bound
+//                           Stand,
+//                           Hop2,
+//                           Stand});
+//      break;
 
 
   // these are the more difficult ones.
