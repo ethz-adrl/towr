@@ -93,7 +93,8 @@ TowrRos::TowrRos ()
   gait_                   = std::make_shared<towr::QuadrupedGaitGenerator>();
   output_dt_              = 0.0025; // 400 Hz control loop frequency on ANYmal
 
-  terrain_ = std::make_shared<FlatGround>(0.0);
+  ground_height_ = 0.0;
+  terrain_ = std::make_shared<FlatGround>(ground_height_);
 }
 
 void
@@ -103,13 +104,17 @@ TowrRos::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
   base_initial.lin.at(towr::kPos) = xpp::Convert::ToXpp(msg.base.pose.position);
   base_initial.lin.at(towr::kVel) = xpp::Convert::ToXpp(msg.base.twist.linear);
 
-  Eigen::Quaterniond q = xpp::Convert::ToXpp(msg.base.pose.orientation);
-  base_initial.ang.at(towr::kPos) = GetUnique(xpp::GetEulerZYXAngles(q));
+  Eigen::Quaterniond q_BtoW = xpp::Convert::ToXpp(msg.base.pose.orientation);
+  base_initial.ang.at(towr::kPos) = GetUnique(xpp::GetEulerZYXAngles(q_BtoW));
   base_initial.ang.at(towr::kVel) = Vector3d::Zero(); // smell fill this angular_vel->euler rates
 
   std::vector<Vector3d> feet_initial;
-  for (auto ee : msg.ee_motion)
-    feet_initial.push_back(xpp::Convert::ToXpp(ee.pos));
+  ground_height_ = 0.0;
+  for (auto ee : msg.ee_motion) {
+    Vector3d pos = xpp::Convert::ToXpp(ee.pos);
+    feet_initial.push_back(pos);
+    ground_height_ += pos.z()/msg.ee_motion.size(); // adapt ground height based on avg initial foothold height
+  }
 
   towr_.SetInitialState(base_initial, feet_initial);
 }
@@ -174,10 +179,8 @@ TowrRos::SetTowrParameters(const TowrCommand& msg)
     params.ee_in_contact_at_start_.push_back(gait_->IsInContactAtStart(ee));
   }
 
-
-  double ground_height = 0.0; // must possibly be adapted for real robot
   auto terrain_id = static_cast<towr::TerrainID>(msg.terrain_id);
-  terrain_ = towr::HeightMapFactory::MakeTerrain(terrain_id, ground_height);
+  terrain_ = towr::HeightMapFactory::MakeTerrain(terrain_id, ground_height_);
 
 
   towr_.SetParameters(goal, params, model_, terrain_);
@@ -426,15 +429,6 @@ TowrRos::GetUnique (const Vector3d& zyx_non_unique) const
 
   return zyx;
 }
-
-//  void SetTerrainHeightFromAvgFootholdHeight(
-//      HeightMap::Ptr& terrain) const
-//  {
-//    double avg_height=0.0;
-//    for ( auto pos : new_ee_pos_)
-//      avg_height += pos.z()/new_ee_pos_.size();
-//    terrain->SetGroundHeight(avg_height);
-//  }
 
 } /* namespace towr */
 

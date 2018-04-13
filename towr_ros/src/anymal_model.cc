@@ -35,9 +35,9 @@ namespace towr {
 
 AnymalKinematicModel::AnymalKinematicModel () : KinematicModel(4)
 {
-  const double x_nominal_b = 0.33;
+  const double x_nominal_b = 0.34;
   const double y_nominal_b = 0.19;
-  const double z_nominal_b = -0.46;
+  const double z_nominal_b = -0.42;
 
   nominal_stance_.at(xpp::quad::LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
   nominal_stance_.at(xpp::quad::RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;

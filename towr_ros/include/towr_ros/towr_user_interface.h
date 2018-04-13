@@ -64,7 +64,7 @@ private:
   void PublishCommand();
 
   xpp::State3dEuler goal_geom_;
-  int kMaxNumGaits_ = 7;
+  int kMaxNumGaits_ = 9;
   int terrain_id_;
   int gait_combo_id_;
   bool replay_trajectory_;

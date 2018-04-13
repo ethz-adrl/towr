@@ -53,8 +53,11 @@ private:
   GaitInfo GetStrideWalkOverlap() const;
   GaitInfo GetStrideTrot() const;
   GaitInfo GetStrideTrotFly() const;
+  GaitInfo GetStrideTrotFlyEnd () const;
   GaitInfo GetStridePace() const;
+  GaitInfo GetStridePaceEnd() const;
   GaitInfo GetStrideBound() const;
+  GaitInfo GetStrideBoundEnd () const;
   GaitInfo GetStrideGallop() const;
   GaitInfo GetStrideFlyingGallop() const;
   GaitInfo GetStridePronk() const;

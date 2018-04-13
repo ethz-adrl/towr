@@ -80,6 +80,7 @@ private:
 
   GaitGenerator::Ptr gait_;
   RobotModel model_;
+  double ground_height_; ///< can be adapted based on footholds
   HeightMap::Ptr terrain_;
 
   double output_dt_; ///< discretization of output trajectory (1/TaskServoHz)

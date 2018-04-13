@@ -37,7 +37,7 @@ Parameters::Parameters ()
 {
   t_total_ = 3.0; // [s]
 
-  duration_base_polynomial_ = 0.2;
+  duration_base_polynomial_ = 0.1;
 
   // 2 also works quite well. Remember that in between the nodes, forces
   // could still be violating unilateral and friction constraints by
@@ -47,7 +47,7 @@ Parameters::Parameters ()
 
 
   dt_constraint_range_of_motion_ = 0.05;
-  dt_constraint_dynamic_ = 0.2;
+  dt_constraint_dynamic_ = 0.1;
   dt_constraint_base_motion_ = duration_base_polynomial_/4.;
 
 
@@ -68,7 +68,7 @@ Parameters::Parameters ()
       Force,
 //      TotalTime, // Attention: this causes segfault in SNOPT
       Swing, // remove this at some point -> hacky
-//      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
+      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
   };
 
   // additional restrictions are set directly on the variable in nlp_factory,

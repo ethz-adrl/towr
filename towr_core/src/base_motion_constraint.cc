@@ -46,14 +46,14 @@ BaseMotionConstraint::BaseMotionConstraint (const Parameters& params,
 
   double dev_rad = 0.1;
   node_bounds_.resize(k6D);
-  node_bounds_.at(AX) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad); euler angles bounds!
-  node_bounds_.at(AY) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad);
-  node_bounds_.at(AZ) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad); // NoBound
+  node_bounds_.at(AX) = Bounds(-dev_rad, dev_rad);
+  node_bounds_.at(AY) = Bounds(-dev_rad, dev_rad);
+  node_bounds_.at(AZ) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad);
+
+  double z_init = base_linear_->GetPoint(0.0).p().z();
   node_bounds_.at(LX) = ifopt::NoBound;
   node_bounds_.at(LY) = ifopt::NoBound;//Bounds(-0.05, 0.05);
-
-  double z_init = 0.46;//base_linear_.GetPoint(0.0).p().z();
-  node_bounds_.at(LZ) = Bounds(0.46, 0.55); // allow to move dev_z cm up and down
+  node_bounds_.at(LZ) = Bounds(z_init-0.04, z_init+0.04); // allow to move dev_z cm up and down
 
   int n_constraints_per_node = node_bounds_.size();
   SetRows(GetNumberOfNodes()*n_constraints_per_node);

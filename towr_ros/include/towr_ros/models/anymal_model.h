@@ -43,10 +43,16 @@ public:
 
 class AnymalDynamicModel : public CentroidalModel {
 public:
+
+  // ANYmal bear
   AnymalDynamicModel()
-  : CentroidalModel(36.5,
-                    1.11117, 2.20775, 2.02077, 0.00943193, 0.0101473, 0.00124553,
+  : CentroidalModel(29.5,
+                    0.946438, 1.94478, 2.01835, 0.000938112, -0.00595386, -0.00146328,
                     4) {}
+  // ANYmal beth
+//  : CentroidalModel(36.5,
+//                    1.11117, 2.20775, 2.02077, 0.00943193, 0.0101473, 0.00124553,
+//                    4) {}
 };
 
 } // namespace towr
