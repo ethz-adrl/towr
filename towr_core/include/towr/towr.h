@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "height_map.h"
 #include "nlp_factory.h"
 #include "parameters.h"
-#include "nlp_factory.h"
 
 
 namespace towr {
