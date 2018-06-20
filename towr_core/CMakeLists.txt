@@ -4,7 +4,7 @@ project(towr_core)
 add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED)
-find_package(ifopt_core REQUIRED)
+find_package(ifopt REQUIRED)
 
 
 #################################
@@ -14,7 +14,7 @@ find_package(ifopt_core REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS ifopt_core
+  CATKIN_DEPENDS ifopt
 )
 
 
@@ -23,7 +23,7 @@ catkin_package(
 ###########
 include_directories(
   include
-  ${ifopt_core_INCLUDE_DIRS}
+  ${ifopt_INCLUDE_DIRS}
 )
 
 # The motion planning problem formulated through variables and constraints
@@ -61,7 +61,7 @@ add_library(${PROJECT_NAME}
   src/soft_constraint.cc
 )
 target_link_libraries(${PROJECT_NAME} 
-  ${ifopt_core_LIBRARIES}
+  ${ifopt_LIBRARIES}
 )
 
 

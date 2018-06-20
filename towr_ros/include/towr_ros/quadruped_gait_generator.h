@@ -61,6 +61,7 @@ private:
   GaitInfo GetStrideGallop() const;
   GaitInfo GetStrideFlyingGallop() const;
   GaitInfo GetStridePronk() const;
+  GaitInfo GetStrideLimp() const;
 
   virtual void SetCombo(GaitCombos combo) override;
 

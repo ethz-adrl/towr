@@ -19,7 +19,6 @@
   <url type="bugtracker">https://github.com/ethz-adrl/towr/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>ifopt_ipopt</build_depend>
   <build_depend>towr_core</build_depend>
 
 </package>

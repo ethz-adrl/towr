@@ -102,9 +102,9 @@ RvizTerrainBuilder::BuildTerrainFlat() const
 RvizTerrainBuilder::MarkerArray
 RvizTerrainBuilder::BuildTerrainBlock() const
 {
-  double block_start = 1.5;
+  double block_start = 0.7;
   double length_     = 3.5;
-  double height_     = 0.8; // [m]
+  double height_     = 0.15; // [m]
 
 
   MarkerArray msg;

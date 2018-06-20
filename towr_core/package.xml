@@ -21,6 +21,6 @@
   <url type="bugtracker">http://github.com/ethz-adrl/towr/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <depend>ifopt_core</depend>
+  <depend>ifopt</depend>
  
 </package>

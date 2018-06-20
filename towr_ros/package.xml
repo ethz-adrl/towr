@@ -31,5 +31,4 @@
   <depend>xpp_msgs</depend>
   
   <depend>towr_core</depend>
-  <depend>ifopt_ipopt</depend>
 </package>

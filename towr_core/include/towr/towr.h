@@ -31,10 +31,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_TOWR_H_
 
 #include <ifopt/problem.h>
+#include <ifopt/ipopt_adapter.h>
 
 #include <iostream>
-
-#include <ifopt_ipopt/ipopt_adapter.h>
 
 #include <towr/variables/spline_holder.h>
 
