@@ -32,6 +32,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/towr.h>
 #include <towr/models/centroidal_model.h>
 
+#include <ifopt/ipopt.h>
+
 
 using namespace towr;
 
@@ -99,9 +101,10 @@ int main()
   towr.SetInitialState(initial_base, {initial_foot_pos_W});
   towr.SetParameters(goal, params, model, std::make_shared<FlatGround>());
 
-  towr.SolveNLP();
-  auto x = towr.GetSolution();
+  auto solver = std::make_shared<ifopt::Ipopt>();
+  towr.SolveNLP(solver);
 
+  auto x = towr.GetSolution();
 
   // Print out the trajecetory at discrete time samples
   using namespace std;

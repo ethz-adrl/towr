@@ -50,6 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr_ros/models/biped_model.h>
 #include <towr_ros/models/monoped_model.h>
 
+#include <ifopt/ipopt.h>
+
 namespace towr {
 
 
@@ -95,6 +97,8 @@ TowrRos::TowrRos ()
 
   ground_height_ = 0.0;
   terrain_ = std::make_shared<FlatGround>(ground_height_);
+
+  solver_ = std::make_shared<ifopt::Ipopt>();
 }
 
 void
@@ -190,7 +194,7 @@ void
 TowrRos::OptimizeMotion ()
 {
   try {
-    towr_.SolveNLP();
+    towr_.SolveNLP(solver_);
   } catch (const std::runtime_error& e) {
     ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
   }

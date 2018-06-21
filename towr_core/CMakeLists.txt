@@ -23,6 +23,7 @@ endif()
 # The motion-planning problem formulated through variables and constraints
 # --> solver independent
 add_library(${PROJECT_NAME}
+  src/towr.cc
   src/nlp_factory.cc
   src/time_discretization_constraint.cc
   src/base_motion_constraint.cc
@@ -57,7 +58,7 @@ add_library(${PROJECT_NAME}
 
 # example problem solved with IPOPT
 add_executable(${PROJECT_NAME}-example 
-  test/example.cc
+  test/hopper_example.cc
 )
 
 
@@ -110,7 +111,7 @@ endif()
 enable_testing()
 add_test(${PROJECT_NAME}-example  ${PROJECT_NAME}-example)
 find_package(GTest QUIET)
-if (TARGET GTest::GTest) # only build when target exists
+if (TARGET GTest::GTest) # only build when modern targets exists
 
   add_executable(${PROJECT_NAME}-test
     test/dynamic_constraint_test.cc

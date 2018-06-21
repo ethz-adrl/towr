@@ -77,6 +77,7 @@ private:
 
 
   TOWR towr_;
+  ifopt::Solver::Ptr solver_;
 
   GaitGenerator::Ptr gait_;
   RobotModel model_;
