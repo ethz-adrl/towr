@@ -1,32 +1,26 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(towr_core)
 
-add_compile_options(-std=c++11)
-
-find_package(catkin REQUIRED)
 find_package(ifopt REQUIRED)
-
 
 #################################
 ## Generate cmake config files ##
 #################################
 # These can then be used to "find_package(towr)"
+find_package(catkin QUIET)
+if (catkin_FOUND)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS ifopt
 )
+endif()
 
 
 ###########
 ## Build ##
 ###########
-include_directories(
-  include
-  ${ifopt_INCLUDE_DIRS}
-)
-
-# The motion planning problem formulated through variables and constraints
+# The motion-planning problem formulated through variables and constraints
 # --> solver independent
 add_library(${PROJECT_NAME}
   src/nlp_factory.cc
@@ -60,42 +54,91 @@ add_library(${PROJECT_NAME}
   src/linear_constraint.cc
   src/soft_constraint.cc
 )
-target_link_libraries(${PROJECT_NAME} 
-  ${ifopt_LIBRARIES}
+
+# example problem solved with IPOPT
+add_executable(${PROJECT_NAME}-example 
+  test/example.cc
 )
+
+
+##########
+## Link ##
+##########
+# ifopt built within pure modern cmake; everything easy
+if(TARGET ifopt::ifopt_core)
+  
+  target_link_libraries(${PROJECT_NAME} 
+    PUBLIC 
+      ifopt::ifopt_core
+  )
+  target_include_directories(${PROJECT_NAME} 
+    PUBLIC
+      include
+  )
+  target_link_libraries(${PROJECT_NAME}-example  
+    PRIVATE 
+      ${PROJECT_NAME}
+      ifopt::ifopt_ipopt
+  )
+# ifopt built with catkin, so find script a bit different  
+else()
+  
+  target_link_libraries(${PROJECT_NAME} 
+    PUBLIC 
+      ${ifopt_LIBRARIES}
+  )
+  target_include_directories(${PROJECT_NAME} 
+    PUBLIC
+      include 
+      ${ifopt_INCLUDE_DIRS}
+  )
+  target_compile_features(${PROJECT_NAME} 
+    PUBLIC 
+      cxx_range_for 
+      cxx_auto_type
+  )
+  target_link_libraries(${PROJECT_NAME}-example  
+    PRIVATE
+      ${PROJECT_NAME} 
+  ) 
+endif()
+
+
+#############
+## Testing ##
+#############
+enable_testing()
+add_test(${PROJECT_NAME}-example  ${PROJECT_NAME}-example)
+find_package(GTest QUIET)
+if (TARGET GTest::GTest) # only build when target exists
+
+  add_executable(${PROJECT_NAME}-test
+    test/dynamic_constraint_test.cc
+    test/centroidal_dynamics_test.cc
+  )
+  target_link_libraries(${PROJECT_NAME}-test
+    PRIVATE
+      ${PROJECT_NAME}
+      GTest::GTest GTest::Main
+  )
+  add_test(${PROJECT_NAME}-test ${PROJECT_NAME}-test)
+endif()
 
 
 #############
 ## Install ##
 #############
 # Mark library for installation
-install(
-  TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-# Mark header files for installation
-install(
-  DIRECTORY include/towr/
-  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/towr
-  FILES_MATCHING PATTERN "*.h"
-)
-
-
-#############
-## Testing ##
-#############
-if (CATKIN_ENABLE_TESTING)
-catkin_add_gtest(${PROJECT_NAME}-test
-    test/gtest_main.cc
-    test/dynamic_constraint_test.cc
-    test/centroidal_dynamics_test.cc
-)
-target_link_libraries(${PROJECT_NAME}-test
-    ${PROJECT_NAME}
-    pthread
-)
-endif()
-
+#install(
+#  TARGETS ${PROJECT_NAME}
+#  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)
+#
+## Mark header files for installation
+#install(
+#  DIRECTORY include/towr/
+#  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/towr
+#  FILES_MATCHING PATTERN "*.h"
+#)

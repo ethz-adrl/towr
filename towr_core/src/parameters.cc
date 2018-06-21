@@ -61,14 +61,14 @@ Parameters::Parameters ()
 
 
   constraints_ = {
-      BaseAcc,
+      BaseAcc,  // enforces that acceleration doesn't jump between splines
       EndeffectorRom,
       Dynamic,
       Terrain,
       Force,
 //      TotalTime, // Attention: this causes segfault in SNOPT
-      Swing, // remove this at some point -> hacky
-      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
+//      Swing, // remove this at some point -> hacky
+//      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
   };
 
   // additional restrictions are set directly on the variable in nlp_factory,

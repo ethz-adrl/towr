@@ -31,7 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_TOWR_H_
 
 #include <ifopt/problem.h>
-#include <ifopt/ipopt_adapter.h>
+#include <ifopt/ipopt.h>
+//#include <ifopt/snopt.h>
 
 #include <iostream>
 
@@ -56,7 +57,9 @@ namespace towr {
  * @attention
  * To build this file into an executable, the solver IPOPT must be
  * installed and linked against its ifopt interface via
- *   "find_package(ifopt_ipopt)
+ *
+ * find_package(ifopt)
+ * target_link_libraries(towr_core PUBLIC ifopt::ifopt_ipopt)
  */
 class TOWR {
 public:
@@ -116,8 +119,8 @@ public:
   {
     nlp_ = BuildNLP();
 
-    ifopt::IpoptAdapter::Solve(nlp_);
-    // ifopt::SnoptAdapter::Solve(nlp_);
+    ifopt::Ipopt solver; // ifopt::Snopt solver;
+    solver.Solve(nlp_);
 
     nlp_.PrintCurrent();
   }
