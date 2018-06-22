@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
-project(towr_core)
+project(towr_core VERSION 1.1.0)
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(ifopt REQUIRED)
 
 
@@ -21,9 +22,15 @@ endif()
 ###########
 ## Build ##
 ###########
+IF(NOT CMAKE_BUILD_TYPE MATCHES Release)
+  message(STATUS "CMAKE_BUILD_TYPE not set to Release -> impacts performance")
+endif()
+
+# so dynamic library libtowr_core.so retains link to ifopt_core.so
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib) 
+
 # The motion-planning problem formulated through variables and constraints
-# --> solver independent
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/towr.cc
   src/nlp_factory.cc
   src/time_discretization_constraint.cc
@@ -58,11 +65,12 @@ add_library(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME} 
   PUBLIC 
-    ${ifopt_LIBRARIES}
+    ${ifopt_LIBRARIES} # actually only needs ifopt_core --> solver independent 
 )
 target_include_directories(${PROJECT_NAME} 
   PUBLIC
-    include 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
     ${ifopt_INCLUDE_DIRS}
 )
 target_compile_features(${PROJECT_NAME} 
@@ -106,6 +114,43 @@ endif()
 #############
 ## Install ##
 #############
+include(GNUInstallDirs) # for correct libraries locations across platforms
+set(config_package_location share/towr/cmake) # for .cmake find-scripts installs
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+# Copy header files to usr/local/include/ifopt/*
+install(DIRECTORY include/towr/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/towr
+)
+# Auto generate and install the find scripts helpers
+install(EXPORT ${PROJECT_NAME}-targets
+  FILE ${PROJECT_NAME}-targets.cmake
+  NAMESPACE towr::
+  DESTINATION ${config_package_location}
+)
+# generate the file TowrConfigVersion.cmake
+set(version_file "${CMAKE_CURRENT_BINARY_DIR}/towr-config-version.cmake")
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${version_file}
+  VERSION ${towr_core_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
+# install the two files in a place where cmake looks for them so can call
+# "find_package(towr).
+# see also: https://cmake.org/cmake/help/v3.0/manual/cmake-packages.7.html
+install(
+  FILES 
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/towr-config.cmake"   # self-written
+    ${version_file}                                         # generated
+  DESTINATION ${config_package_location}
+)
+
+
 # Mark library for installation
 #install(
 #  TARGETS ${PROJECT_NAME}
