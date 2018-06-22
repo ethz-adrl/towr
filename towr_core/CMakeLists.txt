@@ -3,16 +3,17 @@ project(towr_core)
 
 find_package(ifopt REQUIRED)
 
-#################################
-## Generate cmake config files ##
-#################################
-# These can then be used to "find_package(towr)"
+
+#############################################
+## Generate catkin find scripts (optional) ##
+#############################################
+# These can then be used to "find_package(towr_core)"
 find_package(catkin QUIET)
 if (catkin_FOUND)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS ifopt
+  DEPENDS ifopt
 )
 endif()
 
@@ -55,61 +56,37 @@ add_library(${PROJECT_NAME}
   src/linear_constraint.cc
   src/soft_constraint.cc
 )
-
-# example problem solved with IPOPT
-add_executable(${PROJECT_NAME}-example 
-  test/hopper_example.cc
+target_link_libraries(${PROJECT_NAME} 
+  PUBLIC 
+    ${ifopt_LIBRARIES}
 )
-
-
-##########
-## Link ##
-##########
-# ifopt built within pure modern cmake; everything easy
-if(TARGET ifopt::ifopt_core)
-  
-  target_link_libraries(${PROJECT_NAME} 
-    PUBLIC 
-      ifopt::ifopt_core
-  )
-  target_include_directories(${PROJECT_NAME} 
-    PUBLIC
-      include
-  )
-  target_link_libraries(${PROJECT_NAME}-example  
-    PRIVATE 
-      ${PROJECT_NAME}
-      ifopt::ifopt_ipopt
-  )
-# ifopt built with catkin, so find script a bit different  
-else()
-  
-  target_link_libraries(${PROJECT_NAME} 
-    PUBLIC 
-      ${ifopt_LIBRARIES}
-  )
-  target_include_directories(${PROJECT_NAME} 
-    PUBLIC
-      include 
-      ${ifopt_INCLUDE_DIRS}
-  )
-  target_compile_features(${PROJECT_NAME} 
-    PUBLIC 
-      cxx_range_for 
-      cxx_auto_type
-  )
-  target_link_libraries(${PROJECT_NAME}-example  
-    PRIVATE
-      ${PROJECT_NAME} 
-  ) 
-endif()
+target_include_directories(${PROJECT_NAME} 
+  PUBLIC
+    include 
+    ${ifopt_INCLUDE_DIRS}
+)
+target_compile_features(${PROJECT_NAME} 
+  PUBLIC 
+    cxx_range_for 
+    cxx_auto_type
+)
 
 
 #############
 ## Testing ##
 #############
 enable_testing()
-add_test(${PROJECT_NAME}-example  ${PROJECT_NAME}-example)
+# example problem solved with IPOPT
+add_executable(${PROJECT_NAME}-example 
+  test/hopper_example.cc
+)
+target_link_libraries(${PROJECT_NAME}-example  
+  PRIVATE
+    ${PROJECT_NAME} 
+)
+add_test(${PROJECT_NAME}-example ${PROJECT_NAME}-example)
+
+# unit tests of costs/constraints
 find_package(GTest QUIET)
 if (TARGET GTest::GTest) # only build when modern targets exists
 
