@@ -23,5 +23,5 @@
 
 
 # these are autogenerate by cmake
-include("${CMAKE_CURRENT_LIST_DIR}/towr_core-targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/towr-targets.cmake")
 

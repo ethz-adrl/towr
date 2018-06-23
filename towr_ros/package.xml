@@ -30,5 +30,5 @@
   <depend>xpp_states</depend>
   <depend>xpp_msgs</depend>
   
-  <depend>towr_core</depend>
+  <depend>towr</depend>
 </package>
