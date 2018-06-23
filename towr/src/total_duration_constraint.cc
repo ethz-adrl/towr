@@ -34,7 +34,7 @@ namespace towr {
 
 
 TotalDurationConstraint::TotalDurationConstraint (double T_total, int ee)
-    :ConstraintSet(1, "DurationConstraint_ee_-" + std::to_string(ee))
+    :ConstraintSet(1, "totalduration-" + std::to_string(ee))
 {
   T_total_ = T_total;
   ee_ = ee;

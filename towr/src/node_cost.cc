@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 NodeCost::NodeCost (const std::string& nodes_id, Dx deriv, int dim)
-    : CostTerm("Node Cost")
+    : CostTerm("node")
 {
   node_id_ = nodes_id;
   deriv_ = deriv;

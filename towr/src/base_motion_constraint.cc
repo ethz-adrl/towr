@@ -39,7 +39,7 @@ BaseMotionConstraint::BaseMotionConstraint (const Parameters& params,
                                             const SplineHolder& spline_holder)
     :TimeDiscretizationConstraint(params.t_total_,
                                   params.dt_constraint_base_motion_,
-                                  "BaseMotionConstraint")
+                                  "baseMotion")
 {
   base_linear_  = spline_holder.base_linear_;
   base_angular_ = spline_holder.base_angular_;

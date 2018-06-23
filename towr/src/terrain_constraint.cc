@@ -35,7 +35,7 @@ namespace towr {
 
 TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
                                       std::string ee_motion)
-    :ConstraintSet(kSpecifyLater, "Terrain-Constraint-" + ee_motion)
+    :ConstraintSet(kSpecifyLater, "terrain-" + ee_motion)
 {
   ee_motion_id_ = ee_motion;
   terrain_ = terrain;

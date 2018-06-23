@@ -36,7 +36,7 @@ LinearEqualityConstraint::LinearEqualityConstraint (
   const Eigen::MatrixXd& M,
   const Eigen::VectorXd& v,
   const std::string& variable_name)
-    : ConstraintSet(v.rows(), "LinearEqualityConstraint-" + variable_name)
+    : ConstraintSet(v.rows(), "linear-equality-" + variable_name)
 {
   M_ = M;
   v_ = v;

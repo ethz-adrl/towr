@@ -17,7 +17,7 @@
 #
 #   find_package(towr REQUIRED)
 #   add_executable(foo my_problem.cc)
-#   target_link_libraries(foo PUBLIC towr::towr_core)
+#   target_link_libraries(foo PUBLIC towr::towr)
 #
 #=============================================================================
 

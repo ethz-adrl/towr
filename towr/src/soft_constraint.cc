@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 SoftConstraint::SoftConstraint (const ConstraintPtr& constraint)
-    :Component(1, "SoftConstraint-" + constraint->GetName())
+    :Component(1, "soft-" + constraint->GetName())
 {
   constraint_ = constraint;
   int n_constraints = constraint_->GetRows();

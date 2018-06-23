@@ -149,19 +149,3 @@ install(
     ${version_file}                                         # generated
   DESTINATION ${config_package_location}
 )
-
-
-# Mark library for installation
-#install(
-#  TARGETS ${PROJECT_NAME}
-#  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#)
-#
-## Mark header files for installation
-#install(
-#  DIRECTORY include/towr/
-#  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/towr
-#  FILES_MATCHING PATTERN "*.h"
-#)

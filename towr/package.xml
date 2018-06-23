@@ -29,5 +29,6 @@
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>cmake</buildtool_depend>
   <depend>ifopt</depend>
+  <depend>eigen</depend>
  
 </package>

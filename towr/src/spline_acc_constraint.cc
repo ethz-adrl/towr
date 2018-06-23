@@ -33,7 +33,7 @@ namespace towr {
 
 SplineAccConstraint::SplineAccConstraint (const NodeSpline::Ptr& spline,
                                           std::string node_variable_name)
-    :ConstraintSet(kSpecifyLater, "SplineAcc-Constraint-" + node_variable_name)
+    :ConstraintSet(kSpecifyLater, "splineacc-" + node_variable_name)
 {
   spline_ = spline;
   node_variables_id_ = node_variable_name;

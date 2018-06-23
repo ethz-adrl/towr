@@ -35,11 +35,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 namespace id {
 
-static const std::string base_lin_nodes    = "base_lin";
-static const std::string base_ang_nodes    = "base_ang";
-static const std::string ee_motion_nodes   = "ee_motion_";
-static const std::string ee_force_nodes    = "ee_force_";
-static const std::string contact_schedule  = "ee_schedule";
+static const std::string base_lin_nodes    = "base-lin";
+static const std::string base_ang_nodes    = "base-ang";
+static const std::string ee_motion_nodes   = "ee-motion_";
+static const std::string ee_force_nodes    = "ee-force_";
+static const std::string contact_schedule  = "ee-schedule";
 
 
 static std::string EEMotionNodes(uint ee)
