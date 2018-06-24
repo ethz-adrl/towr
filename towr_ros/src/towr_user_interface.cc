@@ -57,14 +57,13 @@ TowrUserInterface::TowrUserInterface ()
 
   // publish goal zero initially
   goal_geom_.lin.p_.setZero();
-  goal_geom_.lin.p_ << 1.0, 0.0, 0.46;
+  goal_geom_.lin.p_ << 1.0, 0.0, 0.58;
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
 
   terrain_id_    = 0;
   gait_combo_id_ = 0;
-  total_duration_ = 2.5;
+  total_duration_ = 2.4;
   replay_trajectory_ = false;
-  use_solver_snopt_ = false;
   optimize_ = false;
   publish_optimized_trajectory_ = false;
 }
@@ -153,7 +152,7 @@ TowrUserInterface::CallbackKey (int c)
       break;
 
     case 'g':
-      gait_combo_id_ = AdvanceCircularBuffer(gait_combo_id_, kMaxNumGaits_);
+      gait_combo_id_ = AdvanceCircularBuffer(gait_combo_id_, max_gait_id_);
       printw("Switched gait to combo %s \n", std::to_string(gait_combo_id_).c_str());
       break;
 
@@ -176,10 +175,6 @@ TowrUserInterface::CallbackKey (int c)
         publish_optimized_trajectory_ = true;
         printw("Publish optimized trajectory request sent\n");
       break;
-    case 's':
-      printw("Toggled NLP solver type\n");
-      use_solver_snopt_ = !use_solver_snopt_;
-      break;
     case 'r':
       printw("Replaying already optimized trajectory\n");
       replay_trajectory_ = true;
@@ -197,7 +192,6 @@ void TowrUserInterface::PublishCommand()
   msg.goal_lin          = xpp::Convert::ToRos(goal_geom_.lin);
   msg.goal_ang          = xpp::Convert::ToRos(goal_geom_.ang);
   msg.replay_trajectory = replay_trajectory_;
-  msg.use_solver_snopt  = use_solver_snopt_;
   msg.optimize          = optimize_;
   msg.terrain_id        = terrain_id_;
   msg.gait_id           = gait_combo_id_;

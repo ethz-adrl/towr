@@ -104,7 +104,7 @@ RvizTerrainBuilder::BuildTerrainBlock() const
 {
   double block_start = 0.7;
   double length_     = 3.5;
-  double height_     = 0.15; // [m]
+  double height_     = 0.5; // [m]
 
 
   MarkerArray msg;
@@ -128,7 +128,7 @@ RvizTerrainBuilder::BuildTerrainBlock() const
 RvizTerrainBuilder::MarkerArray
 RvizTerrainBuilder::BuildTerrainStairs() const
 {
-  double first_step_start = 1.5;
+  double first_step_start = 1.0;
   double height_first_step = 0.2;
   double first_step_width = 0.4;
   double width_top = 1.0;
@@ -159,8 +159,8 @@ RvizTerrainBuilder::BuildTerrainGap() const
 {
   MarkerArray msg;
 
-  double gap_start = 1.5;
-  double l_gap = 0.5;      // was 0.5m or 1m for biped  for anymal motions
+  double gap_start = 1.0;
+  double l_gap = 0.6;
 
   double lx = gap_start*2.0;
   double ly = 3.0;
@@ -237,7 +237,7 @@ RvizTerrainBuilder::BuildTerrainChimney() const
   MarkerArray msg;
   double area_width = 3.0;
 
-  const double x_start_ = 1.5;
+  const double x_start_ = 1.0;
   const double length_  = 1.5;
   const double y_start_ = 0.5; // for rosbag was: 0.8  or  0.5; distance to start of slope from center at z=0
   const double slope    = 3;   // for rosbag was: 2    or  3

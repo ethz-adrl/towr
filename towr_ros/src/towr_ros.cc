@@ -50,8 +50,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr_ros/models/biped_model.h>
 #include <towr_ros/models/monoped_model.h>
 
-#include <ifopt/ipopt.h>
-
 namespace towr {
 
 
@@ -79,26 +77,30 @@ TowrRos::TowrRos ()
 
   // hardcode initial state
   towr::BaseState b;
-  b.lin.at(towr::kPos).z() = 0.46; // hyq: 58
+  b.lin.at(towr::kPos).z() = 0.58;
 
   std::vector<Eigen::Vector3d> ee_pos(4);
 
-  ee_pos.at(0) <<  0.33,  0.19, 0.0; // LF       hyq: 0.31,  0.29, 0.0
-  ee_pos.at(1) <<  0.33, -0.19, 0.0; // RF       hyq: 0.31, -0.29, 0.0
-  ee_pos.at(2) << -0.33,  0.19, 0.0; // LH       hyq: 0.31,  0.29, 0.0
-  ee_pos.at(3) << -0.33, -0.19, 0.0; // RH       hyq: 0.31, -0.29, 0.0
+  ee_pos.at(0) <<  0.31,  0.29, 0.0;
+  ee_pos.at(1) <<  0.31, -0.29, 0.0;
+  ee_pos.at(2) << -0.31,  0.29, 0.0;
+  ee_pos.at(3) << -0.31, -0.29, 0.0;
 
   towr_.SetInitialState(b, ee_pos);
 
-  model_.dynamic_model_   = std::make_shared<towr::AnymalDynamicModel>();
-  model_.kinematic_model_ = std::make_shared<towr::AnymalKinematicModel>();
+  model_.dynamic_model_   = std::make_shared<towr::HyqDynamicModel>();
+  model_.kinematic_model_ = std::make_shared<towr::HyqKinematicModel>();
   gait_                   = std::make_shared<towr::QuadrupedGaitGenerator>();
-  output_dt_              = 0.0025; // 400 Hz control loop frequency on ANYmal
+  output_dt_              = 0.02;
 
   ground_height_ = 0.0;
   terrain_ = std::make_shared<FlatGround>(ground_height_);
 
+  // could also use SNOPT here
   solver_ = std::make_shared<ifopt::Ipopt>();
+  solver_->max_cpu_time_ = 10.0;
+  solver_->linear_solver_ = "ma27";
+  solver_->use_jacobian_approximation_ = false;
 }
 
 void

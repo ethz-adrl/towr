@@ -64,11 +64,10 @@ private:
   void PublishCommand();
 
   xpp::State3dEuler goal_geom_;
-  int kMaxNumGaits_ = 9;
+  int max_gait_id_ = 4;
   int terrain_id_;
   int gait_combo_id_;
   bool replay_trajectory_;
-  bool use_solver_snopt_;
   bool optimize_;
   bool publish_optimized_trajectory_;
   double total_duration_;

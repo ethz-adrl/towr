@@ -67,8 +67,8 @@ private:
 
 
   // naming convention:, where the circle is is contact, front is right ->.
-  // so LF and RH in contact is (bP):  o x
-  //                                   x o
+  // so RF and LH in contact is (Pb):  o .
+  //                                   . o
   // flight-phase
   ContactState II_;
   // 1 swingleg

@@ -89,7 +89,7 @@ NlpFactory::MakeBaseVariables () const
   spline_lin->InitializeNodesTowardsGoal(initial_base_.lin.p(), final_base_.lin.p(), params_.t_total_);
   spline_lin->AddStartBound(kPos, {X,Y,Z}, initial_base_.lin.p());
   spline_lin->AddStartBound(kVel, {X,Y,Z}, initial_base_.lin.v());
-  spline_lin->AddFinalBound(kPos, {X,Y,Z}, final_base_.lin.p());
+  spline_lin->AddFinalBound(kPos, {X,Y},   final_base_.lin.p());
   spline_lin->AddFinalBound(kVel, {X,Y,Z}, final_base_.lin.v());
   vars.push_back(spline_lin);
 
@@ -125,16 +125,9 @@ NlpFactory::MakeEndeffectorVariables () const
     Eigen::Matrix3d w_R_b = EulerConverter::GetRotationMatrixBaseToWorld(euler);
     Vector3d final_ee_pos_W = final_base_.lin.p() + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
 
-
     nodes->InitializeNodesTowardsGoal(initial_ee_W_.at(ee), final_ee_pos_W, T);
 
-    // actually initial Z position should be constrained as well...-.-
-    nodes->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
-
-    // fix final endeffector position
-    bool step_taken = nodes->GetNodes().size() > 2;
-    if (step_taken) // otherwise this would overwrite start bound
-      nodes->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
+    nodes->AddStartBound(kPos, {X,Y,Z}, initial_ee_W_.at(ee));
 
     vars.push_back(nodes);
   }

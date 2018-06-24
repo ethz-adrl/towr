@@ -9,7 +9,7 @@
 # ^^^^^^^^^^^^^^^^
 #
 # This module defines the following IMPORTED targets:
-#   towr::towr_core  - variables and constraints for legged locomotion
+#   towr::towr  - variables and constraints for legged locomotion
 #
 #
 # Example usage

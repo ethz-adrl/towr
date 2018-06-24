@@ -105,22 +105,8 @@ Gap::GetHeight (double x, double y) const
   double h = 0.0;
 
   // modelled as parabola
-  if (gap_start_ <= x && x <= gap_end_x) {
-//    h = gap_depth_/(dx*dx) * std::pow(x - gap_center_x_,2) - gap_depth_;
-
-
+  if (gap_start_ <= x && x <= gap_end_x)
     h = a*x*x + b*x + c;
-  }
-
-//  // modelled as straight slopes
-//  if (gap_start_ <= x && x <= gap_end_x) {
-////    h = -slope_*(x - gap_start_);
-//    h = -gap_depth_;
-//  }
-
-//  if (gap_center_x_ <= x && x <= gap_end_x)
-//    h = slope_*(x - gap_center_x_) - gap_depth_;
-
 
   return h;
 }
@@ -130,30 +116,8 @@ Gap::GetHeightDerivWrtX (double x, double y) const
 {
   double dhdx = 0.0;
 
-  //  modelled as parabola
-  if (gap_start_ <= x && x <= gap_end_x) {
-
+  if (gap_start_ <= x && x <= gap_end_x)
     dhdx = 2*a*x + b;
-
-//    dhdx = 2*gap_depth_/(dx*dx) * (x - gap_center_x_);
-  }
-
-//  //  smooth corners in front of gap
-//  if (gap_start_-eps_ <= x && x <= gap_start_) {
-//    dhdx = -1 * (x - gap_start_);
-//  }
-//
-//  //  smooth corners in behind gap
-//  if (gap_end_x <= x && x <= gap_end_x+eps_) {
-//    dhdx = 1 * (x - gap_end_x);
-//  }
-
-  // modelled as straight slopes
-//  if (gap_start_ <= x && x <= gap_end_x)
-//    dhdx = -slope_;
-
-//  if (gap_center_x_ <= x && x <= gap_end_x)
-//    dhdx = slope_;
 
   return dhdx;
 }
@@ -163,24 +127,8 @@ Gap::GetHeightDerivWrtXX (double x, double y) const
 {
   double dzdxx = 0.0;
 
-  // modelled as parabola
-  if (gap_start_ <= x && x <= gap_end_x) {
-//    dzdxx = 2*gap_depth_/(dx*dx);
-
+  if (gap_start_ <= x && x <= gap_end_x)
     dzdxx = 2*a;
-  }
-
-//  //  smooth corners in front of gap
-//  if (gap_start_-eps_ <= x && x <= gap_start_) {
-//    dzdxx = -1;
-//  }
-//
-//  //  smooth corners in behind gap
-//  if (gap_end_x <= x && x <= gap_end_x+eps_) {
-//    dzdxx = 1;
-//  }
-
-
 
   return dzdxx;
 }
