@@ -19,6 +19,7 @@
 | [Eigen] | v3.2.0 | Library for linear algebra: ```sudo apt-get install libeigen3-dev```. |
 | [ifopt] | v2.0.0 | Eigen-based interface to optimization solvers. Only additional dependencies: [Ipopt] and/or [Snopt]. |
 | ([catkin])| v0.6.19 | Optional dependency as alternative to pure CMake build. |
+
 Make sure you have these dependencies installed in your system. [ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace.
 
 ## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building *towr* with CMake
