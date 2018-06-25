@@ -27,48 +27,19 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/constraints/total_duration_constraint.h>
-#include <towr/variables/variable_names.h>
+#include <towr/variables/nodes_observer.h>
+#include <towr/variables/nodes.h>
 
 namespace towr {
 
-
-TotalDurationConstraint::TotalDurationConstraint (double T_total, int ee)
-    :ConstraintSet(1, "DurationConstraint_ee_-" + std::to_string(ee))
+NodesObserver::NodesObserver(NodeSubjectPtr subject)
 {
-  T_total_ = T_total;
-  ee_ = ee;
-}
+  node_values_ = subject;
 
-void
-TotalDurationConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
-{
-  phase_durations_ = x->GetComponent<PhaseDurations>(id::EESchedule(ee_));
-}
-
-Eigen::VectorXd
-TotalDurationConstraint::GetValues () const
-{
-  VectorXd g = VectorXd::Zero(GetRows());
-  g(0) = phase_durations_->GetValues().sum(); // attention: excludes last duration
-  return g;
-}
-
-TotalDurationConstraint::VecBound
-TotalDurationConstraint::GetBounds () const
-{
-  // TODO hacky and should be fixed
-  // since last phase is not optimized over these hardcoded numbers go here
-  int min_duration_last_phase = 0.2;
-  return VecBound(GetRows(), ifopt::Bounds(0.1, T_total_-min_duration_last_phase));
-}
-
-void
-TotalDurationConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
-{
-  if (var_set == phase_durations_->GetName())
-    for (int col=0; col<phase_durations_->GetRows(); ++col)
-      jac.coeffRef(0, col) = 1.0;
-}
+  // register observer to subject so this class always up-to-date
+  subject->AddObserver(this);
+};
 
 } // namespace towr
+
+

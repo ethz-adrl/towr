@@ -104,6 +104,9 @@ public:
    */
   MatrixSXd GetRotationMatrixBaseToWorld(double t) const;
 
+  /** @see GetRotationMatrixBaseToWorld(t)  */
+  static MatrixSXd GetRotationMatrixBaseToWorld(const EulerAngles& xyz);
+
   /**
    * @brief Converts Euler angles and Euler rates to angular velocities.
    * @param t The current time in the euler angles spline.
@@ -148,6 +151,7 @@ public:
    * @returns        3 x n dimensional matrix (n = number of Euler node values).
    */
   Jacobian DerivOfRotVecMult(double t, const Vector3d& v, bool inverse) const;
+
 private:
   NodeSpline::Ptr euler_;
 
@@ -190,9 +194,6 @@ private:
    * each cell if filled with a row vector.
    */
   JacRowMatrix GetDerivativeOfRotationMatrixWrtNodes(double t) const;
-
-  /** @see GetRotationMatrixBaseToWorld(t)  */
-  static MatrixSXd GetRotationMatrixBaseToWorld(const EulerAngles& xyz);
 
   /** @see GetQuaternionBaseToWorld(t)  */
   static Eigen::Quaterniond GetQuaternionBaseToWorld(const EulerAngles& pos);

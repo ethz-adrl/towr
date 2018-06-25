@@ -27,39 +27,63 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef TOWR_VARIABLES_VARIABLE_NAMES_H_
-#define TOWR_VARIABLES_VARIABLE_NAMES_H_
-
-#include <string>
+#include <towr/constraints/spline_acc_constraint.h>
 
 namespace towr {
-namespace id {
 
-static const std::string base_lin_nodes    = "base_lin";
-static const std::string base_ang_nodes    = "base_ang";
-static const std::string ee_motion_nodes   = "ee_motion_";
-static const std::string ee_force_nodes    = "ee_force_";
-static const std::string contact_schedule  = "ee_schedule";
-
-
-static std::string EEMotionNodes(uint ee)
+SplineAccConstraint::SplineAccConstraint (const NodeSpline::Ptr& spline,
+                                          std::string node_variable_name)
+    :ConstraintSet(kSpecifyLater, "splineacc-" + node_variable_name)
 {
-  return  ee_motion_nodes + std::to_string(ee);
+  spline_ = spline;
+  node_variables_id_ = node_variable_name;
+
+  n_dim_       = spline->GetPoint(0.0).p().rows();
+  n_junctions_ = spline->GetPolynomialCount() - 1;
+  T_           = spline->GetPolyDurations();
+
+  SetRows(n_dim_*n_junctions_);
 }
 
-static std::string EEForceNodes(uint ee)
+Eigen::VectorXd
+SplineAccConstraint::GetValues () const
 {
-  return  ee_force_nodes + std::to_string(ee);
+  VectorXd g(GetRows());
+
+  for (int j=0; j<n_junctions_; ++j) {
+    int p_prev = j; // id of previous polynomial
+    VectorXd acc_prev = spline_->GetPoint(p_prev, T_.at(p_prev)).a();
+
+    int p_next = j+1;
+    VectorXd acc_next = spline_->GetPoint(p_next, 0.0).a();
+
+    g.segment(j*n_dim_, n_dim_) = acc_prev - acc_next;
+  }
+
+  return g;
 }
 
-static std::string EESchedule(uint ee)
+void
+SplineAccConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 {
-  return  contact_schedule + std::to_string(ee);
+  if (var_set == node_variables_id_) {
+    for (int j=0; j<n_junctions_; ++j) {
+      int p_prev = j; // id of previous polynomial
+      Jacobian acc_prev = spline_->GetJacobianWrtNodes(p_prev, T_.at(p_prev), kAcc);
+
+      int p_next = j+1;
+      Jacobian acc_next = spline_->GetJacobianWrtNodes(p_next, 0.0, kAcc);
+
+      jac.middleRows(j*n_dim_, n_dim_) = acc_prev - acc_next;
+    }
+  }
 }
 
-} // namespace id
-} // namespace towr
+SplineAccConstraint::VecBound
+SplineAccConstraint::GetBounds () const
+{
+  return VecBound(GetRows(), ifopt::BoundZero);
+}
 
+} /* namespace xpp */
 
-
-#endif /* TOWR_VARIABLES_VARIABLE_NAMES_H_ */

@@ -1,15 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>towr_ros</name>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <description>
-    The ROS dependent parts of TOWR.
-    <p>
-    Formulates a variety
-    of robots and terrains and a keyboard user interface to switch between them.
-    It also visualizes the produced motions plan in rviz using
+    The ROS dependent parts of 
+    <a href="https://github.com/ethz-adrl/towr">towr</a>.
+    Adds a keyboard user interface to set different goal states, motions
+    and robots and visualizes the produced motions plan in rviz using
     <a href="http://wiki.ros.org/xpp">xpp</a>.
-    </p> 
   </description>
 
   <author email="winklera@ethz.ch">Alexander W. Winkler</author>
@@ -30,6 +28,5 @@
   <depend>xpp_states</depend>
   <depend>xpp_msgs</depend>
   
-  <depend>towr_core</depend>
-  <depend>ifopt_ipopt</depend>
+  <depend>towr</depend>
 </package>

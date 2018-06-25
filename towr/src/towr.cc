@@ -27,20 +27,83 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/variables/nodes_observer.h>
-
-#include "../include/towr/variables/nodes.h"
+#include <towr/towr.h>
 
 namespace towr {
 
-NodesObserver::NodesObserver(NodeSubjectPtr subject)
+
+TOWR::TOWR () {
+  using namespace std;
+  cout << "\n";
+  cout << "************************************************************\n";
+  cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.2.0)\n";
+  cout << "                \u00a9 Alexander W. Winkler\n";
+  cout << "           https://github.com/ethz-adrl/towr\n";
+  cout << "************************************************************";
+  cout << "\n\n";
+}
+
+void
+TOWR::SetInitialState(const BaseState& base, const FeetPos& feet)
 {
-  node_values_ = subject;
+  factory_.initial_base_ = base;
+  factory_.initial_ee_W_ = feet;
+}
 
-  // register observer to subject so this class always up-to-date
-  subject->AddObserver(this);
-};
+void
+TOWR::SetParameters(const BaseState& final_base,
+                   const Parameters& params,
+                   const RobotModel& model,
+                   HeightMap::Ptr terrain)
+{
+  factory_.final_base_ = final_base;
+  factory_.params_ = params;
+  factory_.model_ = model;
+  factory_.terrain_ = terrain;
+}
 
-} // namespace towr
+void
+TOWR::SolveNLP(const ifopt::Solver::Ptr& solver)
+{
+  nlp_ = BuildNLP();
+  solver->Solve(nlp_);
+  nlp_.PrintCurrent();
+}
 
 
+SplineHolder
+TOWR::GetSolution() const
+{
+  return factory_.spline_holder_;
+}
+
+void
+TOWR::SetSolution(int solver_iteration)
+{
+  nlp_.SetOptVariables(solver_iteration);
+}
+
+int
+TOWR::GetIterationCount() const
+{
+  return nlp_.GetIterationCount();
+}
+
+ifopt::Problem
+TOWR::BuildNLP()
+{
+  ifopt::Problem nlp;
+
+  for (auto c : factory_.GetVariableSets())
+    nlp.AddVariableSet(c);
+
+  for (auto c : factory_.GetConstraints())
+    nlp.AddConstraintSet(c);
+
+  for (auto c : factory_.GetCosts())
+    nlp.AddCostSet(c);
+
+  return nlp;
+}
+
+} /* namespace towr */

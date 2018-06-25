@@ -30,11 +30,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_H_
 #define TOWR_TOWR_H_
 
-#include <ifopt/problem.h>
-
 #include <iostream>
 
-#include <ifopt_ipopt/ipopt_adapter.h>
+#include <ifopt/problem.h>
+#include <ifopt/solver.h>
 
 #include <towr/variables/spline_holder.h>
 
@@ -42,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "height_map.h"
 #include "nlp_factory.h"
 #include "parameters.h"
-#include "nlp_factory.h"
 
 
 namespace towr {
@@ -58,23 +56,15 @@ namespace towr {
  * @attention
  * To build this file into an executable, the solver IPOPT must be
  * installed and linked against its ifopt interface via
- *   "find_package(ifopt_ipopt)
+ *
+ * find_package(ifopt)
+ * target_link_libraries(towr_core PUBLIC ifopt::ifopt_ipopt)
  */
 class TOWR {
 public:
   using FeetPos = std::vector<Eigen::Vector3d>;
 
-  TOWR ()
-  {
-    using namespace std;
-    cout << "\n";
-    cout << "************************************************************\n";
-    cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.1.0)\n";
-    cout << "                \u00a9 Alexander W. Winkler\n";
-    cout << "           https://github.com/ethz-adrl/towr\n";
-    cout << "************************************************************";
-    cout << "\n\n";
-  }
+  TOWR ();
   virtual ~TOWR () = default;
 
   /**
@@ -83,11 +73,7 @@ public:
    * @param base  The linear and angular position and velocity of the 6D- base.
    * @param feet  The current position of the end-effectors.
    */
-  void SetInitialState(const BaseState& base, const FeetPos& feet)
-  {
-    factory_.initial_base_ = base;
-    factory_.initial_ee_W_ = feet;
-  }
+  void SetInitialState(const BaseState& base, const FeetPos& feet);
 
   /**
    * @brief  The parameters that determine the type of motion produced.
@@ -100,13 +86,7 @@ public:
   void SetParameters(const BaseState& final_base,
                      const Parameters& params,
                      const RobotModel& model,
-                     HeightMap::Ptr terrain)
-  {
-    factory_.final_base_ = final_base;
-    factory_.params_ = params;
-    factory_.model_ = model;
-    factory_.terrain_ = terrain;
-  }
+                     HeightMap::Ptr terrain);
 
   /**
    * @brief Constructs the problem and solves it with IPOPT.
@@ -114,15 +94,7 @@ public:
    * Could use any ifopt solver interface, see (http://wiki.ros.org/ifopt).
    * Currently IPOPT and SNOPT are implemented.
    */
-  void SolveNLP()
-  {
-    nlp_ = BuildNLP();
-
-    ifopt::IpoptAdapter::Solve(nlp_);
-    // ifopt::SnoptAdapter::Solve(nlp_);
-
-    nlp_.PrintCurrent();
-  }
+  void SolveNLP(const ifopt::Solver::Ptr& solver);
 
   /**
    * @returns the optimized motion for base, feet and force as splines.
@@ -130,10 +102,7 @@ public:
    * The can then be queried at specific times to get the positions, velocities,
    * or forces.
    */
-  SplineHolder GetSolution() const
-  {
-    return factory_.spline_holder_;
-  }
+  SplineHolder GetSolution() const;
 
   /**
    * @brief Sets the solution to a previous iteration of solver.
@@ -143,18 +112,12 @@ public:
    * a particular solution. The initialization of the NLP can also be inspected
    * by setting the iteration to zero.
    */
-  void SetSolution(int solver_iteration)
-  {
-    nlp_.SetOptVariables(solver_iteration);
-  }
+  void SetSolution(int solver_iteration);
 
   /**
    * @returns The number of iterations the solver took to find the solution.
    */
-  int GetIterationCount() const
-  {
-    return nlp_.GetIterationCount();
-  }
+  int GetIterationCount() const;
 
 private:
   /**
@@ -170,21 +133,8 @@ private:
   /**
    * @returns the solver independent optimization problem.
    */
-  ifopt::Problem BuildNLP()
-  {
-    ifopt::Problem nlp;
+  ifopt::Problem BuildNLP();
 
-    for (auto c : factory_.GetVariableSets())
-      nlp.AddVariableSet(c);
-
-    for (auto c : factory_.GetConstraints())
-      nlp.AddConstraintSet(c);
-
-    for (auto c : factory_.GetCosts())
-      nlp.AddCostSet(c);
-
-    return nlp;
-  }
 };
 
 } /* namespace towr */

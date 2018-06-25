@@ -55,8 +55,8 @@ public:
   enum GaitCombos    { C0=0, C1, C2, C3, C4, C5, C6, C7, C8, kNumCombos };
   enum GaitTypes     {Stand=0, Flight,
                       Walk1, Walk2, Walk2E,
-                      Run2, Run2E, Run1, Run1E, Run3,
-                      Hop1, Hop2, Hop3, Hop3E, Hop5, Hop5E,
+                      Run2, Run2E, Run1, Run1E, Run3, Run3E,
+                      Hop1, Hop1E, Hop2, Hop3, Hop3E, Hop5, Hop5E,
                       kNumGaits};
 
   GaitGenerator () = default;

@@ -27,57 +27,43 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef TOWR_ROS_USER_INTERFACE_H_
-#define TOWR_ROS_USER_INTERFACE_H_
-
-#include <ros/ros.h>
-
-#include <xpp_states/state.h>
+#include <towr/costs/soft_constraint.h>
 
 namespace towr {
 
-/**
- * @brief Translates user input into the ROS message TowrCommand.msg.
- *
- * This includes high level input about where to go (e.g. converting
- * keyboard input into a goal state), which terrain to visualize, etc.
- */
-class TowrUserInterface {
-public:
+SoftConstraint::SoftConstraint (const ConstraintPtr& constraint)
+    :Component(1, "soft-" + constraint->GetName())
+{
+  constraint_ = constraint;
+  int n_constraints = constraint_->GetRows();
 
-  /**
-   * @brief  Constructs default object to interact with framework.
-   */
-  TowrUserInterface ();
-  virtual ~TowrUserInterface () = default;
+  // average value of each upper and lower bound
+  b_ = VectorXd(n_constraints);
+  int i=0;
+  for (auto b : constraint_->GetBounds()) {
+    b_(i++) = (b.upper_ + b.lower_)/2.;
+  }
 
-  /**
-   * Called whenever a keyboard key is pressed.
-   * @param c  Unicode character of that key (see ncurses library).
-   */
-  void CallbackKey(int c);
+  // treat all constraints equally by default
+  W_.resize(n_constraints);
+  W_.setOnes();
+}
 
-private:
-  ::ros::Publisher  user_command_pub_; ///< the output message to TOWR.
+SoftConstraint::VectorXd
+SoftConstraint::GetValues () const
+{
+  VectorXd g = constraint_->GetValues();
+  VectorXd cost = 0.5*(g-b_).transpose()*W_.asDiagonal()*(g-b_);
+  return cost;
+}
 
-
-  void PublishCommand();
-
-  xpp::State3dEuler goal_geom_;
-  int max_gait_id_ = 4;
-  int terrain_id_;
-  int gait_combo_id_;
-  bool replay_trajectory_;
-  bool optimize_;
-  bool publish_optimized_trajectory_;
-  double total_duration_;
-
-  int AdvanceCircularBuffer(int& curr, int max) const;
-
-  void PrintVector(const Eigen::Vector3d& v) const;
-  void PrintHelp() const;
-};
+SoftConstraint::Jacobian
+SoftConstraint::GetJacobian () const
+{
+  VectorXd g   = constraint_->GetValues();
+  Jacobian jac = constraint_->GetJacobian();
+  VectorXd grad = jac.transpose()*W_.asDiagonal()*(g-b_);
+  return grad.transpose().sparseView();
+}
 
 } /* namespace towr */
-
-#endif /* TOWR_ROS_USER_INTERFACE_H_ */

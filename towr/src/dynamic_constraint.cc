@@ -39,7 +39,7 @@ DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
                                       const SplineHolder& spline_holder)
     :TimeDiscretizationConstraint(params.t_total_,
                                   params.dt_constraint_dynamic_,
-                                  "DynamicConstraint")
+                                  "dynamic")
 {
   model_ = m;
 

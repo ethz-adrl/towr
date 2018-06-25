@@ -53,18 +53,22 @@ private:
   GaitInfo GetStrideWalkOverlap() const;
   GaitInfo GetStrideTrot() const;
   GaitInfo GetStrideTrotFly() const;
+  GaitInfo GetStrideTrotFlyEnd () const;
   GaitInfo GetStridePace() const;
+  GaitInfo GetStridePaceEnd() const;
   GaitInfo GetStrideBound() const;
+  GaitInfo GetStrideBoundEnd () const;
   GaitInfo GetStrideGallop() const;
   GaitInfo GetStrideFlyingGallop() const;
   GaitInfo GetStridePronk() const;
+  GaitInfo GetStrideLimp() const;
 
   virtual void SetCombo(GaitCombos combo) override;
 
 
   // naming convention:, where the circle is is contact, front is right ->.
-  // so LF and RH in contact is (bP):  o x
-  //                                   x o
+  // so RF and LH in contact is (Pb):  o .
+  //                                   . o
   // flight-phase
   ContactState II_;
   // 1 swingleg

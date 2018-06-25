@@ -27,50 +27,49 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/costs/node_cost.h>
-
-#include <cmath>
+#include <towr/constraints/linear_constraint.h>
 
 namespace towr {
 
-NodeCost::NodeCost (const std::string& nodes_id, Dx deriv, int dim)
-    : CostTerm("Node Cost")
+
+LinearEqualityConstraint::LinearEqualityConstraint (
+  const Eigen::MatrixXd& M,
+  const Eigen::VectorXd& v,
+  const std::string& variable_name)
+    : ConstraintSet(v.rows(), "linear-equality-" + variable_name)
 {
-  node_id_ = nodes_id;
-  deriv_ = deriv;
-  dim_   = dim;
+  M_ = M;
+  v_ = v;
+  variable_name_   = variable_name;
+}
+
+LinearEqualityConstraint::VectorXd
+LinearEqualityConstraint::GetValues () const
+{
+  VectorXd x = GetVariables()->GetComponent(variable_name_)->GetValues();
+  return M_*x;
+}
+
+LinearEqualityConstraint::VecBound
+LinearEqualityConstraint::GetBounds () const
+{
+  VecBound bounds;
+
+  for (int i=0; i<GetRows(); ++i) {
+    ifopt::Bounds bound(-v_[i],-v_[i]);
+    bounds.push_back(bound);
+  }
+
+  return bounds;
 }
 
 void
-NodeCost::InitVariableDependedQuantities (const VariablesPtr& x)
+LinearEqualityConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 {
-  nodes_ = x->GetComponent<Nodes>(node_id_);
-}
-
-double
-NodeCost::GetCost () const
-{
-  double cost;
-  for (auto n : nodes_->GetNodes()) {
-    double val = n.at(deriv_)(dim_);
-    cost += std::pow(val,2);
-  }
-
-  return cost;
-}
-
-void
-NodeCost::FillJacobianBlock (std::string var_set, Jacobian& jac) const
-{
-  if (var_set == node_id_) {
-
-    for (int i=0; i<nodes_->GetRows(); ++i)
-      for (auto idx : nodes_->GetNodeInfoAtOptIndex(i))
-        if (idx.node_deriv_==deriv_ && idx.node_dim_==dim_) {
-          double val = nodes_->GetNodes().at(idx.node_id_).at(deriv_)(dim_);
-          jac.coeffRef(0, i) += 2.0*val;
-        }
-  }
+  // the constraints are all linear w.r.t. the decision variables.
+  // careful, sparseView is only valid when the Jacobian is constant
+  if (var_set == variable_name_)
+    jac = M_.sparseView();
 }
 
 } /* namespace towr */

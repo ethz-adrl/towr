@@ -37,7 +37,7 @@ namespace towr {
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   double force_limit,
                                   EE ee)
-    :ifopt::ConstraintSet(kSpecifyLater, "Force-Constraint-" + id::EEForceNodes(ee))
+    :ifopt::ConstraintSet(kSpecifyLater, "force-" + id::EEForceNodes(ee))
 {
   terrain_ = terrain;
   fn_max_  = force_limit;

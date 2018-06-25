@@ -10,8 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   xpp_msgs
   message_generation
   xpp_states
-  towr_core
-  ifopt_ipopt  # ipopt_snopt if you want so solve with SNOPT
+  towr
 )
 
 

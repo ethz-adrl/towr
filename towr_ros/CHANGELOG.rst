@@ -2,6 +2,12 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.0 (2018-06-25)
+------------------
+* adapt to version 2.0.0 of ifopt `#17 <https://github.com/ethz-adrl/ifopt/pull/17>`_
+* fix discrepancy between gap height map and rviz visualization
+* Contributors: Alexander Winkler
+
 1.1.0 (2018-02-06)
 ------------------
 * improve launch files and class names

@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 SwingConstraint::SwingConstraint (std::string ee_motion)
-    :ConstraintSet(kSpecifyLater, "Swing-Constraint-" + ee_motion)
+    :ConstraintSet(kSpecifyLater, "swing-" + ee_motion)
 {
   ee_motion_id_ = ee_motion;
 }

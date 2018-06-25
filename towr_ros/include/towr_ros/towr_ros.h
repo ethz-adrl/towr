@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr_ros/gait_generator.h>
 
 #include <towr/towr.h>
+#include <ifopt/ipopt.h>
 
 namespace towr {
 
@@ -77,9 +78,11 @@ private:
 
 
   TOWR towr_;
+  ifopt::Ipopt::Ptr solver_;
 
   GaitGenerator::Ptr gait_;
   RobotModel model_;
+  double ground_height_; ///< can be adapted based on footholds
   HeightMap::Ptr terrain_;
 
   double output_dt_; ///< discretization of output trajectory (1/TaskServoHz)

@@ -38,7 +38,7 @@ RangeOfMotionConstraint::RangeOfMotionConstraint (const KinematicModel::Ptr& mod
                                                   const SplineHolder& spline_holder)
     :TimeDiscretizationConstraint(params.t_total_,
                                   params.dt_constraint_range_of_motion_,
-                                  "RangeOfMotionBox-" + std::to_string(ee))
+                                  "rangeofmotion-" + std::to_string(ee))
 {
   base_linear_  = spline_holder.base_linear_;
   base_angular_ = EulerConverter(spline_holder.base_angular_);

@@ -35,19 +35,19 @@ namespace towr {
 
 Parameters::Parameters ()
 {
-  t_total_ = 3.0; // [s]
+  t_total_ = 2.0; // [s]
 
-  duration_base_polynomial_ = 0.2;
+  duration_base_polynomial_ = 0.1;
 
   // 2 also works quite well. Remember that in between the nodes, forces
   // could still be violating unilateral and friction constraints by
   // polynomial interpolation
-  force_polynomials_per_stance_phase_ = 3; // this makes it a lot bigger
-  ee_polynomials_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
+  force_polynomials_per_stance_phase_ = 3;
+  ee_polynomials_per_swing_phase_ = 2; // should be 2 when using swing constraint.
 
 
-  dt_constraint_range_of_motion_ = 0.1;
-  dt_constraint_dynamic_ = 0.2;
+  dt_constraint_range_of_motion_ = 0.05;
+  dt_constraint_dynamic_ = 0.1;
   dt_constraint_base_motion_ = duration_base_polynomial_/4.;
 
 
@@ -59,16 +59,20 @@ Parameters::Parameters ()
 
   force_limit_in_norm_ = 1000; // [N] this affects convergence when optimizing gait
 
+
   constraints_ = {
-      BaseAcc,
+      BaseAcc,  // enforces that acceleration doesn't jump between splines
       EndeffectorRom,
       Dynamic,
       Terrain,
       Force,
-//      TotalTime, // Attention: this causes segfault in SNOPT
-      Swing, // remove this at some point -> hacky
-//      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
+//      TotalTime, // causes gait to also be optimized
+      Swing, // remove this at some point, not so general
+//      BaseRom, //  CAREFUL: restricts 6D base to be in a specific range->very limiting
   };
+
+  // additional restrictions are set directly on the variable in nlp_factory,
+  // such as e.g. initial and goal state,...
 
   costs_ = {
 //    {ForcesCostID, 1.0},
