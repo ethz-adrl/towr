@@ -1,6 +1,6 @@
 [<img src="https://i.imgur.com/qliQVx1.png" width="90%" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
 
-*A light-weight and extensible C++ library to formulate and solve trajectory optimization problems for legged robots.*
+*A light-weight and extensible C++ library for trajectory optimization for legged robots.*
 
 [![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_ethz-adrl/towr/master)](https://ci.leggedrobotics.com/job/github_ethz-adrl/job/towr/job/master/) [<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/api/towr_core/html/index.html)
 
