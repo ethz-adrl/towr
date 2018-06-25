@@ -22,6 +22,11 @@
 
 Make sure you have these dependencies installed in your system. [ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace.
 
+<p align="center">
+  <a href="#building-towr-with-cmake">towr with Cmake</a> •
+  <a href="#building-towr-with-catkin">towr with Catkin</a>
+</p>
+
 ## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with CMake
 * Install:
   ```bash
