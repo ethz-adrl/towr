@@ -26,7 +26,7 @@ Make sure you have these dependencies installed in your system. ifopt can be ins
 * [towr-ros + catkin](#towr-ros-with-catkin) (recommended): Catkin-build of core library + GUI + visualization (additional dependencies)
 
 
-## <a name="towr-with-cmake"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with CMake
+## <a name="towr-with-cmake"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building towr with CMake
 * Install:
   ```bash
   git clone https://github.com/ethz-adrl/towr.git && cd towr/towr
@@ -50,7 +50,7 @@ Make sure you have these dependencies installed in your system. ifopt can be ins
   target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
   ```
 
-## <a name="towr-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with catkin
+## <a name="towr-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building towr with catkin
 * Install:
   ```bash
   cd catkin_workspace/src
@@ -79,7 +79,7 @@ Make sure you have these dependencies installed in your system. ifopt can be ins
   </package>
   ```
 
-## <a name="towr-ros-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr_ros` and `towr` with catkin
+## <a name="towr-ros-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building towr_ros and towr with catkin
 We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
 visualizes the produces motions plans in rviz using [xpp]. Additional dependencies:
 
