@@ -12,7 +12,7 @@
 [<img src="https://i.imgur.com/j8lt5SE.png" />](https://youtu.be/0jE46GqzxMM "Play video on Youtube")
 
 
-## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Requirements
+## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Dependencies
 | Name | Min. Ver. | Description |
 | --- | --- | --- |
 | [CMake] | v3.1.0 | C++ build tool: ```sudo apt-get install cmake```. |
@@ -75,7 +75,7 @@ Make sure you have these dependencies installed in your system. [ifopt] can be i
   ```
 
 
-## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Building *towr_ros* (and *towr*) with Catkin
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr_ros` (and `towr`) with Catkin
 We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
 visualizes the produces motions plans in rviz using [xpp]. Required dependencies:
 
