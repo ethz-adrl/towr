@@ -29,7 +29,7 @@ Make sure you have these dependencies installed in your system. [ifopt] can be i
 [towr-ros-cmake](#towr-ros-with-catkin)
 
 
-## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with CMake <a name="towr-with-cmake"></a>
+## <a name="towr-with-cmake"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with CMake
 * Install:
   ```bash
   git clone https://github.com/ethz-adrl/towr.git && cd towr/towr
@@ -82,7 +82,7 @@ Make sure you have these dependencies installed in your system. [ifopt] can be i
   </package>
   ```
 
-## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr_ros` (and `towr`) with Catkin <a name="towr-ros-with-catkin"></a>
+## <a name="towr-ros-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr_ros` (and `towr`) with Catkin
 We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
 visualizes the produces motions plans in rviz using [xpp]. Required dependencies:
 
