@@ -107,6 +107,10 @@ Click in the xterm terminal and then hit 'o' for "optimize". Check the box next 
 
 <img src="https://i.imgur.com/FOuyx7C.gif" width="100%" />
 
+<img src="https://i.imgur.com/7TuPNPA.gif" width="100%" />
+
+
+
 ## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications
 Previous versions of this code have been used for a variety of publications. For 
 the respective code and the corresponding paper, see [Releases](https://github.com/awinkler/towr/releases).
