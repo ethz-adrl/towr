@@ -22,7 +22,7 @@
 
 Make sure you have these dependencies installed in your system. [ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace.
 
-## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building *towr* with CMake
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with CMake
 * Install:
   ```bash
   git clone https://github.com/ethz-adrl/towr.git && cd towr/towr
@@ -46,7 +46,7 @@ Make sure you have these dependencies installed in your system. [ifopt] can be i
   target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
   ```
   
-## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building *towr* with Catkin
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with Catkin
 * Install:
   ```bash
   cd catkin_workspace/src
