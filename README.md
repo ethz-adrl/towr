@@ -81,7 +81,7 @@ visualizes the produces motions plans in rviz using [xpp]. Required dependencies
 
 | Name | Min. Ver. | Description |
 | --- | --- | --- |
-| [ROS] |  indigo | [catkin], [roscpp], [std_msgs],...: ```sudo apt-get install ros-kinetic-desktop-full``` |
+| [ROS] |  indigo | [catkin], [roscpp], [std_msgs], ... ```sudo apt-get install ros-kinetic-desktop-full``` |
 | [xpp] | v1.0.6 | Visualization of legged robots in rviz: ```sudo apt-get install ros-kinetic-xpp``` |
 | [ncurses] | 5 | Text-based UI: ```sudo apt-get install libncurses5-dev libncursesw5-dev``` |
 | [xterm] | 297 | Terminal emulator: ```sudo apt-get install xterm``` |
