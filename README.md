@@ -3,7 +3,7 @@
 [![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_ethz-adrl/towr/master)](https://ci.leggedrobotics.com/job/github_ethz-adrl/job/towr/job/master/) [<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/api/towr_core/html/index.html)
 
 [<img src="https://i.imgur.com/2Rekk4u.png" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
-**TOWR** - **T**rajectory **O**ptimizer for **W**alking **R**obots, generates physically feasible motions for legged robots by solving an optimization problem. A Centroidal model of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. _TOWR_ generates 5 step monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations, in less than **100ms**. The entire motions are generated with only [6k lines](https://i.imgur.com/gP3gv34.png) (+1k from [ifopt]) of self-written code, which [facilitates](https://blog.codinghorror.com/the-best-code-is-no-code-at-all/) maintenance and debugging.
+**TOWR** - **T**rajectory **O**ptimizer for **W**alking **R**obots, generates physically feasible motions for legged robots by solving an optimization problem. A Single-Rigid-Body Model (SRBD) of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. _TOWR_ generates 5 step monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations, in less than **100ms**. The entire motions are generated with only [6k lines](https://i.imgur.com/gP3gv34.png) (+1k from [ifopt]) of self-written code, which [facilitates](https://blog.codinghorror.com/the-best-code-is-no-code-at-all/) maintenance and debugging.
 
 **Author/Maintainer: [Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
 
@@ -22,14 +22,14 @@
 
 Make sure you have these dependencies installed in your system. [ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace.
 
-<p align="center">
-  <a href="#building-towr-with-cmake">towr with Cmake</a> •
-  <a href="#building-towr-with-catkin">towr with Catkin</a>
-</p>
+[towr-cmake](#towr-with-cmake)
 
-[create an anchor](#towr-with-catkin)
+[towr-catkin](#towr-with-catkin)
 
-## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with CMake
+[towr-ros-cmake](#towr-ros-with-catkin)
+
+
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with CMake <a name="towr-with-cmake"></a>
 * Install:
   ```bash
   git clone https://github.com/ethz-adrl/towr.git && cd towr/towr
@@ -52,9 +52,8 @@ Make sure you have these dependencies installed in your system. [ifopt] can be i
   add_executable(main main.cpp) # Your custom variables, costs and constraints added to TOWR
   target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
   ```
-  
-## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with Catkin
-<div id="towr-with-catkin" /> 
+
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with Catkin <a name="towr-with-catkin"></a>
 * Install:
   ```bash
   cd catkin_workspace/src
@@ -83,8 +82,7 @@ Make sure you have these dependencies installed in your system. [ifopt] can be i
   </package>
   ```
 
-
-## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr_ros` (and `towr`) with Catkin
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr_ros` (and `towr`) with Catkin <a name="towr-ros-with-catkin"></a>
 We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
 visualizes the produces motions plans in rviz using [xpp]. Required dependencies:
 
