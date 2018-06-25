@@ -21,7 +21,7 @@
 | ([catkin])| v0.6.19 | Optional dependency as alternative to pure CMake build. |
 
 
-## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building with CMake
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building *towr* with CMake
 * Install: Make sure [ifopt] is installed in, then
   ```bash
   git clone https://github.com/ethz-adrl/towr.git && cd towr/towr
@@ -45,13 +45,13 @@
   target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
   ```
   
-## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building with Catkin
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building *towr* with Catkin
 * Install [ifopt] either system wide or clone into this catkin workspace, then:
   ```bash
   cd catkin_workspace/src
   git clone https://github.com/ethz-adrl/towr.git
   cd ..
-  catkin_make # `catkin build` if you are using catkin command-line tools 
+  catkin_make_isolated --pkg towr # `catkin build towr` if you are using catkin command-line tools 
   source ./devel/setup.bash
   
    
@@ -74,55 +74,33 @@
   ```
 
 
-## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> TOWR_ROS
+## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Building *towr_ros* (and *towr*) with Catkin
 We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
 visualizes the produces motions plans in rviz using [xpp]. The required dependencies for this package are:
 
 | Name | Min. Ver. | Description |
 | --- | --- | --- |
-| [ROS] |  indigo | [roscpp], [rosbag], [std_msgs],...: ```sudo apt-get install ros-kinetic-desktop-full``` |
+| [ROS] |  indigo | [catkin], [roscpp], [std_msgs],...: ```sudo apt-get install ros-kinetic-desktop-full``` |
 | [xpp] | v1.0.6 | Visualization of legged robots in rviz: ```sudo apt-get install ros-kinetic-xpp``` |
-| [ncurses] | 5 | Text-based user interface: ```sudo apt-get install libncurses5-dev libncursesw5-dev``` |
+| [ncurses] | 5 | Text-based UI: ```sudo apt-get install libncurses5-dev libncursesw5-dev``` |
 | [xterm] | 297 | Terminal emulator ```sudo apt-get install xterm``` |
 
+After having installed all of the above, run
+```bash
+cd catkin_workspace/src
+git clone https://github.com/ethz-adrl/towr.git
+cd ..
+catkin_make_isolated  # `catkin build` if you are using catkin command-line tools 
+source ./devel/setup.bash
+```
 
+Launch the program using
+```bash
+$ roslaunch towr_ros towr_ros.launch
+```
+Click in the xterm terminal and then hit 'o' for "optimize". Check the box next to HyQ to visualize that URDF.
 
-* [**_towr_ros_**](towr_ros) [(API)](http://docs.ros.org/api/towr_ros/html/index.html): Formulates a variety of robots (Monoped, biped, [HyQ], [ANYmal]) and terrains and a keyboard user interface to switch between them. It also allows to visualize the produced motions in _rviz_ using _xpp_. Additional dependencies:
-    * [roscpp], [rosbag], [message_generation], [std_msgs]: Standard ROS packages.
-    * [xpp]: ROS packages for the visualization of legged robots in rviz.
-    * [ncurses], [xterm]: Preinstalled on most Linux distributions.
-
-
-## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building
-Prior to building this, install [ifopt] and one of the NLP solvers and make sure the example runs (!). Then, install additional libraries, clone this repo into your catkin workspace and compile.
-
-    $ sudo apt-get install libncurses5-dev libncursesw5-dev xterm ros-kinetic-desktop-full ros-kinetic-xpp
     
-    $ cd catkin_workspace/src
-    $ git clone https://github.com/ethz-adrl/towr.git
-    $ cd ..
-    $ catkin_make -DCMAKE_BUILD_TYPE=Release
-    $ source ./devel/setup.bash
-
-
-## <img align="center" height="15" src="https://i.imgur.com/026nVBV.png"/> Unit Tests
-Make sure everything installed correctly by running the unit tests through
-
-    $ catkin_make run_tests
-
-
-## <img align="center" height="15" src="https://i.imgur.com/vAYeCzC.png"/> Usage
-To run the simplest [example](towr_examples/example.cc)
-     
-    $ rosrun towr_examples towr_ipopt_example
-
-For a more advanced [example](towr_ros/src/towr_ros.cc) with interactive keyboard input and ROS visualization,
-launch the file below, click in the xterm terminal and then hit 'o' for "optimize". Check
-the box next to HyQ to visualize that URDF.
-
-    $ roslaunch towr_ros towr_ros.launch
-
-
 
 ## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications
 Previous versions of this code have been used for a variety of publications. For 
