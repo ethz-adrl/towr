@@ -53,7 +53,7 @@ Make sure you have these dependencies installed in your system. [ifopt] can be i
   target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
   ```
 
-##<a name="towr-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with Catkin
+## <a name="towr-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with Catkin
 * Install:
   ```bash
   cd catkin_workspace/src
