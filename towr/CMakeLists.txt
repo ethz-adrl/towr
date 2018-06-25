@@ -1,16 +1,15 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
-project(towr VERSION 1.1.0)
+project(towr VERSION 1.2.0)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-find_package(ifopt REQUIRED)
+find_package(ifopt 2.0 REQUIRED)
 
 
 #############################################
 ## Generate catkin find scripts (optional) ##
 #############################################
-# These can then be used to "find_package(towr)"
-find_package(catkin QUIET)
-if (catkin_FOUND)
+if (CATKIN_DEVEL_PREFIX) # set only when building with catkin, not pure cmake
+find_package(catkin REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}

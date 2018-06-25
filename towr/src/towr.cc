@@ -36,7 +36,7 @@ TOWR::TOWR () {
   using namespace std;
   cout << "\n";
   cout << "************************************************************\n";
-  cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.1.0)\n";
+  cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.2.0)\n";
   cout << "                \u00a9 Alexander W. Winkler\n";
   cout << "           https://github.com/ethz-adrl/towr\n";
   cout << "************************************************************";

@@ -2,6 +2,12 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.0 (2018-06-25)
+------------------
+* allow building with pure cmake (catkin optional)
+* adapt to version 2.0.0 of ifopt `#17 <https://github.com/ethz-adrl/ifopt/pull/17>`_
+* Contributors: Alexander Winkler
+
 1.1.0 (2018-02-06)
 ------------------
 * add metapackage towr and move algorithm to towr_core
