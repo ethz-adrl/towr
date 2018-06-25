@@ -105,7 +105,7 @@ $ roslaunch towr_ros towr_ros.launch
 ```
 Click in the xterm terminal and then hit 'o' for "optimize". Check the box next to HyQ to visualize that URDF.
 
-<img src="https://i.imgur.com/FOuyx7C.gif" />
+<img src="https://i.imgur.com/FOuyx7C.gif" width="100%" />
 
 ## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications
 Previous versions of this code have been used for a variety of publications. For 
