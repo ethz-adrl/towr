@@ -1,4 +1,4 @@
-<img src="https://i.imgur.com/8XsMfKH.png" height="65" />
+<img src="https://i.imgur.com/4O1tMyH.png" height="65" />
 
 [![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_ethz-adrl/towr/master)](https://ci.leggedrobotics.com/job/github_ethz-adrl/job/towr/job/master/) [<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/api/towr_core/html/index.html)
 
