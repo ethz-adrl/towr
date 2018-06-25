@@ -21,9 +21,9 @@ This [Eigen]-based library provides implementations for variables, costs and con
 | [ifopt] | v2.0.0 | Eigen-based interface to optimization solvers. Only additional dependencies: [Ipopt] and/or [Snopt]. |
 
 Make sure you have these dependencies installed in your system. ifopt can be installed either system wide or, if you're building with [catkin], dropped into your catkin workspace. There are 3 ways to build this package:
-* [towr + cmake](#towr-with-cmake): Cmake-build of core library `towr` + hopper example
-* [towr + catkin](#towr-with-catkin): Catkin-build of core library `towr` + hopper example
-* [towr-ros + catkin](#towr-ros-with-catkin) (recommended): Catkin-build of core library + GUI + visualization (additional dependencies)
+* [Build 1](#towr-with-cmake): Cmake-build of core library `towr` + hopper example
+* [Build 2](#towr-with-catkin): Catkin-build of core library `towr` + hopper example
+* [Build 3](#towr-ros-with-catkin) (recommended): Catkin-build of core library + GUI + visualization (additional dependencies)
 
 
 ## <a name="towr-with-cmake"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building towr with CMake
