@@ -13,14 +13,15 @@
 
 
 ## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Requirements
-| Name | Version | Description |
+| Name | Min. Ver. | Description |
 | --- | --- | --- |
-| [CMake] | v3.1.0 | C++ build tool: ```sudo apt-get install cmake``` | 
-| [Eigen] | v3.2.0 | Library for linear algebra: ```sudo apt-get install libeigen3-dev```
-| [ifopt] | v2.0.0 | Eigen-based interface to optimization solvers. Only additional dependencies: [Ipopt] and/or [Snopt] |
+| [CMake] | v3.1.0 | C++ build tool: ```sudo apt-get install cmake```. |
+| [Eigen] | v3.2.0 | Library for linear algebra: ```sudo apt-get install libeigen3-dev```. |
+| [ifopt] | v2.0.0 | Eigen-based interface to optimization solvers. Only additional dependencies: [Ipopt] and/or [Snopt]. |
+| ([catkin])| v0.6.19 | Optional dependency as alternative to pure CMake build. |
 
 
-### <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building with CMake
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building with CMake
 * Install: Make sure [ifopt] is installed in, then
   ```bash
   git clone https://github.com/ethz-adrl/towr.git && cd towr/towr
@@ -31,11 +32,10 @@
   sudo xargs rm < install_manifest.txt # in case you want to uninstall the above
   ```
 
-* Test: Make sure everything installed correctly by running
+* Test ([hopper_example.cc](towr/test/hopper_example.cc)): Generates a motion for a one-legged hopper using Ipopt
   ```bash
-  make test
+  ./towr-example # or ./towr-test if gtest was found
   ```
-  You should see `#1 towr-example....Passed`. You can also run the binaries directly by typing e.g. ```./towr-example```. 
  
 * Use: You can easily customize and add your own constraints and variables to the optimization problem.
   Herefore, add the following to your *CMakeLists.txt*:
@@ -44,17 +44,49 @@
   add_executable(main main.cpp) # Your custom variables, costs and constraints added to TOWR
   target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
   ```
-
-
-## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Overview
-
-* [**_towr_core_**](towr_core) [(API)](http://docs.ros.org/api/towr_core/html/index.html): The core algorithm formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
-    * [Eigen]: Library for linear algebra.
-    * [ifopt_core]: Eigen-based interface to Nonlinear Programming solvers such as Ipopt and Snopt.
   
-* [**_towr_examples_**](towr_examples): Provides an example executable solving [towr_core](towr_core) with [Ipopt] to generate a one-legged hopper motion-plan. Additional dependencies:
-    * [Ipopt]: 3rd party NLP solver, [Snopt] can also be used.
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building with Catkin
+* Install [ifopt] either system wide or clone into this catkin workspace, then:
+  ```bash
+  cd catkin_workspace/src
+  git clone https://github.com/ethz-adrl/towr.git
+  cd ..
+  catkin_make # `catkin build` if you are using catkin command-line tools 
+  source ./devel/setup.bash
   
+   
+* Test ([hopper_example.cc](towr/test/hopper_example.cc)): Generates a motion for a one-legged hopper using Ipopt
+  ```bash
+  rosrun towr towr-example # or towr-test if gtest was found
+  ```
+
+* Use: Include in your catkin project by adding to your *CMakeLists.txt* 
+  ```cmake
+  find_package(catkin COMPONENTS towr) 
+  include_directories(${catkin_INCLUDE_DIRS})
+  target_link_libraries(foo ${catkin_LIBRARIES})
+  ```
+  Add the following to your *package.xml*:
+  ```xml
+  <package>
+    <depend>towr</depend>
+  </package>
+  ```
+
+
+## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> TOWR_ROS
+We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
+visualizes the produces motions plans in rviz using [xpp]. The required dependencies for this package are:
+
+| Name | Min. Ver. | Description |
+| --- | --- | --- |
+| [ROS] |  indigo | [roscpp], [rosbag], [std_msgs],...: ```sudo apt-get install ros-kinetic-desktop-full``` |
+| [xpp] | v1.0.6 | Visualization of legged robots in rviz: ```sudo apt-get install ros-kinetic-xpp``` |
+| [ncurses] | 5 | Text-based user interface: ```sudo apt-get install libncurses5-dev libncursesw5-dev``` |
+| [xterm] | 297 | Terminal emulator ```sudo apt-get install xterm``` |
+
+
+
 * [**_towr_ros_**](towr_ros) [(API)](http://docs.ros.org/api/towr_ros/html/index.html): Formulates a variety of robots (Monoped, biped, [HyQ], [ANYmal]) and terrains and a keyboard user interface to switch between them. It also allows to visualize the produced motions in _rviz_ using _xpp_. Additional dependencies:
     * [roscpp], [rosbag], [message_generation], [std_msgs]: Standard ROS packages.
     * [xpp]: ROS packages for the visualization of legged robots in rviz.
@@ -134,6 +166,7 @@ Please report bugs and request features using the [Issue Tracker](https://github
 [xterm]: https://linux.die.net/man/1/xterm
 [Snopt]: http://www.sbsi-sol-optimize.com/asp/sol_product_snopt.htm
 [rviz]: http://wiki.ros.org/rviz
+[catkin]: http://wiki.ros.org/catkin
 [catkin tools]: http://catkin-tools.readthedocs.org/
 [Eigen]: http://eigen.tuxfamily.org
 [Fa2png]: http://fa2png.io/r/font-awesome/link/
