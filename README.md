@@ -54,6 +54,7 @@ Make sure you have these dependencies installed in your system. [ifopt] can be i
   cd ..
   catkin_make_isolated --pkg towr # `catkin build towr` if you are using catkin command-line tools 
   source ./devel/setup.bash
+  ```
   
    
 * Test ([hopper_example.cc](towr/test/hopper_example.cc)): Generates a motion for a one-legged hopper using Ipopt
