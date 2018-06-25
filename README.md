@@ -18,7 +18,6 @@
 | [CMake] | v3.1.0 | C++ build tool: ```sudo apt-get install cmake```. |
 | [Eigen] | v3.2.0 | Library for linear algebra: ```sudo apt-get install libeigen3-dev```. |
 | [ifopt] | v2.0.0 | Eigen-based interface to optimization solvers. Only additional dependencies: [Ipopt] and/or [Snopt]. |
-
 Make sure you have these dependencies installed in your system. [ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace. There are 3 ways to build this library:
 * [towr-cmake](#towr-with-cmake): Cmake build of core library + hopper example
 * [towr-catkin](#towr-with-catkin): Catkin build of core library + hopper example
@@ -78,7 +77,7 @@ Make sure you have these dependencies installed in your system. [ifopt] can be i
   </package>
   ```
 
-## <a name="towr-ros-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr_ros` (and `towr`) with Catkin
+## <a name="towr-ros-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr_ros` and `towr` with Catkin
 We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
 visualizes the produces motions plans in rviz using [xpp]. Required dependencies:
 
