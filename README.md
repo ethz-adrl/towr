@@ -6,14 +6,14 @@
 
 This [Eigen]-based library provides implementations for variables, costs and constraints that can be used to represent a legged locomotion problem. The resulting Nonlinear Programming Problem (NLP) can then be solved with off-the-shelf solvers using the generic optimizer interface [ifopt]. towr has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)). towr is light-weight ([~6k lines](https://i.imgur.com/gP3gv34.png) of code), which makes it easy to understand, use and extend. It is designed to easily allow users to add custom constraints, terrains and robots and use already implemented ones when desired. Existing implementations include e.g. constraints that ensure the physical feasiblity of the Single-Rigid-Body Dynamics (SRBD) or constraints to allow arbitrary height maps of the terrain. 
 
-**Author/Maintainer: :globe_with_meridians: [Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
+**Author/Maintainer: [:globe_with_meridians: Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
 
 [<img src="https://i.imgur.com/uCvLs2j.png" height="50" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="50" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")           &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/aGOnNTZ.png" height="50" />](https://www.ethz.ch/en.html "ETH Zurich")       
 
 [<img src="https://i.imgur.com/j8lt5SE.png" />](https://youtu.be/0jE46GqzxMM "Play video on Youtube")
 
 
-## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Dependencies `towr`
+## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Dependencies towr
 | Name | Min. Ver. | Description |
 | --- | --- | --- |
 | [CMake] | v3.1.0 | C++ build tool: ```sudo apt-get install cmake```. |
