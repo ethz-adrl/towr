@@ -12,7 +12,41 @@
 [<img src="https://i.imgur.com/j8lt5SE.png" />](https://youtu.be/0jE46GqzxMM "Play video on Youtube")
 
 
-## <img align="center" height="20" src="https://i.imgur.com/fjS3xIe.png"/> Overview
+## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Requirements
+| Name | Version | Description |
+| --- | --- | --- |
+| [CMake] | v3.1.0 | C++ build tool: ```sudo apt-get install cmake``` | 
+| [Eigen] | v3.2.0 | Library for linear algebra: ```sudo apt-get install libeigen3-dev```
+| [ifopt] | v2.0.0 | Eigen-based interface to optimization solvers. Only additional dependencies: [Ipopt] and/or [Snopt] |
+
+
+### <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building with CMake
+* Install: Make sure [ifopt] is installed in, then
+  ```bash
+  git clone https://github.com/ethz-adrl/towr.git && cd towr/towr
+  mkdir build && cd build
+  cmake ..
+  make
+  sudo make install # copy files in this folder to /usr/local/*
+  sudo xargs rm < install_manifest.txt # in case you want to uninstall the above
+  ```
+
+* Test: Make sure everything installed correctly by running
+  ```bash
+  make test
+  ```
+  You should see `#1 towr-example....Passed`. You can also run the binaries directly by typing e.g. ```./towr-example```. 
+ 
+* Use: You can easily customize and add your own constraints and variables to the optimization problem.
+  Herefore, add the following to your *CMakeLists.txt*:
+  ```cmake
+  find_package(towr 1.2 REQUIRED)
+  add_executable(main main.cpp) # Your custom variables, costs and constraints added to TOWR
+  target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
+  ```
+
+
+## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Overview
 
 * [**_towr_core_**](towr_core) [(API)](http://docs.ros.org/api/towr_core/html/index.html): The core algorithm formulates the legged locomotion optimization problem using _ifopt_, which can then be solved with any solver. Therefore the dependencies of the core algorithm are:
     * [Eigen]: Library for linear algebra.
@@ -27,7 +61,7 @@
     * [ncurses], [xterm]: Preinstalled on most Linux distributions.
 
 
-## <img align="center" height="20" src="https://i.imgur.com/x1morBF.png"/> Building
+## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building
 Prior to building this, install [ifopt] and one of the NLP solvers and make sure the example runs (!). Then, install additional libraries, clone this repo into your catkin workspace and compile.
 
     $ sudo apt-get install libncurses5-dev libncursesw5-dev xterm ros-kinetic-desktop-full ros-kinetic-xpp
@@ -39,13 +73,13 @@ Prior to building this, install [ifopt] and one of the NLP solvers and make sure
     $ source ./devel/setup.bash
 
 
-## <img align="center" height="20" src="https://i.imgur.com/026nVBV.png"/> Unit Tests
+## <img align="center" height="15" src="https://i.imgur.com/026nVBV.png"/> Unit Tests
 Make sure everything installed correctly by running the unit tests through
 
     $ catkin_make run_tests
 
 
-## <img align="center" height="20" src="https://i.imgur.com/vAYeCzC.png"/> Usage
+## <img align="center" height="15" src="https://i.imgur.com/vAYeCzC.png"/> Usage
 To run the simplest [example](towr_examples/example.cc)
      
     $ rosrun towr_examples towr_ipopt_example
@@ -58,7 +92,7 @@ the box next to HyQ to visualize that URDF.
 
 
 
-## <img align="center" height="20" src="https://i.imgur.com/dHQx91Q.png"/> Publications
+## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications
 Previous versions of this code have been used for a variety of publications. For 
 the respective code and the corresponding paper, see [Releases](https://github.com/awinkler/towr/releases).
 The theory on the current Release can be cited through this paper:
@@ -78,12 +112,13 @@ The theory on the current Release can be cited through this paper:
       doi       = {10.1109/LRA.2018.2798285},
     }
 
-##  <img align="center" height="20" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests
+##  <img align="center" height="15" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests
 
 Please report bugs and request features using the [Issue Tracker](https://github.com/ethz-adrl/towr/issues).
 
 
 [A. W. Winkler]: https://awinkler.github.io/publications.html
+[CMake]: https://cmake.org/cmake/help/v3.0/
 [std_msgs]: http://wiki.ros.org/std_msgs
 [roscpp]: http://wiki.ros.org/roscpp
 [message_generation]: http://wiki.ros.org/message_generation
