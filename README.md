@@ -12,21 +12,17 @@
 [<img src="https://i.imgur.com/j8lt5SE.png" />](https://youtu.be/0jE46GqzxMM "Play video on Youtube")
 
 
-## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Dependencies
+## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Dependencies `towr`
 | Name | Min. Ver. | Description |
 | --- | --- | --- |
 | [CMake] | v3.1.0 | C++ build tool: ```sudo apt-get install cmake```. |
 | [Eigen] | v3.2.0 | Library for linear algebra: ```sudo apt-get install libeigen3-dev```. |
 | [ifopt] | v2.0.0 | Eigen-based interface to optimization solvers. Only additional dependencies: [Ipopt] and/or [Snopt]. |
-| ([catkin])| v0.6.19 | Optional dependency as alternative to pure CMake build. |
 
-Make sure you have these dependencies installed in your system. [ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace.
-
-[towr-cmake](#towr-with-cmake)
-
-[towr-catkin](#towr-with-catkin)
-
-[towr-ros-cmake](#towr-ros-with-catkin)
+Make sure you have these dependencies installed in your system. [ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace. There are 3 ways to build this library:
+* [towr-cmake](#towr-with-cmake): Core library + hopper example with [CMake]  
+* [towr-catkin](#towr-with-catkin): Core library + hopper example with [catkin]
+* [towr-ros-catkin](#towr-ros-with-catkin): Core library + GUI + visualization with [catkin] (requires additional dependencies)
 
 
 ## <a name="towr-with-cmake"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building `towr` with CMake
