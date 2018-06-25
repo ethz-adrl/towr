@@ -19,10 +19,10 @@
 | [Eigen] | v3.2.0 | Library for linear algebra: ```sudo apt-get install libeigen3-dev```. |
 | [ifopt] | v2.0.0 | Eigen-based interface to optimization solvers. Only additional dependencies: [Ipopt] and/or [Snopt]. |
 | ([catkin])| v0.6.19 | Optional dependency as alternative to pure CMake build. |
-
+Make sure you have these dependencies installed in your system. [ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace.
 
 ## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building *towr* with CMake
-* Install: Make sure [ifopt] is installed in, then
+* Install:
   ```bash
   git clone https://github.com/ethz-adrl/towr.git && cd towr/towr
   mkdir build && cd build
@@ -46,7 +46,7 @@
   ```
   
 ## <img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building *towr* with Catkin
-* Install [ifopt] either system wide or clone into this catkin workspace, then:
+* Install:
   ```bash
   cd catkin_workspace/src
   git clone https://github.com/ethz-adrl/towr.git
@@ -76,14 +76,14 @@
 
 ## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Building *towr_ros* (and *towr*) with Catkin
 We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
-visualizes the produces motions plans in rviz using [xpp]. The required dependencies for this package are:
+visualizes the produces motions plans in rviz using [xpp]. Required dependencies:
 
 | Name | Min. Ver. | Description |
 | --- | --- | --- |
 | [ROS] |  indigo | [catkin], [roscpp], [std_msgs],...: ```sudo apt-get install ros-kinetic-desktop-full``` |
 | [xpp] | v1.0.6 | Visualization of legged robots in rviz: ```sudo apt-get install ros-kinetic-xpp``` |
 | [ncurses] | 5 | Text-based UI: ```sudo apt-get install libncurses5-dev libncursesw5-dev``` |
-| [xterm] | 297 | Terminal emulator ```sudo apt-get install xterm``` |
+| [xterm] | 297 | Terminal emulator: ```sudo apt-get install xterm``` |
 
 After having installed all of the above, run
 ```bash
