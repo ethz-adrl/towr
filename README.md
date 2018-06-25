@@ -23,7 +23,7 @@ This [Eigen]-based library provides implementations for variables, costs and con
 Make sure you have these dependencies installed in your system. ifopt can be installed either system wide or, if you're building with [catkin], dropped into your catkin workspace. There are 3 ways to build this package:
 * [Build 1](#towr-with-cmake): Cmake-build of core library `towr` + hopper example
 * [Build 2](#towr-with-catkin): Catkin-build of core library `towr` + hopper example
-* [Build 3](#towr-ros-with-catkin) (recommended): Catkin-build of core library + GUI + visualization (additional dependencies)
+* [Build 3](#towr-ros-with-catkin): (recommended) Catkin-build of core library + GUI + visualization (additional dependencies required)
 
 
 ## <a name="towr-with-cmake"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building towr with CMake
