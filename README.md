@@ -1,13 +1,13 @@
 [<img src="https://i.imgur.com/qliQVx1.png"/>](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
 
-*A light-weight and extensible library to formulate and solve trajectory optimization problems for legged robots*
+*A light-weight and extensible library to formulate and solve trajectory optimization problems for legged robots.*
+
+[![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_ethz-adrl/towr/master)](https://ci.leggedrobotics.com/job/github_ethz-adrl/job/towr/job/master/) [<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/api/towr_core/html/index.html)
 
 
 Generates motion-plans for legged robots by solving an optimization problem. A Single-Rigid-Body Model (SRBD) of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. `towr` generates 5 step monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms. The entire motions are generated with only [6k lines](https://i.imgur.com/gP3gv34.png) (+1k from [ifopt]) of self-written code, which makes it easy to understand and extend.   
 
 **Author/Maintainer: :globe_with_meridians: [Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
-
-[![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_ethz-adrl/towr/master)](https://ci.leggedrobotics.com/job/github_ethz-adrl/job/towr/job/master/) [<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/api/towr_core/html/index.html)
 
 [<img src="https://i.imgur.com/uCvLs2j.png" height="50" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="50" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")           &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/aGOnNTZ.png" height="50" />](https://www.ethz.ch/en.html "ETH Zurich")       
 
