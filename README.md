@@ -2,7 +2,7 @@
 
 [![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_ethz-adrl/towr/master)](https://ci.leggedrobotics.com/job/github_ethz-adrl/job/towr/job/master/) [<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/api/towr_core/html/index.html)
 
-**TOWR** - **T**rajectory **O**ptimizer for **W**alking **R**obots, generates physically feasible motions for legged robots by solving an optimization problem. A Single-Rigid-Body Model (SRBD) of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. _TOWR_ generates 5 step monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations, in less than **100ms**. The entire motions are generated with only [6k lines](https://i.imgur.com/gP3gv34.png) (+1k from [ifopt]) of self-written code, which [facilitates](https://blog.codinghorror.com/the-best-code-is-no-code-at-all/) maintenance and debugging.
+Generates motion-plans for legged robots by solving an optimization problem. A Single-Rigid-Body Model (SRBD) of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. `towr` generates 5 step monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than **100ms**. The entire motions are generated with only [6k lines](https://i.imgur.com/gP3gv34.png) (+1k from [ifopt]) of self-written code, which makes it easy to understand and extend.   
 
 **Author/Maintainer: :globe_with_meridians: [Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
 
