@@ -1,5 +1,7 @@
 [<img src="https://i.imgur.com/qliQVx1.png"/>](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
 
+----
+
 Generates motion-plans for legged robots by solving an optimization problem. A Single-Rigid-Body Model (SRBD) of the dynamics, physical constraints as well as a desired goal position are given to the solver that then generates the motion plan. `towr` generates 5 step monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms. The entire motions are generated with only [6k lines](https://i.imgur.com/gP3gv34.png) (+1k from [ifopt]) of self-written code, which makes it easy to understand and extend.   
 
 **Author/Maintainer: :globe_with_meridians: [Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
