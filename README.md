@@ -1,4 +1,4 @@
-[<img src="https://i.imgur.com/qliQVx1.png" width="90%" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
+[<img src="https://i.imgur.com/qliQVx1.png" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
 
 *A light-weight and extensible C++ library for trajectory optimization for legged robots.*
 
@@ -36,7 +36,7 @@ Make sure you have these dependencies installed in your system. ifopt can be ins
   mkdir build && cd build
   cmake ..
   make
-  sudo make install # copy files in this folder to /usr/local/*
+  sudo make install # copies files in this folder to /usr/local/*
   sudo xargs rm < install_manifest.txt # in case you want to uninstall the above
   ```
 
@@ -108,7 +108,7 @@ $ roslaunch towr_ros towr_ros.launch
 ```
 Click in the xterm terminal and then hit 'o' for "optimize". Check the box next to HyQ to visualize that URDF.
 
-[<img src="https://i.imgur.com/ikkG35P.gif" width="60%"/>](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
+[<img src="https://i.imgur.com/ikkG35P.gif"/>](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
 
 ## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications
 Previous versions of this code have been used for a variety of publications. For 
