@@ -1,4 +1,5 @@
-<img align="right" src="https://i.imgur.com/qI1Jfyl.gif" width="55%" />  
+<img align="right" src="https://i.imgur.com/qI1Jfyl.gif" width="55%"/>
+
 [<img src="https://i.imgur.com/qliQVx1.png" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
 
 *A light-weight and extensible C++ library for trajectory optimization for legged robots.*
