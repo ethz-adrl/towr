@@ -114,9 +114,8 @@ Click in the xterm terminal and then hit 'o' for "optimize". Check the box next 
 <img src="https://i.imgur.com/LNuyEIn.gif" />
 
 
-<img align="right" width="55%" src="https://i.imgur.com/BzOnbkS.gif" />
 
-## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications
+## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications <img width="55%" src="https://i.imgur.com/BzOnbkS.gif" />
 
 Previous versions of this code have been used for a variety of publications. For 
 the respective code and the corresponding paper, see [Releases](https://github.com/awinkler/towr/releases).
