@@ -1,3 +1,5 @@
+<img align="right" src="https://i.imgur.com/qI1Jfyl.gif" width="55%"/>
+
 [<img src="https://i.imgur.com/qliQVx1.png" />](https://awinkler.github.io/publications/mypdfs/18-ral-winkler.pdf "Open RA-L paper")
 
 *A light-weight and extensible C++ library for trajectory optimization for legged robots.*
@@ -5,7 +7,7 @@
 <!--- comment until fixing build server
 [![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_ethz-adrl/towr/master)](https://ci.leggedrobotics.com/job/github_ethz-adrl/job/towr/job/master/) 
 -->
-[<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/kinetic/api/towr_core/html/)
+[<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/kinetic/api/towr_core/html/) 
 
 This [Eigen]-based library provides implementations for variables, costs and constraints that can be used to represent a legged locomotion problem. The resulting Nonlinear Programming Problem (NLP) can then be solved with off-the-shelf solvers using the generic optimizer interface [ifopt]. towr has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)). towr is light-weight ([~6k lines](https://i.imgur.com/gP3gv34.png) of code), which makes it easy to understand, use and extend. It is designed to allow users to add custom constraints, terrains and robots and use already implemented ones when desired. Existing implementations include e.g. constraints that ensure the physical feasiblity of the Single-Rigid-Body Dynamics (SRBD) or constraints to allow arbitrary height maps of the terrain. 
 
@@ -108,9 +110,13 @@ $ roslaunch towr_ros towr_ros.launch
 ```
 Click in the xterm terminal and then hit 'o' for "optimize". Check the box next to HyQ to visualize that URDF.
 
-[<img src="https://i.imgur.com/ikkG35P.gif"/>](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
+
+[<img src="https://i.imgur.com/LNuyEIn.gif" />](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
+
+
 
 ## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications
+
 Previous versions of this code have been used for a variety of publications. For 
 the respective code and the corresponding paper, see [Releases](https://github.com/awinkler/towr/releases).
 The theory on the current Release can be cited through this paper:
@@ -130,7 +136,7 @@ The theory on the current Release can be cited through this paper:
       doi       = {10.1109/LRA.2018.2798285},
     }
 
-##  <img align="center" height="15" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests
+##  <img align="center" height="15" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests  <img width="55%" src="https://i.imgur.com/BzOnbkS.gif" />
 
 Please report bugs and request features using the [Issue Tracker](https://github.com/ethz-adrl/towr/issues).
 
