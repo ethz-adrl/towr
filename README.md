@@ -136,7 +136,7 @@ The theory on the current Release can be cited through this paper:
       doi       = {10.1109/LRA.2018.2798285},
     }
 
-##  <img align="center" height="15" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests  <img width="55%" src="https://i.imgur.com/BzOnbkS.gif" />
+##  <img align="center" height="15" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests
 
 Please report bugs and request features using the [Issue Tracker](https://github.com/ethz-adrl/towr/issues).
 
