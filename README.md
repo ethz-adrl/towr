@@ -112,7 +112,9 @@ Click in the xterm terminal and then hit 'o' for "optimize". Check the box next 
 
 [<img src="https://i.imgur.com/ikkG35P.gif"/>](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
 
-<img src="https://i.imgur.com/ABqd1BH.gif"/>
+
+
+[<img src="https://i.imgur.com/ABqd1BH.gif"/>](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
 
 
 
