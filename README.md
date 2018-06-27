@@ -115,7 +115,7 @@ Click in the xterm terminal and then hit 'o' for "optimize". Check the box next 
 
 
 
-## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications <img width="55%" src="https://i.imgur.com/BzOnbkS.gif" />
+## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications
 
 Previous versions of this code have been used for a variety of publications. For 
 the respective code and the corresponding paper, see [Releases](https://github.com/awinkler/towr/releases).
@@ -136,7 +136,7 @@ The theory on the current Release can be cited through this paper:
       doi       = {10.1109/LRA.2018.2798285},
     }
 
-##  <img align="center" height="15" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests
+##  <img align="center" height="15" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests  <img width="55%" src="https://i.imgur.com/BzOnbkS.gif" />
 
 Please report bugs and request features using the [Issue Tracker](https://github.com/ethz-adrl/towr/issues).
 
