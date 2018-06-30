@@ -3,15 +3,13 @@
   <name>towr</name>
   <version>1.2.0</version>
   <description>
-    Trajectory Optimizer for Walking Robots (TOWR).
-    TOWR Generates physically feasible motion-plans 
-    for legged robots by solving an optimization problem defined through
-    <a href="https://github.com/ethz-adrl/ifopt">Ifopt</a>. 
-    A Single Rigid Body Model (SRBD) of they dynamics, physical 
-    constraints as well as a desired goal position are given to the solver that
-    then generates the motion plan. TOWR generates 5 step monoped hopping,
-    biped walking, or a complete quadruped trotting cycle, while optimizing 
-    over the gait and step durations, in less than 100ms.
+    A light-weight, Eigen-based
+    C++ library for trajectory optimization for legged robots. 
+    This library provides implementations for variables, costs and constraints
+    that can be used to represent a legged locomotion problem. 
+    The resulting Nonlinear Programming Problem (NLP) can then be solved with
+    off-the-shelf solvers, e.g. Ipopt using the generic optimizer interface 
+    <a href="https://github.com/ethz-adrl/ifopt">ifopt</a>.
   </description>
 
   <author email="winklera@ethz.ch">Alexander W. Winkler</author>
@@ -19,10 +17,9 @@
   <license>BSD</license>
   
   <url type="website">http://github.com/ethz-adrl/towr</url>
-  <url type="bugtracker">http://github.com/ethz-adrl/towr/issues</url>
 
-  <buildtool_depend>catkin</buildtool_depend> <!-- optional -->
-  <buildtool_depend>cmake</buildtool_depend>
+  <!-- although pure cmake is also sufficient -->
+  <buildtool_depend>catkin</buildtool_depend> 
   <depend>ifopt</depend>
   <depend>eigen</depend>
  

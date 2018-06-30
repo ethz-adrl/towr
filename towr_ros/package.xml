@@ -3,11 +3,11 @@
   <name>towr_ros</name>
   <version>1.2.0</version>
   <description>
-    The ROS dependent parts of 
+    A ROS dependent wrapper for
     <a href="https://github.com/ethz-adrl/towr">towr</a>.
     Adds a keyboard user interface to set different goal states, motions
     and robots and visualizes the produced motions plan in rviz using
-    <a href="http://wiki.ros.org/xpp">xpp</a>.
+    <a href="https://github.com/leggedrobotics/xpp">xpp</a>.
   </description>
 
   <author email="winklera@ethz.ch">Alexander W. Winkler</author>
@@ -15,7 +15,6 @@
   <license>BSD</license>
   
   <url type="website">http://github.com/ethz-adrl/towr</url>
-  <url type="bugtracker">http://github.com/ethz-adrl/towr/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
     
@@ -24,9 +23,7 @@
   <depend>std_msgs</depend>
   <depend>roscpp</depend>
   <depend>rosbag</depend>
- 
   <depend>xpp_states</depend>
   <depend>xpp_msgs</depend>
-  
   <depend>towr</depend>
 </package>

@@ -98,8 +98,8 @@ TowrRos::TowrRos ()
 
   // could also use SNOPT here
   solver_ = std::make_shared<ifopt::Ipopt>();
+  solver_->print_level_ = 5;
   solver_->max_cpu_time_ = 10.0;
-  solver_->linear_solver_ = "ma27";
   solver_->use_jacobian_approximation_ = false;
 }
 
