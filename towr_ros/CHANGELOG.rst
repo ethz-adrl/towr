@@ -2,8 +2,8 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2018-06-30)
+------------------
 * adapt to revised ifopt version and build structure
 * preparation for ANYmal experiments
 * Contributors: Alexander Winkler

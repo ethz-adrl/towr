@@ -2,8 +2,8 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2018-06-30)
+------------------
 * set parameters for hyq and terrains examples
 * rename constraints and variables for more consistency
 * renamed main library (towr_core -> towr) and removed ros meta package

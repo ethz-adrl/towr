@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>towr_ros</name>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <description>
     A ROS dependent wrapper for
     <a href="https://github.com/ethz-adrl/towr">towr</a>.
