@@ -2,9 +2,15 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* adapt to revised ifopt version and build structure
+* preparation for ANYmal experiments
+* Contributors: Alexander Winkler
+
 1.2.0 (2018-06-25)
 ------------------
-* adapt to version 2.0.0 of ifopt `#17 <https://github.com/ethz-adrl/ifopt/pull/17>`_
+* adapt to version 2.0.0 of ifopt (`#17 <https://github.com/ethz-adrl/ifopt/pull/17>`_)
 * fix discrepancy between gap height map and rviz visualization
 * Contributors: Alexander Winkler
 
