@@ -38,10 +38,6 @@ add_executable(towr_ros
   src/monoped_gait_generator.cc
   src/biped_gait_generator.cc
   src/quadruped_gait_generator.cc
-  src/anymal_model.cc
-  src/hyq_model.cc
-  src/biped_model.cc
-  src/monoped_model.cc
   src/height_map_examples.cc
 )
 add_dependencies(towr_ros ${PROJECT_NAME}_gencpp) # build .msg first

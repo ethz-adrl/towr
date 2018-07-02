@@ -44,11 +44,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr_ros/quadruped_gait_generator.h>
 #include <towr_ros/height_map_examples.h>
 #include <towr/variables/euler_converter.h> // smell move into spline_holder
+#include <towr_ros/towr_xpp_ee_map.h>
 
-#include <towr_ros/models/anymal_model.h>
-#include <towr_ros/models/hyq_model.h>
-#include <towr_ros/models/biped_model.h>
-#include <towr_ros/models/monoped_model.h>
+#include <towr/models/examples/hyq_model.h>
+
+
+
 
 namespace towr {
 
@@ -81,10 +82,10 @@ TowrRos::TowrRos ()
 
   std::vector<Eigen::Vector3d> ee_pos(4);
 
-  ee_pos.at(0) <<  0.31,  0.29, 0.0;
-  ee_pos.at(1) <<  0.31, -0.29, 0.0;
-  ee_pos.at(2) << -0.31,  0.29, 0.0;
-  ee_pos.at(3) << -0.31, -0.29, 0.0;
+  ee_pos.at(LF) <<  0.31,  0.29, 0.0;
+  ee_pos.at(RF) <<  0.31, -0.29, 0.0;
+  ee_pos.at(LH) << -0.31,  0.29, 0.0;
+  ee_pos.at(RH) << -0.31, -0.29, 0.0;
 
   towr_.SetInitialState(b, ee_pos);
 
@@ -237,10 +238,13 @@ TowrRos::GetTrajectory () const
     state.base_.ang.w  = base_angular.GetAngularVelocityInWorld(t);
     state.base_.ang.wd = base_angular.GetAngularAccelerationInWorld(t);
 
-    for (auto ee : state.ee_motion_.GetEEsOrdered()) {
-      state.ee_contact_.at(ee) = solution.phase_durations_.at(ee)->IsContactPhase(t);
-      state.ee_motion_.at(ee)  = ToXpp(solution.ee_motion_.at(ee)->GetPoint(t));
-      state.ee_forces_ .at(ee)  = solution.ee_force_.at(ee)->GetPoint(t).p();
+    for (int ee_towr=0; ee_towr<n_ee; ++ee_towr){
+
+      int ee_xpp = ToXppEndeffector(n_ee, ee_towr);
+
+      state.ee_contact_.at(ee_xpp) = solution.phase_durations_.at(ee_towr)->IsContactPhase(t);
+      state.ee_motion_.at(ee_xpp)  = ToXpp(solution.ee_motion_.at(ee_towr)->GetPoint(t));
+      state.ee_forces_ .at(ee_xpp) = solution.ee_force_.at(ee_towr)->GetPoint(t).p();
     }
 
     state.t_global_ = t;

@@ -1,5 +1,5 @@
 /******************************************************************************
-Copyright (c) 2018, Alexander W. Winkler. All rights reserved.
+Copyright (c) 2017, Alexander W. Winkler. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -27,26 +27,57 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/models/anymal_model.h>
+/**
+ * @file towr_xpp_ee_map.h
+ *
+ * Mapping semantic information (e.g. name of the foot) between
+ * towr and xpp domain.
+ */
+#ifndef TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_TOWR_XPP_EE_MAP_H_
+#define TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_TOWR_XPP_EE_MAP_H_
 
+#include <map>
+#include <towr/models/examples/endeffector_mappings.h>
 #include <xpp_states/endeffector_mappings.h>
+
 
 namespace towr {
 
-AnymalKinematicModel::AnymalKinematicModel () : KinematicModel(4)
+static std::map<towr::QuadrupedIDs, xpp::quad::FootIDs> to_xpp_quad =
 {
-  const double x_nominal_b = 0.34;
-  const double y_nominal_b = 0.19;
-  const double z_nominal_b = -0.42;
+    {towr::LF, xpp::quad::LF},
+    {towr::RF, xpp::quad::RF},
+    {towr::LH, xpp::quad::LH},
+    {towr::RH, xpp::quad::RH}
+};
 
-  nominal_stance_.at(xpp::quad::LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
-  nominal_stance_.at(xpp::quad::RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
-  nominal_stance_.at(xpp::quad::LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
-  nominal_stance_.at(xpp::quad::RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
+static std::map<towr::BipedIDs, xpp::biped::FootIDs> to_xpp_biped =
+{
+    {towr::L, xpp::biped::L},
+    {towr::R, xpp::biped::R},
+};
 
-  max_dev_from_nominal_ << 0.15, 0.1, 0.10;
+/**
+ * Converts endeffector IDs of towr into the corresponding number used in xpp.
+ *
+ * @param number_of_ee  Number of endeffectors of current robot model.
+ * @param towr_ee_id    Integer used to represent the endeffector inside towr.
+ * @return corresponding endeffector in the xpp domain.
+ */
+static xpp::EndeffectorID ToXppEndeffector(int number_of_ee, int towr_ee_id)
+{
+  switch (number_of_ee) {
+    case 1: return towr_ee_id;
+            break;
+    case 2: return to_xpp_biped.at(static_cast<towr::BipedIDs>(towr_ee_id));
+            break;
+    case 4: return to_xpp_quad.at(static_cast<towr::QuadrupedIDs>(towr_ee_id));
+            break;
+    default: assert(false); // endeffector mapping not defined
+    break;
+  }
 }
 
 } // namespace towr
 
-
+#endif /* TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_TOWR_XPP_EE_MAP_H_ */
