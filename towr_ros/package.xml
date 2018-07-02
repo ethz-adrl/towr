@@ -26,4 +26,8 @@
   <depend>xpp_states</depend>
   <depend>xpp_msgs</depend>
   <depend>towr</depend>
+  
+  <exec_depend>xpp_vis</exec_depend>
+  <exec_depend>xpp_hyq</exec_depend>
+  <exec_depend>xpp_quadrotor</exec_depend>
 </package>
