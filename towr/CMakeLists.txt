@@ -1,21 +1,8 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
-project(towr VERSION 1.2.0)
+project(towr VERSION 1.2.1)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-find_package(ifopt 2.0 REQUIRED)
-
-
-#############################################
-## Generate catkin find scripts (optional) ##
-#############################################
-if (CATKIN_DEVEL_PREFIX) # set only when building with catkin, not pure cmake
-find_package(catkin REQUIRED)
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  DEPENDS ifopt
-)
-endif()
+find_package(ifopt 2.0.1 REQUIRED)
 
 
 ###########
@@ -64,18 +51,12 @@ add_library(${PROJECT_NAME} SHARED
 )
 target_link_libraries(${PROJECT_NAME} 
   PUBLIC 
-    ${ifopt_LIBRARIES} # actually only needs ifopt_core --> solver independent 
+    ifopt::ifopt_core
 )
 target_include_directories(${PROJECT_NAME} 
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    ${ifopt_INCLUDE_DIRS}
-)
-target_compile_features(${PROJECT_NAME} 
-  PUBLIC 
-    cxx_range_for 
-    cxx_auto_type
 )
 
 
@@ -90,6 +71,7 @@ add_executable(${PROJECT_NAME}-example
 target_link_libraries(${PROJECT_NAME}-example  
   PRIVATE
     ${PROJECT_NAME} 
+    ifopt::ifopt_ipopt
 )
 add_test(${PROJECT_NAME}-example ${PROJECT_NAME}-example)
 
@@ -148,3 +130,6 @@ install(
     ${version_file}                                         # generated
   DESTINATION ${config_package_location}
 )
+
+# Install a Catkin 'package.xml' file. This is required by REP-136.
+install(FILES package.xml DESTINATION share/${PROJECT_NAME})

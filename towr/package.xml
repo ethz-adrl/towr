@@ -18,9 +18,14 @@
   
   <url type="website">http://github.com/ethz-adrl/towr</url>
 
-  <!-- although pure cmake is also sufficient -->
-  <buildtool_depend>catkin</buildtool_depend> 
   <depend>ifopt</depend>
   <depend>eigen</depend>
+  
+  <!-- The following tags are recommended by REP-136 -->
+  <exec_depend>catkin</exec_depend>
+  <buildtool_depend>cmake</buildtool_depend>
+  <export>
+    <build_type>cmake</build_type>
+  </export>
  
 </package>

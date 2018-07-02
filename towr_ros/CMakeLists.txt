@@ -13,6 +13,9 @@ find_package(catkin REQUIRED COMPONENTS
   towr
 )
 
+find_package(Curses REQUIRED) # only for this keyboard input
+
+
 
 ## Generate messages in the 'msg' folder
 add_message_files( FILES TowrCommand.msg )
@@ -47,7 +50,6 @@ target_link_libraries(towr_ros
 )
 
 ## Keyboard interfaces and other helpers
-find_package(Curses REQUIRED) # only for this keyboard input
 add_executable(towr_user_interface src/towr_user_interface.cc)
 add_dependencies(towr_user_interface ${PROJECT_NAME}_gencpp) # build .msg first
 target_link_libraries(towr_user_interface 

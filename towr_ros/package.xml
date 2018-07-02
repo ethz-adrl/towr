@@ -18,6 +18,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
     
+  <depend>libncurses-dev</depend>
+  
   <depend>message_runtime</depend>
   <depend>message_generation</depend>
   <depend>std_msgs</depend>
@@ -26,4 +28,9 @@
   <depend>xpp_states</depend>
   <depend>xpp_msgs</depend>
   <depend>towr</depend>
+  
+  <exec_depend>xterm</exec_depend>
+  <exec_depend>xpp_vis</exec_depend>
+  <exec_depend>xpp_hyq</exec_depend>
+  <exec_depend>xpp_quadrotor</exec_depend>
 </package>
