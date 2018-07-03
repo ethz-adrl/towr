@@ -32,10 +32,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 HeightMap::Ptr
-HeightMapFactory::MakeTerrain (TerrainID type, double h)
+HeightMapFactory::MakeTerrain (TerrainID type)
 {
   switch (type) {
-    case FlatID:      return std::make_shared<FlatGround>(h); break;
+    case FlatID:      return std::make_shared<FlatGround>(); break;
     case BlockID:     return std::make_shared<Block>(); break;
     case StairsID:    return std::make_shared<Stairs>(); break;
     case GapID:       return std::make_shared<Gap>(); break;

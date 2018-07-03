@@ -29,10 +29,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr_ros/towr_ros.h>
 
-#include <iostream>
-#include <stdexcept>
-
-#include <ros/ros.h>
 #include <std_msgs/Int32.h>
 
 #include <xpp_states/convert.h>
@@ -49,9 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr_ros/towr_xpp_ee_map.h>
 
 
-
-
-
 namespace towr {
 
 
@@ -61,12 +54,6 @@ TowrRos::TowrRos ()
 
   user_command_sub_ = n.subscribe(towr_msgs::user_command, 1,
                                   &TowrRos::UserCommandCallback, this);
-  ROS_INFO_STREAM("Subscribed to " << user_command_sub_.getTopic());
-
-  current_state_sub_ = n.subscribe(xpp_msgs::robot_state_current,
-                                   1, // take only the most recent information
-                                   &TowrRos::CurrentStateCallback, this);
-  ROS_INFO_STREAM("Subscribed to " << current_state_sub_.getTopic());
 
   cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
                                           (xpp_msgs::robot_trajectory_desired, 1);
@@ -76,15 +63,14 @@ TowrRos::TowrRos ()
 
   rosbag_folder_ = ParamServer::GetString("/towr/rosbag_folder");
 
+  model_.dynamic_model_   = std::make_shared<HyqDynamicModel>();
+  model_.kinematic_model_ = std::make_shared<HyqKinematicModel>();
+  gait_                   = std::make_shared<QuadrupedGaitGenerator>();
 
-  model_.dynamic_model_   = std::make_shared<towr::HyqDynamicModel>();
-  model_.kinematic_model_ = std::make_shared<towr::HyqKinematicModel>();
-  gait_                   = std::make_shared<towr::QuadrupedGaitGenerator>();
 
-
-  // hardcode initial state
-  towr::BaseState b;
-  b.lin.at(towr::kPos).z() = 0.58;
+  // initial state
+  BaseState b;
+  b.lin.at(kPos).z() = 0.58;
   std::vector<Eigen::Vector3d> ee_pos(model_.kinematic_model_->GetNumberOfEndeffectors());
 
   ee_pos.at(LF) <<  0.31,  0.29, 0.0;
@@ -94,9 +80,7 @@ TowrRos::TowrRos ()
 
   towr_.SetInitialState(b, ee_pos);
 
-
-  ground_height_ = 0.0;
-  terrain_ = std::make_shared<FlatGround>(ground_height_);
+  terrain_ = std::make_shared<FlatGround>();
 
   // could also use SNOPT here
   solver_ = std::make_shared<ifopt::Ipopt>();
@@ -104,112 +88,69 @@ TowrRos::TowrRos ()
   solver_->max_cpu_time_ = 10.0;
   solver_->use_jacobian_approximation_ = false;
 
-  output_dt_              = 0.02;
+  output_dt_ = 0.02;
 }
 
 void
-TowrRos::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
+TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 {
-  towr::BaseState base_initial;
-  base_initial.lin.at(towr::kPos) = xpp::Convert::ToXpp(msg.base.pose.position);
-  base_initial.lin.at(towr::kVel) = xpp::Convert::ToXpp(msg.base.twist.linear);
+  BaseState goal;
+  goal.lin.at(kPos) = xpp::Convert::ToXpp(msg.goal_lin.pos);
+  goal.lin.at(kVel) = xpp::Convert::ToXpp(msg.goal_lin.vel);
+  goal.ang.at(kPos) = xpp::Convert::ToXpp(msg.goal_ang.pos);
+  goal.ang.at(kVel) = xpp::Convert::ToXpp(msg.goal_ang.vel);
 
-  Eigen::Quaterniond q_BtoW = xpp::Convert::ToXpp(msg.base.pose.orientation);
-  base_initial.ang.at(towr::kPos) = GetUnique(xpp::GetEulerZYXAngles(q_BtoW));
-  base_initial.ang.at(towr::kVel) = Vector3d::Zero(); // smell fill this angular_vel->euler rates
-
-  std::vector<Vector3d> feet_initial;
-  ground_height_ = 0.0;
-  for (auto ee : msg.ee_motion) {
-    Vector3d pos = xpp::Convert::ToXpp(ee.pos);
-    feet_initial.push_back(pos);
-    ground_height_ += pos.z()/msg.ee_motion.size(); // adapt ground height based on avg initial foothold height
-  }
-
-  towr_.SetInitialState(base_initial, feet_initial);
-}
-
-void
-TowrRos::UserCommandCallback(const TowrCommand& msg)
-{
-  SetTowrParameters(msg);
-
-
-  ROS_INFO_STREAM("publishing robot parameters to " << robot_parameters_pub_.getTopic());
-  xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model_);
-  robot_parameters_pub_.publish(robot_params_msg);
-
-
-  std::string bag_file = rosbag_folder_+ "/optimal_traj.bag";
-  if (msg.optimize) {
-    OptimizeMotion();
-    SaveOptimizationAsRosbag(bag_file, robot_params_msg, msg, false);
-  }
-
-  if (msg.replay_trajectory || msg.optimize) {
-    // play back the rosbag hacky like this, as I can't find appropriate C++ API.
-    int success = system(("rosbag play --topics "
-        + xpp_msgs::robot_state_desired + " "
-        + xpp_msgs::terrain_info
-        + " --quiet " + bag_file).c_str());
-  }
-
-
-  if (msg.publish_traj) {
-    ROS_INFO_STREAM("publishing optimized trajectory to " << cart_trajectory_pub_.getTopic());
-    auto traj_msg = BuildTrajectoryMsg();
-    cart_trajectory_pub_.publish(traj_msg);
-
-    // save published trajectory with current date and time
-    std::string subfolder = "/published/";
-    time_t _tm =time(NULL );
-    struct tm * curtime = localtime ( &_tm );
-    std::string name = rosbag_folder_ + subfolder + asctime(curtime) + ".bag";
-    SaveOptimizationAsRosbag(name, robot_params_msg, msg, false);
-  }
-}
-
-void
-TowrRos::SetTowrParameters(const TowrCommand& msg)
-{
-  towr::BaseState goal;
-  goal.lin.at(towr::kPos) = xpp::Convert::ToXpp(msg.goal_lin.pos);
-  goal.lin.at(towr::kVel) = xpp::Convert::ToXpp(msg.goal_lin.vel);
-  goal.ang.at(towr::kPos) = xpp::Convert::ToXpp(msg.goal_ang.pos);
-  goal.ang.at(towr::kVel) = xpp::Convert::ToXpp(msg.goal_ang.vel);
-
-
-  towr::Parameters params;
+  Parameters params;
   params.t_total_ = msg.total_duration;
   int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
-  auto gait = static_cast<towr::GaitGenerator::GaitCombos>(msg.gait_id);
+  auto gait = static_cast<GaitGenerator::GaitCombos>(msg.gait_id);
   gait_->SetCombo(gait);
   for (int ee=0; ee<n_ee; ++ee) {
     params.ee_phase_durations_.push_back(gait_->GetPhaseDurations(msg.total_duration, ee));
     params.ee_in_contact_at_start_.push_back(gait_->IsInContactAtStart(ee));
   }
 
-  auto terrain_id = static_cast<towr::TerrainID>(msg.terrain_id);
-  terrain_ = towr::HeightMapFactory::MakeTerrain(terrain_id, ground_height_);
-
+  auto terrain_id = static_cast<TerrainID>(msg.terrain_id);
+  terrain_ = HeightMapFactory::MakeTerrain(terrain_id);
 
   towr_.SetParameters(goal, params, model_, terrain_);
-}
 
-void
-TowrRos::OptimizeMotion ()
-{
-  try {
+
+
+
+
+  ROS_INFO_STREAM("publishing robot parameters to " << robot_parameters_pub_.getTopic());
+  xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model_);
+  robot_parameters_pub_.publish(robot_params_msg);
+
+  std::string bag_file = rosbag_folder_+ "/optimal_traj.bag";
+  if (msg.optimize) {
     towr_.SolveNLP(solver_);
-  } catch (const std::runtime_error& e) {
-    ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
+    SaveOptimizationAsRosbag(bag_file, robot_params_msg, msg, false);
+  }
+
+  // playback using terminal commands
+  if (msg.replay_trajectory || msg.optimize) {
+
+    int success = system(("rosbag play --topics "
+        + xpp_msgs::robot_state_desired + " "
+        + xpp_msgs::terrain_info
+        + " --quiet " + bag_file).c_str());
+  }
+
+  // publish directly
+  if (msg.publish_traj) {
+    ROS_INFO_STREAM("publishing optimized trajectory to " << cart_trajectory_pub_.getTopic());
+    XppVec cart_traj = GetTrajectory();
+    xpp_msgs::RobotStateCartesianTrajectory xpp_msg = xpp::Convert::ToRos(cart_traj);
+    cart_trajectory_pub_.publish(xpp_msg);
   }
 }
 
-std::vector<TowrRos::RobotStateVec>
+std::vector<TowrRos::XppVec>
 TowrRos::GetIntermediateSolutions ()
 {
-  std::vector<RobotStateVec> trajectories;
+  std::vector<XppVec> trajectories;
 
   for (int iter=0; iter<towr_.GetIterationCount(); ++iter) {
     towr_.SetSolution(iter);
@@ -219,21 +160,21 @@ TowrRos::GetIntermediateSolutions ()
   return trajectories;
 }
 
-TowrRos::RobotStateVec
+TowrRos::XppVec
 TowrRos::GetTrajectory () const
 {
-  towr::SplineHolder solution = towr_.GetSolution();
+  SplineHolder solution = towr_.GetSolution();
 
-  RobotStateVec trajectory;
-  double t=0.0;
+  XppVec trajectory;
+  double t = 0.0;
   double T = solution.base_linear_->GetTotalTime();
 
-  towr::EulerConverter base_angular(solution.base_angular_);
+  EulerConverter base_angular(solution.base_angular_);
 
   while (t<=T+1e-5) {
 
     int n_ee = solution.ee_motion_.size();
-    RobotStateCartesian state(n_ee);
+    xpp::RobotStateCartesian state(n_ee);
 
     state.base_.lin = ToXpp(solution.base_linear_->GetPoint(t));
 
@@ -241,7 +182,7 @@ TowrRos::GetTrajectory () const
     state.base_.ang.w  = base_angular.GetAngularVelocityInWorld(t);
     state.base_.ang.wd = base_angular.GetAngularAccelerationInWorld(t);
 
-    for (int ee_towr=0; ee_towr<n_ee; ++ee_towr){
+    for (int ee_towr=0; ee_towr<n_ee; ++ee_towr) {
 
       int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
 
@@ -256,25 +197,6 @@ TowrRos::GetTrajectory () const
   }
 
   return trajectory;
-}
-
-xpp::StateLinXd
-TowrRos::ToXpp(const towr::State& towr) const
-{
-  xpp::StateLinXd xpp(towr.p().rows());
-
-  xpp.p_ = towr.p();
-  xpp.v_ = towr.v();
-  xpp.a_ = towr.a();
-
-  return xpp;
-}
-
-xpp_msgs::RobotStateCartesianTrajectory
-TowrRos::BuildTrajectoryMsg () const
-{
-  auto cart_traj = GetTrajectory();
-  return xpp::Convert::ToRos(cart_traj);
 }
 
 xpp_msgs::RobotParameters
@@ -299,13 +221,13 @@ TowrRos::BuildRobotParametersMsg(const RobotModel& model) const
 
 void
 TowrRos::SaveOptimizationAsRosbag (const std::string& bag_name,
-                                            const xpp_msgs::RobotParameters& robot_params,
-                                            const TowrCommand user_command_msg,
-                                            bool include_iterations)
+                                   const xpp_msgs::RobotParameters& robot_params,
+                                   const TowrCommandMsg user_command_msg,
+                                   bool include_iterations)
 {
   rosbag::Bag bag;
   bag.open(bag_name, rosbag::bagmode::Write);
-  ::ros::Time t0(0.001);
+  ::ros::Time t0(1e-6); // t=0.0 throws ROS exception
 
   // save the a-priori fixed optimization variables
   bag.write(xpp_msgs::robot_parameters, t0, robot_params);
@@ -324,24 +246,20 @@ TowrRos::SaveOptimizationAsRosbag (const std::string& bag_name,
     bag.write(towr_msgs::nlp_iterations_count, t0, m);
   }
 
-
   // save the final trajectory
   auto final_trajectory = GetTrajectory();
   SaveTrajectoryInRosbag(bag, final_trajectory, xpp_msgs::robot_state_desired);
-
-  // optional: save the entire trajectory as one message
-  bag.write(xpp_msgs::robot_trajectory_desired, t0, BuildTrajectoryMsg());
 
   bag.close();
 }
 
 void
 TowrRos::SaveTrajectoryInRosbag (rosbag::Bag& bag,
-                                          const std::vector<RobotStateCartesian>& traj,
-                                          const std::string& topic) const
+                                 const XppVec& traj,
+                                 const std::string& topic) const
 {
   for (const auto state : traj) {
-    auto timestamp = ::ros::Time(state.t_global_ +1e-6); // to avoid t=0.0
+    auto timestamp = ::ros::Time(state.t_global_ + 1e-6); // t=0.0 throws ROS exception
 
     xpp_msgs::RobotStateCartesian msg;
     msg = xpp::Convert::ToRos(state);
@@ -358,93 +276,8 @@ TowrRos::SaveTrajectoryInRosbag (rosbag::Bag& bag,
   }
 }
 
-/*! @brief Returns unique Euler angles in [-pi,pi),[-pi/2,pi/2),[-pi,pi).
- *
- * Taken from https://github.com/ethz-asl/kindr
- *
- * Copyright (c) 2013, Christian Gehring, Hannes Sommer, Paul Furgale, Remo Diethelm
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Autonomous Systems Lab, ETH Zurich nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL Christian Gehring, Hannes Sommer, Paul Furgale,
- * Remo Diethelm BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
- * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-Eigen::Vector3d
-TowrRos::GetUnique (const Vector3d& zyx_non_unique) const
-{
-  Eigen::Vector3d zyx = zyx_non_unique;
-  const double tol = 1e-3;
-
-  // wrap angles into [-pi,pi),[-pi/2,pi/2),[-pi,pi)
-  if(zyx.y() < -M_PI/2 - tol)
-  {
-    if(zyx.x() < 0) {
-      zyx.x() = zyx.x() + M_PI;
-    } else {
-      zyx.x() = zyx.x() - M_PI;
-    }
-
-    zyx.y() = -(zyx.y() + M_PI);
-
-    if(zyx.z() < 0) {
-      zyx.z() = zyx.z() + M_PI;
-    } else {
-      zyx.z() = zyx.z() - M_PI;
-    }
-  }
-  else if(-M_PI/2 - tol <= zyx.y() && zyx.y() <= -M_PI/2 + tol)
-  {
-    zyx.x() -= zyx.z();
-    zyx.z() = 0;
-  }
-  else if(-M_PI/2 + tol < zyx.y() && zyx.y() < M_PI/2 - tol)
-  {
-    // ok
-  }
-  else if(M_PI/2 - tol <= zyx.y() && zyx.y() <= M_PI/2 + tol)
-  {
-    zyx.x() += zyx.z();
-    zyx.z() = 0;
-  }
-  else // M_PI/2 + tol < zyx.y()
-  {
-    if(zyx.x() < 0) {
-      zyx.x() = zyx.x() + M_PI;
-    } else {
-      zyx.x() = zyx.x() - M_PI;
-    }
-
-    zyx.y() = -(zyx.y() - M_PI);
-
-    if(zyx.z() < 0) {
-      zyx.z() = zyx.z() + M_PI;
-    } else {
-      zyx.z() = zyx.z() - M_PI;
-    }
-  }
-
-  return zyx;
-}
-
 } /* namespace towr */
+
 
 
 int main(int argc, char *argv[])

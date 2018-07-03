@@ -30,8 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
  * @file towr_xpp_ee_map.h
  *
- * Mapping semantic information (e.g. name of the foot) between
- * towr and xpp domain.
+ * Mapping information/types between towr and xpp domain.
  */
 #ifndef TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_TOWR_XPP_EE_MAP_H_
 #define TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_TOWR_XPP_EE_MAP_H_
@@ -93,6 +92,20 @@ ToXppEndeffector(int number_of_ee, int towr_ee_id)
   }
 
   return ee;
+}
+
+/**
+ * Converts class "State" between two domains (have same internal representation).
+ */
+static xpp::StateLinXd ToXpp(const towr::State& towr)
+{
+  xpp::StateLinXd xpp(towr.p().rows());
+
+  xpp.p_ = towr.p();
+  xpp.v_ = towr.v();
+  xpp.a_ = towr.a();
+
+  return xpp;
 }
 
 } // namespace towr

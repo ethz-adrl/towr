@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ifopt/constraint_set.h>
 
 #include <towr/variables/phase_nodes.h>
-#include <towr/height_map.h> // for friction cone
+#include <towr/terrain/height_map.h> // for friction cone
 
 namespace towr {
 

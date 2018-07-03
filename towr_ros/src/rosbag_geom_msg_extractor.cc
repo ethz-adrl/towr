@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * RobotStateCartesian and writes them to a new bag. The bags with standard
  * messages can then easily be imported and plotted in matlab.
  *
- * See matlab/plot_rosbag.m for an example of how to open these.
+ * See towr/matlab/plot_rosbag.m for an example of how to open these.
  */
 int main(int argc, char *argv[])
 {

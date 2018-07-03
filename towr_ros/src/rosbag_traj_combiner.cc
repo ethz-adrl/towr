@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
  * Takes a ROS bag of optimization results (with intermediate iterations), and
  * strings them together so multiple iterations are played back sequentially.
+ *
+ * (used for RA-L submission video).
  */
 int main(int argc, char *argv[])
 {

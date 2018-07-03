@@ -16,7 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Curses REQUIRED)
 
 
-
 ## Generate messages in the 'msg' folder
 add_message_files( FILES TowrCommand.msg )
 generate_messages( DEPENDENCIES std_msgs xpp_msgs )
@@ -83,6 +82,8 @@ install(
           towr_user_interface
           rviz_terrain_publisher
           goal_pose_publisher
+          rosbag_traj_combiner
+          rosbag_geom_msg_extractor
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
