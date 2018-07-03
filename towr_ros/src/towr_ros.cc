@@ -41,10 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/initialization/quadruped_gait_generator.h>
 #include <towr/models/examples/hyq_model.h>
+#include <towr/terrain/examples/height_map_examples.h>
 
 #include <towr_ros/param_server.h>
 #include <towr_ros/topic_names.h>
-#include <towr_ros/height_map_examples.h>
 #include <towr/variables/euler_converter.h> // smell move into spline_holder
 #include <towr_ros/towr_xpp_ee_map.h>
 

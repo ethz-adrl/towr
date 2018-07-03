@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr_ros/TowrCommand.h>
 #include <towr_ros/topic_names.h>
-#include <towr_ros/height_map_examples.h>
+#include <towr/terrain/examples/height_map_examples.h>
 
 
 namespace towr {
@@ -43,7 +43,7 @@ namespace towr {
 TowrUserInterface::TowrUserInterface ()
 {
   printw("************************************************************\n");
-  printw("              TOWR user interface (v1.1.0) \n");
+  printw("              TOWR user interface (v1.2.2) \n");
   printw("                \u00a9 Alexander W. Winkler \n");
   printw("            https://github.com/ethz-adrl/towr\n");
   printw("************************************************************\n\n");

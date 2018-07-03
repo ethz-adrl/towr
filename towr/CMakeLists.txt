@@ -20,7 +20,6 @@ add_library(${PROJECT_NAME} SHARED
   src/towr.cc
   src/nlp_factory.cc
   src/parameters.cc
-  src/height_map.cc
   # variables
   src/state.cc
   src/polynomial.cc
@@ -61,6 +60,9 @@ add_library(${PROJECT_NAME} SHARED
   src/monoped_gait_generator.cc
   src/biped_gait_generator.cc
   src/quadruped_gait_generator.cc
+  # terrain
+  src/height_map_examples.cc
+  src/height_map.cc
 )
 target_link_libraries(${PROJECT_NAME} 
   PUBLIC 
