@@ -2,8 +2,8 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.2 (2018-07-03)
+------------------
 * remove controller specifc code from towr_ros
 * moved height map from towr_ros to towr
 * moved robots models and gait generator from towr_ros to towr

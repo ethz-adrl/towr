@@ -2,8 +2,8 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.2 (2018-07-03)
+------------------
 * remove controller specifc code from towr_ros
 * removed exe subfolder
 * moved height map from towr_ros to towr
