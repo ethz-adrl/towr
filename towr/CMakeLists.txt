@@ -13,7 +13,7 @@ IF(NOT CMAKE_BUILD_TYPE MATCHES Release)
 endif()
 
 # so dynamic library libtowr.so retains link to ifopt_core.so
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib) 
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 # The motion-planning problem formulated through variables and constraints
 add_library(${PROJECT_NAME} SHARED
@@ -111,13 +111,13 @@ endif()
 ## Install ##
 #############
 include(GNUInstallDirs) # for correct libraries locations across platforms
-set(config_package_location share/towr/cmake) # for .cmake find-scripts installs
+set(config_package_location "share/${PROJECT_NAME}/cmake") # for .cmake find-scripts installs
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-# Copy header files to usr/local/include/ifopt/*
+# Copy header files
 install(DIRECTORY include/towr/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/towr
 )
@@ -135,16 +135,12 @@ write_basic_package_version_file(
   VERSION ${towr_VERSION}
   COMPATIBILITY SameMajorVersion
 )
-
-# install the two files in a place where cmake looks for them so can call
-# "find_package(towr).
-# see also: https://cmake.org/cmake/help/v3.0/manual/cmake-packages.7.html
+# install the two files in a place where cmake looks for them
 install(
   FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/towr-config.cmake"   # self-written
     ${version_file}                                         # generated
   DESTINATION ${config_package_location}
 )
-
 # Install a Catkin 'package.xml' file. This is required by REP-136.
 install(FILES package.xml DESTINATION share/${PROJECT_NAME})
