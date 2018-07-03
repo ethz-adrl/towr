@@ -2,6 +2,16 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* remove controller specifc code from towr_ros
+* removed exe subfolder
+* moved height map from towr_ros to towr
+* moved robots models and gait generator from towr_ros to towr
+* move dynamic and kinematic models from towr_ros -> towr
+* add ncurses and xterm dependencies to package.xml
+* Contributors: Alexander Winkler
+
 1.2.1 (2018-06-30)
 ------------------
 * adapt to revised ifopt version and build structure
