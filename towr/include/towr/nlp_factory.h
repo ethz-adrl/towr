@@ -36,8 +36,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/variables/spline_holder.h>
 
-#include "robot_model.h"
-#include "height_map.h"
+#include <towr/models/robot_model.h>
+#include <towr/terrain/height_map.h>
 #include "parameters.h"
 
 namespace towr {

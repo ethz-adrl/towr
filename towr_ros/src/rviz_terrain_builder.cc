@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <xpp_states/convert.h>
 
-#include <towr_ros/height_map_examples.h>
+#include <towr/terrain/examples/height_map_examples.h>
 
 namespace towr {
 

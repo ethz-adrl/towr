@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <Eigen/Dense>
 
-#include "variables/cartesian_dimensions.h"
+#include <towr/variables/cartesian_dimensions.h>
 
 namespace towr {
 

@@ -27,24 +27,36 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/models/hyq_model.h>
+#ifndef TOWR_MODELS_MONOPED_GAIT_GENERATOR_H_
+#define TOWR_MODELS_MONOPED_GAIT_GENERATOR_H_
 
-#include <xpp_states/endeffector_mappings.h>
+#include "gait_generator.h"
 
 namespace towr {
 
-HyqKinematicModel::HyqKinematicModel () : KinematicModel(4)
-{
-  const double x_nominal_b = 0.31;
-  const double y_nominal_b = 0.29;
-  const double z_nominal_b = -0.58;
+/**
+ * @brief Produces the contact sequence for a variety of one-legged gaits.
+ *
+ * @sa GaitGenerator for more documentation
+ */
+class MonopedGaitGenerator : public GaitGenerator {
+public:
+  MonopedGaitGenerator () = default;
+  virtual ~MonopedGaitGenerator () = default;
 
-  nominal_stance_.at(xpp::quad::LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
-  nominal_stance_.at(xpp::quad::RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
-  nominal_stance_.at(xpp::quad::LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
-  nominal_stance_.at(xpp::quad::RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
+private:
+  virtual GaitInfo GetGait(GaitTypes gait) const override;
 
-  max_dev_from_nominal_ << 0.25, 0.20, 0.10;
-}
+  GaitInfo GetStrideStand() const;
+  GaitInfo GetStrideFlight() const;
+  GaitInfo GetStrideHop() const;
+
+  ContactState o_ = ContactState(1, true);  // stance
+  ContactState x_ = ContactState(1, false); // flight
+
+  virtual void SetCombo(GaitCombos combo) override;
+};
 
 } /* namespace towr */
+
+#endif /* TOWR_MODELS_MONOPED_GAIT_GENERATOR_H_ */

@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_HEIGHT_MAP_EXAMPLES_H_
 #define TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_HEIGHT_MAP_EXAMPLES_H_
 
-#include <towr/height_map.h>
+#include <towr/terrain/height_map.h>
 
 namespace towr {
 
@@ -52,17 +52,17 @@ enum TerrainID { FlatID=0,
  */
 class HeightMapFactory {
 public:
-  static HeightMap::Ptr MakeTerrain(TerrainID type, double ground_height);
+  static HeightMap::Ptr MakeTerrain(TerrainID type);
 };
 
 
 class FlatGround : public HeightMap {
 public:
-  FlatGround(double height);
+  FlatGround(double height = 0.0);
   virtual double GetHeight(double x, double y)  const override { return height_; };
 
 private:
-  double height_ = 0.0; // [m]
+  double height_; // [m]
 };
 
 

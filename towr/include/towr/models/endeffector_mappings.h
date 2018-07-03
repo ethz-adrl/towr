@@ -1,5 +1,5 @@
 /******************************************************************************
-Copyright (c) 2018, Alexander W. Winkler. All rights reserved.
+Copyright (c) 2017, Alexander W. Winkler. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -27,36 +27,22 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef TOWR_MODELS_MONOPED_GAIT_GENERATOR_H_
-#define TOWR_MODELS_MONOPED_GAIT_GENERATOR_H_
-
-#include "gait_generator.h"
+/**
+ * @file endeffector_mappings.h
+ *
+ * Assigning some semantic information (e.g. name of the foot) to endeffector
+ * indices. This is only needed to later visualize each endeffector with
+ * the correct URDF legs.
+ */
+#ifndef TOWR_ENDEFFECTOR_MAPPINGS_H_
+#define TOWR_ENDEFFECTOR_MAPPINGS_H_
 
 namespace towr {
 
-/**
- * @brief Produces the contact sequence for a variety of one-legged gaits.
- *
- * @sa GaitGenerator for more documentation
- */
-class MonopedGaitGenerator : public GaitGenerator {
-public:
-  MonopedGaitGenerator ();
-  virtual ~MonopedGaitGenerator () = default;
+// has to start at zero
+enum BipedIDs { L, R };
+enum QuadrupedIDs { LF, RF, LH, RH };
 
-private:
-  virtual GaitInfo GetGait(GaitTypes gait) const override;
+} // namespace towr
 
-  GaitInfo GetStrideStand() const;
-  GaitInfo GetStrideFlight() const;
-  GaitInfo GetStrideHop() const;
-
-  ContactState o_ = ContactState(1, true);  // stance
-  ContactState x_ = ContactState(1, false); // flight
-
-  virtual void SetCombo(GaitCombos combo) override;
-};
-
-} /* namespace towr */
-
-#endif /* TOWR_MODELS_MONOPED_GAIT_GENERATOR_H_ */
+#endif /* TOWR_STATES_ENDEFFECTOR_MAPPINGS_H_ */

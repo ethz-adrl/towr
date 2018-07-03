@@ -27,17 +27,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/monoped_gait_generator.h>
+#include <towr/initialization/monoped_gait_generator.h>
 
 #include <cassert>
 #include <iostream>
 
 namespace towr {
-
-MonopedGaitGenerator::MonopedGaitGenerator ()
-{
-  map_id_to_ee_ = { {"E0", 0 } };
-}
 
 void
 MonopedGaitGenerator::SetCombo (GaitCombos combo)

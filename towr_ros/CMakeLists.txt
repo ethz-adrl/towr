@@ -13,8 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   towr
 )
 
-find_package(Curses REQUIRED) # only for this keyboard input
-
+find_package(Curses REQUIRED)
 
 
 ## Generate messages in the 'msg' folder
@@ -22,6 +21,7 @@ add_message_files( FILES TowrCommand.msg )
 generate_messages( DEPENDENCIES std_msgs xpp_msgs )
 
 catkin_package()
+
 
 ###########
 ## Build ##
@@ -34,15 +34,6 @@ include_directories(
 ## The main executable that runs TOWR
 add_executable(towr_ros 
   src/towr_ros.cc
-  src/gait_generator.cc
-  src/monoped_gait_generator.cc
-  src/biped_gait_generator.cc
-  src/quadruped_gait_generator.cc
-  src/anymal_model.cc
-  src/hyq_model.cc
-  src/biped_model.cc
-  src/monoped_model.cc
-  src/height_map_examples.cc
 )
 add_dependencies(towr_ros ${PROJECT_NAME}_gencpp) # build .msg first
 target_link_libraries(towr_ros
@@ -57,7 +48,7 @@ target_link_libraries(towr_user_interface
   ${CURSES_LIBRARIES}
 )
 
-add_executable(rviz_terrain_publisher src/exe/rviz_terrain_publisher.cc
+add_executable(rviz_terrain_publisher src/rviz_terrain_publisher.cc
   src/rviz_terrain_builder.cc
 )
 add_dependencies(rviz_terrain_publisher ${PROJECT_NAME}_gencpp) # build .msg first
@@ -65,18 +56,18 @@ target_link_libraries(rviz_terrain_publisher
   ${catkin_LIBRARIES}
 )
 
-add_executable(goal_pose_publisher src/exe/goal_pose_publisher.cc)
+add_executable(goal_pose_publisher src/goal_pose_publisher.cc)
 add_dependencies(goal_pose_publisher ${PROJECT_NAME}_gencpp) # build .msg first
 target_link_libraries(goal_pose_publisher
   ${catkin_LIBRARIES}
 )
 
-add_executable(rosbag_traj_combiner src/exe/rosbag_traj_combiner.cc)
+add_executable(rosbag_traj_combiner src/rosbag_traj_combiner.cc)
 target_link_libraries(rosbag_traj_combiner
   ${catkin_LIBRARIES}
 )
 
-add_executable(rosbag_geom_msg_extractor src/exe/rosbag_geom_msg_extractor.cc)
+add_executable(rosbag_geom_msg_extractor src/rosbag_geom_msg_extractor.cc)
 target_link_libraries(rosbag_geom_msg_extractor
   ${catkin_LIBRARIES}
 )
@@ -91,6 +82,8 @@ install(
           towr_user_interface
           rviz_terrain_publisher
           goal_pose_publisher
+          rosbag_traj_combiner
+          rosbag_geom_msg_extractor
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -101,14 +94,3 @@ install(
   DIRECTORY launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
-
-
-#############
-## Testing ##
-#############
-
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_xpp_ros.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()

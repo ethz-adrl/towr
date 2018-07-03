@@ -31,64 +31,77 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <vector>
 
+#include <ros/init.h>
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
+#include <std_msgs/Int32.h>
 #include <rosbag/message_instance.h>
 #include <boost/foreach.hpp>
 
-#include <xpp_msgs/RobotStateCartesian.h>
+#include <xpp_msgs/topic_names.h>
+#include <towr_ros/topic_names.h>
 
 /**
- * Extracts the standard ROS geometry_msgs/Vector3.h from a ROS bag of
- * RobotStateCartesian and writes them to a new bag. The bags with standard
- * messages can then easily be imported and plotted in matlab.
+ * Takes a ROS bag of optimization results (with intermediate iterations), and
+ * strings them together so multiple iterations are played back sequentially.
  *
- * See matlab/plot_rosbag.m for an example of how to open these.
+ * (used for RA-L submission video).
  */
 int main(int argc, char *argv[])
 {
-  if (argc==1) {
-    std::cerr << "Error: Please enter path to bag file\n";
-    return 0;
-  }
+  ros::init(argc, argv, "rosbag_trajectory_combiner");
 
-  std::string bag_file = argv[1];
+  std::string name = "/home/winklera/bags/optimal_traj";
 
   rosbag::Bag bag_r;
-  bag_r.open(bag_file, rosbag::bagmode::Read);
-  std::cout << "Reading from bag " + bag_r.getFileName() << std::endl;
+  bag_r.open(name+".bag", rosbag::bagmode::Read);
+  ROS_INFO_STREAM("Reading from bag " + bag_r.getFileName());
+
+
+  // get number of iterations in bag file
+  int n_opt_iterations = 0;
+  rosbag::View view1(bag_r, rosbag::TopicQuery(towr_msgs::nlp_iterations_count));
+  BOOST_FOREACH(rosbag::MessageInstance const m, view1) {
+    std_msgs::Int32::ConstPtr i = m.instantiate<std_msgs::Int32>();
+    n_opt_iterations = i->data;
+  }
 
   // select which iterations (message topics) to be included in bag file
-  std::string topic = "/xpp/state_des";
-  rosbag::View view(bag_r, rosbag::TopicQuery(topic));
-  if (view.size() == 0) {
-    std::cerr << "Error: Topic " << topic << " doesn't exist\n";
-    return 0;
-  }
+  std::vector<std::string> topics;
+  ROS_INFO_STREAM("Detected " + std::to_string(n_opt_iterations) + " iterations");
+  int n_visualizations = 5; // total number of visualizations is fixed
+  int frequency = std::floor(n_opt_iterations/n_visualizations);
+
+  for (int i=0; i<n_visualizations; ++i)
+    topics.push_back(towr_msgs::nlp_iterations_name + std::to_string(frequency*i));
+  topics.push_back(towr_msgs::nlp_iterations_name + std::to_string(n_opt_iterations-1)); // for sure add final trajectory
+  rosbag::View view(bag_r, rosbag::TopicQuery(topics));
+
+
+  // change the timestamp so iterations are played back subsequently
+  std::map<std::string, double> t_iter;
+  double duration = view.getEndTime().toSec(); // duration of the trajectory
+  for (int i=0; i<topics.size(); ++i)
+    t_iter[topics.at(i)] = i*duration;
+
+  ROS_INFO_STREAM("Visualizing messages:");
+  for (auto m : t_iter)
+    std::cout << m.first << std::endl;
+
 
   // write the message with modified timestamp into new bag file
   rosbag::Bag bag_w;
-  bag_w.open("/home/winklera/Desktop/matlab_rdy.bag", rosbag::bagmode::Write);
+  bag_w.open(name + "_combined.bag", rosbag::bagmode::Write);
 
   BOOST_FOREACH(rosbag::MessageInstance const m, view)
   {
-    ros::Time t = m.getTime();
-    auto state_msg = m.instantiate<xpp_msgs::RobotStateCartesian>();
-    bag_w.write("base_pose", t, state_msg->base.pose);
-    bag_w.write("base_acc", t, state_msg->base.accel.linear);
-
-    int n_feet = state_msg->ee_motion.size();
-
-    for (int i=0; i<n_feet; ++i) {
-
-      bag_w.write("foot_pos_"+std::to_string(i), t, state_msg->ee_motion.at(i).pos);
-      bag_w.write("foot_force_"+std::to_string(i), t, state_msg->ee_forces.at(i));
-    }
+    double t_global = t_iter.at(m.getTopic()) + m.getTime().toSec();
+    bag_w.write(xpp_msgs::robot_state_desired, ::ros::Time(t_global), m);
   }
 
   bag_r.close();
-  std::cout << "Successfully created bag " + bag_w.getFileName() << std::endl;
   bag_w.close();
+  ROS_INFO_STREAM("Successfully created bag " + bag_w.getFileName());
 
-
+  return 1;
 }

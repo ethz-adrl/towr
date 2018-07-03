@@ -30,7 +30,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_MODELS_GAIT_GENERATOR_H_
 #define TOWR_MODELS_GAIT_GENERATOR_H_
 
-#include <map>
 #include <memory>
 #include <string>
 #include <utility>
@@ -83,12 +82,6 @@ public:
    */
   virtual void SetCombo(GaitCombos combo) = 0;
 
-  /**
-   * @returns The endefftor name (e.g. "left_foot") corresonding to each index.
-   */
-  std::vector<std::string> GetEndeffectorNames() const;
-
-
 protected:
   /// Phase times for the complete robot during which no contact state changes.
   std::vector<double> times_;
@@ -107,9 +100,6 @@ protected:
    * This is usually necessary for a gait change.
    */
   GaitInfo RemoveTransition(const GaitInfo& g) const;
-
-  /// mapping from endeffector name to index, filled by derived class
-  std::map<std::string, EE> map_id_to_ee_;
 
 private:
   FootDurations GetPhaseDurations() const;

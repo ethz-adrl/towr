@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_msgs/RobotParameters.h>
 
 #include <towr_ros/TowrCommand.h>
-#include <towr_ros/gait_generator.h>
+#include <towr/initialization/gait_generator.h>
 
 #include <towr/towr.h>
 #include <ifopt/ipopt.h>
@@ -51,28 +51,22 @@ namespace towr {
 
 class TowrRos {
 public:
-  using RobotStateCartesian = xpp::RobotStateCartesian;
-  using RobotStateVec       = std::vector<RobotStateCartesian>;
-  using TowrCommand         = towr_ros::TowrCommand;
-  using Vector3d            = Eigen::Vector3d;
+  using XppVec         = std::vector<xpp::RobotStateCartesian>;
+  using TowrCommandMsg = towr_ros::TowrCommand;
+  using Vector3d       = Eigen::Vector3d;
 
   TowrRos ();
   virtual ~TowrRos () = default;
 
 private:
-  void OptimizeMotion();
 
-  void CurrentStateCallback(const xpp_msgs::RobotStateCartesian&);
+  void UserCommandCallback(const TowrCommandMsg& msg);
 
-  void UserCommandCallback(const TowrCommand&);
-  void SetTowrParameters(const TowrCommand& msg);
-
-  RobotStateVec GetTrajectory() const;
-  std::vector<RobotStateVec>GetIntermediateSolutions();
+  XppVec GetTrajectory() const;
+  std::vector<XppVec>GetIntermediateSolutions();
 
 
   ::ros::Subscriber user_command_sub_;
-  ::ros::Subscriber current_state_sub_;
   ::ros::Publisher cart_trajectory_pub_;
   ::ros::Publisher robot_parameters_pub_;
 
@@ -82,33 +76,20 @@ private:
 
   GaitGenerator::Ptr gait_;
   RobotModel model_;
-  double ground_height_; ///< can be adapted based on footholds
   HeightMap::Ptr terrain_;
 
   double output_dt_; ///< discretization of output trajectory (1/TaskServoHz)
   std::string rosbag_folder_; ///< folder to save bags
 
-
-
-
-  xpp_msgs::RobotStateCartesianTrajectory BuildTrajectoryMsg() const;
-
   xpp_msgs::RobotParameters BuildRobotParametersMsg(const RobotModel& model) const;
 
   void SaveOptimizationAsRosbag(const std::string& bag_name,
                                 const xpp_msgs::RobotParameters& robot_params,
-                                const TowrCommand user_command_msg,
+                                const TowrCommandMsg user_command_msg,
                                 bool include_iterations=false);
-  void SaveTrajectoryInRosbag (rosbag::Bag&, const std::vector<RobotStateCartesian>& traj,
+  void SaveTrajectoryInRosbag (rosbag::Bag&,
+                               const std::vector<xpp::RobotStateCartesian>& traj,
                                const std::string& topic) const;
-
-
-
-  xpp::StateLinXd ToXpp(const towr::State& towr) const;
-
-
-
-  Eigen::Vector3d GetUnique(const Eigen::Vector3d& zyx_non_unique) const;
 };
 
 } /* namespace towr */

@@ -19,19 +19,13 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 add_library(${PROJECT_NAME} SHARED
   src/towr.cc
   src/nlp_factory.cc
-  src/time_discretization_constraint.cc
-  src/base_motion_constraint.cc
-  src/height_map.cc
-  src/terrain_constraint.cc
-  src/swing_constraint.cc
-  src/force_constraint.cc
-  src/total_duration_constraint.cc
+  src/parameters.cc
+  # variables
   src/state.cc
   src/polynomial.cc
   src/nodes.cc
   src/phase_nodes.cc
   src/base_nodes.cc
-  src/node_cost.cc
   src/spline.cc
   src/phase_spline.cc
   src/node_spline.cc
@@ -40,14 +34,35 @@ add_library(${PROJECT_NAME} SHARED
   src/euler_converter.cc
   src/phase_durations.cc
   src/phase_durations_observer.cc
+  # models
+  src/anymal_model.cc
+  src/hyq_model.cc
+  src/biped_model.cc
+  src/monoped_model.cc
   src/dynamic_model.cc
   src/centroidal_model.cc
+  # constraints
+  src/time_discretization_constraint.cc
+  src/base_motion_constraint.cc
+  src/terrain_constraint.cc
+  src/swing_constraint.cc
+  src/force_constraint.cc
+  src/total_duration_constraint.cc
   src/dynamic_constraint.cc
   src/range_of_motion_constraint.cc
   src/spline_acc_constraint.cc
-  src/parameters.cc
   src/linear_constraint.cc
+  # costs
+  src/node_cost.cc
   src/soft_constraint.cc
+  # initialization
+  src/gait_generator.cc
+  src/monoped_gait_generator.cc
+  src/biped_gait_generator.cc
+  src/quadruped_gait_generator.cc
+  # terrain
+  src/height_map_examples.cc
+  src/height_map.cc
 )
 target_link_libraries(${PROJECT_NAME} 
   PUBLIC 

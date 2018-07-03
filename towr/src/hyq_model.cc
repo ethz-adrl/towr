@@ -27,71 +27,23 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef TOWR_MODELS_KINEMATIC_MODEL_H_
-#define TOWR_MODELS_KINEMATIC_MODEL_H_
-
-#include <memory>
-#include <vector>
-
-#include <Eigen/Dense>
+#include <towr/models/examples/hyq_model.h>
+#include <towr/models/endeffector_mappings.h>
 
 namespace towr {
 
-/**
- * @brief  Contains all the robot specific kinematic parameters.
- *
- * This class is mainly used to formulate the @ref RangeOfMotionConstraint,
- * restricting each endeffector to stay inside it's kinematic range.
- */
-class KinematicModel {
-public:
-  using Ptr      = std::shared_ptr<KinematicModel>;
-  using EEPos    = std::vector<Eigen::Vector3d>;
-  using Vector3d = Eigen::Vector3d;
+HyqKinematicModel::HyqKinematicModel () : KinematicModel(4)
+{
+  const double x_nominal_b = 0.31;
+  const double y_nominal_b = 0.29;
+  const double z_nominal_b = -0.58;
 
-  /**
-   * @brief Constructs a kinematic model of a robot with zero range of motion.
-   * @param n_ee  The number of endeffectors of the robot.
-   */
-  KinematicModel (int n_ee)
-  {
-    nominal_stance_.resize(n_ee);
-    max_dev_from_nominal_.setZero();
-  }
+  nominal_stance_.at(LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
+  nominal_stance_.at(RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
+  nominal_stance_.at(LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
+  nominal_stance_.at(RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
-  virtual ~KinematicModel () = default;
-
-  /**
-   * @brief  The xyz-position [m] of each foot in default stance.
-   * @returns The vector from base to each foot expressed in the base frame.
-   */
-  virtual EEPos GetNominalStanceInBase() const
-  {
-    return nominal_stance_;
-  }
-
-  /**
-   * @brief How far each foot can deviate from its nominal position.
-   * @return The deviation [m] expresed in the base frame.
-   */
-  virtual Vector3d GetMaximumDeviationFromNominal() const
-  {
-    return max_dev_from_nominal_;
-  }
-
-  /**
-   * @returns returns the number of endeffectors of this robot.
-   */
-  int GetNumberOfEndeffectors() const
-  {
-    return nominal_stance_.size();
-  }
-
-protected:
-  EEPos nominal_stance_;
-  Vector3d max_dev_from_nominal_;
-};
+  max_dev_from_nominal_ << 0.25, 0.20, 0.10;
+}
 
 } /* namespace towr */
-
-#endif /* TOWR_MODELS_KINEMATIC_MODEL_H_ */

@@ -27,21 +27,25 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/models/biped_model.h>
-
-#include <xpp_states/endeffector_mappings.h>
+#include <towr/models/examples/anymal_model.h>
+#include <towr/models/endeffector_mappings.h>
 
 namespace towr {
 
-BipedKinematicModel::BipedKinematicModel () : KinematicModel(2)
+AnymalKinematicModel::AnymalKinematicModel () : KinematicModel(4)
 {
-  const double z_nominal_b = -0.65;
-  const double y_nominal_b =  0.20;
+  const double x_nominal_b = 0.34;
+  const double y_nominal_b = 0.19;
+  const double z_nominal_b = -0.42;
 
-  nominal_stance_.at(xpp::biped::L) << 0.0,  y_nominal_b, z_nominal_b;
-  nominal_stance_.at(xpp::biped::R) << 0.0, -y_nominal_b, z_nominal_b;
+  nominal_stance_.at(LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
+  nominal_stance_.at(RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
+  nominal_stance_.at(LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
+  nominal_stance_.at(RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
-  max_dev_from_nominal_  << 0.25, 0.15, 0.15;
+  max_dev_from_nominal_ << 0.15, 0.1, 0.10;
 }
 
-} /* namespace towr */
+} // namespace towr
+
+

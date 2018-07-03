@@ -27,12 +27,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/biped_gait_generator.h>
+#include <towr/initialization/biped_gait_generator.h>
 
 #include <cassert>
 #include <iostream>
 
-#include <xpp_states/endeffector_mappings.h>
+#include <towr/models/endeffector_mappings.h>
 
 namespace towr {
 
@@ -41,15 +41,11 @@ BipedGaitGenerator::BipedGaitGenerator ()
   ContactState init(2, false);
   I_ = b_ = P_ = B_ = init;
 
-  using namespace xpp::biped;
   P_.at(L) = true;
   b_.at(R) = true;
   B_       = { true, true };
 
   SetGaits({Stand});
-
-  map_id_to_ee_["L"] = L;
-  map_id_to_ee_["R"] = R;
 }
 
 void
