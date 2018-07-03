@@ -39,14 +39,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_msgs/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
 
+#include <towr/initialization/quadruped_gait_generator.h>
+#include <towr/models/examples/hyq_model.h>
+
 #include <towr_ros/param_server.h>
 #include <towr_ros/topic_names.h>
-#include <towr_ros/quadruped_gait_generator.h>
 #include <towr_ros/height_map_examples.h>
 #include <towr/variables/euler_converter.h> // smell move into spline_holder
 #include <towr_ros/towr_xpp_ee_map.h>
 
-#include <towr/models/examples/hyq_model.h>
 
 
 
@@ -76,11 +77,15 @@ TowrRos::TowrRos ()
   rosbag_folder_ = ParamServer::GetString("/towr/rosbag_folder");
 
 
+  model_.dynamic_model_   = std::make_shared<towr::HyqDynamicModel>();
+  model_.kinematic_model_ = std::make_shared<towr::HyqKinematicModel>();
+  gait_                   = std::make_shared<towr::QuadrupedGaitGenerator>();
+
+
   // hardcode initial state
   towr::BaseState b;
   b.lin.at(towr::kPos).z() = 0.58;
-
-  std::vector<Eigen::Vector3d> ee_pos(4);
+  std::vector<Eigen::Vector3d> ee_pos(model_.kinematic_model_->GetNumberOfEndeffectors());
 
   ee_pos.at(LF) <<  0.31,  0.29, 0.0;
   ee_pos.at(RF) <<  0.31, -0.29, 0.0;
@@ -89,10 +94,6 @@ TowrRos::TowrRos ()
 
   towr_.SetInitialState(b, ee_pos);
 
-  model_.dynamic_model_   = std::make_shared<towr::HyqDynamicModel>();
-  model_.kinematic_model_ = std::make_shared<towr::HyqKinematicModel>();
-  gait_                   = std::make_shared<towr::QuadrupedGaitGenerator>();
-  output_dt_              = 0.02;
 
   ground_height_ = 0.0;
   terrain_ = std::make_shared<FlatGround>(ground_height_);
@@ -102,6 +103,8 @@ TowrRos::TowrRos ()
   solver_->print_level_ = 5;
   solver_->max_cpu_time_ = 10.0;
   solver_->use_jacobian_approximation_ = false;
+
+  output_dt_              = 0.02;
 }
 
 void
@@ -178,7 +181,7 @@ TowrRos::SetTowrParameters(const TowrCommand& msg)
 
   towr::Parameters params;
   params.t_total_ = msg.total_duration;
-  int n_ee = gait_->GetEndeffectorNames().size();
+  int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
   auto gait = static_cast<towr::GaitGenerator::GaitCombos>(msg.gait_id);
   gait_->SetCombo(gait);
   for (int ee=0; ee<n_ee; ++ee) {
@@ -240,7 +243,7 @@ TowrRos::GetTrajectory () const
 
     for (int ee_towr=0; ee_towr<n_ee; ++ee_towr){
 
-      int ee_xpp = ToXppEndeffector(n_ee, ee_towr);
+      int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
 
       state.ee_contact_.at(ee_xpp) = solution.phase_durations_.at(ee_towr)->IsContactPhase(t);
       state.ee_motion_.at(ee_xpp)  = ToXpp(solution.ee_motion_.at(ee_towr)->GetPoint(t));
@@ -282,10 +285,11 @@ TowrRos::BuildRobotParametersMsg(const RobotModel& model) const
   params_msg.ee_max_dev = xpp::Convert::ToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
   auto nominal_B = model.kinematic_model_->GetNominalStanceInBase();
-  auto ee_names = gait_->GetEndeffectorNames();
-  params_msg.ee_names = ee_names;
-  for (auto ee : nominal_B) {
-    params_msg.nominal_ee_pos.push_back(xpp::Convert::ToRos<geometry_msgs::Point>(ee));
+  int n_ee = nominal_B.size();
+  for (int ee_towr=0; ee_towr<n_ee; ++ee_towr) {
+    Vector3d pos = nominal_B.at(ee_towr);
+    params_msg.nominal_ee_pos.push_back(xpp::Convert::ToRos<geometry_msgs::Point>(pos));
+    params_msg.ee_names.push_back(ToXppEndeffector(n_ee, ee_towr).second);
   }
 
   params_msg.base_mass = model.dynamic_model_->m();

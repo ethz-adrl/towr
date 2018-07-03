@@ -56,6 +56,11 @@ add_library(${PROJECT_NAME} SHARED
   # costs
   src/node_cost.cc
   src/soft_constraint.cc
+  # initialization
+  src/gait_generator.cc
+  src/monoped_gait_generator.cc
+  src/biped_gait_generator.cc
+  src/quadruped_gait_generator.cc
 )
 target_link_libraries(${PROJECT_NAME} 
   PUBLIC 

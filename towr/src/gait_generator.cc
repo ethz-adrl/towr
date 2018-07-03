@@ -27,7 +27,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/gait_generator.h>
+#include <towr/initialization/gait_generator.h>
 
 #include <cassert>
 #include <numeric>   // std::accumulate
@@ -127,16 +127,6 @@ GaitGenerator::RemoveTransition (const GaitInfo& g) const
   new_gait.second.pop_back();
 
   return new_gait;
-}
-
-std::vector<std::string>
-GaitGenerator::GetEndeffectorNames () const
-{
-  std::vector<std::string> names_(map_id_to_ee_.size());
-  for (auto m : map_id_to_ee_)
-     names_.at(m.second) = m.first;
-
-  return names_;
 }
 
 } /* namespace towr */

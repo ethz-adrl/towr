@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_msgs/RobotParameters.h>
 
 #include <towr_ros/TowrCommand.h>
-#include <towr_ros/gait_generator.h>
+#include <towr/initialization/gait_generator.h>
 
 #include <towr/towr.h>
 #include <ifopt/ipopt.h>
@@ -87,8 +87,6 @@ private:
 
   double output_dt_; ///< discretization of output trajectory (1/TaskServoHz)
   std::string rosbag_folder_; ///< folder to save bags
-
-
 
 
   xpp_msgs::RobotStateCartesianTrajectory BuildTrajectoryMsg() const;

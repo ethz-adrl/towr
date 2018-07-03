@@ -79,6 +79,14 @@ public:
     return max_dev_from_nominal_;
   }
 
+  /**
+   * @returns returns the number of endeffectors of this robot.
+   */
+  int GetNumberOfEndeffectors() const
+  {
+    return nominal_stance_.size();
+  }
+
 protected:
   EEPos nominal_stance_;
   Vector3d max_dev_from_nominal_;

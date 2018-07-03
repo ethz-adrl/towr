@@ -34,10 +34,6 @@ include_directories(
 ## The main executable that runs TOWR
 add_executable(towr_ros 
   src/towr_ros.cc
-  src/gait_generator.cc
-  src/monoped_gait_generator.cc
-  src/biped_gait_generator.cc
-  src/quadruped_gait_generator.cc
   src/height_map_examples.cc
 )
 add_dependencies(towr_ros ${PROJECT_NAME}_gencpp) # build .msg first

@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/models/examples/biped_model.h>
-#include <towr/models/examples/endeffector_mappings.h>
+#include <towr/models/endeffector_mappings.h>
 
 namespace towr {
 

@@ -27,12 +27,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/quadruped_gait_generator.h>
+#include <towr/initialization/quadruped_gait_generator.h>
 
 #include <cassert>
 #include <iostream>
 
-#include <xpp_states/endeffector_mappings.h>
+#include <towr/models/endeffector_mappings.h>
 
 namespace towr {
 
@@ -46,10 +46,6 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
   Pb_ = bP_ = BI_ = IB_ = PP_ = bb_ = init; // two leg support
   Bb_ = BP_ = bB_ = PB_             = init; // three-leg support
   BB_                               = init; // four-leg support phase
-
-
-  using namespace xpp::quad; // only for LF, RF, ... enums
-
 
   // flight_phase
   II_ = ContactState(n_ee, false);
@@ -75,11 +71,6 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
 
   // default gait
   SetGaits({Stand});
-
-  map_id_to_ee_["LF"] = LF;
-  map_id_to_ee_["RF"] = RF;
-  map_id_to_ee_["LH"] = LH;
-  map_id_to_ee_["RH"] = RH;
 }
 
 void
