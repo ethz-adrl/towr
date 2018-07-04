@@ -4,7 +4,7 @@
 
 *A light-weight and extensible C++ library for trajectory optimization for legged robots.*
 
-[![Build Status](http://build.ros.org/buildStatus/icon?job=Kdev__towr__ubuntu_xenial_amd64&build=3)](http://build.ros.org/view/Kdev/job/Kdev__towr__ubuntu_xenial_amd64/3/)
+[![Build Status](http://build.ros.org/buildStatus/icon?job=Kdev__towr__ubuntu_xenial_amd64)](http://build.ros.org/view/Kdev/job/Kdev__towr__ubuntu_xenial_amd64/)
 [<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/kinetic/api/towr/html/) 
 
 This Eigen-based library implements variables, costs and constraints that can be used to formulate and solve a legged locomotion optimization problem. It has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
@@ -18,7 +18,7 @@ Features:
 :heavy_check_mark: [catkin] integration (optional).  
 
 
-**Author/Maintainer: [:globe_with_meridians: Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
+by [:globe_with_meridians: Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")
 
 [<img src="https://i.imgur.com/uCvLs2j.png" height="50" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="50" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")           &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/aGOnNTZ.png" height="50" />](https://www.ethz.ch/en.html "ETH Zurich")       
 
