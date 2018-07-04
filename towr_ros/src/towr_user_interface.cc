@@ -40,20 +40,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+
+enum YCursorRows {HEADING=6, OPTIMIZE=8, REPLAY, GOAL_POS, GOAL_ORI, GAIT, TERRAIN, DURATION, PUBLISH, CLOSE, END};
+static constexpr int Y_STATUS      = END+1;
+static constexpr int X_KEY         = 1;
+static constexpr int X_DESCRIPTION = 10;
+static constexpr int X_VALUE       = 35;
+
+
 TowrUserInterface::TowrUserInterface ()
 {
-  printw("************************************************************\n");
-  printw("              TOWR user interface (v1.2.2) \n");
-  printw("                \u00a9 Alexander W. Winkler \n");
-  printw("            https://github.com/ethz-adrl/towr\n");
-  printw("************************************************************\n\n");
-
-  PrintHelp();
+  printw(" ******************************************************************************\n");
+  printw("                          TOWR user interface (v1.2.2) \n");
+  printw("                            \u00a9 Alexander W. Winkler \n");
+  printw("                        https://github.com/ethz-adrl/towr\n");
+  printw(" ******************************************************************************\n\n");
 
   ::ros::NodeHandle n;
 
   user_command_pub_ = n.advertise<towr_ros::TowrCommand>(towr_msgs::user_command, 1);
-  printw("Publishing to: %s\n\n", user_command_pub_.getTopic().c_str());
 
   // publish goal zero initially
   goal_geom_.lin.p_.setZero();
@@ -66,25 +71,87 @@ TowrUserInterface::TowrUserInterface ()
   replay_trajectory_ = false;
   optimize_ = false;
   publish_optimized_trajectory_ = false;
+
+  PrintScreen();
 }
 
 void
-TowrUserInterface::PrintHelp() const
+TowrUserInterface::PrintScreen() const
 {
-  printw("\n");
-  printw("The keyboard mappings are as follows:\n\n");
-  printw("arrow keys   \t move goal position in xy-plane\n");
-  printw("page up/down \t modify goal height\n");
-  printw("keypad       \t modify goal orientation\n");
-  printw("g            \t change gait\n");
-  printw("t            \t change terrain\n");
-  printw("o            \t optimize motion\n");
-  printw("r            \t replay motion\n");
-  printw("+/-          \t increase/decrease total duration\n");
-  printw("p            \t publish motion plan as xpp_msg\n");
-  printw("q            \t close user interface\n");
-  printw("h            \t display this help\n");
-  printw("\n");
+  wmove(stdscr, HEADING, X_KEY);
+  printw("Key");
+  wmove(stdscr, HEADING, X_DESCRIPTION);
+  printw("Description");
+  wmove(stdscr, HEADING, X_VALUE);
+  printw("Value");
+
+  wmove(stdscr, OPTIMIZE, X_KEY);
+  printw("o");
+  wmove(stdscr, OPTIMIZE, X_DESCRIPTION);
+  printw("Optimize motion");
+  wmove(stdscr, OPTIMIZE, X_VALUE);
+  printw("-");
+
+  wmove(stdscr, REPLAY, X_KEY);
+  printw("r");
+  wmove(stdscr, REPLAY, X_DESCRIPTION);
+  printw("Replay motion");
+  wmove(stdscr, REPLAY, X_VALUE);
+  printw("-");
+
+  wmove(stdscr, GOAL_POS, X_KEY);
+  printw("arrows");
+  wmove(stdscr, GOAL_POS, X_DESCRIPTION);
+  printw("Goal x-y-z");
+  wmove(stdscr, GOAL_POS, X_VALUE);
+  PrintVector(goal_geom_.lin.p_);
+  printw(" [m]");
+
+  wmove(stdscr, GOAL_ORI, X_KEY);
+  printw("keypad");
+  wmove(stdscr, GOAL_ORI, X_DESCRIPTION);
+  printw("Goal r-p-y");
+  wmove(stdscr, GOAL_ORI, X_VALUE);
+  PrintVector(goal_geom_.ang.p_);
+  printw(" [rad]");
+
+  wmove(stdscr, GAIT, X_KEY);
+  printw("g");
+  wmove(stdscr, GAIT, X_DESCRIPTION);
+  printw("Gait");
+  wmove(stdscr, GAIT, X_VALUE);
+  printw("%s", std::to_string(gait_combo_id_).c_str());
+
+  wmove(stdscr, TERRAIN, X_KEY);
+  printw("t");
+  wmove(stdscr, TERRAIN, X_DESCRIPTION);
+  printw("Terrain");
+  wmove(stdscr, TERRAIN, X_VALUE);
+  printw("%i", terrain_id_);
+
+  wmove(stdscr, DURATION, X_KEY);
+  printw("+/-");
+  wmove(stdscr, DURATION, X_DESCRIPTION);
+  printw("Duration");
+  wmove(stdscr, DURATION, X_VALUE);
+  printw("%f [s]", total_duration_);
+
+  wmove(stdscr, PUBLISH, X_KEY);
+  printw("p");
+  wmove(stdscr, PUBLISH, X_DESCRIPTION);
+  printw("Publish motion-plan");
+  wmove(stdscr, PUBLISH, X_VALUE);
+  printw("-");
+
+  wmove(stdscr, CLOSE, X_KEY);
+  printw("q");
+  wmove(stdscr, CLOSE, X_DESCRIPTION);
+  printw("Close user interface");
+  wmove(stdscr, CLOSE, X_VALUE);
+  printw("-");
+
+  wmove(stdscr, Y_STATUS, X_KEY);
+  printw("Status:");
 }
 
 void
@@ -94,35 +161,23 @@ TowrUserInterface::CallbackKey (int c)
   const static double d_ang = 0.25; // [rad]
 
   switch (c) {
-    case 'h':
-      PrintHelp();
-      break;
-    case 'q':
-      printw("Closing user interface\n");
-      ros::shutdown(); break;
     case KEY_RIGHT:
       goal_geom_.lin.p_.x() -= d_lin;
-      PrintVector(goal_geom_.lin.p_);
       break;
     case KEY_LEFT:
       goal_geom_.lin.p_.x() += d_lin;
-      PrintVector(goal_geom_.lin.p_);
       break;
     case KEY_DOWN:
       goal_geom_.lin.p_.y() += d_lin;
-      PrintVector(goal_geom_.lin.p_);
       break;
     case KEY_UP:
       goal_geom_.lin.p_.y() -= d_lin;
-      PrintVector(goal_geom_.lin.p_);
       break;
     case KEY_PPAGE:
       goal_geom_.lin.p_.z() += 0.5*d_lin;
-      PrintVector(goal_geom_.lin.p_);
       break;
     case KEY_NPAGE:
       goal_geom_.lin.p_.z() -= 0.5*d_lin;
-      PrintVector(goal_geom_.lin.p_);
       break;
 
     // desired goal orientations
@@ -148,37 +203,39 @@ TowrUserInterface::CallbackKey (int c)
     // terrains
     case 't':
       terrain_id_ = AdvanceCircularBuffer(terrain_id_, towr::K_TERRAIN_COUNT-1);
-      printw("Switched terrain to %i \n", terrain_id_);
       break;
 
     case 'g':
       gait_combo_id_ = AdvanceCircularBuffer(gait_combo_id_, max_gait_id_);
-      printw("Switched gait to combo %s \n", std::to_string(gait_combo_id_).c_str());
       break;
 
-    // speed
+    // duration
     case '+':
       total_duration_ += 0.2;
-      printw("Total duration increased to %f \n", total_duration_);
     break;
     case '-':
       total_duration_ -= 0.2;
-      printw("Total duration decreased to %f \n", total_duration_);
     break;
 
 
     case 'o':
-      printw("Optimize motion request sent\n");
       optimize_ = true;
+      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
+      printw("Optimize motion request sent\n");
       break;
     case 'p':
-        publish_optimized_trajectory_ = true;
-        printw("Publish optimized trajectory request sent\n");
+      publish_optimized_trajectory_ = true;
+      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
+      printw("Publish optimized trajectory request sent\n");
       break;
     case 'r':
-      printw("Replaying already optimized trajectory\n");
       replay_trajectory_ = true;
+      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
+      printw("Replaying already optimized trajectory\n");
       break;
+    case 'q':
+      printw("Closing user interface\n");
+      ros::shutdown(); break;
     default:
       break;
   }
@@ -200,6 +257,8 @@ void TowrUserInterface::PublishCommand()
 
   user_command_pub_.publish(msg);
 
+  PrintScreen();
+
   optimize_ = false;
   replay_trajectory_  = false;
   publish_optimized_trajectory_ = false;
@@ -213,11 +272,7 @@ int TowrUserInterface::AdvanceCircularBuffer(int& curr, int max) const
 void
 TowrUserInterface::PrintVector(const Eigen::Vector3d& v) const
 {
-  printw("Goal position set to %f %f %f \n",
-         goal_geom_.lin.p_.x(),
-         goal_geom_.lin.p_.y(),
-         goal_geom_.lin.p_.z()
-         );
+  printw("%.3f  %.3f  %.3f", v.x(), v.y(), v.z());
 }
 
 
@@ -227,13 +282,12 @@ TowrUserInterface::PrintVector(const Eigen::Vector3d& v) const
 // the actual ros node
 int main(int argc, char *argv[])
 {
-  ros::init(argc, argv, "useri_iterface_node");
+  ros::init(argc, argv, "towr_user_iterface");
 
   initscr();
   cbreak();              // disables buffering of types characters
   noecho();              // suppresses automatic output of typed characters
   keypad(stdscr, TRUE);  // to capture special keypad characters
-  scrollok(stdscr,TRUE); // so new lines are printed also below terminal
 
   towr::TowrUserInterface keyboard_user_interface;
 

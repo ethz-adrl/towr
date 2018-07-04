@@ -119,7 +119,7 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 
 
 
-  ROS_INFO_STREAM("publishing robot parameters to " << robot_parameters_pub_.getTopic());
+  ROS_DEBUG_STREAM("publishing robot parameters to " << robot_parameters_pub_.getTopic());
   xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model_);
   robot_parameters_pub_.publish(robot_params_msg);
 
@@ -138,9 +138,9 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
         + " --quiet " + bag_file).c_str());
   }
 
-  // publish directly
+  // publish entire trajectory directly
   if (msg.publish_traj) {
-    ROS_INFO_STREAM("publishing optimized trajectory to " << cart_trajectory_pub_.getTopic());
+    ROS_DEBUG_STREAM("publishing optimized trajectory to " << cart_trajectory_pub_.getTopic());
     XppVec cart_traj = GetTrajectory();
     xpp_msgs::RobotStateCartesianTrajectory xpp_msg = xpp::Convert::ToRos(cart_traj);
     cart_trajectory_pub_.publish(xpp_msg);

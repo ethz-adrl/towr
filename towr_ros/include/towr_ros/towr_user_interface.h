@@ -75,7 +75,7 @@ private:
   int AdvanceCircularBuffer(int& curr, int max) const;
 
   void PrintVector(const Eigen::Vector3d& v) const;
-  void PrintHelp() const;
+  void PrintScreen() const;
 };
 
 } /* namespace towr */
