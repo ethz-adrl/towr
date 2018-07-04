@@ -7,10 +7,10 @@
 [![Build Status](http://build.ros.org/buildStatus/icon?job=Kdev__towr__ubuntu_xenial_amd64&build=3)](http://build.ros.org/view/Kdev/job/Kdev__towr__ubuntu_xenial_amd64/3/)
 [<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/kinetic/api/towr/html/) 
 
-This [Eigen]-based library implements variables, costs and constraints that can be used to formulate and solve a legged locomotion optimization problem. It has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
+This Eigen-based library implements variables, costs and constraints that can be used to formulate and solve a legged locomotion optimization problem. It has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
 
 Features:  
-:heavy_check_mark: Inuitive formulations of variables, cost and constraints using Eigen.   
+:heavy_check_mark: Inuitive formulations of variables, cost and constraints using [Eigen].   
 :heavy_check_mark: [ifopt] allows to choose between [Ipopt] or [Snopt] to solve the NLP.    
 :heavy_check_mark: fast performance due to Eigen sparse matrix exploitation.  
 :heavy_check_mark: light-weight ([~6k lines](https://i.imgur.com/gP3gv34.png) of code) makes it easy to use and extend with own formulations.  
@@ -28,9 +28,9 @@ Features:
 ## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Dependencies towr
 | Name | Min. Ver. | Description | Install
 | --- | --- | --- | --- |
-| [CMake] | v3.1.0 | C++ build tool | ```sudo apt-get install cmake```. |
-| [Eigen] | v3.2.0 | Library for linear algebra |  ```sudo apt-get install libeigen3-dev```. |
-| [ifopt] | v2.0.2 | Interface to NLP solvers |  ```sudo apt-get install coinor-libipopt-dev```, then standard ```cmake .. && make``` |
+| [CMake] | v3.1.0 | C++ build tool | ```sudo apt-get install cmake``` |
+| [Eigen] | v3.2.0 | Library for linear algebra |  ```sudo apt-get install libeigen3-dev``` |
+| [ifopt] | v2.0.2 | Interface to NLP solver [Ipopt] |  Only additional deps: ```sudo apt-get install coinor-libipopt-dev``` |
 
 [ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace. The 3 ways to build this package are:  
 [Option 1](#towr-with-cmake) ([cmake]): core library towr and hopper example.  
@@ -97,8 +97,8 @@ visualizes the produces motions plans in rviz using [xpp]. Additional dependenci
 
 | Name | Min. Ver. | Description | Install |
 | --- | --- | --- | --- |
-| [ROS] |  indigo | [catkin], [roscpp], [std_msgs], ... | ```sudo apt-get install ros-<ros-distro>-desktop-full``` |
-| [xpp] | v1.0.6 | Visualization of legged robots in rviz | ```sudo apt-get install ros-<ros-distro>-xpp``` |
+| [ROS] |  indigo | [catkin], [roscpp], [std_msgs] | ```sudo apt-get install ros-<ros-distro>-desktop-full``` |
+| [xpp] | v1.0.6 | Motion visualization (rviz) | ```sudo apt-get install ros-<ros-distro>-xpp``` |
 | [ncurses] | 5 | Text-based UI | ```sudo apt-get install libncurses5-dev``` |
 | [xterm] | 297 | Terminal emulator | ```sudo apt-get install xterm``` |
 
