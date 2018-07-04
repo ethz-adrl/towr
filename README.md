@@ -4,12 +4,19 @@
 
 *A light-weight and extensible C++ library for trajectory optimization for legged robots.*
 
-<!--- comment until fixing build server
-[![Build Status](https://ci.leggedrobotics.com/buildStatus/icon?job=github_ethz-adrl/towr/master)](https://ci.leggedrobotics.com/job/github_ethz-adrl/job/towr/job/master/) 
--->
-[<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/kinetic/api/towr_core/html/) 
+[![Build Status](http://build.ros.org/buildStatus/icon?job=Kdev__towr__ubuntu_xenial_amd64&build=3)](http://build.ros.org/view/Kdev/job/Kdev__towr__ubuntu_xenial_amd64/3/)
+[<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/kinetic/api/towr/html/) 
 
-This [Eigen]-based library provides implementations for variables, costs and constraints that can be used to represent a legged locomotion problem. The resulting Nonlinear Programming Problem (NLP) can then be solved with off-the-shelf solvers using the generic optimizer interface [ifopt]. towr has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)). towr is light-weight ([~6k lines](https://i.imgur.com/gP3gv34.png) of code), which makes it easy to understand, use and extend. It is designed to allow users to add custom constraints, terrains and robots and use already implemented ones when desired. Existing implementations include e.g. constraints that ensure the physical feasiblity of the Single-Rigid-Body Dynamics (SRBD) or constraints to allow arbitrary height maps of the terrain. 
+This [Eigen]-based library implements variables, costs and constraints that can be used to formulate and solve a legged locomotion optimization problem. It has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
+
+Features:  
+:heavy_check_mark: Inuitive formulations of variables, cost and constraints using Eigen.   
+:heavy_check_mark: [ifopt] allows to choose between [Ipopt] or [Snopt] to solve the NLP.    
+:heavy_check_mark: fast performance due to Eigen sparse matrix exploitation.  
+:heavy_check_mark: light-weight ([~6k lines](https://i.imgur.com/gP3gv34.png) of code) makes it easy to use and extend with own formulations.  
+:heavy_check_mark: elegant rviz visualization of motion plans using [xpp].  
+:heavy_check_mark: [catkin] integration (optional).  
+
 
 **Author/Maintainer: [:globe_with_meridians: Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")**
 
@@ -19,16 +26,16 @@ This [Eigen]-based library provides implementations for variables, costs and con
 
 
 ## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Dependencies towr
-| Name | Min. Ver. | Description |
-| --- | --- | --- |
-| [CMake] | v3.1.0 | C++ build tool: ```sudo apt-get install cmake```. |
-| [Eigen] | v3.2.0 | Library for linear algebra: ```sudo apt-get install libeigen3-dev```. |
-| [ifopt] | v2.0.0 | Eigen-based interface to optimization solvers. Only additional dependencies: [Ipopt] and/or [Snopt]. |
+| Name | Min. Ver. | Description | Install
+| --- | --- | --- | --- |
+| [CMake] | v3.1.0 | C++ build tool | ```sudo apt-get install cmake```. |
+| [Eigen] | v3.2.0 | Library for linear algebra |  ```sudo apt-get install libeigen3-dev```. |
+| [ifopt] | v2.0.2 | Interface to NLP solvers |  ```sudo apt-get install coinor-libipopt-dev```, then standard ```cmake .. && make``` |
 
-Make sure you have these dependencies installed in your system. ifopt can be installed either system wide or, if you're building with [catkin], dropped into your catkin workspace. There are 3 ways to build this package:
-* [Build 1](#towr-with-cmake): Cmake-build of core library towr and hopper example
-* [Build 2](#towr-with-catkin): Catkin-build of core library towr and hopper example
-* [Build 3](#towr-ros-with-catkin): (recommended) Catkin-build of core library & GUI & ros-rviz-visualization (additional dependencies required)
+[ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace. The 3 ways to build this package are:  
+[Option 1](#towr-with-cmake) ([cmake]): core library towr and hopper example.  
+[Option 2](#towr-with-catkin) ([catkin]): core library towr and hopper example.   
+[Option 3](#towr-ros-with-catkin) ([catkin]): core library & GUI & ros-rviz-visualization (recommended).  
 
 
 ## <a name="towr-with-cmake"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building towr with CMake
@@ -88,12 +95,12 @@ Make sure you have these dependencies installed in your system. ifopt can be ins
 We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
 visualizes the produces motions plans in rviz using [xpp]. Additional dependencies:
 
-| Name | Min. Ver. | Description |
-| --- | --- | --- |
-| [ROS] |  indigo | [catkin], [roscpp], [std_msgs], ... ```sudo apt-get install ros-kinetic-desktop-full``` |
-| [xpp] | v1.0.6 | Visualization of legged robots in rviz: ```sudo apt-get install ros-kinetic-xpp``` |
-| [ncurses] | 5 | Text-based UI: ```sudo apt-get install libncurses5-dev libncursesw5-dev``` |
-| [xterm] | 297 | Terminal emulator: ```sudo apt-get install xterm``` |
+| Name | Min. Ver. | Description | Install |
+| --- | --- | --- | --- |
+| [ROS] |  indigo | [catkin], [roscpp], [std_msgs], ... | ```sudo apt-get install ros-<ros-distro>-desktop-full``` |
+| [xpp] | v1.0.6 | Visualization of legged robots in rviz | ```sudo apt-get install ros-<ros-distro>-xpp``` |
+| [ncurses] | 5 | Text-based UI | ```sudo apt-get install libncurses5-dev``` |
+| [xterm] | 297 | Terminal emulator | ```sudo apt-get install xterm``` |
 
 After having installed all of the above, run
 ```bash
