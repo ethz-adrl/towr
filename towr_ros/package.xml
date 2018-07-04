@@ -23,6 +23,7 @@
   <depend>message_runtime</depend>
   <depend>message_generation</depend>
   <depend>std_msgs</depend>
+  <depend>visualization_msgs</depend>
   <depend>roscpp</depend>
   <depend>rosbag</depend>
   <depend>xpp_states</depend>
