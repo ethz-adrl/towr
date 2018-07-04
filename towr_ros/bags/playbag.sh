@@ -1,6 +1,6 @@
 #!/bin/bash
-#title           :Plays back rosbag files of optimization iterations
-#author		     :Alexander W. Winkler
+#title         :Plays back rosbag files of optimization iterations
+#author	       :Alexander W. Winkler
 
 
 # change to directory where the script is stored to relative paths are correct

@@ -3,10 +3,10 @@
   <!-- so the logging prints the node name -->
   <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${node}]: ${message}" />
 
-  <!-- XPP: Visualize feet, base and forces -->
-  <include file="$(find xpp_vis)/launch/xpp.launch"></include>
-    
   <!-- TOWR: Start the optimizer with GUI-->
-  <include file="$(find towr_ros)/launch/towr_core.launch"></include>
+  <include file="$(find towr_ros)/launch/towr_nodes.launch"></include>
+  
+  <!-- XPP: Visualize mono, biped and hyq URDF -->
+  <include file="$(find xpp_hyq)/launch/xpp_hyq.launch"></include>
        
 </launch>

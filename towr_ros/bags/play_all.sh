@@ -1,6 +1,6 @@
 #!/bin/bash
-#title           :Plays back all rosbag files in a specific folder
-#author		     :Alexander W. Winkler
+#title      :Plays back all rosbag files in a specific folder
+#author     :Alexander W. Winkler
 
 
 # change to directory where the script is stored so relative paths are correct
