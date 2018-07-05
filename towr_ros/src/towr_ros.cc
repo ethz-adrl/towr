@@ -54,8 +54,8 @@ TowrRos::TowrRos ()
   user_command_sub_ = n.subscribe(towr_msgs::user_command, 1,
                                   &TowrRos::UserCommandCallback, this);
 
-  cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
-                                          (xpp_msgs::robot_trajectory_desired, 1);
+  current_state_pub_  = n.advertise<xpp_msgs::RobotStateCartesian>
+                                          (xpp_msgs::robot_state_desired, 1);
 
   robot_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
                                     (xpp_msgs::robot_parameters, 1);
@@ -65,37 +65,14 @@ TowrRos::TowrRos ()
   gait_                   = std::make_shared<QuadrupedGaitGenerator>();
 
   // initial state
-  BaseState b;
-  b.lin.at(kPos).z() = 0.58;
+  initial_base_.lin.at(kPos).z() = 0.58;
+
   int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
-  std::vector<Eigen::Vector3d> ee_pos(n_ee);
-
-  ee_pos.at(LF) <<  0.31,  0.29, 0.0;
-  ee_pos.at(RF) <<  0.31, -0.29, 0.0;
-  ee_pos.at(LH) << -0.31,  0.29, 0.0;
-  ee_pos.at(RH) << -0.31, -0.29, 0.0;
-
-  towr_.SetInitialState(b, ee_pos);
-
-
-  std::cout << "n_ee: " << n_ee << std::endl;
-
-
-  // visualize
-  xpp::RobotStateCartesian xpp(n_ee);
-  xpp.base_.lin.p_ = b.lin.p();
-  xpp.base_.ang.q  = EulerConverter::GetQuaternionBaseToWorld(b.ang.p());
-
-  for (int ee_towr=0; ee_towr<n_ee; ++ee_towr) {
-    int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
-    xpp.ee_contact_.at(ee_xpp)   = true;
-    xpp.ee_motion_.at(ee_xpp).p_ = ee_pos.at(ee_towr);
-  }
-
-  xpp_msgs::RobotStateCartesianTrajectory msg;
-  msg.points.push_back(xpp::Convert::ToRos(xpp));
-  cart_trajectory_pub_.publish(msg);
-
+  initial_ee_pos_.resize(n_ee);
+  initial_ee_pos_.at(LF) <<  0.31,  0.29, 0.0;
+  initial_ee_pos_.at(RF) <<  0.31, -0.29, 0.0;
+  initial_ee_pos_.at(LH) << -0.31,  0.29, 0.0;
+  initial_ee_pos_.at(RH) << -0.31, -0.29, 0.0;
 
 
   terrain_ = std::make_shared<FlatGround>();
@@ -112,6 +89,23 @@ TowrRos::TowrRos ()
 void
 TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 {
+  int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
+//  int n_ee = initial_ee_pos_.size();
+
+  // visualize
+  xpp::RobotStateCartesian xpp(n_ee);
+  xpp.base_.lin.p_ = initial_base_.lin.p();
+  xpp.base_.ang.q  = EulerConverter::GetQuaternionBaseToWorld(initial_base_.ang.p());
+
+  for (int ee_towr=0; ee_towr<n_ee; ++ee_towr) {
+    int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
+    xpp.ee_contact_.at(ee_xpp)   = true;
+    xpp.ee_motion_.at(ee_xpp).p_ = initial_ee_pos_.at(ee_towr);
+  }
+
+  current_state_pub_.publish(xpp::Convert::ToRos(xpp));
+
+
   BaseState goal;
   goal.lin.at(kPos) = xpp::Convert::ToXpp(msg.goal_lin.pos);
   goal.lin.at(kVel) = xpp::Convert::ToXpp(msg.goal_lin.vel);
@@ -120,7 +114,6 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 
   Parameters params;
   params.t_total_ = msg.total_duration;
-  int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
   auto gait = static_cast<GaitGenerator::GaitCombos>(msg.gait_id);
   gait_->SetCombo(gait);
   for (int ee=0; ee<n_ee; ++ee) {
@@ -131,6 +124,7 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
   auto terrain_id = static_cast<TerrainID>(msg.terrain_id);
   terrain_ = HeightMapFactory::MakeTerrain(terrain_id);
 
+  towr_.SetInitialState(initial_base_, initial_ee_pos_);
   towr_.SetParameters(goal, params, model_, terrain_);
 
 
@@ -154,13 +148,8 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
         + " --quiet " + bag_file).c_str());
   }
 
-  // publish entire trajectory directly
-  if (msg.publish_traj) {
-    ROS_DEBUG_STREAM("publishing optimized trajectory to " << cart_trajectory_pub_.getTopic());
-    XppVec cart_traj = GetTrajectory();
-    xpp_msgs::RobotStateCartesianTrajectory xpp_msg = xpp::Convert::ToRos(cart_traj);
-    cart_trajectory_pub_.publish(xpp_msg);
-  }
+  // to publish entire trajectory (e.g. to send to controller)
+  // xpp_msgs::RobotStateCartesianTrajectory xpp_msg = xpp::Convert::ToRos(GetTrajectory());
 }
 
 std::vector<TowrRos::XppVec>

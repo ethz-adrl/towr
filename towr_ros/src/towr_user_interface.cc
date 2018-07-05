@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-enum YCursorRows {HEADING=6, OPTIMIZE=8, REPLAY, GOAL_POS, GOAL_ORI, GAIT, TERRAIN, DURATION, PUBLISH, CLOSE, END};
+enum YCursorRows {HEADING=6, OPTIMIZE=8, REPLAY, GOAL_POS, GOAL_ORI, GAIT, TERRAIN, DURATION, CLOSE, END};
 static constexpr int Y_STATUS      = END+1;
 static constexpr int X_KEY         = 1;
 static constexpr int X_DESCRIPTION = 10;
@@ -136,13 +136,6 @@ TowrUserInterface::PrintScreen() const
   wmove(stdscr, DURATION, X_VALUE);
   printw("%f [s]", total_duration_);
 
-  wmove(stdscr, PUBLISH, X_KEY);
-  printw("p");
-  wmove(stdscr, PUBLISH, X_DESCRIPTION);
-  printw("Publish motion-plan");
-  wmove(stdscr, PUBLISH, X_VALUE);
-  printw("-");
-
   wmove(stdscr, CLOSE, X_KEY);
   printw("q");
   wmove(stdscr, CLOSE, X_DESCRIPTION);
@@ -223,11 +216,6 @@ TowrUserInterface::CallbackKey (int c)
       wmove(stdscr, Y_STATUS, X_DESCRIPTION);
       printw("Optimize motion request sent\n");
       break;
-    case 'p':
-      publish_optimized_trajectory_ = true;
-      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
-      printw("Publish optimized trajectory request sent\n");
-      break;
     case 'r':
       replay_trajectory_ = true;
       wmove(stdscr, Y_STATUS, X_DESCRIPTION);
@@ -253,7 +241,6 @@ void TowrUserInterface::PublishCommand()
   msg.terrain_id        = terrain_id_;
   msg.gait_id           = gait_combo_id_;
   msg.total_duration    = total_duration_;
-  msg.publish_traj      = publish_optimized_trajectory_;
 
   user_command_pub_.publish(msg);
 
