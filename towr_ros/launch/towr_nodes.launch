@@ -1,10 +1,5 @@
 <launch>  
 
-  <!-- upload some parameters on the parameter server -->
-  <group ns="towr">
-    <param name="rosbag_folder" value="$(find towr_ros)" type="string"/>   
-  </group> 
-
   <!-- translate keyboard input to TOWR commands -->
   <node 
     name="user_interface" 

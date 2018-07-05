@@ -42,19 +42,37 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-static std::map<towr::QuadrupedIDs, xpp::quad::FootIDs> to_xpp_quad =
+/** Mapping endeffector IDs */
+static std::map<towr::BipedIDs, xpp::biped::FootIDs> biped_to_xpp_id =
 {
-    {towr::LF, xpp::quad::LF},
-    {towr::RF, xpp::quad::RF},
-    {towr::LH, xpp::quad::LH},
-    {towr::RH, xpp::quad::RH}
+    {L, xpp::biped::L},
+    {R, xpp::biped::R},
 };
 
-static std::map<towr::BipedIDs, xpp::biped::FootIDs> to_xpp_biped =
+static std::map<towr::QuadrupedIDs, xpp::quad::FootIDs> quad_to_xpp_id =
 {
-    {towr::L, xpp::biped::L},
-    {towr::R, xpp::biped::R},
+    {LF, xpp::quad::LF},
+    {RF, xpp::quad::RF},
+    {LH, xpp::quad::LH},
+    {RH, xpp::quad::RH}
 };
+
+
+/** Mapping endeffector names */
+static std::map<towr::BipedIDs, std::string> biped_to_name =
+{
+  {L, "Left" },
+  {R, "Right"}
+};
+
+static std::map<towr::QuadrupedIDs, std::string> quad_to_name =
+{
+  {LF, "Left-Front" },
+  {RF, "Right-Front"},
+  {LH, "Left-Hind"  },
+  {RH, "Right-Hind" }
+};
+
 
 /**
  * Converts endeffector IDs of towr into the corresponding number used in xpp.
@@ -75,15 +93,15 @@ ToXppEndeffector(int number_of_ee, int towr_ee_id)
       ee.second = "E0";
       break;
     case 2: {
-      auto id_biped = to_xpp_biped.at(static_cast<towr::BipedIDs>(towr_ee_id));
-      ee.first  = id_biped;
-      ee.second = xpp::biped::foot_to_name.at(id_biped);
+      auto id = static_cast<towr::BipedIDs>(towr_ee_id);
+      ee.first  = biped_to_xpp_id.at(id);
+      ee.second = biped_to_name.at(id);
       break;
     }
     case 4: {
-      auto id_quad = to_xpp_quad.at(static_cast<towr::QuadrupedIDs>(towr_ee_id));
-      ee.first  = id_quad;
-      ee.second = xpp::quad::foot_to_name.at(id_quad);
+      auto id = static_cast<towr::QuadrupedIDs>(towr_ee_id);
+      ee.first  = quad_to_xpp_id.at(id);
+      ee.second = quad_to_name.at(id);
       break;
     }
     default:
