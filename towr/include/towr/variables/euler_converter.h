@@ -152,6 +152,9 @@ public:
    */
   Jacobian DerivOfRotVecMult(double t, const Vector3d& v, bool inverse) const;
 
+  /** @see GetQuaternionBaseToWorld(t)  */
+  static Eigen::Quaterniond GetQuaternionBaseToWorld(const EulerAngles& pos);
+
 private:
   NodeSpline::Ptr euler_;
 
@@ -194,9 +197,6 @@ private:
    * each cell if filled with a row vector.
    */
   JacRowMatrix GetDerivativeOfRotationMatrixWrtNodes(double t) const;
-
-  /** @see GetQuaternionBaseToWorld(t)  */
-  static Eigen::Quaterniond GetQuaternionBaseToWorld(const EulerAngles& pos);
 
   /** @see GetAngularAccelerationInWorld(t)  */
   static Vector3d GetAngularAccelerationInWorld(State euler);

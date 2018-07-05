@@ -67,7 +67,8 @@ TowrRos::TowrRos ()
   // initial state
   BaseState b;
   b.lin.at(kPos).z() = 0.58;
-  std::vector<Eigen::Vector3d> ee_pos(model_.kinematic_model_->GetNumberOfEndeffectors());
+  int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
+  std::vector<Eigen::Vector3d> ee_pos(n_ee);
 
   ee_pos.at(LF) <<  0.31,  0.29, 0.0;
   ee_pos.at(RF) <<  0.31, -0.29, 0.0;
@@ -75,6 +76,27 @@ TowrRos::TowrRos ()
   ee_pos.at(RH) << -0.31, -0.29, 0.0;
 
   towr_.SetInitialState(b, ee_pos);
+
+
+  std::cout << "n_ee: " << n_ee << std::endl;
+
+
+  // visualize
+  xpp::RobotStateCartesian xpp(n_ee);
+  xpp.base_.lin.p_ = b.lin.p();
+  xpp.base_.ang.q  = EulerConverter::GetQuaternionBaseToWorld(b.ang.p());
+
+  for (int ee_towr=0; ee_towr<n_ee; ++ee_towr) {
+    int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
+    xpp.ee_contact_.at(ee_xpp)   = true;
+    xpp.ee_motion_.at(ee_xpp).p_ = ee_pos.at(ee_towr);
+  }
+
+  xpp_msgs::RobotStateCartesianTrajectory msg;
+  msg.points.push_back(xpp::Convert::ToRos(xpp));
+  cart_trajectory_pub_.publish(msg);
+
+
 
   terrain_ = std::make_shared<FlatGround>();
 

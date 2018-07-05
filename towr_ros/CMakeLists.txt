@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   message_generation
   xpp_msgs
-  xpp_states
+  xpp_states 1.8.0
   towr
 )
 

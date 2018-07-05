@@ -95,7 +95,7 @@ TowrUserInterface::PrintScreen() const
   wmove(stdscr, REPLAY, X_KEY);
   printw("r");
   wmove(stdscr, REPLAY, X_DESCRIPTION);
-  printw("Replay motion");
+  printw("Replay motion (bag)");
   wmove(stdscr, REPLAY, X_VALUE);
   printw("-");
 
