@@ -38,10 +38,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/initialization/quadruped_gait_generator.h>
 #include <towr/models/examples/hyq_model.h>
 #include <towr/terrain/examples/height_map_examples.h>
+#include <towr/variables/euler_converter.h>
 
-#include <towr_ros/param_server.h>
 #include <towr_ros/topic_names.h>
-#include <towr/variables/euler_converter.h> // smell move into spline_holder
 #include <towr_ros/towr_xpp_ee_map.h>
 
 
@@ -61,12 +60,9 @@ TowrRos::TowrRos ()
   robot_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
                                     (xpp_msgs::robot_parameters, 1);
 
-  rosbag_folder_ = ParamServer::GetString("/towr/rosbag_folder");
-
   model_.dynamic_model_   = std::make_shared<HyqDynamicModel>();
   model_.kinematic_model_ = std::make_shared<HyqKinematicModel>();
   gait_                   = std::make_shared<QuadrupedGaitGenerator>();
-
 
   // initial state
   BaseState b;
@@ -88,7 +84,7 @@ TowrRos::TowrRos ()
   solver_->max_cpu_time_ = 10.0;
   solver_->use_jacobian_approximation_ = false;
 
-  output_dt_ = 0.02;
+  visualization_dt_ = 0.02;
 }
 
 void
@@ -116,14 +112,12 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
   towr_.SetParameters(goal, params, model_, terrain_);
 
 
-
-
-
   ROS_DEBUG_STREAM("publishing robot parameters to " << robot_parameters_pub_.getTopic());
   xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model_);
   robot_parameters_pub_.publish(robot_params_msg);
 
-  std::string bag_file = rosbag_folder_+ "/optimal_traj.bag";
+  // Defaults to /home/user/.ros/
+  std::string bag_file = "towr_trajectory.bag";
   if (msg.optimize) {
     towr_.SolveNLP(solver_);
     SaveOptimizationAsRosbag(bag_file, robot_params_msg, msg, false);
@@ -193,7 +187,7 @@ TowrRos::GetTrajectory () const
 
     state.t_global_ = t;
     trajectory.push_back(state);
-    t += output_dt_;
+    t += visualization_dt_;
   }
 
   return trajectory;

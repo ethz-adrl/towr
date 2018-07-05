@@ -32,8 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string>
 
-#include <ros/publisher.h>
-#include <ros/subscriber.h>
+#include <ros/ros.h>
 #include <rosbag/bag.h>
 
 #include <xpp_states/robot_state_cartesian.h>
@@ -78,8 +77,7 @@ private:
   RobotModel model_;
   HeightMap::Ptr terrain_;
 
-  double output_dt_; ///< discretization of output trajectory (1/TaskServoHz)
-  std::string rosbag_folder_; ///< folder to save bags
+  double visualization_dt_; ///< discretization of output trajectory (1/TaskServoHz)
 
   xpp_msgs::RobotParameters BuildRobotParametersMsg(const RobotModel& model) const;
 
