@@ -117,6 +117,6 @@ install(
 
 # Mark other files for installation
 install(
-  DIRECTORY launch
+  DIRECTORY launch rviz bash
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

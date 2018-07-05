@@ -2,7 +2,7 @@
 
   <!-- upload some parameters on the parameter server -->
   <group ns="towr">
-    <param name="rosbag_folder" value="$(find towr_ros)/bags" type="string"/>   
+    <param name="rosbag_folder" value="$(find towr_ros)" type="string"/>   
   </group> 
 
   <!-- translate keyboard input to TOWR commands -->
