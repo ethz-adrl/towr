@@ -49,7 +49,7 @@ BipedGaitGenerator::BipedGaitGenerator ()
 }
 
 void
-BipedGaitGenerator::SetCombo (GaitCombos combo)
+BipedGaitGenerator::SetCombo (Combos combo)
 {
   switch (combo) {
     case C0: SetGaits({Stand});                                break;
@@ -85,7 +85,7 @@ BipedGaitGenerator::SetCombo (GaitCombos combo)
 }
 
 BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetGait (GaitTypes gait) const
+BipedGaitGenerator::GetGait (Gaits gait) const
 {
   switch (gait) {
     case Stand:   return GetStrideStand();

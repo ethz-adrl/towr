@@ -64,9 +64,9 @@ private:
   void PublishCommand();
 
   xpp::State3dEuler goal_geom_;
-  int max_gait_id_ = 4;
   int terrain_id_;
   int gait_combo_id_;
+  int robot_;
   bool replay_trajectory_;
   bool optimize_;
   bool publish_optimized_trajectory_;

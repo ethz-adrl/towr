@@ -28,10 +28,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/terrain/height_map.h>
+#include <towr/terrain/examples/height_map_examples.h>
 
 #include <cmath>
 
 namespace towr {
+
+HeightMap::Ptr
+HeightMap::MakeTerrain (TerrainID type)
+{
+  switch (type) {
+    case FlatID:      return std::make_shared<FlatGround>(); break;
+    case BlockID:     return std::make_shared<Block>(); break;
+    case StairsID:    return std::make_shared<Stairs>(); break;
+    case GapID:       return std::make_shared<Gap>(); break;
+    case SlopeID:     return std::make_shared<Slope>(); break;
+    case ChimneyID:   return std::make_shared<Chimney>(); break;
+    case ChimneyLRID: return std::make_shared<ChimneyLR>(); break;
+    default: assert(false); break;
+  }
+}
 
 double
 HeightMap::GetDerivativeOfHeightWrt (Dim2D dim, double x, double y) const

@@ -74,7 +74,7 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
 }
 
 void
-QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
+QuadrupedGaitGenerator::SetCombo (Combos combo)
 {
   switch (combo) {
     case C0: SetGaits({Stand, Walk2, Walk2, Walk2E, Stand});    break; // overlap-walk
@@ -120,7 +120,7 @@ QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetGait(GaitTypes gait) const
+QuadrupedGaitGenerator::GetGait(Gaits gait) const
 {
   switch (gait) {
     case Stand:   return GetStrideStand();

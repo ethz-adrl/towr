@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 void
-MonopedGaitGenerator::SetCombo (GaitCombos combo)
+MonopedGaitGenerator::SetCombo (Combos combo)
 {
   switch (combo) {
     case C0: SetGaits({Stand});  break;
@@ -50,7 +50,7 @@ MonopedGaitGenerator::SetCombo (GaitCombos combo)
 }
 
 MonopedGaitGenerator::GaitInfo
-MonopedGaitGenerator::GetGait (GaitTypes gait) const
+MonopedGaitGenerator::GetGait (Gaits gait) const
 {
   switch (gait) {
     case Stand:   return GetStrideStand();

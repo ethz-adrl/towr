@@ -55,6 +55,21 @@ public:
   using Ptr      = std::shared_ptr<HeightMap>;
   using Vector3d = Eigen::Vector3d;
 
+  /**
+   * @brief Terrains IDs corresponding to a draw function in xpp_vis and a
+   * detailed (gradient supplying) function in the optimizer.
+   */
+  enum TerrainID { FlatID=0,
+                   BlockID,
+                   StairsID,
+                   GapID,
+                   SlopeID,
+                   ChimneyID,
+                   ChimneyLRID,
+                   TERRAIN_COUNT };
+
+  static HeightMap::Ptr MakeTerrain(TerrainID type);
+
   enum Direction { Normal, Tangent1, Tangent2 };
 
   HeightMap() = default;

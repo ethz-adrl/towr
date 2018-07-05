@@ -45,13 +45,13 @@ RvizTerrainBuilder::BuildTerrain (int terrain)
   MarkerArray msg;
 
   switch (terrain) {
-    case FlatID:      msg = BuildTerrainFlat(); break;
-    case BlockID:     msg = BuildTerrainBlock(); break;
-    case StairsID:    msg = BuildTerrainStairs(); break;
-    case GapID:       msg = BuildTerrainGap(); break;
-    case SlopeID:     msg = BuildTerrainSlope(); break;
-    case ChimneyID:   msg = BuildTerrainChimney(); break;
-    case ChimneyLRID: msg = BuildTerrainChimneyLR(); break;
+    case HeightMap::FlatID:      msg = BuildTerrainFlat(); break;
+    case HeightMap::BlockID:     msg = BuildTerrainBlock(); break;
+    case HeightMap::StairsID:    msg = BuildTerrainStairs(); break;
+    case HeightMap::GapID:       msg = BuildTerrainGap(); break;
+    case HeightMap::SlopeID:     msg = BuildTerrainSlope(); break;
+    case HeightMap::ChimneyID:   msg = BuildTerrainChimney(); break;
+    case HeightMap::ChimneyLRID: msg = BuildTerrainChimneyLR(); break;
     default: return MarkerArray(); // terrain visualization not implemented
   }
 

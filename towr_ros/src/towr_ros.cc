@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_msgs/TerrainInfo.h>
 
 #include <towr/initialization/gait_generator.h>
-#include <towr/terrain/examples/height_map_examples.h>
+#include <towr/terrain/height_map.h>
 #include <towr/variables/euler_converter.h>
 
 #include <towr_ros/topic_names.h>
@@ -99,7 +99,7 @@ TowrRos::PublishInitial()
 void
 TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 {
-  RobotModel model_(Biped);
+  RobotModel model_(RobotModel::Biped);
 
   SetInitialFromNominal(model_.kinematic_model_->GetNominalStanceInBase());
   PublishInitial();
@@ -116,15 +116,15 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 
   int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
   auto gait_    = GaitGenerator::MakeGaitGenerator(n_ee);
-  auto id_gait  = static_cast<GaitGenerator::GaitCombos>(msg.gait_id);
+  auto id_gait  = static_cast<GaitGenerator::Combos>(msg.gait_id);
   gait_->SetCombo(id_gait);
   for (int ee=0; ee<n_ee; ++ee) {
     params.ee_phase_durations_.push_back(gait_->GetPhaseDurations(msg.total_duration, ee));
     params.ee_in_contact_at_start_.push_back(gait_->IsInContactAtStart(ee));
   }
 
-  auto terrain_id = static_cast<TerrainID>(msg.terrain_id);
-  terrain_ = HeightMapFactory::MakeTerrain(terrain_id);
+  auto terrain_id = static_cast<HeightMap::TerrainID>(msg.terrain_id);
+  terrain_ = HeightMap::MakeTerrain(terrain_id);
 
   towr_.SetInitialState(initial_base_, initial_ee_pos_);
   towr_.SetParameters(goal, params, model_, terrain_);

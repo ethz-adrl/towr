@@ -113,12 +113,12 @@ GaitGenerator::IsInContactAtStart (EE ee) const
 }
 
 void
-GaitGenerator::SetGaits (const std::vector<GaitTypes>& gaits)
+GaitGenerator::SetGaits (const std::vector<Gaits>& gaits)
 {
   contacts_.clear();
   times_.clear();
 
-  for (GaitTypes g : gaits) {
+  for (Gaits g : gaits) {
     auto info = GetGait(g);
 
     std::vector<double>       t = info.first;

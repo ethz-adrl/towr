@@ -35,18 +35,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-
-/**
- * @brief Examples robots for which kinematic and dynamic models exist.
- */
-enum Robot { Monoped=0, Biped, Hyq, Anymal };
-
-
 /**
  * @brief Holds pointers to the robot specific kinematics and dynamics.
  */
-struct RobotModel
-{
+struct RobotModel {
+  /**
+   * @brief Examples robots for which kinematic and dynamic models exist.
+   */
+  enum Robot { Monoped, Biped, Hyq, Anymal, ROBOT_COUNT };
+
   RobotModel() = default;
   RobotModel(Robot robot);
 

@@ -45,7 +45,7 @@ int main()
   FlatGround terrain(0.0);
 
   // Kinematic limits and dynamic parameters of the hopper
-  RobotModel model(Monoped);
+  RobotModel model(RobotModel::Monoped);
 
   // set the initial position of the hopper
   BaseState initial_base;
