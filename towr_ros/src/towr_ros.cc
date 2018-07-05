@@ -60,19 +60,16 @@ TowrRos::TowrRos ()
   robot_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
                                     (xpp_msgs::robot_parameters, 1);
 
-  model_.dynamic_model_   = std::make_shared<HyqDynamicModel>();
-  model_.kinematic_model_ = std::make_shared<HyqKinematicModel>();
+  model_ = RobotModel(Hyq);
   gait_                   = std::make_shared<QuadrupedGaitGenerator>();
 
-  // initial state
-  initial_base_.lin.at(kPos).z() = 0.58;
 
-  int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
-  initial_ee_pos_.resize(n_ee);
-  initial_ee_pos_.at(LF) <<  0.31,  0.29, 0.0;
-  initial_ee_pos_.at(RF) <<  0.31, -0.29, 0.0;
-  initial_ee_pos_.at(LH) << -0.31,  0.29, 0.0;
-  initial_ee_pos_.at(RH) << -0.31, -0.29, 0.0;
+  // start in nominal pose
+  initial_ee_pos_ =  model_.kinematic_model_->GetNominalStanceInBase();
+  initial_base_.lin.at(kPos).z() = - initial_ee_pos_.front().z();
+  std::for_each(initial_ee_pos_.begin(), initial_ee_pos_.end(),
+                [](Vector3d& p){ p.z() = 0.0; } // feet at 0 height
+  );
 
 
   terrain_ = std::make_shared<FlatGround>();

@@ -35,10 +35,7 @@ add_library(${PROJECT_NAME} SHARED
   src/phase_durations.cc
   src/phase_durations_observer.cc
   # models
-  src/anymal_model.cc
-  src/hyq_model.cc
-  src/biped_model.cc
-  src/monoped_model.cc
+  src/robot_model.cc
   src/dynamic_model.cc
   src/centroidal_model.cc
   # constraints

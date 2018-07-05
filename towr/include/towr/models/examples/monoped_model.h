@@ -37,16 +37,20 @@ namespace towr {
 
 class MonopedKinematicModel : public KinematicModel {
 public:
-  MonopedKinematicModel ();
+  MonopedKinematicModel () : KinematicModel(1)
+  {
+    nominal_stance_.at(0) = Eigen::Vector3d( 0.0, 0.0, -0.58);
+    max_dev_from_nominal_ << 0.25, 0.15, 0.2;
+  }
 };
 
 
 class MonopedDynamicModel : public CentroidalModel {
 public:
   MonopedDynamicModel()
-  : CentroidalModel(20,
-                    1.209,5.583,6.056,0.005,-0.190,-0.012,
-                    1) {}
+  : CentroidalModel(20,                              // mass of the robot
+                    1.2, 5.5, 6.0, 0.0, -0.2, -0.01, // base inertia
+                    1) {}                            // number of endeffectors
 };
 
 
