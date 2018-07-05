@@ -38,7 +38,7 @@ Visualization Manager:
       Cell Size: 0.1
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Line Style:
         Line Width: 0.03
         Value: Lines
@@ -51,7 +51,7 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 100
       Reference Frame: <Fixed Frame>
-      Value: true
+      Value: false
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /xpp/terrain
@@ -84,7 +84,6 @@ Visualization Manager:
         cop: true
         ee_force: true
         endeffector_pos: true
-        friction_cone: true
         gravity_force: false
         inverted_pendulum: false
         range_of_motion: true

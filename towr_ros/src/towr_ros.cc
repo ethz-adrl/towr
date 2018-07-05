@@ -35,8 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_msgs/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
 
-#include <towr/initialization/quadruped_gait_generator.h>
-#include <towr/models/examples/hyq_model.h>
+#include <towr/initialization/gait_generator.h>
 #include <towr/terrain/examples/height_map_examples.h>
 #include <towr/variables/euler_converter.h>
 
@@ -54,28 +53,14 @@ TowrRos::TowrRos ()
   user_command_sub_ = n.subscribe(towr_msgs::user_command, 1,
                                   &TowrRos::UserCommandCallback, this);
 
-  current_state_pub_  = n.advertise<xpp_msgs::RobotStateCartesian>
+  initial_state_pub_  = n.advertise<xpp_msgs::RobotStateCartesian>
                                           (xpp_msgs::robot_state_desired, 1);
 
   robot_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
                                     (xpp_msgs::robot_parameters, 1);
 
-  model_ = RobotModel(Hyq);
-  gait_                   = std::make_shared<QuadrupedGaitGenerator>();
 
-
-  // start in nominal pose
-  initial_ee_pos_ =  model_.kinematic_model_->GetNominalStanceInBase();
-  initial_base_.lin.at(kPos).z() = - initial_ee_pos_.front().z();
-  std::for_each(initial_ee_pos_.begin(), initial_ee_pos_.end(),
-                [](Vector3d& p){ p.z() = 0.0; } // feet at 0 height
-  );
-
-
-  terrain_ = std::make_shared<FlatGround>();
-
-  // could also use SNOPT here
-  solver_ = std::make_shared<ifopt::Ipopt>();
+  solver_ = std::make_shared<ifopt::Ipopt>(); // could also use SNOPT here
   solver_->print_level_ = 5;
   solver_->max_cpu_time_ = 10.0;
   solver_->use_jacobian_approximation_ = false;
@@ -84,12 +69,19 @@ TowrRos::TowrRos ()
 }
 
 void
-TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
+TowrRos::SetInitialFromNominal(const std::vector<Vector3d>& nomial_stance_B)
 {
-  int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
-//  int n_ee = initial_ee_pos_.size();
+  initial_base_.lin.at(kPos).z() = - nomial_stance_B.front().z();
+  initial_ee_pos_ =  nomial_stance_B;
+  std::for_each(initial_ee_pos_.begin(), initial_ee_pos_.end(),
+                [](Vector3d& p){ p.z() = 0.0; } // feet at 0 height
+  );
+}
 
-  // visualize
+void
+TowrRos::PublishInitial()
+{
+  int n_ee = initial_ee_pos_.size();
   xpp::RobotStateCartesian xpp(n_ee);
   xpp.base_.lin.p_ = initial_base_.lin.p();
   xpp.base_.ang.q  = EulerConverter::GetQuaternionBaseToWorld(initial_base_.ang.p());
@@ -98,10 +90,19 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
     int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
     xpp.ee_contact_.at(ee_xpp)   = true;
     xpp.ee_motion_.at(ee_xpp).p_ = initial_ee_pos_.at(ee_towr);
+    xpp.ee_forces_.at(ee_xpp).setZero(); // zero for visualization
   }
 
-  current_state_pub_.publish(xpp::Convert::ToRos(xpp));
+  initial_state_pub_.publish(xpp::Convert::ToRos(xpp));
+}
 
+void
+TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
+{
+  RobotModel model_(Biped);
+
+  SetInitialFromNominal(model_.kinematic_model_->GetNominalStanceInBase());
+  PublishInitial();
 
   BaseState goal;
   goal.lin.at(kPos) = xpp::Convert::ToXpp(msg.goal_lin.pos);
@@ -111,8 +112,12 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 
   Parameters params;
   params.t_total_ = msg.total_duration;
-  auto gait = static_cast<GaitGenerator::GaitCombos>(msg.gait_id);
-  gait_->SetCombo(gait);
+
+
+  int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
+  auto gait_    = GaitGenerator::MakeGaitGenerator(n_ee);
+  auto id_gait  = static_cast<GaitGenerator::GaitCombos>(msg.gait_id);
+  gait_->SetCombo(id_gait);
   for (int ee=0; ee<n_ee; ++ee) {
     params.ee_phase_durations_.push_back(gait_->GetPhaseDurations(msg.total_duration, ee));
     params.ee_in_contact_at_start_.push_back(gait_->IsInContactAtStart(ee));
@@ -125,7 +130,6 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
   towr_.SetParameters(goal, params, model_, terrain_);
 
 
-  ROS_DEBUG_STREAM("publishing robot parameters to " << robot_parameters_pub_.getTopic());
   xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model_);
   robot_parameters_pub_.publish(robot_params_msg);
 
