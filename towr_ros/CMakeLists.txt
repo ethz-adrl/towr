@@ -60,7 +60,6 @@ target_link_libraries(towr_user_interface
 # Display different terrains in rviz
 add_executable(rviz_terrain_publisher 
   src/rviz_terrain_publisher.cc
-  src/rviz_terrain_builder.cc
 )
 add_dependencies(rviz_terrain_publisher 
   ${PROJECT_NAME}_gencpp

@@ -59,8 +59,7 @@ public:
   using Vector3d = Eigen::Vector3d;
 
   /**
-   * @brief Terrains IDs corresponding to a draw function in xpp_vis and a
-   * detailed (gradient supplying) function in the optimizer.
+   * @brief Terrains IDs corresponding for factory method.
    */
   enum TerrainID { FlatID,
                    BlockID,

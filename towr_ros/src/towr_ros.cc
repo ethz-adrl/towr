@@ -59,7 +59,6 @@ TowrRos::TowrRos ()
   robot_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
                                     (xpp_msgs::robot_parameters, 1);
 
-
   solver_ = std::make_shared<ifopt::Ipopt>(); // could also use SNOPT here
   solver_->print_level_ = 5;
   solver_->max_cpu_time_ = 10.0;
@@ -115,8 +114,6 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 
   Parameters params;
   params.t_total_ = msg.total_duration;
-
-
 
   int n_ee = model.kinematic_model_->GetNumberOfEndeffectors();
   auto gait_gen_ = GaitGenerator::MakeGaitGenerator(n_ee);
