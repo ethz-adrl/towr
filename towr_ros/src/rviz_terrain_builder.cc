@@ -52,10 +52,16 @@ RvizTerrainBuilder::BuildTerrain (int terrain)
     case HeightMap::SlopeID:     msg = BuildTerrainSlope(); break;
     case HeightMap::ChimneyID:   msg = BuildTerrainChimney(); break;
     case HeightMap::ChimneyLRID: msg = BuildTerrainChimneyLR(); break;
-    default: return MarkerArray(); // terrain visualization not implemented
+    default: assert(false);      // terrain visualization not implemented
   }
 
-  int id = terrain_ids_start_;
+  // reserve 20 shapes in rviz
+  int max_shapes = 20;
+  Marker invisible = msg.markers.back();
+  invisible.color.a = 0.0;
+  msg.markers.resize(max_shapes, invisible);
+
+  int id = 0;
   for (Marker& m : msg.markers)
     m.id = id++;
 
@@ -76,7 +82,7 @@ RvizTerrainBuilder::BuildTerrainBlock (const Vector3d& pos,
   m.ns = "terrain";
   m.header.frame_id = rviz_frame_;
   m.color.r  = 245./355; m.color.g  = 222./355; m.color.b  = 179./355; // wheat
-  m.color.a = 1.0;
+  m.color.a = 0.85;
 
   return m;
 }
@@ -86,15 +92,9 @@ RvizTerrainBuilder::BuildTerrainFlat() const
 {
   MarkerArray msg;
 
-  for (int i=0; i<terrain_ids_start_; ++i) {
-    msg.markers.push_back(BuildTerrainBlock(Vector3d::Ones(), Vector3d::Ones()));
-    msg.markers.back().color.a = 0.0;
-  }
-
-  // one long path
   Vector3d size_start_end(5,2,0.1);
   Vector3d center0(1.5, 0.0, -0.05-eps_);
-  msg.markers.at(0) = BuildTerrainBlock(center0, size_start_end);
+  msg.markers.push_back(BuildTerrainBlock(center0, size_start_end));
 
   return msg;
 }
@@ -106,7 +106,6 @@ RvizTerrainBuilder::BuildTerrainBlock() const
   double length_     = 3.5;
   double height_     = 0.5; // [m]
 
-
   MarkerArray msg;
   double area_width = 3.0;
   double ground_thickness = 0.1;
@@ -114,8 +113,6 @@ RvizTerrainBuilder::BuildTerrainBlock() const
   Vector3d size0(3,area_width,ground_thickness);
   Vector3d center0(0, 0.0, -0.05-eps_);
   msg.markers.push_back(BuildTerrainBlock(center0, size0));
-
-
 
   Vector3d size(length_,area_width,height_+ground_thickness);
   Vector3d center1(size.x()/2 + block_start, 0.0, size.z()/2-eps_-ground_thickness);
@@ -132,7 +129,6 @@ RvizTerrainBuilder::BuildTerrainStairs() const
   double height_first_step = 0.2;
   double first_step_width = 0.4;
   double width_top = 1.0;
-
 
   MarkerArray msg;
   double area_width = 3.0;
@@ -209,7 +205,6 @@ RvizTerrainBuilder::BuildTerrainSlope() const
   double yaw = 0.0;
   Eigen::Quaterniond ori =  xpp::GetQuaternionFromEulerZYX(yaw, pitch, roll);
 
-
   double lx = height_center/sin(pitch);
   double ly = area_width;
   double lz = 0.04;
@@ -239,11 +234,10 @@ RvizTerrainBuilder::BuildTerrainChimney() const
 
   const double x_start_ = 1.0;
   const double length_  = 1.5;
-  const double y_start_ = 0.5; // for rosbag was: 0.8  or  0.5; distance to start of slope from center at z=0
-  const double slope    = 3;   // for rosbag was: 2    or  3
+  const double y_start_ = 0.5;
+  const double slope    = 3;
 
   double length_start_end_ = 2.0; // [m]
-
 
   double roll = atan(slope);
   double pitch = 0.0;
@@ -269,11 +263,6 @@ RvizTerrainBuilder::BuildTerrainChimney() const
   Vector3d center1(x_start_+length_/2, y_start_+eps_, -3*eps_);
   msg.markers.push_back(BuildTerrainBlock(center1, size, ori));
   msg.markers.back().color.a = 1.0;
-
-//  // slope_right
-//  Vector3d center2(x_start_+length_/2, -y_start_-eps_, 0);
-//  msg.markers.push_back(BuildTerrainBlock(center2, size, ori.inverse()));
-//  msg.markers.back().color.a = 0.8;
 
   // flat end
   Vector3d center_end(length_start_end_/2.+x_start_+length_, 0.0, -0.05-eps_);

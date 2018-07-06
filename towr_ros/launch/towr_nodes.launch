@@ -24,7 +24,7 @@
     type="goal_pose_publisher" 
     output="screen">
   </node>
-    
+
   <!-- start the actual NLP solver using TOWR -->
   <node 
     name="towr_ros" 

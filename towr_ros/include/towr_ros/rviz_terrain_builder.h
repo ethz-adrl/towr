@@ -31,9 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_ROS_RVIZ_TERRAIN_BUILDER_H_
 
 #include <string>
-
 #include <Eigen/Dense>
-
 #include <visualization_msgs/MarkerArray.h>
 
 
@@ -42,8 +40,9 @@ namespace towr {
 /**
  * @brief  Constructs RVIZ markers that show different terrains.
  *
- * This class shows simple terrains (flat, sloped, stairs, ...) through
- * basic RVIZ shapes.
+ * This class represents simple terrains (flat, sloped, stairs, ...) through
+ * basic RVIZ shapes. They are meant to match the independent height
+ * maps from towr/terrain/height_map.h, which can be of arbitrary form.
  */
 class RvizTerrainBuilder {
 public:
@@ -78,7 +77,6 @@ private:
                            const Quat& ori = Quat::Identity()) const;
 
   const double eps_ = 0.02;           // for lowering of terrain.
-  const int terrain_ids_start_ = 50;  // to not overwrite other RVIZ markers.
   std::string rviz_frame_ = "world";  // the name of the frame set in RVIZ.
 };
 

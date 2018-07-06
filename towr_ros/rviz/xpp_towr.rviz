@@ -80,7 +80,7 @@ Visualization Manager:
       Marker Topic: /xpp/rviz_markers
       Name: CartesianVisualization
       Namespaces:
-        base_pose: false
+        base_pose: true
         cop: true
         ee_force: true
         endeffector_pos: true
@@ -126,104 +126,18 @@ Visualization Manager:
     - Alpha: 0.5
       Class: rviz/RobotModel
       Collision Enabled: false
-      Enabled: true
+      Enabled: false
       Links:
         All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lf_foot:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        lf_hipassembly:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lf_lowerleg:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lf_upperleg:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lh_foot:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        lh_hipassembly:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lh_lowerleg:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lh_upperleg:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rf_foot:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        rf_hipassembly:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rf_lowerleg:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rf_upperleg:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rh_foot:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        rh_hipassembly:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rh_lowerleg:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rh_upperleg:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        trunk:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
       Name: Hyq
       Robot Description: /hyq_rviz_urdf_robot_description
       TF Prefix: hyq_des
       Update Interval: 0
-      Value: true
+      Value: false
       Visual Enabled: true
     - Alpha: 0.5
       Class: rviz/RobotModel
@@ -265,7 +179,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 4.37566
+      Distance: 4.90074
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -277,10 +191,10 @@ Visualization Manager:
         Z: -0.579998
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.144798
+      Pitch: 0.174798
       Target Frame: <Fixed Frame>
       Value: ThirdPersonFollower (rviz)
-      Yaw: 1.33399
+      Yaw: 1.17899
     Saved:
       - Angle: 3.14
         Class: rviz/TopDownOrtho
