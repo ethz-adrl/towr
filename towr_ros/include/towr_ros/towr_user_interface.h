@@ -75,6 +75,7 @@ private:
   int AdvanceCircularBuffer(int& curr, int max) const;
 
   void PrintVector(const Eigen::Vector3d& v) const;
+  void PrintVector2D(const Eigen::Vector2d& v) const;
   void PrintScreen() const;
 };
 

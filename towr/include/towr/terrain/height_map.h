@@ -42,16 +42,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
- * @brief Holds the height and slope of the terrain.
+ * @brief Holds the height and slope information of the terrain.
  *
  * This class is responsible for providing the height values and slope at
- * each position (x,y). This is used to formulate constraints such as
- * "foot must be touching terrain during stance phase".
- * @sa TerrainConstraint
+ * each position (x,y). Examples of various height map examples can be found
+ * in height_map_examples.h.
  *
  * If a height map of the terrain already exists, e.g. Octomap/Gridmap, then
  * a simple adapter for these can be written to comply to  this minimal
  * interface and to be used with %towr.
+ *
+ * The height map is used to formulate constraints such as
+ * "foot must be touching terrain during stance phase".
+ * @sa TerrainConstraint
  */
 class HeightMap {
 public:

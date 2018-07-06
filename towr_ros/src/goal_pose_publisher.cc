@@ -30,25 +30,42 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 
+#include <towr/terrain/height_map.h>
 #include <xpp_states/convert.h>
 
 #include <towr_ros/TowrCommand.h>  // listen to goal state
 #include <towr_ros/topic_names.h>
 
-static ros::Publisher rviz_pose_pub;
+
+namespace towr {
+
+static ros::Publisher rviz_pub;
 
 void UserCommandCallback(const towr_ros::TowrCommand& msg_in)
 {
-  // publish goal pose
+  // get which terrain
+  auto terrain_id = static_cast<HeightMap::TerrainID>(msg_in.terrain);
+  auto terrain_ = HeightMap::MakeTerrain(terrain_id);
+
   geometry_msgs::PoseStamped goal_msg;
   goal_msg.header.frame_id = "world";
-  goal_msg.pose.position = msg_in.goal_lin.pos;
+
+  // visualize goal z state on terrain.
+  double x = msg_in.goal_lin.pos.x;
+  double y = msg_in.goal_lin.pos.y;
+  goal_msg.pose.position.x = x;
+  goal_msg.pose.position.y = y;
+  goal_msg.pose.position.z = terrain_->GetHeight(x, y);
+
+  // orientation according to message
   Eigen::Quaterniond q = xpp::GetQuaternionFromEulerZYX(msg_in.goal_ang.pos.z,
                                                         msg_in.goal_ang.pos.y,
                                                         msg_in.goal_ang.pos.x);
   goal_msg.pose.orientation = xpp::Convert::ToRos(q);
-  rviz_pose_pub.publish(goal_msg);
+  rviz_pub.publish(goal_msg);
 }
+
+} // namespace towr
 
 int main(int argc, char *argv[])
 {
@@ -57,8 +74,8 @@ int main(int argc, char *argv[])
   ros::NodeHandle n;
 
   ros::Subscriber goal_sub;
-  goal_sub      = n.subscribe(towr_msgs::user_command, 1, UserCommandCallback);
-  rviz_pose_pub = n.advertise<geometry_msgs::PoseStamped>("xpp/goal", 1);
+  goal_sub       = n.subscribe(towr_msgs::user_command, 1, towr::UserCommandCallback);
+  towr::rviz_pub = n.advertise<geometry_msgs::PoseStamped>("xpp/goal", 1);
 
   ros::spin();
 

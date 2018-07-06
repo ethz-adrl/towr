@@ -62,7 +62,7 @@ TowrUserInterface::TowrUserInterface ()
   user_command_pub_ = n.advertise<towr_ros::TowrCommand>(towr_msgs::user_command, 1);
 
   goal_geom_.lin.p_.setZero();
-  goal_geom_.lin.p_ << 1.0, 0.0, 0.58;
+  goal_geom_.lin.p_ << 1.0, 0.0, 0.0; // z not used
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
 
   robot_      = RobotModel::Monoped;
@@ -103,9 +103,9 @@ TowrUserInterface::PrintScreen() const
   wmove(stdscr, GOAL_POS, X_KEY);
   printw("arrows");
   wmove(stdscr, GOAL_POS, X_DESCRIPTION);
-  printw("Goal x-y-z");
+  printw("Goal x-y");
   wmove(stdscr, GOAL_POS, X_VALUE);
-  PrintVector(goal_geom_.lin.p_);
+  PrintVector2D(goal_geom_.lin.p_.segment(0, Y));
   printw(" [m]");
 
   wmove(stdscr, GOAL_ORI, X_KEY);
@@ -273,6 +273,12 @@ void
 TowrUserInterface::PrintVector(const Eigen::Vector3d& v) const
 {
   printw("%.3f  %.3f  %.3f", v.x(), v.y(), v.z());
+}
+
+void
+TowrUserInterface::PrintVector2D(const Eigen::Vector2d& v) const
+{
+  printw("%.3f  %.3f", v.x(), v.y());
 }
 
 
