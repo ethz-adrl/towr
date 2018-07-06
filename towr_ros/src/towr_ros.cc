@@ -71,11 +71,12 @@ TowrRos::TowrRos ()
 void
 TowrRos::SetInitialFromNominal(const std::vector<Vector3d>& nomial_stance_B)
 {
-  initial_base_.lin.at(kPos).z() = - nomial_stance_B.front().z();
+  double z_ground = 0.0;
   initial_ee_pos_ =  nomial_stance_B;
   std::for_each(initial_ee_pos_.begin(), initial_ee_pos_.end(),
-                [](Vector3d& p){ p.z() = 0.0; } // feet at 0 height
+                [&](Vector3d& p){ p.z() = z_ground; } // feet at 0 height
   );
+  initial_base_.lin.at(kPos).z() = - nomial_stance_B.front().z() + z_ground;
 }
 
 void
@@ -99,9 +100,11 @@ TowrRos::PublishInitial()
 void
 TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 {
-  RobotModel model_(static_cast<RobotModel::Robot>(msg.robot));
+  RobotModel model(static_cast<RobotModel::Robot>(msg.robot));
+  auto robot_params_msg = BuildRobotParametersMsg(model);
+  robot_parameters_pub_.publish(robot_params_msg);
 
-  SetInitialFromNominal(model_.kinematic_model_->GetNominalStanceInBase());
+  SetInitialFromNominal(model.kinematic_model_->GetNominalStanceInBase());
   PublishInitial();
 
   BaseState goal;
@@ -114,8 +117,8 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
   params.t_total_ = msg.total_duration;
 
 
-  int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
 
+  int n_ee = model.kinematic_model_->GetNumberOfEndeffectors();
   auto gait_gen_ = GaitGenerator::MakeGaitGenerator(n_ee);
   auto id_gait   = static_cast<GaitGenerator::Combos>(msg.gait);
   gait_gen_->SetCombo(id_gait);
@@ -128,11 +131,8 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
   terrain_ = HeightMap::MakeTerrain(terrain_id);
 
   towr_.SetInitialState(initial_base_, initial_ee_pos_);
-  towr_.SetParameters(goal, params, model_, terrain_);
+  towr_.SetParameters(goal, params, model, terrain_);
 
-
-  xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model_);
-  robot_parameters_pub_.publish(robot_params_msg);
 
   // Defaults to /home/user/.ros/
   std::string bag_file = "towr_trajectory.bag";

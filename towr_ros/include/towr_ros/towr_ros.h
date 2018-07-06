@@ -56,33 +56,27 @@ public:
   virtual ~TowrRos () = default;
 
 private:
-
   void UserCommandCallback(const TowrCommandMsg& msg);
 
   XppVec GetTrajectory() const;
-  std::vector<XppVec>GetIntermediateSolutions();
-
 
   // publishing to rviz with ROS bag
   ::ros::Subscriber user_command_sub_;
   ::ros::Publisher initial_state_pub_;
   ::ros::Publisher robot_parameters_pub_;
 
-
   void SetInitialFromNominal(const std::vector<Vector3d>& nomial_stance_B);
   void PublishInitial();
   BaseState initial_base_;
   std::vector<Vector3d> initial_ee_pos_;
 
-
   HeightMap::Ptr terrain_;
   TOWR towr_;
   ifopt::Ipopt::Ptr solver_;
-
-
-
   double visualization_dt_; ///< discretization of output trajectory (1/TaskServoHz)
 
+private:
+  std::vector<XppVec>GetIntermediateSolutions();
   xpp_msgs::RobotParameters BuildRobotParametersMsg(const RobotModel& model) const;
 
   void SaveOptimizationAsRosbag(const std::string& bag_name,
