@@ -64,8 +64,8 @@ private:
   void PublishCommand();
 
   xpp::State3dEuler goal_geom_;
-  int terrain_id_;
-  int gait_combo_id_;
+  int terrain_;
+  int gait_combo_;
   int robot_;
   bool replay_trajectory_;
   bool optimize_;

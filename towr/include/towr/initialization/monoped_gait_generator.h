@@ -47,9 +47,10 @@ public:
 private:
   virtual GaitInfo GetGait(Gaits gait) const override;
 
-  GaitInfo GetStrideStand() const;
-  GaitInfo GetStrideFlight() const;
-  GaitInfo GetStrideHop() const;
+  GaitInfo GetStrideStand()   const;
+  GaitInfo GetStrideFlight()  const;
+  GaitInfo GetStrideHop()     const;
+  GaitInfo GetStrideHopLong() const;
 
   ContactState o_ = ContactState(1, true);  // stance
   ContactState x_ = ContactState(1, false); // flight

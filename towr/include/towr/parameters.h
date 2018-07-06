@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 enum ConstraintName { Dynamic, EndeffectorRom, TotalTime, Terrain,
-                       Force, Swing, BaseRom, BaseAcc };
+                      Force, Swing, BaseRom, BaseAcc };
 enum CostName       { ForcesCostID };
 
 /**

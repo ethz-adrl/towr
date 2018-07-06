@@ -32,6 +32,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
 #include <vector>
+#include <map>
+#include <string>
+
 #include <Eigen/Dense>
 
 #include <towr/variables/cartesian_dimensions.h>
@@ -59,7 +62,7 @@ public:
    * @brief Terrains IDs corresponding to a draw function in xpp_vis and a
    * detailed (gradient supplying) function in the optimizer.
    */
-  enum TerrainID { FlatID=0,
+  enum TerrainID { FlatID,
                    BlockID,
                    StairsID,
                    GapID,
@@ -151,6 +154,18 @@ private:
   virtual double GetHeightDerivWrtXY(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYX(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYY(double x, double y) const { return 0.0; };
+};
+
+
+const static std::map<HeightMap::TerrainID, std::string> terrain_names =
+{
+  {HeightMap::FlatID,        "Flat"       },
+  {HeightMap::BlockID,       "Block"      },
+  {HeightMap::StairsID,      "Stairs"     },
+  {HeightMap::GapID,         "Gap"        },
+  {HeightMap::SlopeID,       "Slope"      },
+  {HeightMap::ChimneyID,     "Chimney"    },
+  {HeightMap::ChimneyLRID,   "ChimenyLR"  }
 };
 
 } /* namespace towr */

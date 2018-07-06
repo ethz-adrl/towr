@@ -99,7 +99,7 @@ TowrRos::PublishInitial()
 void
 TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 {
-  RobotModel model_(RobotModel::Biped);
+  RobotModel model_(static_cast<RobotModel::Robot>(msg.robot));
 
   SetInitialFromNominal(model_.kinematic_model_->GetNominalStanceInBase());
   PublishInitial();
@@ -115,15 +115,16 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 
 
   int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
-  auto gait_    = GaitGenerator::MakeGaitGenerator(n_ee);
-  auto id_gait  = static_cast<GaitGenerator::Combos>(msg.gait_id);
-  gait_->SetCombo(id_gait);
+
+  auto gait_gen_ = GaitGenerator::MakeGaitGenerator(n_ee);
+  auto id_gait   = static_cast<GaitGenerator::Combos>(msg.gait);
+  gait_gen_->SetCombo(id_gait);
   for (int ee=0; ee<n_ee; ++ee) {
-    params.ee_phase_durations_.push_back(gait_->GetPhaseDurations(msg.total_duration, ee));
-    params.ee_in_contact_at_start_.push_back(gait_->IsInContactAtStart(ee));
+    params.ee_phase_durations_.push_back(gait_gen_->GetPhaseDurations(msg.total_duration, ee));
+    params.ee_in_contact_at_start_.push_back(gait_gen_->IsInContactAtStart(ee));
   }
 
-  auto terrain_id = static_cast<HeightMap::TerrainID>(msg.terrain_id);
+  auto terrain_id = static_cast<HeightMap::TerrainID>(msg.terrain);
   terrain_ = HeightMap::MakeTerrain(terrain_id);
 
   towr_.SetInitialState(initial_base_, initial_ee_pos_);

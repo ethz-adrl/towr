@@ -52,12 +52,12 @@ public:
   using GaitInfo      = std::pair<VecTimes,std::vector<ContactState>>;
   using EE            = uint;
 
-  enum Combos    { C0, C1, C2, C3, C4, C5, C6, C7, C8, COMBO_COUNT};
-  enum Gaits     {Stand=0, Flight,
-                  Walk1, Walk2, Walk2E,
-                  Run2, Run2E, Run1, Run1E, Run3, Run3E,
-                  Hop1, Hop1E, Hop2, Hop3, Hop3E, Hop5, Hop5E,
-                  GAIT_COUNT};
+  enum Combos { C0, C1, C2, C3, C4, COMBO_COUNT};
+  enum Gaits  {Stand=0, Flight,
+               Walk1, Walk2, Walk2E,
+               Run2, Run2E, Run1, Run1E, Run3, Run3E,
+               Hop1, Hop1E, Hop2, Hop3, Hop3E, Hop5, Hop5E,
+               GAIT_COUNT};
 
   static Ptr MakeGaitGenerator(int leg_count);
 

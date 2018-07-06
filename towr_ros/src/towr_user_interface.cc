@@ -65,9 +65,9 @@ TowrUserInterface::TowrUserInterface ()
   goal_geom_.lin.p_ << 1.0, 0.0, 0.58;
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
 
-  robot_         = RobotModel::Hyq;
-  terrain_id_    = HeightMap::FlatID;
-  gait_combo_id_ = GaitGenerator::C0;
+  robot_      = RobotModel::Monoped;
+  terrain_    = HeightMap::FlatID;
+  gait_combo_ = GaitGenerator::C0;
   total_duration_ = 2.4;
   replay_trajectory_ = false;
   optimize_ = false;
@@ -121,21 +121,21 @@ TowrUserInterface::PrintScreen() const
   wmove(stdscr, ROBOT, X_DESCRIPTION);
   printw("Robot");
   wmove(stdscr, ROBOT, X_VALUE);
-  printw("%s", std::to_string(robot_).c_str());
+  printw("%s\n", robot_names.at(static_cast<RobotModel::Robot>(robot_)).c_str());
 
   wmove(stdscr, GAIT, X_KEY);
   printw("g");
   wmove(stdscr, GAIT, X_DESCRIPTION);
   printw("Gait");
   wmove(stdscr, GAIT, X_VALUE);
-  printw("%s", std::to_string(gait_combo_id_).c_str());
+  printw("%s", std::to_string(gait_combo_).c_str());
 
   wmove(stdscr, TERRAIN, X_KEY);
   printw("t");
   wmove(stdscr, TERRAIN, X_DESCRIPTION);
   printw("Terrain");
   wmove(stdscr, TERRAIN, X_VALUE);
-  printw("%i", terrain_id_);
+  printw("%s\n", terrain_names.at(static_cast<HeightMap::TerrainID>(terrain_)).c_str());
 
   wmove(stdscr, DURATION, X_KEY);
   printw("+/-");
@@ -203,11 +203,11 @@ TowrUserInterface::CallbackKey (int c)
 
     // terrains
     case 't':
-      terrain_id_ = AdvanceCircularBuffer(terrain_id_, HeightMap::TERRAIN_COUNT);
+      terrain_ = AdvanceCircularBuffer(terrain_, HeightMap::TERRAIN_COUNT);
       break;
 
     case 'g':
-      gait_combo_id_ = AdvanceCircularBuffer(gait_combo_id_, GaitGenerator::COMBO_COUNT);
+      gait_combo_ = AdvanceCircularBuffer(gait_combo_, GaitGenerator::COMBO_COUNT);
       break;
 
     case 'r':
@@ -248,11 +248,12 @@ void TowrUserInterface::PublishCommand()
   towr_ros::TowrCommand msg;
   msg.goal_lin          = xpp::Convert::ToRos(goal_geom_.lin);
   msg.goal_ang          = xpp::Convert::ToRos(goal_geom_.ang);
+  msg.total_duration    = total_duration_;
   msg.replay_trajectory = replay_trajectory_;
   msg.optimize          = optimize_;
-  msg.terrain_id        = terrain_id_;
-  msg.gait_id           = gait_combo_id_;
-  msg.total_duration    = total_duration_;
+  msg.terrain           = terrain_;
+  msg.gait              = gait_combo_;
+  msg.robot             = robot_;
 
   user_command_pub_.publish(msg);
 
@@ -278,7 +279,6 @@ TowrUserInterface::PrintVector(const Eigen::Vector3d& v) const
 } /* namespace towr */
 
 
-// the actual ros node
 int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "towr_user_iterface");

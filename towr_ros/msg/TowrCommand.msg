@@ -5,5 +5,6 @@ xpp_msgs/StateLin3d    goal_ang           # the angular state to reach (roll, pi
 float64                total_duration     # the total time to reach the goal state
 bool                   replay_trajectory  # Replay the already optimized trajectory in RVIZ
 bool                   optimize           # run TOWR optimization
-int32                  terrain_id         # some information about the used terrain (e.g stairs, gap, slope)
-int32                  gait_id            # Type of Motion (Walk, Trott, Bound, Camel)
+int32                  robot              # Monoped, Biped, Quadruped, Anymal
+int32                  terrain            # some information about the used terrain (e.g stairs, gap, slope)
+int32                  gait               # Type of Motion (Walk, Trott, Bound, Camel)

@@ -84,6 +84,7 @@ Visualization Manager:
         cop: true
         ee_force: true
         endeffector_pos: true
+        friction_cone: true
         gravity_force: false
         inverted_pendulum: false
         range_of_motion: true
@@ -271,15 +272,15 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.993474
-        Y: -0.724448
+        X: 0.766368
+        Y: -0.856663
         Z: -0.579998
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.149798
+      Pitch: 0.144798
       Target Frame: <Fixed Frame>
       Value: ThirdPersonFollower (rviz)
-      Yaw: 1.53399
+      Yaw: 1.33399
     Saved:
       - Angle: 3.14
         Class: rviz/TopDownOrtho

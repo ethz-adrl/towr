@@ -92,7 +92,7 @@ RvizTerrainBuilder::BuildTerrainFlat() const
   }
 
   // one long path
-  Vector3d size_start_end(5,1,0.1);
+  Vector3d size_start_end(5,2,0.1);
   Vector3d center0(1.5, 0.0, -0.05-eps_);
   msg.markers.at(0) = BuildTerrainBlock(center0, size_start_end);
 

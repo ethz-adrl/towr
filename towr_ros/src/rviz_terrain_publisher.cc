@@ -40,7 +40,7 @@ static towr::RvizTerrainBuilder terrain_builder;
 void UserCommandCallback(const towr_ros::TowrCommand& msg_in)
 {
   // draw a terrain
-  auto msg = terrain_builder.BuildTerrain(msg_in.terrain_id);
+  auto msg = terrain_builder.BuildTerrain(msg_in.terrain);
   rviz_terrain_pub.publish(msg);
 }
 

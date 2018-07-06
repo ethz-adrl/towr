@@ -44,13 +44,12 @@ GaitGenerator::Ptr
 GaitGenerator::MakeGaitGenerator(int leg_count)
 {
   switch (leg_count) {
-    case 1: return std::make_shared<MonopedGaitGenerator>(); break;
-    case 2: return std::make_shared<BipedGaitGenerator>(); break;
+    case 1: return std::make_shared<MonopedGaitGenerator>();   break;
+    case 2: return std::make_shared<BipedGaitGenerator>();     break;
     case 4: return std::make_shared<QuadrupedGaitGenerator>(); break;
     default: assert(false); break; // Error: Not implemented
   }
 }
-
 
 GaitGenerator::VecTimes
 GaitGenerator::GetPhaseDurations (double t_total, EE ee) const
