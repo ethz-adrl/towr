@@ -2,8 +2,8 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.0 (2018-07-07)
+------------------
 * add sample gaits for mono-, bi- and quadruped
 * Contributors: Alexander Winkler
 

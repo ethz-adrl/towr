@@ -2,8 +2,8 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.0 (2018-07-07)
+------------------
 * visualize goal state on terrain
 * Remove redundant rviz terrain visualizer and instead generate
   surface patches directly from height map information
