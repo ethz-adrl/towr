@@ -32,6 +32,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
 #include <vector>
+#include <map>
+#include <string>
+
 #include <Eigen/Dense>
 
 #include <towr/variables/cartesian_dimensions.h>
@@ -39,21 +42,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
- * @brief Holds the height and slope of the terrain.
+ * @brief Holds the height and slope information of the terrain.
  *
  * This class is responsible for providing the height values and slope at
- * each position (x,y). This is used to formulate constraints such as
- * "foot must be touching terrain during stance phase".
- * @sa TerrainConstraint
+ * each position (x,y). Examples of various height map examples can be found
+ * in height_map_examples.h.
  *
  * If a height map of the terrain already exists, e.g. Octomap/Gridmap, then
  * a simple adapter for these can be written to comply to  this minimal
  * interface and to be used with %towr.
+ *
+ * The height map is used to formulate constraints such as
+ * "foot must be touching terrain during stance phase".
+ * @sa TerrainConstraint
  */
 class HeightMap {
 public:
   using Ptr      = std::shared_ptr<HeightMap>;
   using Vector3d = Eigen::Vector3d;
+
+  /**
+   * @brief Terrains IDs corresponding for factory method.
+   */
+  enum TerrainID { FlatID,
+                   BlockID,
+                   StairsID,
+                   GapID,
+                   SlopeID,
+                   ChimneyID,
+                   ChimneyLRID,
+                   TERRAIN_COUNT };
+
+  static HeightMap::Ptr MakeTerrain(TerrainID type);
 
   enum Direction { Normal, Tangent1, Tangent2 };
 
@@ -136,6 +156,18 @@ private:
   virtual double GetHeightDerivWrtXY(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYX(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYY(double x, double y) const { return 0.0; };
+};
+
+
+const static std::map<HeightMap::TerrainID, std::string> terrain_names =
+{
+  {HeightMap::FlatID,        "Flat"       },
+  {HeightMap::BlockID,       "Block"      },
+  {HeightMap::StairsID,      "Stairs"     },
+  {HeightMap::GapID,         "Gap"        },
+  {HeightMap::SlopeID,       "Slope"      },
+  {HeightMap::ChimneyID,     "Chimney"    },
+  {HeightMap::ChimneyLRID,   "ChimenyLR"  }
 };
 
 } /* namespace towr */

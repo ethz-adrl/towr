@@ -32,12 +32,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/models/kinematic_model.h>
 #include <towr/models/centroidal_model.h>
+#include <towr/models/endeffector_mappings.h>
 
 namespace towr {
 
 class BipedKinematicModel : public KinematicModel {
 public:
-  BipedKinematicModel ();
+  BipedKinematicModel () : KinematicModel(2)
+  {
+    const double z_nominal_b = -0.65;
+    const double y_nominal_b =  0.20;
+
+    nominal_stance_.at(L) << 0.0,  y_nominal_b, z_nominal_b;
+    nominal_stance_.at(R) << 0.0, -y_nominal_b, z_nominal_b;
+
+    max_dev_from_nominal_  << 0.25, 0.15, 0.15;
+  }
 };
 
 

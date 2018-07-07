@@ -34,27 +34,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-/**
- * @brief Terrains IDs corresponding to a draw function in xpp_vis and a
- * detailed (gradient supplying) function in the optimizer.
- */
-enum TerrainID { FlatID=0,
-                 BlockID,
-                 StairsID,
-                 GapID,
-                 SlopeID,
-                 ChimneyID,
-                 ChimneyLRID,
-                 K_TERRAIN_COUNT };
-
-/**
- * @brief Generates some predefined height profiles according to the ID.
- */
-class HeightMapFactory {
-public:
-  static HeightMap::Ptr MakeTerrain(TerrainID type);
-};
-
 
 class FlatGround : public HeightMap {
 public:

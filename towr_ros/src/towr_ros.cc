@@ -35,9 +35,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_msgs/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
 
-#include <towr/initialization/quadruped_gait_generator.h>
-#include <towr/models/examples/hyq_model.h>
-#include <towr/terrain/examples/height_map_examples.h>
+#include <towr/initialization/gait_generator.h>
+#include <towr/terrain/height_map.h>
 #include <towr/variables/euler_converter.h>
 
 #include <towr_ros/topic_names.h>
@@ -54,32 +53,13 @@ TowrRos::TowrRos ()
   user_command_sub_ = n.subscribe(towr_msgs::user_command, 1,
                                   &TowrRos::UserCommandCallback, this);
 
-  cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
-                                          (xpp_msgs::robot_trajectory_desired, 1);
+  initial_state_pub_  = n.advertise<xpp_msgs::RobotStateCartesian>
+                                          (xpp_msgs::robot_state_desired, 1);
 
   robot_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
                                     (xpp_msgs::robot_parameters, 1);
 
-  model_.dynamic_model_   = std::make_shared<HyqDynamicModel>();
-  model_.kinematic_model_ = std::make_shared<HyqKinematicModel>();
-  gait_                   = std::make_shared<QuadrupedGaitGenerator>();
-
-  // initial state
-  BaseState b;
-  b.lin.at(kPos).z() = 0.58;
-  std::vector<Eigen::Vector3d> ee_pos(model_.kinematic_model_->GetNumberOfEndeffectors());
-
-  ee_pos.at(LF) <<  0.31,  0.29, 0.0;
-  ee_pos.at(RF) <<  0.31, -0.29, 0.0;
-  ee_pos.at(LH) << -0.31,  0.29, 0.0;
-  ee_pos.at(RH) << -0.31, -0.29, 0.0;
-
-  towr_.SetInitialState(b, ee_pos);
-
-  terrain_ = std::make_shared<FlatGround>();
-
-  // could also use SNOPT here
-  solver_ = std::make_shared<ifopt::Ipopt>();
+  solver_ = std::make_shared<ifopt::Ipopt>(); // could also use SNOPT here
   solver_->print_level_ = 5;
   solver_->max_cpu_time_ = 10.0;
   solver_->use_jacobian_approximation_ = false;
@@ -88,8 +68,44 @@ TowrRos::TowrRos ()
 }
 
 void
+TowrRos::SetInitialFromNominal(const std::vector<Vector3d>& nomial_stance_B)
+{
+  double z_ground = 0.0;
+  initial_ee_pos_ =  nomial_stance_B;
+  std::for_each(initial_ee_pos_.begin(), initial_ee_pos_.end(),
+                [&](Vector3d& p){ p.z() = z_ground; } // feet at 0 height
+  );
+  initial_base_.lin.at(kPos).z() = - nomial_stance_B.front().z() + z_ground;
+}
+
+void
+TowrRos::PublishInitial()
+{
+  int n_ee = initial_ee_pos_.size();
+  xpp::RobotStateCartesian xpp(n_ee);
+  xpp.base_.lin.p_ = initial_base_.lin.p();
+  xpp.base_.ang.q  = EulerConverter::GetQuaternionBaseToWorld(initial_base_.ang.p());
+
+  for (int ee_towr=0; ee_towr<n_ee; ++ee_towr) {
+    int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
+    xpp.ee_contact_.at(ee_xpp)   = true;
+    xpp.ee_motion_.at(ee_xpp).p_ = initial_ee_pos_.at(ee_towr);
+    xpp.ee_forces_.at(ee_xpp).setZero(); // zero for visualization
+  }
+
+  initial_state_pub_.publish(xpp::Convert::ToRos(xpp));
+}
+
+void
 TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 {
+  RobotModel model(static_cast<RobotModel::Robot>(msg.robot));
+  auto robot_params_msg = BuildRobotParametersMsg(model);
+  robot_parameters_pub_.publish(robot_params_msg);
+
+  SetInitialFromNominal(model.kinematic_model_->GetNominalStanceInBase());
+  PublishInitial();
+
   BaseState goal;
   goal.lin.at(kPos) = xpp::Convert::ToXpp(msg.goal_lin.pos);
   goal.lin.at(kVel) = xpp::Convert::ToXpp(msg.goal_lin.vel);
@@ -98,23 +114,22 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 
   Parameters params;
   params.t_total_ = msg.total_duration;
-  int n_ee = model_.kinematic_model_->GetNumberOfEndeffectors();
-  auto gait = static_cast<GaitGenerator::GaitCombos>(msg.gait_id);
-  gait_->SetCombo(gait);
+
+  int n_ee = model.kinematic_model_->GetNumberOfEndeffectors();
+  auto gait_gen_ = GaitGenerator::MakeGaitGenerator(n_ee);
+  auto id_gait   = static_cast<GaitGenerator::Combos>(msg.gait);
+  gait_gen_->SetCombo(id_gait);
   for (int ee=0; ee<n_ee; ++ee) {
-    params.ee_phase_durations_.push_back(gait_->GetPhaseDurations(msg.total_duration, ee));
-    params.ee_in_contact_at_start_.push_back(gait_->IsInContactAtStart(ee));
+    params.ee_phase_durations_.push_back(gait_gen_->GetPhaseDurations(msg.total_duration, ee));
+    params.ee_in_contact_at_start_.push_back(gait_gen_->IsInContactAtStart(ee));
   }
 
-  auto terrain_id = static_cast<TerrainID>(msg.terrain_id);
-  terrain_ = HeightMapFactory::MakeTerrain(terrain_id);
+  auto terrain_id = static_cast<HeightMap::TerrainID>(msg.terrain);
+  terrain_ = HeightMap::MakeTerrain(terrain_id);
 
-  towr_.SetParameters(goal, params, model_, terrain_);
+  towr_.SetInitialState(initial_base_, initial_ee_pos_);
+  towr_.SetParameters(goal, params, model, terrain_);
 
-
-  ROS_DEBUG_STREAM("publishing robot parameters to " << robot_parameters_pub_.getTopic());
-  xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model_);
-  robot_parameters_pub_.publish(robot_params_msg);
 
   // Defaults to /home/user/.ros/
   std::string bag_file = "towr_trajectory.bag";
@@ -132,13 +147,8 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
         + " --quiet " + bag_file).c_str());
   }
 
-  // publish entire trajectory directly
-  if (msg.publish_traj) {
-    ROS_DEBUG_STREAM("publishing optimized trajectory to " << cart_trajectory_pub_.getTopic());
-    XppVec cart_traj = GetTrajectory();
-    xpp_msgs::RobotStateCartesianTrajectory xpp_msg = xpp::Convert::ToRos(cart_traj);
-    cart_trajectory_pub_.publish(xpp_msg);
-  }
+  // to publish entire trajectory (e.g. to send to controller)
+  // xpp_msgs::RobotStateCartesianTrajectory xpp_msg = xpp::Convert::ToRos(GetTrajectory());
 }
 
 std::vector<TowrRos::XppVec>

@@ -30,6 +30,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_MODELS_ROBOT_MODEL_H_
 #define TOWR_MODELS_ROBOT_MODEL_H_
 
+#include <map>
+#include <string>
+
 #include <towr/models/dynamic_model.h>
 #include <towr/models/kinematic_model.h>
 
@@ -38,10 +41,27 @@ namespace towr {
 /**
  * @brief Holds pointers to the robot specific kinematics and dynamics.
  */
-struct RobotModel
-{
+struct RobotModel {
+  /**
+   * @brief Examples robots for which kinematic and dynamic models exist.
+   */
+  enum Robot { Monoped, Biped, Hyq, Anymal, ROBOT_COUNT };
+
+
+  RobotModel() = default;
+  RobotModel(Robot robot);
+
   KinematicModel::Ptr kinematic_model_;
   DynamicModel::Ptr   dynamic_model_;
+};
+
+
+const static std::map<RobotModel::Robot, std::string> robot_names =
+{
+  {RobotModel::Monoped, "Monoped"},
+  {RobotModel::Biped,   "Biped"},
+  {RobotModel::Hyq,     "Hyq"},
+  {RobotModel::Anymal,  "Anymal"}
 };
 
 } /* namespace towr */

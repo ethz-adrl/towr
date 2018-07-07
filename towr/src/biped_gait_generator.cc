@@ -49,43 +49,20 @@ BipedGaitGenerator::BipedGaitGenerator ()
 }
 
 void
-BipedGaitGenerator::SetCombo (GaitCombos combo)
+BipedGaitGenerator::SetCombo (Combos combo)
 {
   switch (combo) {
-    case C0: SetGaits({Stand});                                break;
-    case C1: SetGaits({Stand, Flight, Stand});                 break;
-    case C2: SetGaits({Stand, Walk1, Walk1, Stand});           break;
-    case C3: SetGaits({Stand, Run1, Run1, Stand});             break;
-    case C4: SetGaits({Stand, Hop1, Hop1, Stand});             break;
-    case C5: SetGaits({Stand, Hop2, Hop2, Hop2, Stand});       break;
-    case C6: SetGaits({Stand, Hop3, Hop3, Hop3, Hop3, Stand}); break;
-//    case Combo7: SetGaits({Stand,
-//                           Run1, Run1, Run1,
-//                           Run1, Run1,
-//                           Stand});
-//      break;
-    case C7: SetGaits({Stand,
-                           Walk1, Walk1, Walk1,
-                           Walk1, Walk1,
-                           Stand});
-      break;
-    // for RA-L sequence video
-    case C8: SetGaits({Stand,
-                           Walk1, Walk1,
-                           Run1, Run1, Run1,
-                           Hop2, Hop2, Hop2, Hop2,
-                           Stand, Stand,
-                           Hop5, Hop5,
-                           Hop1,
-                           Stand,
-                          });
-      break;
-    default: assert(false); std::cout << "Gait not defined\n";     break;
+    case C0: SetGaits({Stand, Walk1, Walk1, Walk1, Stand});    break;
+    case C1: SetGaits({Stand, Run1, Run1, Run1, Stand});       break;
+    case C2: SetGaits({Stand, Hop1, Hop1, Hop1, Stand});       break;
+    case C3: SetGaits({Stand, Hop1, Hop2, Hop2, Stand});       break;
+    case C4: SetGaits({Stand, Hop5, Hop5, Hop5, Stand});       break;
+    default: assert(false); std::cout << "Gait not defined\n"; break;
   }
 }
 
 BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetGait (GaitTypes gait) const
+BipedGaitGenerator::GetGait (Gaits gait) const
 {
   switch (gait) {
     case Stand:   return GetStrideStand();
@@ -154,7 +131,6 @@ BipedGaitGenerator::GetStrideWalk () const
 BipedGaitGenerator::GaitInfo
 BipedGaitGenerator::GetStrideRun () const
 {
-//  double step = 0.3;
   double flight = 0.4;
   double pushoff = 0.15;
   double landing = 0.15;

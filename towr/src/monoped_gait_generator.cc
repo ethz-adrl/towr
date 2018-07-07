@@ -35,33 +35,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 void
-MonopedGaitGenerator::SetCombo (GaitCombos combo)
+MonopedGaitGenerator::SetCombo (Combos combo)
 {
   switch (combo) {
-    case C0: SetGaits({Stand});  break;
-    case C1: SetGaits({Stand, Flight, Stand});  break;
-    case C2: SetGaits({Stand, Walk1, Walk1, Stand}); break;
-    case C3: SetGaits({Stand,
-                       Walk1, Walk1, Walk1, Walk1, Walk1,
-                       Walk1, Walk1, Walk1, Walk1, Walk1,
-                       Stand}); break;
-    default: assert(false); std::cout << "Gait not defined\n"; break;
+    case C0: SetGaits({Stand, Hop1, Hop1, Stand});                   break;
+    case C1: SetGaits({Stand, Hop1, Hop1, Hop1, Stand});             break;
+    case C2: SetGaits({Stand, Hop1, Hop1, Hop1, Hop1, Stand});       break;
+    case C3: SetGaits({Stand, Hop2, Hop2, Hop2, Stand});             break;
+    case C4: SetGaits({Stand, Hop2, Hop2, Hop2, Hop2, Hop2, Stand}); break;
+    default: assert(false); std::cout << "Gait not defined\n";       break;
   }
 }
 
 MonopedGaitGenerator::GaitInfo
-MonopedGaitGenerator::GetGait (GaitTypes gait) const
+MonopedGaitGenerator::GetGait (Gaits gait) const
 {
   switch (gait) {
     case Stand:   return GetStrideStand();
     case Flight:  return GetStrideFlight();
-    case Walk1:   return GetStrideHop();
-    case Walk2:   return GetStrideHop();
-    case Run1:    return GetStrideHop();
-    case Run2:    return GetStrideHop();
-    case Run3:    return GetStrideHop();
     case Hop1:    return GetStrideHop();
-    case Hop2:    return GetStrideHop();
+    case Hop2:    return GetStrideHopLong();
     default: assert(false); // gait not implemented
   }
 }
@@ -101,13 +94,26 @@ MonopedGaitGenerator::GetStrideHop () const
 {
   auto times =
   {
-      0.3,
-      0.3,
+      0.3, 0.3,
   };
   auto contacts =
   {
-      o_,
-      x_,
+      o_, x_,
+  };
+
+  return std::make_pair(times, contacts);
+}
+
+MonopedGaitGenerator::GaitInfo
+MonopedGaitGenerator::GetStrideHopLong () const
+{
+  auto times =
+  {
+      0.2, 0.3,
+  };
+  auto contacts =
+  {
+      o_, x_,
   };
 
   return std::make_pair(times, contacts);

@@ -35,13 +35,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr_ros/TowrCommand.h>
 #include <towr_ros/topic_names.h>
-#include <towr/terrain/examples/height_map_examples.h>
+#include <towr/terrain/height_map.h>
+#include <towr/initialization/gait_generator.h>
+#include <towr/models/robot_model.h>
 
 
 namespace towr {
 
 
-enum YCursorRows {HEADING=6, OPTIMIZE=8, REPLAY, GOAL_POS, GOAL_ORI, GAIT, TERRAIN, DURATION, PUBLISH, CLOSE, END};
+enum YCursorRows {HEADING=6, OPTIMIZE=8, REPLAY, GOAL_POS, GOAL_ORI, ROBOT, GAIT, TERRAIN, DURATION, CLOSE, END};
 static constexpr int Y_STATUS      = END+1;
 static constexpr int X_KEY         = 1;
 static constexpr int X_DESCRIPTION = 10;
@@ -57,16 +59,15 @@ TowrUserInterface::TowrUserInterface ()
   printw(" ******************************************************************************\n\n");
 
   ::ros::NodeHandle n;
-
   user_command_pub_ = n.advertise<towr_ros::TowrCommand>(towr_msgs::user_command, 1);
 
-  // publish goal zero initially
   goal_geom_.lin.p_.setZero();
-  goal_geom_.lin.p_ << 1.0, 0.0, 0.58;
+  goal_geom_.lin.p_ << 1.0, 0.0, 0.0; // z not used
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
 
-  terrain_id_    = 0;
-  gait_combo_id_ = 0;
+  robot_      = RobotModel::Monoped;
+  terrain_    = HeightMap::FlatID;
+  gait_combo_ = GaitGenerator::C0;
   total_duration_ = 2.4;
   replay_trajectory_ = false;
   optimize_ = false;
@@ -93,18 +94,18 @@ TowrUserInterface::PrintScreen() const
   printw("-");
 
   wmove(stdscr, REPLAY, X_KEY);
-  printw("r");
+  printw("p");
   wmove(stdscr, REPLAY, X_DESCRIPTION);
-  printw("Replay motion");
+  printw("play motion (bag)");
   wmove(stdscr, REPLAY, X_VALUE);
   printw("-");
 
   wmove(stdscr, GOAL_POS, X_KEY);
   printw("arrows");
   wmove(stdscr, GOAL_POS, X_DESCRIPTION);
-  printw("Goal x-y-z");
+  printw("Goal x-y");
   wmove(stdscr, GOAL_POS, X_VALUE);
-  PrintVector(goal_geom_.lin.p_);
+  PrintVector2D(goal_geom_.lin.p_.segment(0, Y));
   printw(" [m]");
 
   wmove(stdscr, GOAL_ORI, X_KEY);
@@ -115,19 +116,26 @@ TowrUserInterface::PrintScreen() const
   PrintVector(goal_geom_.ang.p_);
   printw(" [rad]");
 
+  wmove(stdscr, ROBOT, X_KEY);
+  printw("r");
+  wmove(stdscr, ROBOT, X_DESCRIPTION);
+  printw("Robot");
+  wmove(stdscr, ROBOT, X_VALUE);
+  printw("%s\n", robot_names.at(static_cast<RobotModel::Robot>(robot_)).c_str());
+
   wmove(stdscr, GAIT, X_KEY);
   printw("g");
   wmove(stdscr, GAIT, X_DESCRIPTION);
   printw("Gait");
   wmove(stdscr, GAIT, X_VALUE);
-  printw("%s", std::to_string(gait_combo_id_).c_str());
+  printw("%s", std::to_string(gait_combo_).c_str());
 
   wmove(stdscr, TERRAIN, X_KEY);
   printw("t");
   wmove(stdscr, TERRAIN, X_DESCRIPTION);
   printw("Terrain");
   wmove(stdscr, TERRAIN, X_VALUE);
-  printw("%i", terrain_id_);
+  printw("%s\n", terrain_names.at(static_cast<HeightMap::TerrainID>(terrain_)).c_str());
 
   wmove(stdscr, DURATION, X_KEY);
   printw("+/-");
@@ -135,13 +143,6 @@ TowrUserInterface::PrintScreen() const
   printw("Duration");
   wmove(stdscr, DURATION, X_VALUE);
   printw("%f [s]", total_duration_);
-
-  wmove(stdscr, PUBLISH, X_KEY);
-  printw("p");
-  wmove(stdscr, PUBLISH, X_DESCRIPTION);
-  printw("Publish motion-plan");
-  wmove(stdscr, PUBLISH, X_VALUE);
-  printw("-");
 
   wmove(stdscr, CLOSE, X_KEY);
   printw("q");
@@ -202,11 +203,15 @@ TowrUserInterface::CallbackKey (int c)
 
     // terrains
     case 't':
-      terrain_id_ = AdvanceCircularBuffer(terrain_id_, towr::K_TERRAIN_COUNT-1);
+      terrain_ = AdvanceCircularBuffer(terrain_, HeightMap::TERRAIN_COUNT);
       break;
 
     case 'g':
-      gait_combo_id_ = AdvanceCircularBuffer(gait_combo_id_, max_gait_id_);
+      gait_combo_ = AdvanceCircularBuffer(gait_combo_, GaitGenerator::COMBO_COUNT);
+      break;
+
+    case 'r':
+      robot_ = AdvanceCircularBuffer(robot_, RobotModel::ROBOT_COUNT);
       break;
 
     // duration
@@ -224,14 +229,9 @@ TowrUserInterface::CallbackKey (int c)
       printw("Optimize motion request sent\n");
       break;
     case 'p':
-      publish_optimized_trajectory_ = true;
-      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
-      printw("Publish optimized trajectory request sent\n");
-      break;
-    case 'r':
       replay_trajectory_ = true;
       wmove(stdscr, Y_STATUS, X_DESCRIPTION);
-      printw("Replaying already optimized trajectory\n");
+      printw("Replaying optimized trajectory\n");
       break;
     case 'q':
       printw("Closing user interface\n");
@@ -248,12 +248,12 @@ void TowrUserInterface::PublishCommand()
   towr_ros::TowrCommand msg;
   msg.goal_lin          = xpp::Convert::ToRos(goal_geom_.lin);
   msg.goal_ang          = xpp::Convert::ToRos(goal_geom_.ang);
+  msg.total_duration    = total_duration_;
   msg.replay_trajectory = replay_trajectory_;
   msg.optimize          = optimize_;
-  msg.terrain_id        = terrain_id_;
-  msg.gait_id           = gait_combo_id_;
-  msg.total_duration    = total_duration_;
-  msg.publish_traj      = publish_optimized_trajectory_;
+  msg.terrain           = terrain_;
+  msg.gait              = gait_combo_;
+  msg.robot             = robot_;
 
   user_command_pub_.publish(msg);
 
@@ -266,7 +266,7 @@ void TowrUserInterface::PublishCommand()
 
 int TowrUserInterface::AdvanceCircularBuffer(int& curr, int max) const
 {
-  return curr==max? 0 : curr+1;
+  return curr==(max-1)? 0 : curr+1;
 }
 
 void
@@ -275,11 +275,16 @@ TowrUserInterface::PrintVector(const Eigen::Vector3d& v) const
   printw("%.3f  %.3f  %.3f", v.x(), v.y(), v.z());
 }
 
+void
+TowrUserInterface::PrintVector2D(const Eigen::Vector2d& v) const
+{
+  printw("%.3f  %.3f", v.x(), v.y());
+}
+
 
 } /* namespace towr */
 
 
-// the actual ros node
 int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "towr_user_iterface");

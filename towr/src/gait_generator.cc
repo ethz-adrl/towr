@@ -33,8 +33,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <numeric>   // std::accumulate
 #include <algorithm> // std::transform
 
+#include <towr/initialization/monoped_gait_generator.h>
+#include <towr/initialization/biped_gait_generator.h>
+#include <towr/initialization/quadruped_gait_generator.h>
+
 namespace towr {
 
+
+GaitGenerator::Ptr
+GaitGenerator::MakeGaitGenerator(int leg_count)
+{
+  switch (leg_count) {
+    case 1: return std::make_shared<MonopedGaitGenerator>();   break;
+    case 2: return std::make_shared<BipedGaitGenerator>();     break;
+    case 4: return std::make_shared<QuadrupedGaitGenerator>(); break;
+    default: assert(false); break; // Error: Not implemented
+  }
+}
 
 GaitGenerator::VecTimes
 GaitGenerator::GetPhaseDurations (double t_total, EE ee) const
@@ -97,12 +112,12 @@ GaitGenerator::IsInContactAtStart (EE ee) const
 }
 
 void
-GaitGenerator::SetGaits (const std::vector<GaitTypes>& gaits)
+GaitGenerator::SetGaits (const std::vector<Gaits>& gaits)
 {
   contacts_.clear();
   times_.clear();
 
-  for (GaitTypes g : gaits) {
+  for (Gaits g : gaits) {
     auto info = GetGait(g);
 
     std::vector<double>       t = info.first;

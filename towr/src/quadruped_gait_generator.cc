@@ -74,7 +74,7 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
 }
 
 void
-QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
+QuadrupedGaitGenerator::SetCombo (Combos combo)
 {
   switch (combo) {
     case C0: SetGaits({Stand, Walk2, Walk2, Walk2E, Stand});    break; // overlap-walk
@@ -84,43 +84,10 @@ QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
     case C4: SetGaits({Stand, Hop3, Hop3, Hop3, Hop3E, Stand}); break; // gallop
     default: assert(false); std::cout << "Gait not defined\n"; break;
   }
-
-//    case C7: SetGaits({Stand,
-//                           Run2, Run2, Run2, Run2, Run2,
-//                           Run2, Run2, Run2, Run2, Run2,
-//                           Stand});
-//      break; // pace
-//    case C8: SetGaits({Stand,
-//                           Walk2, Walk2E,
-//                           Hop3, Hop3E, // gallop
-//                           Stand,
-//                           Run2, Run2, // flying trot
-//                           Run3, Run3, // pace
-//                           Stand,
-//                           Hop1, Hop1, // bound
-//                           Stand,
-//                           Hop2,
-//                           Stand});
-//      break;
-
-
-  // these are the more difficult ones.
-//  switch (combo) {
-//    case Combo0: SetGaits({Stand});  break; // just standing to reach default end
-//    case Combo1: SetGaits({Stand, Stand, Run3, Run3, Run3, Run3, Stand, Stand}); break; // pace
-//    case Combo2: SetGaits({Stand, Walk2, Walk2, Walk2, Walk2E, Stand});          break; // overlap-walk
-//    case Combo3: SetGaits({Stand, Run1, Run1, Run1, Run1, Stand});               break; // conservative trot
-//    case Combo4: SetGaits({Stand, Run2, Run2, Run2, Run2E, Stand});              break; // conservative trot
-//    case Combo5: SetGaits({Stand, Hop1, Hop1, Stand});                           break;
-//    case Combo6: SetGaits({Stand, Hop1, Hop1, Hop1, Hop1, Stand});               break; // bound
-//    case Combo7: SetGaits({Stand, Hop3, Hop3, Hop3, Hop3E, Stand});              break; // gallop
-//    case Combo8: SetGaits({Stand, Hop5, Hop5, Hop5, Hop5E, Stand});              break; // pronk
-//    default: assert(false); std::cout << "Gait not defined\n";                   break;
-//  }
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetGait(GaitTypes gait) const
+QuadrupedGaitGenerator::GetGait(Gaits gait) const
 {
   switch (gait) {
     case Stand:   return GetStrideStand();
@@ -197,7 +164,7 @@ QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideWalk () const
 {
   double step  = 0.3;
-  double stand = 0.2; // 0.1 was previously
+  double stand = 0.2;
   auto times =
   {
       step, stand, step, stand,
@@ -229,7 +196,7 @@ QuadrupedGaitGenerator::GetStrideWalkOverlap () const
   auto phase_contacts =
   {
       bB_, bb_, Bb_,
-      Pb_, // starting lifting RH
+      Pb_, // start lifting RH
       PB_, PP_, BP_,
       bP_, // start lifting LH
   };
@@ -406,8 +373,8 @@ QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideLimp () const
 {
   double A = 0.1; // three in contact
-  double B = 0.2;  // all in contact
-  double C = 0.1;  // one in contact
+  double B = 0.2; // all in contact
+  double C = 0.1; // one in contact
 
   auto times =
   {

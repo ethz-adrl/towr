@@ -51,12 +51,15 @@ public:
   using ContactState  = std::vector<bool>;
   using GaitInfo      = std::pair<VecTimes,std::vector<ContactState>>;
   using EE            = uint;
-  enum GaitCombos    { C0=0, C1, C2, C3, C4, C5, C6, C7, C8, kNumCombos };
-  enum GaitTypes     {Stand=0, Flight,
-                      Walk1, Walk2, Walk2E,
-                      Run2, Run2E, Run1, Run1E, Run3, Run3E,
-                      Hop1, Hop1E, Hop2, Hop3, Hop3E, Hop5, Hop5E,
-                      kNumGaits};
+
+  enum Combos { C0, C1, C2, C3, C4, COMBO_COUNT};
+  enum Gaits  {Stand=0, Flight,
+               Walk1, Walk2, Walk2E,
+               Run2, Run2E, Run1, Run1E, Run3, Run3E,
+               Hop1, Hop1E, Hop2, Hop3, Hop3E, Hop5, Hop5E,
+               GAIT_COUNT};
+
+  static Ptr MakeGaitGenerator(int leg_count);
 
   GaitGenerator () = default;
   virtual ~GaitGenerator () = default;
@@ -80,7 +83,7 @@ public:
    * The derived class decides what each combo maps to. This function then fills
    * the times_ and contacts_ variables accordingly.
    */
-  virtual void SetCombo(GaitCombos combo) = 0;
+  virtual void SetCombo(Combos combo) = 0;
 
 protected:
   /// Phase times for the complete robot during which no contact state changes.
@@ -93,7 +96,7 @@ protected:
   std::vector<ContactState> contacts_;
 
   /// Sets the times_ and contacts_ variables according to the gaits.
-  void SetGaits(const std::vector<GaitTypes>& gaits);
+  void SetGaits(const std::vector<Gaits>& gaits);
 
   /**
    * Removes the last phase that would transition to a new stride.
@@ -103,7 +106,7 @@ protected:
 
 private:
   FootDurations GetPhaseDurations() const;
-  virtual GaitInfo GetGait(GaitTypes gait) const = 0;
+  virtual GaitInfo GetGait(Gaits gait) const = 0;
   VecTimes GetNormalizedPhaseDurations(EE ee) const;
 };
 

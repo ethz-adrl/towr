@@ -154,7 +154,6 @@ NlpFactory::MakeForceVariables () const
     double m = model_.dynamic_model_->m();
     double g = model_.dynamic_model_->g();
 
-
     Vector3d f_stance(0.0, 0.0, m*g/params_.GetEECount());
     nodes->InitializeNodesTowardsGoal(f_stance, f_stance, T);
     vars.push_back(nodes);

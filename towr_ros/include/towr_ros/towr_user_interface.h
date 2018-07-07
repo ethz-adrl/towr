@@ -64,9 +64,9 @@ private:
   void PublishCommand();
 
   xpp::State3dEuler goal_geom_;
-  int max_gait_id_ = 4;
-  int terrain_id_;
-  int gait_combo_id_;
+  int terrain_;
+  int gait_combo_;
+  int robot_;
   bool replay_trajectory_;
   bool optimize_;
   bool publish_optimized_trajectory_;
@@ -75,6 +75,7 @@ private:
   int AdvanceCircularBuffer(int& curr, int max) const;
 
   void PrintVector(const Eigen::Vector3d& v) const;
+  void PrintVector2D(const Eigen::Vector2d& v) const;
   void PrintScreen() const;
 };
 

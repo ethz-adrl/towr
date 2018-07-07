@@ -29,8 +29,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <cmath>
 
+#include <towr/terrain/examples/height_map_examples.h>
+#include <towr/models/robot_model.h>
 #include <towr/towr.h>
-#include <towr/models/centroidal_model.h>
 
 #include <ifopt/ipopt.h>
 
@@ -38,41 +39,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace towr;
 
 
-// Generate even ground.
-class FlatGround : public HeightMap {
-public:
-  virtual double GetHeight(double x, double y) const override { return 0.0; };
-};
-
-
-// The kinematic limits of a one-legged hopper
-class MonopedKinematicModel : public KinematicModel {
-public:
-  MonopedKinematicModel () : KinematicModel(1)
-  {
-    nominal_stance_.at(0) = Eigen::Vector3d( 0.0, 0.0, -0.58);
-    max_dev_from_nominal_ << 0.25, 0.15, 0.2;
-  }
-};
-
-
-// The Centroidal dynamics of a one-legged hopper
-class MonopedDynamicModel : public CentroidalModel {
-public:
-  MonopedDynamicModel()
-  : CentroidalModel(20,                              // mass of the robot
-                    1.2, 5.5, 6.0, 0.0, -0.2, -0.01, // base inertia
-                    1) {}                            // number of endeffectors
-};
-
-
 int main()
 {
-  // Kinematic limits and dynamic parameters of the hopper
-  RobotModel model;
-  model.dynamic_model_   = std::make_shared<MonopedDynamicModel>();
-  model.kinematic_model_ = std::make_shared<MonopedKinematicModel>();
+  // terrain
+  FlatGround terrain(0.0);
 
+  // Kinematic limits and dynamic parameters of the hopper
+  RobotModel model(RobotModel::Monoped);
 
   // set the initial position of the hopper
   BaseState initial_base;

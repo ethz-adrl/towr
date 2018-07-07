@@ -28,21 +28,78 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <ros/ros.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <visualization_msgs/MarkerArray.h>
 
-#include <towr_ros/TowrCommand.h> // listen to goal state
+#include <Eigen/Dense>
+
+#include <towr_ros/TowrCommand.h>
 #include <towr_ros/topic_names.h>
-#include <towr_ros/rviz_terrain_builder.h>
+#include <towr/terrain/height_map.h>
 
-static ros::Publisher rviz_terrain_pub;
-static towr::RvizTerrainBuilder terrain_builder;
+
+namespace towr {
+
+static ros::Publisher rviz_pub;
 
 void UserCommandCallback(const towr_ros::TowrCommand& msg_in)
 {
-  // draw a terrain
-  auto msg = terrain_builder.BuildTerrain(msg_in.terrain_id);
-  rviz_terrain_pub.publish(msg);
+  // get which terrain
+  auto terrain_id = static_cast<HeightMap::TerrainID>(msg_in.terrain);
+  auto terrain_ = HeightMap::MakeTerrain(terrain_id);
+
+  // x-y area patch that should be drawn in rviz
+  double dxy   =  0.06;
+  double x_min = -1.0;
+  double x_max =  4.0;
+  double y_min = -1.0;
+  double y_max =  1.0;
+
+  visualization_msgs::Marker m;
+  int id = 0;
+  m.type = visualization_msgs::Marker::CUBE;
+  m.scale.z = 0.003;
+  m.ns = "terrain";
+  m.header.frame_id = "world";
+  m.color.r = 245./355; m.color.g  = 222./355; m.color.b  = 179./355; // wheat
+  m.color.a = 0.65;
+
+  visualization_msgs::MarkerArray msg;
+  double x =  x_min;
+  while (x < x_max) {
+    double y = y_min;
+    while (y < y_max) {
+
+      // position
+      m.pose.position.x = x;
+      m.pose.position.y = y;
+      m.pose.position.z = terrain_->GetHeight(x,y);
+
+      // orientation
+      Eigen::Vector3d n = terrain_->GetNormalizedBasis(HeightMap::Normal, x, y);
+      Eigen::Quaterniond q = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d(0,0,1), n);
+      m.pose.orientation.w = q.w();
+      m.pose.orientation.x = q.x();
+      m.pose.orientation.y = q.y();
+      m.pose.orientation.z = q.z();
+
+      // enlarge surface-path when tilting
+      double gain = 1.5;
+      m.scale.x = (1+gain*n.cwiseAbs().x())*dxy;
+      m.scale.y = (1+gain*n.cwiseAbs().y())*dxy;
+
+
+      m.id = id++;
+      msg.markers.push_back(m);
+
+      y += dxy;
+    }
+    x += dxy;
+  }
+
+  rviz_pub.publish(msg);
 }
+
+} // namespace towr
 
 int main(int argc, char *argv[])
 {
@@ -51,8 +108,8 @@ int main(int argc, char *argv[])
   ros::NodeHandle n;
 
   ros::Subscriber goal_sub;
-  goal_sub         = n.subscribe(towr_msgs::user_command, 1, UserCommandCallback);
-  rviz_terrain_pub = n.advertise<visualization_msgs::MarkerArray>("xpp/terrain", 1);
+  goal_sub       = n.subscribe(towr_msgs::user_command, 1, towr::UserCommandCallback);
+  towr::rviz_pub = n.advertise<visualization_msgs::MarkerArray>("xpp/terrain", 1);
 
   ros::spin();
 
