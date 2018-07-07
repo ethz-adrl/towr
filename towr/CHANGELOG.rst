@@ -2,6 +2,11 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add sample gaits for mono-, bi- and quadruped
+* Contributors: Alexander Winkler
+
 1.2.2 (2018-07-03)
 ------------------
 * remove controller specifc code from towr_ros

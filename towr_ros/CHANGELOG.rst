@@ -2,6 +2,16 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* visualize goal state on terrain
+* Remove redundant rviz terrain visualizer and instead generate
+  surface patches directly from height map information
+* correctly visualize rviz range-of-motion boxes
+* visualize first state
+* make GUI static
+* Contributors: Alexander Winkler
+
 1.2.2 (2018-07-03)
 ------------------
 * remove controller specifc code from towr_ros
