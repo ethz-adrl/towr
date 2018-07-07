@@ -105,7 +105,7 @@ TowrUserInterface::PrintScreen() const
   wmove(stdscr, GOAL_POS, X_DESCRIPTION);
   printw("Goal x-y");
   wmove(stdscr, GOAL_POS, X_VALUE);
-  PrintVector2D(goal_geom_.lin.p_.segment(0, Y));
+  PrintVector2D(goal_geom_.lin.p_.topRows(2));
   printw(" [m]");
 
   wmove(stdscr, GOAL_ORI, X_KEY);
