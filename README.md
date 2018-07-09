@@ -5,7 +5,11 @@
 *A light-weight and extensible C++ library for trajectory optimization for legged robots.*
 
 [![Build Status](http://build.ros.org/buildStatus/icon?job=Kdev__towr__ubuntu_xenial_amd64)](http://build.ros.org/view/Kdev/job/Kdev__towr__ubuntu_xenial_amd64/)
-[<img height="20" src="https://i.imgur.com/ZqRckbJ.png"/>](http://docs.ros.org/kinetic/api/towr/html/) 
+[![Documentation](https://img.shields.io/badge/docs-passing-green.svg)](http://docs.ros.org/kinetic/api/towr/html/)
+[![ROS hosting](https://img.shields.io/badge/ROS-hosting-blue.svg)](http://wiki.ros.org/towr)
+![](https://tokei.rs/b1/github/ethz-adrl/towr)
+[![License BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg?style=flat)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29#fulltext)
+
 
 This Eigen-based library implements variables, costs and constraints that can be used to formulate and solve a legged locomotion optimization problem. It has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
 
