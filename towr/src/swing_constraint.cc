@@ -60,7 +60,6 @@ SwingConstraint::GetValues () const
   int row = 0;
   auto nodes = ee_motion_->GetNodes();
   for (int node_id : pure_swing_node_ids_) {
-
     // assumes two splines per swingphase and starting and ending in stance
     auto curr = nodes.at(node_id);
 
@@ -74,7 +73,6 @@ SwingConstraint::GetValues () const
       g(row++) = curr.p()(dim) - xy_center(dim);
       g(row++) = curr.v()(dim) - des_vel_center(dim);
     }
-    //      g(row++) = curr.pos.z() - swing_height_in_world_;
   }
 
   return g;
@@ -91,10 +89,8 @@ SwingConstraint::FillJacobianBlock (std::string var_set,
                                     Jacobian& jac) const
 {
   if (var_set == ee_motion_->GetName()) {
-
     int row = 0;
     for (int node_id : pure_swing_node_ids_) {
-
       for (auto dim : {X,Y}) {
         // position constraint
         jac.coeffRef(row, ee_motion_->Index(node_id,   kPos, dim)) =  1.0;  // current node
@@ -108,8 +104,6 @@ SwingConstraint::FillJacobianBlock (std::string var_set,
         jac.coeffRef(row, ee_motion_->Index(node_id-1, kPos, dim)) = +1.0/t_swing_avg_; // previous node
         row++;
       }
-      //        jac.coeffRef(row, ee_motion_->Index(i, kPos, Z)) =  1.0;  // current node
-      //        row++;
     }
   }
 }

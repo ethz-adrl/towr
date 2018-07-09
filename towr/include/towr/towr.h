@@ -134,7 +134,6 @@ private:
    * @returns the solver independent optimization problem.
    */
   ifopt::Problem BuildNLP();
-
 };
 
 } /* namespace towr */

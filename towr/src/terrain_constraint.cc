@@ -91,11 +91,9 @@ void
 TerrainConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 {
   if (var_set == ee_motion_->GetName()) {
-
     auto nodes = ee_motion_->GetNodes();
     int row = 0;
     for (int id : node_ids_) {
-
       jac.coeffRef(row, ee_motion_->Index(id, kPos, Z)) = 1.0;
 
       Vector3d p = nodes.at(id).p();

@@ -72,12 +72,12 @@ public:
   /**
    * @returns The optimization variables (phase durations [s]).
    */
-  virtual VectorXd GetValues() const override;
+  VectorXd GetValues() const override;
 
   /**
    * @brief  Sets the phase durations from pure Eigen optimization variables.
    */
-  virtual void SetVariables(const VectorXd& x) override;
+  void SetVariables(const VectorXd& x) override;
 
   /**
    * @returns The maximum and minimum time each phase is allowed to take.

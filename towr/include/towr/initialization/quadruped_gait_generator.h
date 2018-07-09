@@ -45,7 +45,7 @@ public:
   virtual ~QuadrupedGaitGenerator () = default;
 
 private:
-  virtual GaitInfo GetGait(Gaits gait) const override;
+  GaitInfo GetGait(Gaits gait) const override;
 
   GaitInfo GetStrideStand() const;
   GaitInfo GetStrideFlight() const;
@@ -59,11 +59,10 @@ private:
   GaitInfo GetStrideBound() const;
   GaitInfo GetStrideBoundEnd () const;
   GaitInfo GetStrideGallop() const;
-  GaitInfo GetStrideFlyingGallop() const;
   GaitInfo GetStridePronk() const;
   GaitInfo GetStrideLimp() const;
 
-  virtual void SetCombo(Combos combo) override;
+  void SetCombo(Combos combo) override;
 
 
   // naming convention:, where the circle is is contact, front is right ->.

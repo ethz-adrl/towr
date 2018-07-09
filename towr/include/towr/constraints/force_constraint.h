@@ -66,7 +66,7 @@ public:
                    EE endeffector_id);
   virtual ~ForceConstraint () = default;
 
-  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
+  void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;

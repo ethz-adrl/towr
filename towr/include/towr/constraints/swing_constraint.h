@@ -59,13 +59,12 @@ public:
   VecBound GetBounds() const override;
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
-  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
+  void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
 private:
   PhaseNodes::Ptr ee_motion_;
   double t_swing_avg_ = 0.3;
   std::string ee_motion_id_;
-//  double swing_height_in_world_ = 0.10; //  hacky way to lift legs
 
   std::vector<int> pure_swing_node_ids_;
 };

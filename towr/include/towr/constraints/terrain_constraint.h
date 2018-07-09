@@ -58,7 +58,7 @@ public:
   TerrainConstraint (const HeightMap::Ptr& terrain, std::string ee_motion_id);
   virtual ~TerrainConstraint () = default;
 
-  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
+  void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;

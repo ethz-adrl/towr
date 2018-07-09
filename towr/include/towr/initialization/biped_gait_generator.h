@@ -45,7 +45,7 @@ public:
   virtual ~BipedGaitGenerator () = default;
 
 private:
-  virtual GaitInfo GetGait(Gaits gait) const override;
+  GaitInfo GetGait(Gaits gait) const override;
 
   GaitInfo GetStrideStand() const;
   GaitInfo GetStrideFlight() const;
@@ -56,7 +56,7 @@ private:
   GaitInfo GetStrideRightHop() const;
   GaitInfo GetStrideGallopHop() const;
 
-  virtual void SetCombo(Combos combo) override;
+  void SetCombo(Combos combo) override;
 
   // naming convention:, where the circle is is contact, front is right ->.
   ContactState I_; // flight

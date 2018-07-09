@@ -44,7 +44,6 @@ namespace towr {
  */
 class TowrUserInterface {
 public:
-
   /**
    * @brief  Constructs default object to interact with framework.
    */

@@ -44,7 +44,6 @@ namespace towr {
  * This is independent from whether they are added as optimization variables.
  */
 struct SplineHolder {
-
   /**
    * @brief Fully initializes this object.
    * @param base_lin  The nodes describing the base linear motion.

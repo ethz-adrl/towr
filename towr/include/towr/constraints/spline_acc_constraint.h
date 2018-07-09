@@ -45,7 +45,6 @@ namespace towr {
  */
 class SplineAccConstraint : public ifopt::ConstraintSet {
 public:
-
   SplineAccConstraint(const NodeSpline::Ptr& spline, std::string name);
   virtual ~SplineAccConstraint() = default;
 

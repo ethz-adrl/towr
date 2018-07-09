@@ -237,19 +237,16 @@ void
 PhaseNodes::SetBoundsEEMotion ()
 {
   for (int i=0; i<GetRows(); ++i) {
-
     auto idx = GetNodeInfoAtOptIndex(i).front(); // bound idx by first node it represents
 
     // stance node
     if (IsConstantNode(idx.node_id_)) {
-
       // endeffector is not allowed to move if in stance phase
       if (idx.node_deriv_ == kVel)
         bounds_.at(i) = ifopt::BoundZero;
 
     // swing node
     } else {
-
       // zero velocity at top
       if (idx.node_deriv_ == kVel && idx.node_dim_ == Z)
         bounds_.at(i) = ifopt::BoundZero;
@@ -267,12 +264,10 @@ void
 PhaseNodes::SetBoundsEEForce ()
 {
   for (int i=0; i<GetRows(); ++i) {
-
     IndexInfo idx = GetNodeInfoAtOptIndex(i).front(); // only one node anyway
 
     // stance node
     if (!IsConstantNode(idx.node_id_)) {
-
       /*
       // zero slope to never exceed zero force between nodes
       if (idx.node_deriv_ == kVel) {
@@ -284,7 +279,6 @@ PhaseNodes::SetBoundsEEForce ()
     } else {
       bounds_.at(i) = ifopt::BoundZero; // force must be zero
     }
-
   }
 }
 

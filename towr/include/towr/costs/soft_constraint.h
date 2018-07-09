@@ -68,18 +68,18 @@ private:
    *
    * c(x) = 0.5 * (g-b)^T * W * (g-b)
    */
-  virtual VectorXd GetValues () const override;
+  VectorXd GetValues () const override;
 
   /**
    * @brief The row-vector of derivatives of the cost term.
    *
    * dc(x)/dx = J^T * W * (g-b)
    */
-  virtual Jacobian GetJacobian() const override;
+  Jacobian GetJacobian() const override;
 
   // doesn't exist for cost, generated run-time error when used
-  virtual VecBound GetBounds() const override final { return VecBound(GetRows(), ifopt::NoBound); };
-  virtual void SetVariables(const VectorXd& x) override final { assert(false); };
+  VecBound GetBounds() const final { return VecBound(GetRows(), ifopt::NoBound); };
+  void SetVariables(const VectorXd& x) final { assert(false); };
 };
 
 } /* namespace towr */

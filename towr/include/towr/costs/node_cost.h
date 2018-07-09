@@ -45,7 +45,6 @@ namespace towr {
  */
 class NodeCost : public ifopt::CostTerm {
 public:
-
   /**
    * @brief Constructs a cost term for the optimization problem.
    * @param nodes_id  The name of the node variables.
@@ -55,7 +54,7 @@ public:
   NodeCost (const std::string& nodes_id, Dx deriv, int dim);
   virtual ~NodeCost () = default;
 
-  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
+  void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
   double GetCost () const override;
 

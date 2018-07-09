@@ -43,7 +43,6 @@ enum CostName       { ForcesCostID };
  * @brief Holds the parameters to tune the optimization problem.
  */
 struct Parameters {
-
   using CostWeights      = std::vector<std::pair<CostName, double>>;
   using UsedConstraints  = std::vector<ConstraintName>;
   using VecTimes         = std::vector<double>;

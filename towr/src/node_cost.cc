@@ -63,7 +63,6 @@ void
 NodeCost::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 {
   if (var_set == node_id_) {
-
     for (int i=0; i<nodes_->GetRows(); ++i)
       for (auto idx : nodes_->GetNodeInfoAtOptIndex(i))
         if (idx.node_deriv_==deriv_ && idx.node_dim_==dim_) {

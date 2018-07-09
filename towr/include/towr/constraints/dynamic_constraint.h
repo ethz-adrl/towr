@@ -94,9 +94,9 @@ private:
    */
   void UpdateModel(double t) const;
 
-  virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
-  virtual void UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const override;
-  virtual void UpdateJacobianAtInstance(double t, int k, std::string, Jacobian&) const override;
+  void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
+  void UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const override;
+  void UpdateJacobianAtInstance(double t, int k, std::string, Jacobian&) const override;
 };
 
 } /* namespace towr */

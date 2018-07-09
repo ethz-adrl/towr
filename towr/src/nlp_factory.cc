@@ -112,13 +112,11 @@ NlpFactory::MakeEndeffectorVariables () const
   // Endeffector Motions
   double T = params_.t_total_;
   for (int ee=0; ee<params_.GetEECount(); ee++) {
-
     auto nodes = std::make_shared<PhaseNodes>(params_.GetPhaseCount(ee),
                                               params_.ee_in_contact_at_start_.at(ee),
                                               id::EEMotionNodes(ee),
                                               params_.ee_polynomials_per_swing_phase_,
                                               PhaseNodes::Motion);
-
 
     double yaw = final_base_.ang.p().z();
     Eigen::Vector3d euler(0.0, 0.0, yaw);
@@ -143,7 +141,6 @@ NlpFactory::MakeForceVariables () const
 
   double T = params_.t_total_;
   for (int ee=0; ee<params_.GetEECount(); ee++) {
-
     auto nodes = std::make_shared<PhaseNodes>(params_.GetPhaseCount(ee),
                                               params_.ee_in_contact_at_start_.at(ee),
                                               id::EEForceNodes(ee),
@@ -168,7 +165,6 @@ NlpFactory::MakeContactScheduleVariables () const
   std::vector<PhaseDurations::Ptr> vars;
 
   for (int ee=0; ee<params_.GetEECount(); ee++) {
-
     auto var = std::make_shared<PhaseDurations>(ee,
                                                 params_.ee_phase_durations_.at(ee),
                                                 params_.ee_in_contact_at_start_.at(ee),

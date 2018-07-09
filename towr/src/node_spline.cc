@@ -42,7 +42,6 @@ NodeSpline::NodeSpline(NodeSubjectPtr const node_variables,
   jac_wrt_nodes_structure_ = Jacobian(node_variables->GetDim(), node_variables->GetRows());
 }
 
-
 void
 NodeSpline::UpdateNodes ()
 {
@@ -89,7 +88,6 @@ NodeSpline::FillJacobianWrtNodes (int poly_id, double t_local, Dx dxdt,
   for (int idx=0; idx<jac.cols(); ++idx) {
     for (auto info : node_values_->GetNodeInfoAtOptIndex(idx)) {
       for (auto side : {Nodes::Side::Start, Nodes::Side::End}) { // every jacobian is affected by two nodes
-
         int node = node_values_->GetNodeId(poly_id, side);
 
         if (node == info.node_id_) {
