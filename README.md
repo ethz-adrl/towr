@@ -8,15 +8,7 @@
 [![Documentation](https://img.shields.io/badge/docs-passing-green.svg)](http://docs.ros.org/kinetic/api/towr/html/)
 [![ROS hosting](https://img.shields.io/badge/ROS-hosting-blue.svg)](http://wiki.ros.org/towr)
 ![](https://tokei.rs/b1/github/ethz-adrl/towr)
-[![License BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg?style=flat)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29#fulltext)
-
-![](https://img.shields.io/badge/ROS-hosting-blue.svg)
-
-
-[![Inline docs](https://img.shields.io/badge/contributions-welcomes-brightgreen.svg?style=flat)](http://inch-ci.org/github/{ORG-or-USERNAME}/{REPO-NAME})
-
-
-[<img src="https://img.shields.io/badge/ROS-hosting-blue.svg"/>](http://docs.ros.org/kinetic/api/towr/html/) 
+[![License BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29#fulltext)
 
 This Eigen-based library implements variables, costs and constraints that can be used to formulate and solve a legged locomotion optimization problem. It has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
 
@@ -29,7 +21,7 @@ Features:
 :heavy_check_mark: [catkin] integration (optional).  
 
 
-by [:globe_with_meridians: Alexander W. Winkler](https://awinkler.github.io/ "Go to homepage")
+by [:globe_with_meridians: Alexander W. Winkler](https://github.com/awinkler "Go to homepage")
 
 [<img src="https://i.imgur.com/uCvLs2j.png" height="50" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="50" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")           &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/aGOnNTZ.png" height="50" />](https://www.ethz.ch/en.html "ETH Zurich")       
 
