@@ -10,6 +10,13 @@
 ![](https://tokei.rs/b1/github/ethz-adrl/towr)
 [![License BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg?style=flat)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29#fulltext)
 
+![](https://img.shields.io/badge/ROS-hosting-blue.svg)
+
+
+[![Inline docs](https://img.shields.io/badge/contributions-welcomes-brightgreen.svg?style=flat)](http://inch-ci.org/github/{ORG-or-USERNAME}/{REPO-NAME})
+
+
+[<img src="https://img.shields.io/badge/ROS-hosting-blue.svg"/>](http://docs.ros.org/kinetic/api/towr/html/) 
 
 This Eigen-based library implements variables, costs and constraints that can be used to formulate and solve a legged locomotion optimization problem. It has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
 
