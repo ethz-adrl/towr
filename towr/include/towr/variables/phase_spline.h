@@ -61,7 +61,7 @@ public:
   /**
    * @brief Called by subject to update polynomial durations when they changed.
    */
-  virtual void UpdatePolynomialDurations() override;
+  void UpdatePolynomialDurations() override;
 
   /**
    * @brief How the spline position changes when the polynomial durations change.

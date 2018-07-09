@@ -108,7 +108,6 @@ RangeOfMotionConstraint::UpdateJacobianAtInstance (double t, int k,
   if (var_set == id::EESchedule(ee_)) {
     jac.middleRows(row_start, k3D) = b_R_w*ee_motion_->GetJacobianOfPosWrtDurations(t);
   }
-
 }
 
 } /* namespace xpp */

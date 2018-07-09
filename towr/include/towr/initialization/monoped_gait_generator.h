@@ -45,7 +45,7 @@ public:
   virtual ~MonopedGaitGenerator () = default;
 
 private:
-  virtual GaitInfo GetGait(Gaits gait) const override;
+  GaitInfo GetGait(Gaits gait) const override;
 
   GaitInfo GetStrideStand()   const;
   GaitInfo GetStrideFlight()  const;
@@ -55,7 +55,7 @@ private:
   ContactState o_ = ContactState(1, true);  // stance
   ContactState x_ = ContactState(1, false); // flight
 
-  virtual void SetCombo(Combos combo) override;
+  void SetCombo(Combos combo) override;
 };
 
 } /* namespace towr */

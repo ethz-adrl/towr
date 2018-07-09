@@ -54,7 +54,7 @@ public:
   TotalDurationConstraint(double T_total, int ee);
   ~TotalDurationConstraint() = default;
 
-  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
+  void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;

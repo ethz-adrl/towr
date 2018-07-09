@@ -68,7 +68,6 @@ void UserCommandCallback(const towr_ros::TowrCommand& msg_in)
   while (x < x_max) {
     double y = y_min;
     while (y < y_max) {
-
       // position
       m.pose.position.x = x;
       m.pose.position.y = y;

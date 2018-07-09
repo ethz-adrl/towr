@@ -79,7 +79,6 @@ TEST(CentroidalDynamicsTest, TestRotations)
 //  std::cout << "X: " <<  converter.GetRotation(0.1, X) << std::endl;
 //  std::cout << "Y: " <<  converter.GetRotation(0.1, Y) << std::endl;
 //  std::cout << "Z: " <<  converter.GetRotation(0.1, Z) << std::endl;
-
 }
 
 } /* namespace xpp */

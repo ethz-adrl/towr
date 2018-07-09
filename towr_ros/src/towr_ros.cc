@@ -140,7 +140,6 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 
   // playback using terminal commands
   if (msg.replay_trajectory || msg.optimize) {
-
     int success = system(("rosbag play --topics "
         + xpp_msgs::robot_state_desired + " "
         + xpp_msgs::terrain_info
@@ -176,7 +175,6 @@ TowrRos::GetTrajectory () const
   EulerConverter base_angular(solution.base_angular_);
 
   while (t<=T+1e-5) {
-
     int n_ee = solution.ee_motion_.size();
     xpp::RobotStateCartesian state(n_ee);
 
@@ -187,7 +185,6 @@ TowrRos::GetTrajectory () const
     state.base_.ang.wd = base_angular.GetAngularAccelerationInWorld(t);
 
     for (int ee_towr=0; ee_towr<n_ee; ++ee_towr) {
-
       int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
 
       state.ee_contact_.at(ee_xpp) = solution.phase_durations_.at(ee_towr)->IsContactPhase(t);

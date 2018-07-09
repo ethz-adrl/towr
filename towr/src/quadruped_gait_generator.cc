@@ -106,7 +106,6 @@ QuadrupedGaitGenerator::GetGait(Gaits gait) const
     case Hop3:    return GetStrideGallop();
     case Hop3E:   return RemoveTransition(GetStrideGallop());
     case Hop5:    return GetStrideLimp();
-    case Hop5E:   return RemoveTransition(GetStrideFlyingGallop());
     default: assert(false); // gait not implemented
   }
 }
@@ -323,30 +322,6 @@ QuadrupedGaitGenerator::GetStrideBoundEnd () const
 
 QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideGallop () const
-{
-  double A = 0.3; // both feet in air
-  double B = 0.2; // overlap
-  double C = 0.2; // transition front->hind
-  auto times =
-  {
-      B, A, B,
-      C,
-      B, A, B,
-      C
-  };
-  auto phase_contacts =
-  {
-      Bb_, BI_, BP_,  // front legs swing forward
-      bP_,            // transition phase
-      bB_, IB_, PB_,  // hind legs swing forward
-      Pb_
-  };
-
-  return std::make_pair(times, phase_contacts);
-}
-
-QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetStrideFlyingGallop () const
 {
   double A = 0.3; // both feet in air
   double B = 0.2; // overlap

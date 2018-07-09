@@ -81,7 +81,7 @@ private:
   // see TimeDiscretizationConstraint for documentation
   void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;
   void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
-  virtual void UpdateJacobianAtInstance(double t, int k, std::string, Jacobian&) const override;
+  void UpdateJacobianAtInstance(double t, int k, std::string, Jacobian&) const override;
 
   int GetRow(int node, int dimension) const;
 };

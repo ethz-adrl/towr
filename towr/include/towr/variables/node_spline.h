@@ -38,7 +38,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-
 /**
  * @brief A spline built from node values and fixed polynomial durations.
  *
@@ -103,7 +102,6 @@ public:
   GetJacobianOfPosWrtDurations(double t) const { assert(false); } // durations are fixed here
 
 protected:
-
   /**
    * The size and non-zero elements of the Jacobian of the position w.r.t nodes.
    */
@@ -119,7 +117,6 @@ protected:
    */
   void FillJacobianWrtNodes (int poly_id, double t_local, Dx dxdt,
                              Jacobian& jac, bool fill_with_zeros) const;
-
 };
 
 } /* namespace towr */

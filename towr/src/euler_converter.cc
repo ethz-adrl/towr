@@ -118,7 +118,6 @@ EulerConverter::GetDerivOfAngAccWrtEulerNodes (double t) const
 
 
   for (auto dim : {X,Y,Z}) {
-
     Jacobian dMdot_du = GetDerivMdotwrtNodes(t,dim);
     Jacobian dM_du    = GetDerivMwrtNodes(t,dim);
 
@@ -229,7 +228,6 @@ EulerConverter::DerivOfRotVecMult (double t, const Vector3d& v, bool inverse) co
 
   for (int row : {X,Y,Z}) {
     for (int col : {X, Y, Z}) {
-
       // since for every rotation matrix R^(-1) = R^T, just swap rows and
       // columns for calculation of derivative of inverse rotation matrix
       JacobianRow jac_row = inverse? Rd.at(col).at(row) : Rd.at(row).at(col);

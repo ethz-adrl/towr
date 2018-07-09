@@ -81,7 +81,6 @@ GaitGenerator::GetPhaseDurations () const
 
   FootDurations foot_durations(n_ee);
   for (int phase=0; phase<contacts_.size()-1; ++phase) {
-
     ContactState curr = contacts_.at(phase);
     ContactState next = contacts_.at(phase+1);
 

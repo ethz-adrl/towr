@@ -76,17 +76,16 @@ public:
   virtual ~CentroidalModel () = default;
 
   // for documentation, see definition in base class DynamicModel
-  virtual BaseAcc GetDynamicViolation() const override;
+  BaseAcc GetDynamicViolation() const override;
 
-  virtual Jac GetJacobianWrtBaseLin(const Jac& jac_base_lin_pos,
-                                    const Jac& jac_acc_base_lin) const override;
-  virtual Jac GetJacobianWrtBaseAng(const EulerConverter& base_angular,
-                                    double t) const override;
-  virtual Jac GetJacobianWrtForce(const Jac& jac_force, EE) const override;
-  virtual Jac GetJacobianWrtEEPos(const Jac& jac_ee_pos, EE) const override;
+  Jac GetJacobianWrtBaseLin(const Jac& jac_base_lin_pos,
+                            const Jac& jac_acc_base_lin) const override;
+  Jac GetJacobianWrtBaseAng(const EulerConverter& base_angular,
+                            double t) const override;
+  Jac GetJacobianWrtForce(const Jac& jac_force, EE) const override;
+  Jac GetJacobianWrtEEPos(const Jac& jac_ee_pos, EE) const override;
 
 private:
-
   /** Inertia of entire robot around the CoM expressed in a frame anchored
    *  in the base.
    */

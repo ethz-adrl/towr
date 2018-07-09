@@ -53,9 +53,9 @@ public:
                             const std::string& variable_set);
   virtual ~LinearEqualityConstraint () = default;
 
-  VectorXd GetValues() const override final;
-  VecBound GetBounds() const override final;
-  void FillJacobianBlock (std::string var_set, Jacobian&) const override final;
+  VectorXd GetValues() const final;
+  VecBound GetBounds() const final;
+  void FillJacobianBlock (std::string var_set, Jacobian&) const final;
 
 private:
   MatrixXd M_;

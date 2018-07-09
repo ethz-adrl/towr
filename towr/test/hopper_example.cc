@@ -87,7 +87,6 @@ int main()
 
   double t = 0.0;
   while (t<=params.t_total_+1e-5) {
-
     cout << "t=" << t << "\n";
     cout << "Base linear position x,y,z:   \t";
     cout << x.base_linear_->GetPoint(t).p().transpose()     << "\t[m]" << endl;

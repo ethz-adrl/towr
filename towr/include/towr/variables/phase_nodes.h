@@ -76,7 +76,7 @@ public:
 
   virtual ~PhaseNodes() = default;
 
-  virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const override;
+  std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const override;
 
   /**
    * @returns the value of the first node of the phase.
@@ -177,8 +177,8 @@ private:
   void SetBoundsEEForce();
 
   std::vector<int> GetAdjacentPolyIds(int node_id) const;
-
 };
+
 } /* namespace towr */
 
 #endif /* TOWR_VARIABLES_PHASE_NODES_H_ */

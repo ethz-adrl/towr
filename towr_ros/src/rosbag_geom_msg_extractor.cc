@@ -80,7 +80,6 @@ int main(int argc, char *argv[])
     int n_feet = state_msg->ee_motion.size();
 
     for (int i=0; i<n_feet; ++i) {
-
       bag_w.write("foot_pos_"+std::to_string(i), t, state_msg->ee_motion.at(i).pos);
       bag_w.write("foot_force_"+std::to_string(i), t, state_msg->ee_forces.at(i));
     }
@@ -89,6 +88,4 @@ int main(int argc, char *argv[])
   bag_r.close();
   std::cout << "Successfully created bag " + bag_w.getFileName() << std::endl;
   bag_w.close();
-
-
 }
