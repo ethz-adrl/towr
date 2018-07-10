@@ -43,7 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-enum YCursorRows {HEADING=6, OPTIMIZE=8, REPLAY, GOAL_POS, GOAL_ORI, ROBOT, GAIT, TERRAIN, DURATION, CLOSE, END};
+enum YCursorRows {HEADING=6, OPTIMIZE=8, REPLAY, REPLAY_SPEED, GOAL_POS, GOAL_ORI, ROBOT,
+                  GAIT, OPTIMIZE_GAIT, TERRAIN, DURATION, CLOSE, END};
 static constexpr int Y_STATUS      = END+1;
 static constexpr int X_KEY         = 1;
 static constexpr int X_DESCRIPTION = 10;
@@ -62,7 +63,7 @@ TowrUserInterface::TowrUserInterface ()
   user_command_pub_ = n.advertise<towr_ros::TowrCommand>(towr_msgs::user_command, 1);
 
   goal_geom_.lin.p_.setZero();
-  goal_geom_.lin.p_ << 1.0, 0.0, 0.0; // z not used
+  goal_geom_.lin.p_ << 2.1, 0.0, 0.0;
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
 
   robot_      = RobotModel::Monoped;
@@ -70,8 +71,10 @@ TowrUserInterface::TowrUserInterface ()
   gait_combo_ = GaitGenerator::C0;
   total_duration_ = 2.4;
   replay_trajectory_ = false;
+  replay_speed_ = 1.0; // realtime
   optimize_ = false;
   publish_optimized_trajectory_ = false;
+  optimize_phase_durations_ = false;
 
   PrintScreen();
 }
@@ -99,6 +102,13 @@ TowrUserInterface::PrintScreen() const
   printw("play motion (bag)");
   wmove(stdscr, REPLAY, X_VALUE);
   printw("-");
+
+  wmove(stdscr, REPLAY_SPEED, X_KEY);
+  printw(";/'");
+  wmove(stdscr, REPLAY_SPEED, X_DESCRIPTION);
+  printw("Replay speed");
+  wmove(stdscr, REPLAY_SPEED, X_VALUE);
+  printw("%.2f", replay_speed_);
 
   wmove(stdscr, GOAL_POS, X_KEY);
   printw("arrows");
@@ -130,6 +140,13 @@ TowrUserInterface::PrintScreen() const
   wmove(stdscr, GAIT, X_VALUE);
   printw("%s", std::to_string(gait_combo_).c_str());
 
+  wmove(stdscr, OPTIMIZE_GAIT, X_KEY);
+  printw("y");
+  wmove(stdscr, OPTIMIZE_GAIT, X_DESCRIPTION);
+  printw("Optimize gait");
+  wmove(stdscr, OPTIMIZE_GAIT, X_VALUE);
+  optimize_phase_durations_? printw("On\n") : printw("off\n");
+
   wmove(stdscr, TERRAIN, X_KEY);
   printw("t");
   wmove(stdscr, TERRAIN, X_DESCRIPTION);
@@ -142,7 +159,7 @@ TowrUserInterface::PrintScreen() const
   wmove(stdscr, DURATION, X_DESCRIPTION);
   printw("Duration");
   wmove(stdscr, DURATION, X_VALUE);
-  printw("%f [s]", total_duration_);
+  printw("%.2f [s]", total_duration_);
 
   wmove(stdscr, CLOSE, X_KEY);
   printw("q");
@@ -221,6 +238,15 @@ TowrUserInterface::CallbackKey (int c)
     case '-':
       total_duration_ -= 0.2;
     break;
+    case '\'':
+      replay_speed_ += 0.2;
+    break;
+    case ';':
+      replay_speed_ -= 0.2;
+    break;
+    case 'y':
+      optimize_phase_durations_ = !optimize_phase_durations_;
+      break;
 
 
     case 'o':
@@ -246,14 +272,16 @@ TowrUserInterface::CallbackKey (int c)
 void TowrUserInterface::PublishCommand()
 {
   towr_ros::TowrCommand msg;
-  msg.goal_lin          = xpp::Convert::ToRos(goal_geom_.lin);
-  msg.goal_ang          = xpp::Convert::ToRos(goal_geom_.ang);
-  msg.total_duration    = total_duration_;
-  msg.replay_trajectory = replay_trajectory_;
-  msg.optimize          = optimize_;
-  msg.terrain           = terrain_;
-  msg.gait              = gait_combo_;
-  msg.robot             = robot_;
+  msg.goal_lin                 = xpp::Convert::ToRos(goal_geom_.lin);
+  msg.goal_ang                 = xpp::Convert::ToRos(goal_geom_.ang);
+  msg.total_duration           = total_duration_;
+  msg.replay_trajectory        = replay_trajectory_;
+  msg.replay_speed             = replay_speed_;
+  msg.optimize                 = optimize_;
+  msg.terrain                  = terrain_;
+  msg.gait                     = gait_combo_;
+  msg.robot                    = robot_;
+  msg.optimize_phase_durations = optimize_phase_durations_;
 
   user_command_pub_.publish(msg);
 
@@ -272,13 +300,13 @@ int TowrUserInterface::AdvanceCircularBuffer(int& curr, int max) const
 void
 TowrUserInterface::PrintVector(const Eigen::Vector3d& v) const
 {
-  printw("%.3f  %.3f  %.3f", v.x(), v.y(), v.z());
+  printw("%.2f  %.2f  %.2f", v.x(), v.y(), v.z());
 }
 
 void
 TowrUserInterface::PrintVector2D(const Eigen::Vector2d& v) const
 {
-  printw("%.3f  %.3f", v.x(), v.y());
+  printw("%.2f  %.2f", v.x(), v.y());
 }
 
 

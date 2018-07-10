@@ -52,8 +52,8 @@ void
 BipedGaitGenerator::SetCombo (Combos combo)
 {
   switch (combo) {
-    case C0: SetGaits({Stand, Walk1, Walk1, Walk1, Stand});    break;
-    case C1: SetGaits({Stand, Run1, Run1, Run1, Stand});       break;
+    case C0: SetGaits({Stand, Walk1, Walk1, Walk1, Walk1, Stand}); break;
+    case C1: SetGaits({Stand, Run1, Run1, Run1, Run1, Stand});     break;
     case C2: SetGaits({Stand, Hop1, Hop1, Hop1, Stand});       break;
     case C3: SetGaits({Stand, Hop1, Hop2, Hop2, Stand});       break;
     case C4: SetGaits({Stand, Hop5, Hop5, Hop5, Stand});       break;

@@ -38,7 +38,7 @@ void
 MonopedGaitGenerator::SetCombo (Combos combo)
 {
   switch (combo) {
-    case C0: SetGaits({Stand, Hop1, Hop1, Stand});                   break;
+    case C0: SetGaits({Stand, Hop1, Hop1, Hop1, Hop1, Stand});       break;
     case C1: SetGaits({Stand, Hop1, Hop1, Hop1, Stand});             break;
     case C2: SetGaits({Stand, Hop1, Hop1, Hop1, Hop1, Stand});       break;
     case C3: SetGaits({Stand, Hop2, Hop2, Hop2, Stand});             break;

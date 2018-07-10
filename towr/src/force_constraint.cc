@@ -109,7 +109,6 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
                                     Jacobian& jac) const
 {
   if (var_set == ee_force_->GetName()) {
-
     int row = 0;
     for (int f_node_id : pure_stance_force_node_ids_) {
       // unilateral force

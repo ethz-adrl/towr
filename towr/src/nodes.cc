@@ -184,8 +184,8 @@ Nodes::GetNodes() const
 
 void
 Nodes::AddBounds(int node_id, Dx deriv,
-                         const std::vector<int>& dimensions,
-                         const VectorXd& val)
+                 const std::vector<int>& dimensions,
+                 const VectorXd& val)
 {
   for (auto dim : dimensions)
     AddBound(IndexInfo(node_id, deriv, dim), val(dim));
@@ -201,17 +201,14 @@ Nodes::AddBound (const IndexInfo& node_info, double val)
 }
 
 void
-Nodes::AddStartBound (Dx d,
-                           const std::vector<int>& dimensions,
-                           const VectorXd& val)
+Nodes::AddStartBound (Dx d, const std::vector<int>& dimensions, const VectorXd& val)
 {
   AddBounds(0, d, dimensions, val);
 }
 
 void
-Nodes::AddFinalBound (Dx deriv,
-                           const std::vector<int>& dimensions,
-                           const VectorXd& val)
+Nodes::AddFinalBound (Dx deriv, const std::vector<int>& dimensions,
+                      const VectorXd& val)
 {
   AddBounds(nodes_.size()-1, deriv, dimensions, val);
 }

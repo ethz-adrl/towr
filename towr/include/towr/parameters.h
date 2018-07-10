@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_OPTIMIZATION_PARAMETERS_H_
 
 #include <vector>
+#include <array>
 
 
 namespace towr {
@@ -48,20 +49,65 @@ struct Parameters {
   using VecTimes         = std::vector<double>;
   using EEID             = unsigned int;
 
+  friend class NlpFactory;
+
   /**
    * @brief Default parameters to use.
    */
   Parameters();
   virtual ~Parameters() = default;
 
+  /// Number and initial duration of each foot's swing and stance phases.
+  std::vector<VecTimes> ee_phase_durations_;
+
+  /// True if the foot is initially in contact with the terrain.
+  std::vector<bool> ee_in_contact_at_start_;
+
+  /// Specifies that timings of all feet, so the gait, should be optimized.
+  void OptimizePhaseDurations();
+
+  /**
+   * @brief Ensures smooth endeffector motion during swing-phase (recommended)
+   */
+  void SetSwingConstraint();
+
+  /**
+   * Adds base_motion_constraint to restrict 6D base movement. Careful, this
+   * can be very limiting.
+   *
+   * @param dt  interval [s] at which this constraint is enforced.
+   */
+  void RestrictBaseRangeOfMotion();
+
+  /**
+   * @brief Add cost that penalizes large endeffector forces.
+   */
+  void PenalizeEndeffectorForces();
+
+private:
   /// Which constraints should be used in the optimization problem.
   UsedConstraints constraints_;
 
   /// Which costs should be used in the optimiation problem.
   CostWeights costs_;
 
-  /// Total duration [s] of the walking motion.
-  double t_total_;
+  /// The durations of each base polynomial in the spline (lin+ang).
+  VecTimes GetBasePolyDurations() const;
+
+  /// The number of phases allowed for endeffector ee.
+  int GetPhaseCount(EEID ee) const;
+
+  /// True if the phase durations should be optimized over.
+  bool IsOptimizeTimings() const;
+
+  /// The number of endeffectors.
+  int GetEECount() const;
+
+  /// Total duration [s] of the motion.
+  double GetTotalTime() const;
+
+  /// Bounds for the phase durations.
+  std::array<double,2> GetPhaseDurationBounds() const;
 
   /// Interval at which the dynamic constraint is enforced.
   double dt_constraint_dynamic_;
@@ -75,17 +121,10 @@ struct Parameters {
   /// Fixed duration of each cubic polynomial describing the base motion.
   double duration_base_polynomial_;
 
-  /// Number and initial duration of each foot's swing and stance phases.
-  std::vector<VecTimes> ee_phase_durations_;
-
-  /// True if the foot is initially in contact with the terrain.
-  std::vector<bool> ee_in_contact_at_start_;
-
-  /// When optimizing over phase duration, this is the minimum allowed.
-  double min_phase_duration_;
-
-  /// When optimizing over phase duration, this is is maximum allowed.
-  double max_phase_duration_;
+  /** Minimum and maximum time for each phase (swing,stance).
+   *  Only used when optimizing over phase durations
+   */
+  std::array<double,2> bound_phase_duration_ = {{0.0, 1e10}};
 
   /// Number of polynomials to parameterize foot movement during swing phases.
   int ee_polynomials_per_swing_phase_;
@@ -94,21 +133,28 @@ struct Parameters {
   int force_polynomials_per_stance_phase_;
 
   /// The maximum allowable force [N] in normal direction
-  double force_limit_in_norm_;
+  double force_limit_in_normal_direction_;
 
+  /**
+   * @brief Ensures that the dynamic model is fullfilled at discrete times.
+   */
+  void SetDynamicConstraint();
 
+  /**
+   * @brief Ensures that the range of motion is respected at discrete times.
+   */
+  void SetKinematicConstraint();
 
-  /// The durations of each base polynomial in the spline (lin+ang).
-  VecTimes GetBasePolyDurations() const;
+  /**
+   * @brief Ensures unilateral forces and inside the friction cone.
+   */
+  void SetForceConstraint();
 
-  /// The number of phases allowed for endeffector ee.
-  int GetPhaseCount(EEID ee) const;
-
-  /// True if the phase durations should be optimized over.
-  bool OptimizeTimings() const;
-
-  /// The number of endeffectors.
-  int GetEECount() const;
+  /// which dimensions (x,y,z) of the final base state should be bounded
+  std::vector<int> bounds_final_lin_pos,
+                   bounds_final_lin_vel,
+                   bounds_final_ang_pos,
+                   bounds_final_ang_vel;
 };
 
 } // namespace towr

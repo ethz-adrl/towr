@@ -28,63 +28,87 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/parameters.h>
+#include <towr/variables/cartesian_dimensions.h>
 
 #include <algorithm>
+#include <numeric>      // std::accumulate
+#include <math.h>       // fabs
+#include <cassert>
 
 namespace towr {
 
 Parameters::Parameters ()
 {
-  t_total_ = 2.0; // [s]
-
+  // optimization variables
   duration_base_polynomial_ = 0.1;
-
-  // 2 also works quite well. Remember that in between the nodes, forces
-  // could still be violating unilateral and friction constraints by
-  // polynomial interpolation
   force_polynomials_per_stance_phase_ = 3;
-  ee_polynomials_per_swing_phase_ = 2; // should be 2 when using swing constraint.
+  ee_polynomials_per_swing_phase_ = 2; // so step can at least lift leg
 
+  // these are the basic constraints that always have to be set
+  constraints_.push_back(Terrain);
+  SetDynamicConstraint();
+  SetKinematicConstraint();
+  SetForceConstraint();
 
-  dt_constraint_range_of_motion_ = 0.05;
-  dt_constraint_dynamic_ = 0.1;
-  dt_constraint_base_motion_ = duration_base_polynomial_/4.;
-
-
-  min_phase_duration_ = 0.1;
-  double max_time = 2.0; // this helps convergence
-  max_phase_duration_ = max_time>t_total_?  t_total_ : max_time;
-//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
-
-
-  force_limit_in_norm_ = 1000; // [N] this affects convergence when optimizing gait
-
-
-  constraints_ = {
-      BaseAcc,  // enforces that acceleration doesn't jump between splines
-      EndeffectorRom,
-      Dynamic,
-      Terrain,
-      Force,
-//      TotalTime, // causes gait to also be optimized
-      Swing, // remove this at some point, not so general
-//      BaseRom, //  CAREFUL: restricts 6D base to be in a specific range->very limiting
-  };
-
-  // additional restrictions are set directly on the variable in nlp_factory,
-  // such as e.g. initial and goal state,...
-
-  costs_ = {
-//    {ForcesCostID, 1.0},
-  };
+  bounds_final_lin_pos = {X,Y};
+  bounds_final_lin_vel = {X,Y,Z};
+  bounds_final_ang_pos = {X,Y,Z};
+  bounds_final_ang_vel = {X,Y,Z};
+  // additional restrictions are set directly on the variables in nlp_factory,
+  // such as e.g. initial and endeffector,...
 }
 
-bool
-Parameters::OptimizeTimings () const
+void
+Parameters::SetDynamicConstraint ()
 {
-  ConstraintName c = TotalTime;
-  auto v = constraints_; // shorthand
-  return std::find(v.begin(), v.end(), c) != v.end();
+  dt_constraint_dynamic_ = 0.1;
+  constraints_.push_back(Dynamic);
+  constraints_.push_back(BaseAcc); // so accelerations don't jump between splines
+}
+
+void
+Parameters::SetKinematicConstraint ()
+{
+  dt_constraint_range_of_motion_ = 0.08;
+  constraints_.push_back(EndeffectorRom);
+}
+
+void
+Parameters::SetForceConstraint()
+{
+  force_limit_in_normal_direction_ = 1000;
+  constraints_.push_back(Force);
+}
+
+void
+Parameters::SetSwingConstraint()
+{
+  constraints_.push_back(Swing);
+}
+
+void
+Parameters::OptimizePhaseDurations ()
+{
+  // limiting this range can help convergence when optimizing gait
+  // if phase durations too short, can also cause kinematic constraint to
+  // be violated, so dt_constraint_range_of_motion must be decreased.
+  bound_phase_duration_.front() = 0.2;
+  bound_phase_duration_.back()  = 1.0;
+  constraints_.push_back(TotalTime);
+}
+
+void
+Parameters::RestrictBaseRangeOfMotion ()
+{
+  dt_constraint_base_motion_ = duration_base_polynomial_/4.;
+  constraints_.push_back(BaseRom);
+}
+
+void
+Parameters::PenalizeEndeffectorForces ()
+{
+  // cost weighed by 1.0
+  costs_.push_back({ForcesCostID, 1.0});
 }
 
 Parameters::VecTimes
@@ -92,7 +116,7 @@ Parameters::GetBasePolyDurations () const
 {
   std::vector<double> base_spline_timings_;
   double dt = duration_base_polynomial_;
-  double t_left = t_total_;
+  double t_left = GetTotalTime ();
 
   double eps = 1e-10; // since repeated subtraction causes inaccuracies
   while (t_left > eps) {
@@ -117,5 +141,38 @@ Parameters::GetEECount() const
   return ee_in_contact_at_start_.size();
 }
 
-} // namespace towr
+double
+Parameters::GetTotalTime () const
+{
+  std::vector<double> T_feet;
 
+  for (const auto& v : ee_phase_durations_)
+    T_feet.push_back(std::accumulate(v.begin(), v.end(), 0.0));
+
+  // safety check that all feet durations sum to same value
+  double T = T_feet.empty()? 0.0 : T_feet.front(); // take first foot as reference
+  for (double Tf : T_feet)
+    assert(fabs(Tf - T) < 1e-6);
+
+  return T;
+}
+
+bool
+Parameters::IsOptimizeTimings () const
+{
+  // if total time is constrained, then timings are optimized
+  ConstraintName c = TotalTime;
+  auto v = constraints_; // shorthand
+  return std::find(v.begin(), v.end(), c) != v.end();
+}
+
+std::array<double,2>
+Parameters::GetPhaseDurationBounds () const
+{
+  // adjust bound to always be less than total duration of trajectory
+  double upper_bound = bound_phase_duration_.back();
+  double max = GetTotalTime()>upper_bound? upper_bound : GetTotalTime();
+  return {bound_phase_duration_.front(), max};
+}
+
+} // namespace towr

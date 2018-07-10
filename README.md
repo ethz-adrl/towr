@@ -5,8 +5,8 @@
 *A light-weight and extensible C++ library for trajectory optimization for legged robots.*
 
 [![Build Status](http://build.ros.org/buildStatus/icon?job=Kdev__towr__ubuntu_xenial_amd64)](http://build.ros.org/view/Kdev/job/Kdev__towr__ubuntu_xenial_amd64/)
-[![Documentation](https://img.shields.io/badge/docs-generated-green.svg)](http://docs.ros.org/kinetic/api/towr/html/)
-[![ROS hosting](https://img.shields.io/badge/ROS-hosting-blue.svg)](http://wiki.ros.org/towr)
+[![Documentation](https://img.shields.io/badge/docs-generated-brightgreen.svg)](http://docs.ros.org/kinetic/api/towr/html/)
+[![ROS hosting](https://img.shields.io/badge/ROS-integration-blue.svg)](http://wiki.ros.org/towr)
 ![](https://tokei.rs/b1/github/ethz-adrl/towr)
 [![CodeFactor](https://www.codefactor.io/repository/github/ethz-adrl/towr/badge)](https://www.codefactor.io/repository/github/ethz-adrl/towr)
 [![License BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29#fulltext)
@@ -80,7 +80,8 @@ by [:globe_with_meridians: Alexander W. Winkler](https://github.com/awinkler "Go
    
 * Test ([hopper_example.cc](towr/test/hopper_example.cc)): Generates a motion for a one-legged hopper using Ipopt
   ```bash
-  rosrun towr towr-example # or towr-test if gtest was found
+  cd catkin_workspace/build/towr
+  ./towr-example # or ./towr-test if gtest was found
   ```
 
 * Use: Include in your catkin project by adding to your *CMakeLists.txt* 

@@ -35,11 +35,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-BaseMotionConstraint::BaseMotionConstraint (const Parameters& params,
+BaseMotionConstraint::BaseMotionConstraint (double T, double dt,
                                             const SplineHolder& spline_holder)
-    :TimeDiscretizationConstraint(params.t_total_,
-                                  params.dt_constraint_base_motion_,
-                                  "baseMotion")
+    :TimeDiscretizationConstraint(T, dt, "baseMotion")
 {
   base_linear_  = spline_holder.base_linear_;
   base_angular_ = spline_holder.base_angular_;
