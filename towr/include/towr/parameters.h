@@ -60,9 +60,6 @@ struct Parameters {
   /// Which costs should be used in the optimiation problem.
   CostWeights costs_;
 
-  /// Total duration [s] of the walking motion.
-  double t_total_;
-
   /// Interval at which the dynamic constraint is enforced.
   double dt_constraint_dynamic_;
 
@@ -109,6 +106,9 @@ struct Parameters {
 
   /// The number of endeffectors.
   int GetEECount() const;
+
+  /// Total duration [s] of the motion.
+  double GetTotalTime() const;
 };
 
 } // namespace towr

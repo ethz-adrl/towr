@@ -42,7 +42,7 @@ using namespace towr;
 int main()
 {
   // terrain
-  FlatGround terrain(0.0);
+  auto terrain = std::make_shared<FlatGround>(0.0);
 
   // Kinematic limits and dynamic parameters of the hopper
   RobotModel model(RobotModel::Monoped);
@@ -52,27 +52,23 @@ int main()
   initial_base.lin.at(kPos).z() = 0.5;
   Eigen::Vector3d initial_foot_pos_W = Eigen::Vector3d::Zero();
 
-
   // define the desired goal state of the hopper
   BaseState goal;
   goal.lin.at(towr::kPos) << 1.0, 0.0, 0.5;
 
-
   // Parameters that define the motion. See c'tor for default values or
   // other values that can be modified.
   Parameters params;
-  params.t_total_ = 1.6; // [s] time to reach goal state
   // here we define the initial phase durations, that can however be changed
   // by the optimizer. The number of swing and stance phases however is fixed.
   // alternating stance and swing:     ____-----_____-----_____-----_____
   params.ee_phase_durations_.push_back({0.4, 0.2, 0.4, 0.2, 0.4, 0.2, 0.2});
   params.ee_in_contact_at_start_.push_back(true);
 
-
   // Pass this information to the actual solver
   TOWR towr;
   towr.SetInitialState(initial_base, {initial_foot_pos_W});
-  towr.SetParameters(goal, params, model, std::make_shared<FlatGround>());
+  towr.SetParameters(goal, params, model, terrain);
 
   auto solver = std::make_shared<ifopt::Ipopt>();
   towr.SolveNLP(solver);
@@ -86,7 +82,7 @@ int main()
   cout << "\n====================\nMonoped trajectory:\n====================\n";
 
   double t = 0.0;
-  while (t<=params.t_total_+1e-5) {
+  while (t<=params.GetTotalTime() + 1e-5) {
     cout << "t=" << t << "\n";
     cout << "Base linear position x,y,z:   \t";
     cout << x.base_linear_->GetPoint(t).p().transpose()     << "\t[m]" << endl;

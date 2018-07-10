@@ -36,7 +36,7 @@ RangeOfMotionConstraint::RangeOfMotionConstraint (const KinematicModel::Ptr& mod
                                                   const Parameters& params,
                                                   const EE& ee,
                                                   const SplineHolder& spline_holder)
-    :TimeDiscretizationConstraint(params.t_total_,
+    :TimeDiscretizationConstraint(params.GetTotalTime(),
                                   params.dt_constraint_range_of_motion_,
                                   "rangeofmotion-" + std::to_string(ee))
 {

@@ -80,7 +80,8 @@ by [:globe_with_meridians: Alexander W. Winkler](https://github.com/awinkler "Go
    
 * Test ([hopper_example.cc](towr/test/hopper_example.cc)): Generates a motion for a one-legged hopper using Ipopt
   ```bash
-  rosrun towr towr-example # or towr-test if gtest was found
+  cd catkin_workspace/build/towr
+  ./towr-example # or ./towr-test if gtest was found
   ```
 
 * Use: Include in your catkin project by adding to your *CMakeLists.txt* 

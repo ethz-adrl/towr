@@ -37,7 +37,7 @@ namespace towr {
 
 BaseMotionConstraint::BaseMotionConstraint (const Parameters& params,
                                             const SplineHolder& spline_holder)
-    :TimeDiscretizationConstraint(params.t_total_,
+    :TimeDiscretizationConstraint(params.GetTotalTime(),
                                   params.dt_constraint_base_motion_,
                                   "baseMotion")
 {

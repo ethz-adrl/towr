@@ -86,7 +86,7 @@ NlpFactory::MakeBaseVariables () const
   int n_nodes = params_.GetBasePolyDurations().size() + 1;
 
   auto spline_lin = std::make_shared<BaseNodes>(n_nodes, id::base_lin_nodes);
-  spline_lin->InitializeNodesTowardsGoal(initial_base_.lin.p(), final_base_.lin.p(), params_.t_total_);
+  spline_lin->InitializeNodesTowardsGoal(initial_base_.lin.p(), final_base_.lin.p(), params_.GetTotalTime());
   spline_lin->AddStartBound(kPos, {X,Y,Z}, initial_base_.lin.p());
   spline_lin->AddStartBound(kVel, {X,Y,Z}, initial_base_.lin.v());
   spline_lin->AddFinalBound(kPos, {X,Y},   final_base_.lin.p());
@@ -94,7 +94,7 @@ NlpFactory::MakeBaseVariables () const
   vars.push_back(spline_lin);
 
   auto spline_ang = std::make_shared<BaseNodes>(n_nodes,  id::base_ang_nodes);
-  spline_ang->InitializeNodesTowardsGoal(initial_base_.ang.p(), final_base_.ang.p(), params_.t_total_);
+  spline_ang->InitializeNodesTowardsGoal(initial_base_.ang.p(), final_base_.ang.p(), params_.GetTotalTime());
   spline_ang->AddStartBound(kPos, {X,Y,Z}, initial_base_.ang.p());
   spline_ang->AddStartBound(kVel, {X,Y,Z}, initial_base_.ang.v());
   spline_ang->AddFinalBound(kPos, {X,Y,Z}, final_base_.ang.p());
@@ -110,7 +110,7 @@ NlpFactory::MakeEndeffectorVariables () const
   std::vector<PhaseNodes::Ptr> vars;
 
   // Endeffector Motions
-  double T = params_.t_total_;
+  double T = params_.GetTotalTime();
   for (int ee=0; ee<params_.GetEECount(); ee++) {
     auto nodes = std::make_shared<PhaseNodes>(params_.GetPhaseCount(ee),
                                               params_.ee_in_contact_at_start_.at(ee),
@@ -139,7 +139,7 @@ NlpFactory::MakeForceVariables () const
 {
   std::vector<PhaseNodes::Ptr> vars;
 
-  double T = params_.t_total_;
+  double T = params_.GetTotalTime();
   for (int ee=0; ee<params_.GetEECount(); ee++) {
     auto nodes = std::make_shared<PhaseNodes>(params_.GetPhaseCount(ee),
                                               params_.ee_in_contact_at_start_.at(ee),
@@ -239,7 +239,7 @@ NlpFactory::ContraintPtrVec
 NlpFactory::MakeTotalTimeConstraint () const
 {
   ContraintPtrVec c;
-  double T = params_.t_total_;
+  double T = params_.GetTotalTime();
 
   for (int ee=0; ee<params_.GetEECount(); ee++) {
     auto duration_constraint = std::make_shared<TotalDurationConstraint>(T, ee);

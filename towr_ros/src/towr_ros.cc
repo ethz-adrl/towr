@@ -113,7 +113,6 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
   goal.ang.at(kVel) = xpp::Convert::ToXpp(msg.goal_ang.vel);
 
   Parameters params;
-  params.t_total_ = msg.total_duration;
 
   int n_ee = model.kinematic_model_->GetNumberOfEndeffectors();
   auto gait_gen_ = GaitGenerator::MakeGaitGenerator(n_ee);
