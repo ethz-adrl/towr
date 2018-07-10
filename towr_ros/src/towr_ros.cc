@@ -60,8 +60,8 @@ TowrRos::TowrRos ()
                                     (xpp_msgs::robot_parameters, 1);
 
   solver_ = std::make_shared<ifopt::Ipopt>(); // could also use SNOPT here
-  solver_->print_level_ = 5;
-  solver_->max_cpu_time_ = 10.0;
+  solver_->print_level_  = 5;
+  solver_->max_cpu_time_ = 20.0;
   solver_->use_jacobian_approximation_ = false;
 
   visualization_dt_ = 0.02;
@@ -113,6 +113,8 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
   goal.ang.at(kVel) = xpp::Convert::ToXpp(msg.goal_ang.vel);
 
   Parameters params;
+  params.OptimizeTimings();
+  params.SetSwingConstraint();
 
   int n_ee = model.kinematic_model_->GetNumberOfEndeffectors();
   auto gait_gen_ = GaitGenerator::MakeGaitGenerator(n_ee);

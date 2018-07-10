@@ -35,7 +35,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/variables/euler_converter.h>
 
 #include <towr/models/dynamic_model.h>
-#include <towr/parameters.h>
 
 #include "time_discretization_constraint.h"
 
@@ -64,11 +63,12 @@ public:
   /**
    * @brief  Construct a Dynamic constraint
    * @param model  The system dynamics to enforce (e.g. centroidal, LIP, ...)
-   * @param evaluation_times  The times at which to check the system dynamics.
-   * @param spline_holder     A pointer to the current optimization variables.
+   * @param T   The total duration of the optimization.
+   * @param dt  the discretization intervall at which to enforce constraints.
+   * @param spline_holder  A pointer to the current optimization variables.
    */
   DynamicConstraint (const DynamicModel::Ptr& model,
-                     const Parameters& params,
+                     double T, double dt,
                      const SplineHolder& spline_holder);
   virtual ~DynamicConstraint () = default;
 

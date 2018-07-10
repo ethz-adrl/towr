@@ -62,7 +62,7 @@ NlpFactory::GetVariableSets ()
   vars.insert(vars.end(), ee_force.begin(), ee_force.end());
 
   auto contact_schedule = MakeContactScheduleVariables();
-  if (params_.OptimizeTimings()) {
+  if (params_.IsOptimizeTimings()) {
     vars.insert(vars.end(), contact_schedule.begin(), contact_schedule.end());
   }
 
@@ -74,7 +74,7 @@ NlpFactory::GetVariableSets ()
                                 ee_motion,
                                 ee_force,
                                 contact_schedule,
-                                params_.OptimizeTimings());
+                                params_.IsOptimizeTimings());
   return vars;
 }
 
@@ -86,19 +86,25 @@ NlpFactory::MakeBaseVariables () const
   int n_nodes = params_.GetBasePolyDurations().size() + 1;
 
   auto spline_lin = std::make_shared<BaseNodes>(n_nodes, id::base_lin_nodes);
-  spline_lin->InitializeNodesTowardsGoal(initial_base_.lin.p(), final_base_.lin.p(), params_.GetTotalTime());
+
+  double x = final_base_.lin.p().x();
+  double y = final_base_.lin.p().y();
+  double z = terrain_->GetHeight(x,y) - model_.kinematic_model_->GetNominalStanceInBase().front().z();
+  Vector3d final_pos(x, y, z);
+
+  spline_lin->InitializeNodesTowardsGoal(initial_base_.lin.p(), final_pos, params_.GetTotalTime());
   spline_lin->AddStartBound(kPos, {X,Y,Z}, initial_base_.lin.p());
   spline_lin->AddStartBound(kVel, {X,Y,Z}, initial_base_.lin.v());
-  spline_lin->AddFinalBound(kPos, {X,Y},   final_base_.lin.p());
-  spline_lin->AddFinalBound(kVel, {X,Y,Z}, final_base_.lin.v());
+  spline_lin->AddFinalBound(kPos, params_.bounds_final_lin_pos,   final_base_.lin.p());
+  spline_lin->AddFinalBound(kVel, params_.bounds_final_lin_vel, final_base_.lin.v());
   vars.push_back(spline_lin);
 
   auto spline_ang = std::make_shared<BaseNodes>(n_nodes,  id::base_ang_nodes);
   spline_ang->InitializeNodesTowardsGoal(initial_base_.ang.p(), final_base_.ang.p(), params_.GetTotalTime());
   spline_ang->AddStartBound(kPos, {X,Y,Z}, initial_base_.ang.p());
   spline_ang->AddStartBound(kVel, {X,Y,Z}, initial_base_.ang.v());
-  spline_ang->AddFinalBound(kPos, {X,Y,Z}, final_base_.ang.p());
-  spline_ang->AddFinalBound(kVel, {X,Y,Z}, final_base_.ang.v());
+  spline_ang->AddFinalBound(kPos, params_.bounds_final_ang_pos, final_base_.ang.p());
+  spline_ang->AddFinalBound(kVel, params_.bounds_final_ang_vel, final_base_.ang.v());
   vars.push_back(spline_ang);
 
   return vars;
@@ -118,18 +124,19 @@ NlpFactory::MakeEndeffectorVariables () const
                                               params_.ee_polynomials_per_swing_phase_,
                                               PhaseNodes::Motion);
 
+    // initialize towards final footholds
     double yaw = final_base_.ang.p().z();
     Eigen::Vector3d euler(0.0, 0.0, yaw);
     Eigen::Matrix3d w_R_b = EulerConverter::GetRotationMatrixBaseToWorld(euler);
     Vector3d final_ee_pos_W = final_base_.lin.p() + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
-
-    nodes->InitializeNodesTowardsGoal(initial_ee_W_.at(ee), final_ee_pos_W, T);
+    double x = final_ee_pos_W.x();
+    double y = final_ee_pos_W.y();
+    double z = terrain_->GetHeight(x,y);
+    nodes->InitializeNodesTowardsGoal(initial_ee_W_.at(ee), Vector3d(x,y,z), T);
 
     nodes->AddStartBound(kPos, {X,Y,Z}, initial_ee_W_.at(ee));
-
     vars.push_back(nodes);
   }
-
 
   return vars;
 }
@@ -168,8 +175,8 @@ NlpFactory::MakeContactScheduleVariables () const
     auto var = std::make_shared<PhaseDurations>(ee,
                                                 params_.ee_phase_durations_.at(ee),
                                                 params_.ee_in_contact_at_start_.at(ee),
-                                                params_.min_phase_duration_,
-                                                params_.max_phase_duration_);
+                                                params_.GetPhaseDurationBounds().front(),
+                                                params_.GetPhaseDurationBounds().back());
     vars.push_back(var);
   }
 
@@ -207,14 +214,17 @@ NlpFactory::GetConstraint (ConstraintName name) const
 NlpFactory::ContraintPtrVec
 NlpFactory::MakeBaseRangeOfMotionConstraint () const
 {
-  return {std::make_shared<BaseMotionConstraint>(params_, spline_holder_)};
+  return {std::make_shared<BaseMotionConstraint>(params_.GetTotalTime(),
+                                                 params_.dt_constraint_base_motion_,
+                                                 spline_holder_)};
 }
 
 NlpFactory::ContraintPtrVec
 NlpFactory::MakeDynamicConstraint() const
 {
   auto constraint = std::make_shared<DynamicConstraint>(model_.dynamic_model_,
-                                                        params_,
+                                                        params_.GetTotalTime(),
+                                                        params_.dt_constraint_dynamic_,
                                                         spline_holder_);
   return {constraint};
 }
@@ -225,11 +235,12 @@ NlpFactory::MakeRangeOfMotionBoxConstraint () const
   ContraintPtrVec c;
 
   for (int ee=0; ee<params_.GetEECount(); ee++) {
-    auto rom_constraints = std::make_shared<RangeOfMotionConstraint>(model_.kinematic_model_,
-                                                              params_,
-                                                              ee,
-                                                              spline_holder_);
-    c.push_back(rom_constraints);
+    auto rom = std::make_shared<RangeOfMotionConstraint>(model_.kinematic_model_,
+                                                         params_.GetTotalTime(),
+                                                         params_.dt_constraint_range_of_motion_,
+                                                         ee,
+                                                         spline_holder_);
+    c.push_back(rom);
   }
 
   return c;
@@ -269,7 +280,7 @@ NlpFactory::MakeForceConstraint () const
 
   for (int ee=0; ee<params_.GetEECount(); ee++) {
     auto c = std::make_shared<ForceConstraint>(terrain_,
-                                               params_.force_limit_in_norm_,
+                                               params_.force_limit_in_normal_direction_,
                                                ee);
     constraints.push_back(c);
   }

@@ -35,7 +35,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/variables/euler_converter.h>
 
 #include <towr/models/kinematic_model.h>
-#include <towr/parameters.h>
 
 #include "time_discretization_constraint.h"
 
@@ -59,12 +58,13 @@ public:
   /**
    * @brief Constructs a constraint instance.
    * @param robot_model   The kinematic restrictions of the robot.
-   * @param params        Parameters defining the optimization problem.
+   * @param T   The total duration of the optimization.
+   * @param dt  the discretization intervall at which to enforce constraints.
    * @param ee            The endeffector for which to constrain the range.
    * @param spline_holder Pointer to the current variables.
    */
   RangeOfMotionConstraint(const KinematicModel::Ptr& robot_model,
-                          const Parameters& params,
+                          double T, double dt,
                           const EE& ee,
                           const SplineHolder& spline_holder);
   virtual ~RangeOfMotionConstraint() = default;

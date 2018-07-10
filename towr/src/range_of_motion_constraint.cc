@@ -33,12 +33,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 RangeOfMotionConstraint::RangeOfMotionConstraint (const KinematicModel::Ptr& model,
-                                                  const Parameters& params,
+                                                  double T, double dt,
                                                   const EE& ee,
                                                   const SplineHolder& spline_holder)
-    :TimeDiscretizationConstraint(params.GetTotalTime(),
-                                  params.dt_constraint_range_of_motion_,
-                                  "rangeofmotion-" + std::to_string(ee))
+    :TimeDiscretizationConstraint(T, dt, "rangeofmotion-" + std::to_string(ee))
 {
   base_linear_  = spline_holder.base_linear_;
   base_angular_ = EulerConverter(spline_holder.base_angular_);
