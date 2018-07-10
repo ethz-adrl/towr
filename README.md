@@ -103,18 +103,8 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
 [<img src="https://i.imgur.com/LNuyEIn.gif" />](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
 
 
-## Authors 
-[Alexander W. Winkler](http://awinkler.me) - Initial Work/Maintainer
-
-[<img src="https://i.imgur.com/aGOnNTZ.png" height="45" />](https://www.ethz.ch/en.html "ETH Zurich") &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/uCvLs2j.png" height="45" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="45" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")
-
-
 ## Publications
-
-Previous versions of this code have been used for a variety of publications. For 
-the respective code and the corresponding paper, see [Releases](https://github.com/awinkler/towr/releases).
-The theory on the current Release can be cited through this paper:
-
+The theory behind this code can be found in this paper:  
 A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications), IEEE Robotics and Automation Letters (RA-L), 2018:
 
     @article{winkler18,
@@ -129,6 +119,13 @@ A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimiza
       volume    = {3},
       doi       = {10.1109/LRA.2018.2798285},
     }
+
+
+## Authors 
+[Alexander W. Winkler](http://awinkler.me) - Initial Work/Maintainer
+
+[<img src="https://i.imgur.com/aGOnNTZ.png" height="45" />](https://www.ethz.ch/en.html "ETH Zurich") &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/uCvLs2j.png" height="45" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="45" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")
+
 
 
 ## Contributing
