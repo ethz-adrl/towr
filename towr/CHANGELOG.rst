@@ -2,8 +2,8 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.1 (2018-07-10)
+------------------
 * Improve API (`#23 <https://github.com/ethz-adrl/towr/issues/23>`_)
 * Remove redundant total time (duration set by endeffectors)
 * Contributors: Alexander Winkler
