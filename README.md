@@ -26,12 +26,12 @@ Features:
 
 
 ## Building
-There are two ways to build `towr`:
+There are two ways to build this code:
 * [Option 1](#towr-with-cmake): core library and hopper-example with pure [CMake].
-* [Option 2](#towr-ros-with-catkin) (recommended): core library & GUI & ROS-rviz-visualization built with [ROS] and [catkin]. 
+* [Option 2](#towr-ros-with-catkin) (recommended): core library & GUI & ROS-rviz-visualization built with [catkin] and [ROS]. 
 
 
-### <a name="towr-with-cmake"></a> Building towr with CMake
+### <a name="towr-with-cmake"></a> Building with CMake
 * Install dependencies [CMake], [Eigen], [Ipopt]:
   ```bash
   sudo apt-get install cmake libeigen3-dev coinor-libipopt-dev
@@ -61,9 +61,8 @@ There are two ways to build `towr`:
   target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
   ```
 
-### <a name="towr-ros-with-catkin"></a> Building towr & towr_ros with catkin
-We also provide a [ROS]-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
-visualizes the produces motions plans in rviz using [xpp]. 
+### <a name="towr-ros-with-catkin"></a> Building with catkin
+We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboard interface to modify goal state and motion types as well as visualizes the produces motions plans in rviz using [xpp]. 
 
 * Install dependencies [CMake], [catkin], [Eigen], [Ipopt], [ROS], [xpp], [ncurses], [xterm]:
   ```bash
@@ -106,8 +105,6 @@ visualizes the produces motions plans in rviz using [xpp].
 
 ## Authors 
 [Alexander W. Winkler](http://awinkler.me) - Initial Work/Maintainer
-
-This was has been carried out at the following institutions:
 
 [<img src="https://i.imgur.com/aGOnNTZ.png" height="45" />](https://www.ethz.ch/en.html "ETH Zurich") &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/uCvLs2j.png" height="45" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="45" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")
 
