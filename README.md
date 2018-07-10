@@ -5,7 +5,7 @@
 *A light-weight and extensible C++ library for trajectory optimization for legged robots.*
 
 [![Build Status](http://build.ros.org/buildStatus/icon?job=Kdev__towr__ubuntu_xenial_amd64)](http://build.ros.org/view/Kdev/job/Kdev__towr__ubuntu_xenial_amd64/)
-[![Documentation](https://img.shields.io/badge/docs-generated-green.svg)](http://docs.ros.org/kinetic/api/towr/html/)
+[![Documentation](https://img.shields.io/badge/docs-generated-brightgreen.svg)](http://docs.ros.org/kinetic/api/towr/html/)
 [![ROS hosting](https://img.shields.io/badge/ROS-integration-blue.svg)](http://wiki.ros.org/towr)
 ![](https://tokei.rs/b1/github/ethz-adrl/towr)
 [![CodeFactor](https://www.codefactor.io/repository/github/ethz-adrl/towr/badge)](https://www.codefactor.io/repository/github/ethz-adrl/towr)
