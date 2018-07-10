@@ -2,6 +2,12 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Improve API (`#23 <https://github.com/ethz-adrl/towr/issues/23>`_)
+* Remove redundant total time (duration set by endeffectors)
+* Contributors: Alexander Winkler
+
 1.3.0 (2018-07-07)
 ------------------
 * add sample gaits for mono-, bi- and quadruped

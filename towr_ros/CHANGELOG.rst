@@ -2,6 +2,13 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Improve API (`#23 <https://github.com/ethz-adrl/towr/issues/23>`_)
+* add gait optimization and replay speed to UI
+* Add ROS and codefactor badges to readme (`#22 <https://github.com/ethz-adrl/towr/issues/22>`_)
+* Contributors: Alexander Winkler
+
 1.3.0 (2018-07-07)
 ------------------
 * visualize goal state on terrain
