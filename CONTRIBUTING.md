@@ -1,5 +1,5 @@
 
-# Contributing to towr
+# Contributing to <img src="https://i.imgur.com/zm2nwF7.png" width="20%"/>
 
 :+1::tada: First off, thanks for taking the time to contribute! :tada::+1:
 
