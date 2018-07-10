@@ -32,11 +32,11 @@ There are two ways to build `towr`:
 
 
 ### <a name="towr-with-cmake"></a> Building towr with CMake
-* Install dependencies [CMake], [Eigen], [ifopt]:
+* Install dependencies [CMake], [Eigen], [Ipopt]:
   ```bash
   sudo apt-get install cmake libeigen3-dev coinor-libipopt-dev
   ```
-  For [ifopt], clone the repo and ``cmake .. && make install`` on your system. 
+  Install [ifopt], by cloning the repo and then: ``cmake .. && make install`` on your system. 
 
 * Build towr:
   ```bash
@@ -61,14 +61,14 @@ There are two ways to build `towr`:
   target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
   ```
 
-### <a name="towr-with-catkin"></a> Building towr & towr_ros with catkin
+### <a name="towr-ros-with-catkin"></a> Building towr & towr_ros with catkin
 We also provide a [ROS]-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
 visualizes the produces motions plans in rviz using [xpp]. 
 
 * Install dependencies [CMake], [catkin], [Eigen], [Ipopt], [ROS], [xpp], [ncurses], [xterm]:
   ```bash
   sudo apt-get install cmake libeigen3-dev coinor-libipopt-dev libncurses5-dev xterm
-  sudo apt-get install ros-<ros-distro>-desktop-full ros-<ros-distro>-xpp  # <ros-distro>: indigo/kinetic/lunar
+  sudo apt-get install ros-<ros-distro>-desktop-full ros-<ros-distro>-xpp
   ```
 
 * Build workspace:
@@ -99,44 +99,13 @@ visualizes the produces motions plans in rviz using [xpp].
   ```bash
   roslaunch towr_ros towr_ros.launch
   ```
-  Click in the xterm terminal and then hit 'o' for "optimize". Check the box next to HyQ to visualize that URDF.
-
-[<img src="https://i.imgur.com/LNuyEIn.gif" />](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
-
-
-
-## <a name="towr-ros-with-catkin"></a> Building towr_ros and towr with catkin
-We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
-visualizes the produces motions plans in rviz using [xpp]. Additional dependencies:
-
-| Name | Min. Ver. | Description | Install |
-| --- | --- | --- | --- |
-| [ROS] |  indigo | [catkin], [roscpp], [std_msgs] | ```sudo apt-get install ros-<ros-distro>-desktop-full``` |
-| [xpp] | v1.0.6 | Motion visualization (rviz) | ```sudo apt-get install ros-<ros-distro>-xpp``` |
-| [ncurses] | 5 | Text-based UI | ```sudo apt-get install libncurses5-dev``` |
-| [xterm] | 297 | Terminal emulator | ```sudo apt-get install xterm``` |
-
-After having installed all of the above, run
-```bash
-cd catkin_workspace/src
-git clone https://github.com/ethz-adrl/towr.git
-cd ..
-catkin_make_isolated  # `catkin build` if you are using catkin command-line tools 
-source ./devel/setup.bash
-```
-
-Launch the program using
-```bash
-$ roslaunch towr_ros towr_ros.launch
-```
-Click in the xterm terminal and then hit 'o' for "optimize". Check the box next to HyQ to visualize that URDF.
-
+  Click in the xterm terminal and hit 'o'.
 
 [<img src="https://i.imgur.com/LNuyEIn.gif" />](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
 
 
 ## Authors 
-[Alexander W. Winkler](https://awinkler.github.io/) - Initial Work/Maintainer
+[Alexander W. Winkler](http://awinkler.me) - Initial Work/Maintainer
 
 This was has been carried out at the following institutions:
 
