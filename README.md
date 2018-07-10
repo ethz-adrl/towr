@@ -22,36 +22,30 @@ Features:
 :heavy_check_mark: elegant rviz visualization of motion plans using [xpp].  
 :heavy_check_mark: [catkin] integration (optional).  
 
-
-by [:globe_with_meridians: Alexander W. Winkler](https://github.com/awinkler "Go to Github")
-
-[<img src="https://i.imgur.com/uCvLs2j.png" height="50" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="50" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")           &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/aGOnNTZ.png" height="50" />](https://www.ethz.ch/en.html "ETH Zurich")       
-
 [<img src="https://i.imgur.com/j8lt5SE.png" />](https://youtu.be/0jE46GqzxMM "Play video on Youtube")
 
 
-## <img align="center" height="15" src="https://i.imgur.com/fjS3xIe.png"/> Dependencies towr
-| Name | Min. Ver. | Description | Install
-| --- | --- | --- | --- |
-| [CMake] | v3.1.0 | C++ build tool | ```sudo apt-get install cmake``` |
-| [Eigen] | v3.2.0 | Library for linear algebra |  ```sudo apt-get install libeigen3-dev``` |
-| [ifopt] | v2.0.2 | Interface to NLP solver [Ipopt] |  Only additional deps: ```sudo apt-get install coinor-libipopt-dev``` |
-
-[ifopt] can be installed either system wide or, if you're building with catkin, dropped into your catkin workspace. The 3 ways to build this package are:  
-[Option 1](#towr-with-cmake) ([cmake]): core library towr and hopper example.  
-[Option 2](#towr-with-catkin) ([catkin]): core library towr and hopper example.   
-[Option 3](#towr-ros-with-catkin) ([catkin]): core library & GUI & ros-rviz-visualization (recommended).  
+## Building
+There are two ways to build this code:
+* [Option 1](#towr-with-cmake): core library and hopper-example with pure [CMake].
+* [Option 2](#towr-ros-with-catkin) (recommended): core library & GUI & ROS-rviz-visualization built with [catkin] and [ROS]. 
 
 
-## <a name="towr-with-cmake"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building towr with CMake
-* Install:
+### <a name="towr-with-cmake"></a> Building with CMake
+* Install dependencies [CMake], [Eigen], [Ipopt]:
+  ```bash
+  sudo apt-get install cmake libeigen3-dev coinor-libipopt-dev
+  ```
+  Install [ifopt], by cloning the repo and then: ``cmake .. && make install`` on your system. 
+
+* Build towr:
   ```bash
   git clone https://github.com/ethz-adrl/towr.git && cd towr/towr
   mkdir build && cd build
   cmake ..
   make
   sudo make install # copies files in this folder to /usr/local/*
-  sudo xargs rm < install_manifest.txt # in case you want to uninstall the above
+  # sudo xargs rm < install_manifest.txt # in case you want to uninstall the above
   ```
 
 * Test ([hopper_example.cc](towr/test/hopper_example.cc)): Generates a motion for a one-legged hopper using Ipopt
@@ -67,23 +61,25 @@ by [:globe_with_meridians: Alexander W. Winkler](https://github.com/awinkler "Go
   target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
   ```
 
-## <a name="towr-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building towr with catkin
-* Install:
+### <a name="towr-ros-with-catkin"></a> Building with catkin
+We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboard interface to modify goal state and motion types as well as visualizes the produces motions plans in rviz using [xpp]. 
+
+* Install dependencies [CMake], [catkin], [Eigen], [Ipopt], [ROS], [xpp], [ncurses], [xterm]:
+  ```bash
+  sudo apt-get install cmake libeigen3-dev coinor-libipopt-dev libncurses5-dev xterm
+  sudo apt-get install ros-<ros-distro>-desktop-full ros-<ros-distro>-xpp
+  ```
+
+* Build workspace:
   ```bash
   cd catkin_workspace/src
+  git clone https://github.com/ethz-adrl/ifopt.git
   git clone https://github.com/ethz-adrl/towr.git
   cd ..
-  catkin_make_isolated --pkg towr # `catkin build towr` if you are using catkin command-line tools 
+  catkin_make_isolated  # `catkin build` if you are using catkin command-line tools 
   source ./devel/setup.bash
   ```
   
-   
-* Test ([hopper_example.cc](towr/test/hopper_example.cc)): Generates a motion for a one-legged hopper using Ipopt
-  ```bash
-  cd catkin_workspace/build/towr
-  ./towr-example # or ./towr-test if gtest was found
-  ```
-
 * Use: Include in your catkin project by adding to your *CMakeLists.txt* 
   ```cmake
   find_package(catkin COMPONENTS towr) 
@@ -96,45 +92,20 @@ by [:globe_with_meridians: Alexander W. Winkler](https://github.com/awinkler "Go
     <depend>towr</depend>
   </package>
   ```
-
-## <a name="towr-ros-with-catkin"></a><img align="center" height="15" src="https://i.imgur.com/x1morBF.png"/> Building towr_ros and towr with catkin
-We also provide a ros-wrapper for towr, which adds a keyboard interface to modify goal state and motion types as well as
-visualizes the produces motions plans in rviz using [xpp]. Additional dependencies:
-
-| Name | Min. Ver. | Description | Install |
-| --- | --- | --- | --- |
-| [ROS] |  indigo | [catkin], [roscpp], [std_msgs] | ```sudo apt-get install ros-<ros-distro>-desktop-full``` |
-| [xpp] | v1.0.6 | Motion visualization (rviz) | ```sudo apt-get install ros-<ros-distro>-xpp``` |
-| [ncurses] | 5 | Text-based UI | ```sudo apt-get install libncurses5-dev``` |
-| [xterm] | 297 | Terminal emulator | ```sudo apt-get install xterm``` |
-
-After having installed all of the above, run
-```bash
-cd catkin_workspace/src
-git clone https://github.com/ethz-adrl/towr.git
-cd ..
-catkin_make_isolated  # `catkin build` if you are using catkin command-line tools 
-source ./devel/setup.bash
-```
-
-Launch the program using
-```bash
-$ roslaunch towr_ros towr_ros.launch
-```
-Click in the xterm terminal and then hit 'o' for "optimize". Check the box next to HyQ to visualize that URDF.
-
+  
+## Run
+  Launch the program using
+  ```bash
+  roslaunch towr_ros towr_ros.launch
+  ```
+  Click in the xterm terminal and hit 'o'.
 
 [<img src="https://i.imgur.com/LNuyEIn.gif" />](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
 
 
-
-## <img align="center" height="15" src="https://i.imgur.com/dHQx91Q.png"/> Publications
-
-Previous versions of this code have been used for a variety of publications. For 
-the respective code and the corresponding paper, see [Releases](https://github.com/awinkler/towr/releases).
-The theory on the current Release can be cited through this paper:
-
-> A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications), IEEE Robotics and Automation Letters (RA-L), 2018:
+## Publications
+The theory behind this code can be found in this paper:  
+A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications), IEEE Robotics and Automation Letters (RA-L), 2018:
 
     @article{winkler18,
       author    = {Winkler, Alexander W and Bellicoso, Dario C and 
@@ -149,9 +120,23 @@ The theory on the current Release can be cited through this paper:
       doi       = {10.1109/LRA.2018.2798285},
     }
 
-##  <img align="center" height="15" src="https://i.imgur.com/H4NwgMg.png"/> Bugs & Feature Requests
 
-Please report bugs and request features using the [Issue Tracker](https://github.com/ethz-adrl/towr/issues).
+## Authors 
+[Alexander W. Winkler](http://awinkler.me) - Initial Work/Maintainer
+
+[<img src="https://i.imgur.com/aGOnNTZ.png" height="45" />](https://www.ethz.ch/en.html "ETH Zurich") &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/uCvLs2j.png" height="45" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="45" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")
+
+
+
+## Contributing
+We love pull request, whether its new constraint formulations, additional robot models, bug fixes, unit tests or updating the documentation. Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) for more information.  
+
+See here the list of [contributors](https://github.com/ethz-adrl/towr/graphs/contributors) who participated in this project.
+
+
+##  Bugs & Feature Requests
+To report bugs, request features or ask questions, please have a look at [CONTRIBUTING.md](CONTRIBUTING.md). 
+
 
 
 [A. W. Winkler]: https://awinkler.github.io/publications.html
