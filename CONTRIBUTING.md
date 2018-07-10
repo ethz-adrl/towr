@@ -9,14 +9,15 @@ By participating, you are expected to uphold this code.
 
 
 ## Question or Issue?
-If you want to ask a general usage question, please do this at [ROS Answers](https://answers.ros.org/questions/ask/) 
-using the tag `towr`. Asking there has the following advantages:
+* [ROS Answers](https://answers.ros.org/questions/ask/):
+  If you want to ask a general usage question, please do this at ROS Answers using the tag `towr`. Asking there has the following advantages:
 
-- There are many more people reading questions there so your chances on getting an answer and in a timely manner are much higher.
-- In the future other users will search there for similar problems and can find your question and the potential answers.
+  - There are many more people reading questions there so your chances on getting an answer and in a timely manner are much   higher.
+  - In the future other users will search there for similar problems and can find your question and the potential answers.
 
-In case you want to report bugs, request features or anything more related to code than to usage, the 
-[issue tracker](https://github.com/ethz-adrl/towr/issues) in this repo is the way to go.   
+* [Issue tracker](https://github.com/ethz-adrl/towr/issues):
+  In case you want to report bugs, request features or anything more related to code than to usage, the 
+  Issue tracker in this repo is the way to go.   
 
 
 ## How Can I Contribute?
