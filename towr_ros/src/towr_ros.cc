@@ -99,23 +99,28 @@ TowrRos::PublishInitial()
 void
 TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 {
+  // robot model
   RobotModel model(static_cast<RobotModel::Robot>(msg.robot));
   auto robot_params_msg = BuildRobotParametersMsg(model);
   robot_parameters_pub_.publish(robot_params_msg);
 
+  // initial state
   SetInitialFromNominal(model.kinematic_model_->GetNominalStanceInBase());
   PublishInitial();
 
+  // goal state
   BaseState goal;
   goal.lin.at(kPos) = xpp::Convert::ToXpp(msg.goal_lin.pos);
   goal.lin.at(kVel) = xpp::Convert::ToXpp(msg.goal_lin.vel);
   goal.ang.at(kPos) = xpp::Convert::ToXpp(msg.goal_ang.pos);
   goal.ang.at(kVel) = xpp::Convert::ToXpp(msg.goal_ang.vel);
 
-  Parameters params;
-  params.OptimizeTimings();
-  params.SetSwingConstraint();
+  // terrain
+  auto terrain_id = static_cast<HeightMap::TerrainID>(msg.terrain);
+  terrain_ = HeightMap::MakeTerrain(terrain_id);
 
+  // solver parameters
+  Parameters params;
   int n_ee = model.kinematic_model_->GetNumberOfEndeffectors();
   auto gait_gen_ = GaitGenerator::MakeGaitGenerator(n_ee);
   auto id_gait   = static_cast<GaitGenerator::Combos>(msg.gait);
@@ -124,10 +129,11 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
     params.ee_phase_durations_.push_back(gait_gen_->GetPhaseDurations(msg.total_duration, ee));
     params.ee_in_contact_at_start_.push_back(gait_gen_->IsInContactAtStart(ee));
   }
+  params.SetSwingConstraint();
+  if (msg.optimize_phase_durations)
+    params.OptimizePhaseDurations();
 
-  auto terrain_id = static_cast<HeightMap::TerrainID>(msg.terrain);
-  terrain_ = HeightMap::MakeTerrain(terrain_id);
-
+  // TOWR
   towr_.SetInitialState(initial_base_, initial_ee_pos_);
   towr_.SetParameters(goal, params, model, terrain_);
 
@@ -144,6 +150,7 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
     int success = system(("rosbag play --topics "
         + xpp_msgs::robot_state_desired + " "
         + xpp_msgs::terrain_info
+        + " -r " + std::to_string(msg.replay_speed)
         + " --quiet " + bag_file).c_str());
   }
 

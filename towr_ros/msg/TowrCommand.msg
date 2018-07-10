@@ -1,10 +1,12 @@
 # The command for the robot specified by the user
 
-xpp_msgs/StateLin3d    goal_lin           # the linear state to reach (x,y,z and derivatives)
-xpp_msgs/StateLin3d    goal_ang           # the angular state to reach (roll, pitch, yaw and derivatives)
-float64                total_duration     # the total time to reach the goal state
-bool                   replay_trajectory  # Replay the already optimized trajectory in RVIZ
-bool                   optimize           # run TOWR optimization
-int32                  robot              # Monoped, Biped, Quadruped, Anymal
-int32                  terrain            # some information about the used terrain (e.g stairs, gap, slope)
-int32                  gait               # Type of Motion (Walk, Trott, Bound, Camel)
+xpp_msgs/StateLin3d    goal_lin                  # the linear state to reach (x,y,z and derivatives)
+xpp_msgs/StateLin3d    goal_ang                  # the angular state to reach (roll, pitch, yaw and derivatives)
+float64                total_duration            # the total time to reach the goal state
+bool                   replay_trajectory         # Replay the already optimized trajectory in RVIZ
+float64                replay_speed              # speed at which to playback the motion.
+bool                   optimize                  # run TOWR optimization
+int32                  robot                     # Monoped, Biped, Quadruped, Anymal
+int32                  terrain                   # some information about the used terrain (e.g stairs, gap, slope)
+int32                  gait                      # Type of Motion (Walk, Trott, Bound, Pace)
+bool                   optimize_phase_durations  # If true, the gait is optimized over as well

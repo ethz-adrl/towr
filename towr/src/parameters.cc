@@ -87,7 +87,7 @@ Parameters::SetSwingConstraint()
 }
 
 void
-Parameters::OptimizeTimings ()
+Parameters::OptimizePhaseDurations ()
 {
   // limiting this range can help convergence when optimizing gait
   // if phase durations too short, can also cause kinematic constraint to

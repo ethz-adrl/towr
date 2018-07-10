@@ -67,9 +67,11 @@ private:
   int gait_combo_;
   int robot_;
   bool replay_trajectory_;
+  double replay_speed_;
   bool optimize_;
   bool publish_optimized_trajectory_;
   double total_duration_;
+  bool optimize_phase_durations_;
 
   int AdvanceCircularBuffer(int& curr, int max) const;
 

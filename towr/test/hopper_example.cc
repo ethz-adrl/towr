@@ -64,6 +64,7 @@ int main()
   // alternating stance and swing:     ____-----_____-----_____-----_____
   params.ee_phase_durations_.push_back({0.4, 0.2, 0.4, 0.2, 0.4, 0.2, 0.2});
   params.ee_in_contact_at_start_.push_back(true);
+  params.SetSwingConstraint();
 
   // Pass this information to the actual solver
   TOWR towr;

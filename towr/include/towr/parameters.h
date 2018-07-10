@@ -64,7 +64,7 @@ struct Parameters {
   std::vector<bool> ee_in_contact_at_start_;
 
   /// Specifies that timings of all feet, so the gait, should be optimized.
-  void OptimizeTimings();
+  void OptimizePhaseDurations();
 
   /**
    * @brief Ensures smooth endeffector motion during swing-phase (recommended)
