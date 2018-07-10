@@ -4,10 +4,10 @@
   <version>1.3.0</version>
   <description>
     A ROS dependent wrapper for
-    <a href="https://github.com/ethz-adrl/towr">towr</a>.
+    <a href="http://wiki.ros.org/towr">towr</a>.
     Adds a keyboard user interface to set different goal states, motions
     and robots and visualizes the produced motions plan in rviz using
-    <a href="https://github.com/leggedrobotics/xpp">xpp</a>.
+    <a href="http://wiki.ros.org/xpp">xpp</a>.
   </description>
 
   <author email="winklera@ethz.ch">Alexander W. Winkler</author>
