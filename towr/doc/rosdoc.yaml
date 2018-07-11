@@ -1,0 +1,3 @@
+- builder: doxygen
+  file_patterns: '*.c *.cpp *.h *.cc *.hh *.dox *.md'
+  use_mdfile_as_mainpage: ./doc/mainpage.md
