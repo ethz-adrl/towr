@@ -42,6 +42,8 @@ namespace towr {
  *  This is used to restrict jumps in linear and angular base accelerations,
  *  since this would require jumps in foot positions or endeffector forces,
  *  which aren't allowed in our formulation.
+ *
+ * @ingroup Constraints
  */
 class SplineAccConstraint : public ifopt::ConstraintSet {
 public:

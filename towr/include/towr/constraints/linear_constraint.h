@@ -36,6 +36,8 @@ namespace towr {
 
 /**
  * @brief Calculates the constraint violations for linear constraints.
+ *
+ * @ingroup Constraints
  */
 class LinearEqualityConstraint : public ifopt::ConstraintSet {
 public:

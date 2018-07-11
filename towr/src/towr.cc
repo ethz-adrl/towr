@@ -70,7 +70,6 @@ TOWR::SolveNLP(const ifopt::Solver::Ptr& solver)
   nlp_.PrintCurrent();
 }
 
-
 SplineHolder
 TOWR::GetSolution() const
 {

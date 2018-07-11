@@ -55,6 +55,8 @@ namespace towr {
  * g(t) = acc_spline(t) - xdd(t)
  *      = acc_spline(t) - xdd(x(t), xd(t), f(t))
  *      = acc_spline(w) - xdd(w)
+ *
+ * @ingroup Constraints
  */
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:

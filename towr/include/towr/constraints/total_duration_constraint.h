@@ -46,6 +46,8 @@ namespace towr {
  * Attention: At this point last phase duration is not an optimization variable
  * and a way should be found to optimize over all phases while setting the
  * total duration by constraint and not through hard parameterization.
+ *
+ * @ingroup Constraints
  */
 class TotalDurationConstraint : public ifopt::ConstraintSet {
 public:

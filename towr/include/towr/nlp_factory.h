@@ -42,6 +42,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+/**
+ * @defgroup Variables
+ * @brief Variables of the trajectory optimization problem.
+ *
+ * These are the quantities through which the optimization problem is
+ * parameterized.
+ */
+
+/**
+ * @defgroup Constraints
+ * @brief Constraints of the trajectory optimization problem.
+ *
+ * These are the constraint sets that characterize legged locomotion.
+ */
+
+/**
+ * @defgroup Costs
+ * @brief Costs of the trajectory optimization problem.
+ *
+ * These the the cost terms that prioritize certain solutions to the
+ * legged locomotion problem.
+ */
+
 /** Builds variables, cost and constraints for the legged locomotion problem.
  *
  * Abstracts the entire problem of Trajectory Optimization for walking

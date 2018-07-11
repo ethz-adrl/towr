@@ -42,6 +42,8 @@ namespace towr {
  *        optimization variables.
  *
  * This is independent from whether they are added as optimization variables.
+ *
+ * @ingroup Variables
  */
 struct SplineHolder {
   /**

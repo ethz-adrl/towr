@@ -33,6 +33,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 
 namespace towr {
+/**
+ * @brief Identifiers (names) used for variables in the optimization problem.
+ *
+ * @ingroup Variables
+ */
 namespace id {
 
 static const std::string base_lin_nodes    = "base-lin";

@@ -43,6 +43,8 @@ namespace towr {
  * Define a cost as c(x) = 0.5 * g'^T * W * g', where W = diag(w1,...,wm).
  * Then the gradient of the cost is defined as:
  * dc(x)/dx = (g'(x)^T * W * J)^T = J^T * W * (g(x)-b).
+ *
+ * @ingroup Costs
  */
 class SoftConstraint : public ifopt::Component {
 public:

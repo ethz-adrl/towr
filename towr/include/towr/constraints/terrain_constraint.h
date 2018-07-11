@@ -45,6 +45,8 @@ namespace towr {
  * lifting during swing-phase. This is convenient.
  *
  * Attention: This is enforced only at the spline nodes.
+ *
+ * @ingroup Constraints
  */
 class TerrainConstraint : public ifopt::ConstraintSet {
 public:

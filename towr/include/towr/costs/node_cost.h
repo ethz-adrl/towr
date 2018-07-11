@@ -42,6 +42,8 @@ namespace towr {
 
 /**
  * @brief  Assigns a cost to node values.
+ *
+ * @ingroup Costs
  */
 class NodeCost : public ifopt::CostTerm {
 public:

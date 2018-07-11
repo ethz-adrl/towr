@@ -1,39 +1,51 @@
-\mainpage Test
+TOWR - Trajectory Optimizer for Walking Robots {#mainpage}
+---------------------
+
+*A light-weight and extensible C++ library for trajectory optimization for legged robots.*
+
+
+
 
 
 [TOC]
 
-
-Control Toolbox {#ct}
+Install {#install}
 ====================
+\code{.sh}
+sudo apt-get install ros-<ros-distro>-towr_ros
+\endcode
+In case the binaries for you distro don't exist, for more detailed
+instructions as well as all dependencies, please checkout the
+github 
+<a href="https://github.com/ethz-adrl/towr/blob/master/README.md">
+README.md
+</a>.
 
 
-This is the ADRL Control Toolbox ('CT'), an open-source C++ library for efficient modelling, control, 
-estimation, trajectory optimization and model predictive control.
-The CT is applicable to a broad class of dynamic systems, but features additional modelling tools specially designed for robotics.
-This page outlines its general concept, its major building blocks and highlights selected application examples.
-
-The library contains several tools to design and evaluate controllers, model dynamical systems and solve optimal control problems.
-The CT was designed with the following features in mind:
-
- - **Systems and dynamics**: 
-  - intuitive modelling of systems governed by ordinary differential- or difference equations.
-
- - **Trajectory optimization, optimal control and (nonlinear) model predictive control**:
-    - intuitive modelling of cost functions and constraints
-    - common interfaces for optimal control solvers and nonlinear model predictive control
-    - currently supported algorithms:
-      - Single Shooting
-      - iLQR \cite todorov2005ilqg / SLQ \cite slq:2005 
-    - Gauss-Newton-Multiple-Shooting (GNMS) \cite giftthaler2017family
-    - Classical Direct Multiple Shooting (DMS) \cite bock1984direct
-  - standardized interfaces for the solvers
-    - IPOPT (first and second order)
-      - SNOPT
-      - HPIPM
-      - custom Riccati-solver
- 
-Robot Application Examples {#examples}
+Run {#run}
 ==========================
+To run the code, type
+\code{.sh}
+roslaunch towr_ros towr_ros.launch
+\endcode
 
-The Control Toolbox has been used for Hardware and Simulation control tasks on flying, walking and ground robots.
+
+Tune {#tune}
+==========================
+The number of parameters to tune is relativel small (~10), however, they
+do have a large impact on speed and convergence of the optimizer.
+ 
+    
+Contribute {#contribute}
+==========================
+We love pull requests. Please see 
+<a href="https://github.com/ethz-adrl/towr/blob/master/CONTRIBUTING.md">
+CONTRIBUTING.md
+</a>
+ 
+   
+Authors {#authors}
+=======================
+[Alexander W. Winkler](https://github.com/awinkler) 
+
+

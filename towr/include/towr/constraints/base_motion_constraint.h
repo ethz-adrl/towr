@@ -42,6 +42,8 @@ namespace towr {
  *
  * In general this constraint should be avoided, since a similar affect can be
  * achieved with @ref RangeOfMotion.
+ *
+ *  * @ingroup Constraints
  */
 class BaseMotionConstraint : public TimeDiscretizationConstraint {
 public:
