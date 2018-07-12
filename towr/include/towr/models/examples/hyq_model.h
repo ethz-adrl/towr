@@ -36,6 +36,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+/**
+ * \addtogroup Robots
+ * @{
+ */
 class HyqKinematicModel : public KinematicModel {
 public:
   HyqKinematicModel () : KinematicModel(4)
@@ -53,13 +57,13 @@ public:
   }
 };
 
-
 class HyqDynamicModel : public CentroidalModel {
 public:
   HyqDynamicModel() : CentroidalModel(83,
                       4.26, 8.97, 9.88, -0.0063, 0.193, 0.0126,
                       4) {}
 };
+/** @}*/
 
 } /* namespace towr */
 

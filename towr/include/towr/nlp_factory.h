@@ -44,7 +44,8 @@ namespace towr {
 
 /**
  * @defgroup Variables
- * @brief Variables of the trajectory optimization problem.
+ * @brief Variables of the trajectory optimization problem
+ * (@ref include/towr/variables).
  *
  * These are the quantities through which the optimization problem is
  * parameterized.
@@ -53,6 +54,7 @@ namespace towr {
 /**
  * @defgroup Constraints
  * @brief Constraints of the trajectory optimization problem.
+ * (@ref include/towr/constraints)
  *
  * These are the constraint sets that characterize legged locomotion.
  */
@@ -60,6 +62,7 @@ namespace towr {
 /**
  * @defgroup Costs
  * @brief Costs of the trajectory optimization problem.
+ * (@ref include/towr/costs)
  *
  * These the the cost terms that prioritize certain solutions to the
  * legged locomotion problem.
@@ -115,7 +118,7 @@ private:
   std::vector<PhaseDurations::Ptr> MakeContactScheduleVariables() const;
 
   // constraints
-  ContraintPtrVec GetConstraint(ConstraintName name) const;
+  ContraintPtrVec GetConstraint(Parameters::ConstraintName name) const;
   ContraintPtrVec MakeDynamicConstraint() const;
   ContraintPtrVec MakeRangeOfMotionBoxConstraint() const;
   ContraintPtrVec MakeTotalTimeConstraint() const;
@@ -126,7 +129,7 @@ private:
   ContraintPtrVec MakeBaseAccConstraint() const;
 
   // costs
-  CostPtrVec GetCost(const CostName& id, double weight) const;
+  CostPtrVec GetCost(const Parameters::CostName& id, double weight) const;
   CostPtrVec MakeForcesCost(double weight) const;
 };
 

@@ -159,4 +159,3 @@ To report bugs, request features or ask questions, please have a look at [CONTRI
 [catkin]: http://wiki.ros.org/catkin
 [catkin tools]: http://catkin-tools.readthedocs.org/
 [Eigen]: http://eigen.tuxfamily.org
-[Fa2png]: http://fa2png.io/r/font-awesome/link/

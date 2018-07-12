@@ -49,6 +49,8 @@ namespace towr {
  * all quantities in Cartesian space.
  *
  * \sa https://en.wikipedia.org/wiki/Newton%E2%80%93Euler_equations
+ *
+ * @ingroup Robots
  */
 class CentroidalModel : public DynamicModel {
 public:

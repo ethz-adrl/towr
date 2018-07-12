@@ -54,6 +54,8 @@ namespace towr {
  * Currently, only @ref CentroidalModel is implemented, but this can be
  * extended in the future to also incorporate full rigid body dynamics. This
  * interface to the solver should remain the same.
+ *
+ * @ingroup Robots
  */
 class DynamicModel {
 public:

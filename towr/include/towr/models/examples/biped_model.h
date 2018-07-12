@@ -36,6 +36,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+/**
+ * \addtogroup Robots
+ * @{
+ */
 class BipedKinematicModel : public KinematicModel {
 public:
   BipedKinematicModel () : KinematicModel(2)
@@ -58,6 +62,7 @@ public:
                     1.209,5.583,6.056,0.005,-0.190,-0.012,
                     2) {}
 };
+/** @}*/
 
 } /* namespace towr */
 

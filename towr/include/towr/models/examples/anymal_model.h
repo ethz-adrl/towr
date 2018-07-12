@@ -36,6 +36,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+/**
+ * \addtogroup Robots
+ * @{
+ */
 class AnymalKinematicModel : public KinematicModel {
 public:
   AnymalKinematicModel () : KinematicModel(4)
@@ -61,8 +65,8 @@ public:
                     0.946438, 1.94478, 2.01835, 0.000938112, -0.00595386, -0.00146328,
                     4) {}
 };
+/** @}*/
 
 } // namespace towr
-
 
 #endif /* TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_ANYMAL_MODEL_H_ */

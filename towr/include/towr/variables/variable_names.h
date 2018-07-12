@@ -35,8 +35,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 /**
  * @brief Identifiers (names) used for variables in the optimization problem.
- *
- * @ingroup Variables
  */
 namespace id {
 
