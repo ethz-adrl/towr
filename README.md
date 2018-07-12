@@ -99,9 +99,9 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   roslaunch towr_ros towr_ros.launch
   ```
   Click in the xterm terminal and hit 'o'. 
-  
+  [![Documentation](https://img.shields.io/badge/docs-generated-brightgreen.svg)](http://docs.ros.org/kinetic/api/towr/html/)
   For more detailed information on the parameters and how to tune them according to your problem, please see the
-  doxygen [documentation](http://docs.ros.org/kinetic/api/towr/html/) [![Documentation](https://img.shields.io/badge/docs-generated-brightgreen.svg)](http://docs.ros.org/kinetic/api/towr/html/).
+  doxygen [documentation](http://docs.ros.org/kinetic/api/towr/html/). 
 
 [<img src="https://i.imgur.com/LNuyEIn.gif" />](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
 
