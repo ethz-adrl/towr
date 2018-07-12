@@ -42,6 +42,8 @@ namespace towr {
  * same optimization variable. This is because a foot in stance cannot
  * move (or a force in flight must be zero). This makes the number of
  * optimization variables less than the total node values.
+ *
+ * @ingroup Variables
  */
 class PhaseNodes : public Nodes {
 public:

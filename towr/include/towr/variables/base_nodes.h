@@ -39,6 +39,8 @@ namespace towr {
  *
  * Every node is optimized over, in contrast to PhaseNodes, where multiple
  * nodes in the spline are represented by the same optimization variables.
+ *
+ * @ingroup Variables
  */
 class BaseNodes : public Nodes {
 public:

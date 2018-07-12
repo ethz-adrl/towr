@@ -49,12 +49,16 @@ namespace towr {
  * defined by the system dynamics.
  *
  * The physics-based acceleration is influenced by the robot state as
- * xdd(t) = f(x(t), xd(t), f(t))
+ *
+ *     xdd(t) = f(x(t), xd(t), f(t))
  *
  * The constraint of the optimization variables w is then:
- * g(t) = acc_spline(t) - xdd(t)
- *      = acc_spline(t) - xdd(x(t), xd(t), f(t))
- *      = acc_spline(w) - xdd(w)
+ *
+ *     g(t) = acc_spline(t) - xdd(t)
+ *          = acc_spline(t) - xdd(x(t), xd(t), f(t))
+ *          = acc_spline(w) - xdd(w)
+ *
+ * @ingroup Constraints
  */
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:

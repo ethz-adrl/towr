@@ -42,6 +42,8 @@ namespace towr {
  *
  * This class is mainly used to formulate the @ref RangeOfMotionConstraint,
  * restricting each endeffector to stay inside it's kinematic range.
+ *
+ * @ingroup Robots
  */
 class KinematicModel {
 public:

@@ -35,6 +35,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+/**
+ * \addtogroup Robots
+ * @{
+ */
 class MonopedKinematicModel : public KinematicModel {
 public:
   MonopedKinematicModel () : KinematicModel(1)
@@ -52,8 +56,7 @@ public:
                     1.2, 5.5, 6.0, 0.0, -0.2, -0.01, // base inertia
                     1) {}                            // number of endeffectors
 };
-
-
+/** @}*/
 
 } /* namespace towr */
 

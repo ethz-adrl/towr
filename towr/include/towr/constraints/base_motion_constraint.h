@@ -41,7 +41,9 @@ namespace towr {
  * @brief Keeps the 6D base motion in a specified range.
  *
  * In general this constraint should be avoided, since a similar affect can be
- * achieved with @ref RangeOfMotion.
+ * achieved with RangeOfMotionConstraint.
+ *
+ * @ingroup Constraints
  */
 class BaseMotionConstraint : public TimeDiscretizationConstraint {
 public:

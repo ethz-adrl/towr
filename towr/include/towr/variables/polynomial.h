@@ -49,6 +49,8 @@ namespace towr {
  *
  * This class is responsible for calculating the values f(t) and higher order
  * derivatives from the coefficient values.
+ *
+ * @ingroup Variables
  */
 class Polynomial {
 public:

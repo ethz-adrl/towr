@@ -49,6 +49,8 @@ namespace towr {
  *
  * Attention: Constraint is enforced only at the spline nodes. In between
  * violations of this constraint can occur.
+ *
+ * @ingroup Constraints
  */
 class ForceConstraint : public ifopt::ConstraintSet {
 public:

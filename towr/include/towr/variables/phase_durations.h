@@ -42,6 +42,8 @@ namespace towr {
  * This class holds the current variables determining the alternating swing-
  * and stance durations of one foot. These durations are then used in the
  * Spline together with NodeVariables to construct foot motions and forces.
+ *
+ * @ingroup Variables
  */
 class PhaseDurations : public ifopt::VariableSet {
 public:

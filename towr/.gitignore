@@ -1,1 +1,3 @@
 build
+doc/html/*
+doc/manifest.yaml

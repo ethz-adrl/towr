@@ -49,6 +49,8 @@ namespace towr {
   * This constraint calculates the position of of the contact expressed in the
   * current CoM frame and constrains it to lie in a box around the nominal/
   * natural contact position for that leg.
+  *
+  * @ingroup Constraints
   */
 class RangeOfMotionConstraint : public TimeDiscretizationConstraint {
 public:

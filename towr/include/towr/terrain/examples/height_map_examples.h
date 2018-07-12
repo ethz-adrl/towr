@@ -34,6 +34,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+/**
+ * @addtogroup Terrains
+ * @{
+ */
 
 class FlatGround : public HeightMap {
 public:
@@ -146,6 +150,7 @@ private:
   const double x_end2_ = x_start_+2*length_;
 };
 
+/** @}*/
 
 } /* namespace towr */
 

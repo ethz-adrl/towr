@@ -98,13 +98,18 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   ```bash
   roslaunch towr_ros towr_ros.launch
   ```
-  Click in the xterm terminal and hit 'o'.
+  Click in the xterm terminal and hit 'o'. 
+  
+  [![Documentation](https://img.shields.io/badge/docs-generated-brightgreen.svg)](http://docs.ros.org/kinetic/api/towr/html/)
+  For more detailed information on the parameters and how to tune them according to your problem, please see the
+  doxygen [documentation](http://docs.ros.org/kinetic/api/towr/html/). 
 
 [<img src="https://i.imgur.com/LNuyEIn.gif" />](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
 
 
 ## Publications
 The theory behind this code can be found in this paper:  
+
 A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications), IEEE Robotics and Automation Letters (RA-L), 2018:
 
     @article{winkler18,
@@ -124,13 +129,14 @@ A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimiza
 ## Authors 
 [Alexander W. Winkler](http://awinkler.me) - Initial Work/Maintainer
 
+The work was carried out at the following institutions:
+
 [<img src="https://i.imgur.com/aGOnNTZ.png" height="45" />](https://www.ethz.ch/en.html "ETH Zurich") &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/uCvLs2j.png" height="45" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="45" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")
 
 
 
 ## Contributing
 We love pull request, whether its new constraint formulations, additional robot models, bug fixes, unit tests or updating the documentation. Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) for more information.  
-
 See here the list of [contributors](https://github.com/ethz-adrl/towr/graphs/contributors) who participated in this project.
 
 
@@ -159,4 +165,3 @@ To report bugs, request features or ask questions, please have a look at [CONTRI
 [catkin]: http://wiki.ros.org/catkin
 [catkin tools]: http://catkin-tools.readthedocs.org/
 [Eigen]: http://eigen.tuxfamily.org
-[Fa2png]: http://fa2png.io/r/font-awesome/link/

@@ -103,6 +103,8 @@ private:
  *
  * In this framework a node only has position and velocity values, no
  * acceleration.
+ *
+ * @ingroup Variables
  */
 class Node : public State {
 public:

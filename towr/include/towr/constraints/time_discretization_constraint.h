@@ -44,6 +44,8 @@ namespace towr {
  * @ref RangeOfMotion, or @ref DynamicConstraint at specific times t along
  * the trajectory. This class is responsible for building the overall
  * Jacobian from the individual Jacobians at each time instance.
+ *
+ * @ingroup Constraints
  */
 class TimeDiscretizationConstraint : public ifopt::ConstraintSet {
 public:

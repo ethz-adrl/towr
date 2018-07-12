@@ -43,6 +43,8 @@ namespace towr {
  * leaves the e.g. range-of-motion in between nodes. This constraint can also
  * be used to force a leg lift. However, it is cleanest if the optimization
  * can be performed without this heuristic constraint.
+ *
+ * @ingroup Constraints
  */
 class SwingConstraint : public ifopt::ConstraintSet {
 public:

@@ -47,6 +47,7 @@ namespace towr {
  * specifying a polynomial is called "Hermite". These are the node values
  * composed of position and velocity.
  *
+ * @ingroup Variables
  * @sa class CubicHermitePolynomial
  */
 class Nodes : public ifopt::VariableSet {

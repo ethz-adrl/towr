@@ -187,7 +187,7 @@ NlpFactory::ContraintPtrVec
 NlpFactory::GetConstraints() const
 {
   ContraintPtrVec constraints;
-  for (ConstraintName name : params_.constraints_)
+  for (auto name : params_.constraints_)
     for (auto c : GetConstraint(name))
       constraints.push_back(c);
 
@@ -195,17 +195,17 @@ NlpFactory::GetConstraints() const
 }
 
 NlpFactory::ContraintPtrVec
-NlpFactory::GetConstraint (ConstraintName name) const
+NlpFactory::GetConstraint (Parameters::ConstraintName name) const
 {
   switch (name) {
-    case Dynamic:        return MakeDynamicConstraint();
-    case EndeffectorRom: return MakeRangeOfMotionBoxConstraint();
-    case BaseRom:        return MakeBaseRangeOfMotionConstraint();
-    case TotalTime:      return MakeTotalTimeConstraint();
-    case Terrain:        return MakeTerrainConstraint();
-    case Force:          return MakeForceConstraint();
-    case Swing:          return MakeSwingConstraint();
-    case BaseAcc:        return MakeBaseAccConstraint();
+    case Parameters::Dynamic:        return MakeDynamicConstraint();
+    case Parameters::EndeffectorRom: return MakeRangeOfMotionBoxConstraint();
+    case Parameters::BaseRom:        return MakeBaseRangeOfMotionConstraint();
+    case Parameters::TotalTime:      return MakeTotalTimeConstraint();
+    case Parameters::Terrain:        return MakeTerrainConstraint();
+    case Parameters::Force:          return MakeForceConstraint();
+    case Parameters::Swing:          return MakeSwingConstraint();
+    case Parameters::BaseAcc:        return MakeBaseAccConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -327,10 +327,10 @@ NlpFactory::GetCosts() const
 }
 
 NlpFactory::CostPtrVec
-NlpFactory::GetCost(const CostName& name, double weight) const
+NlpFactory::GetCost(const Parameters::CostName& name, double weight) const
 {
   switch (name) {
-    case ForcesCostID:       return MakeForcesCost(weight);
+    case Parameters::ForcesCostID: return MakeForcesCost(weight);
     default: throw std::runtime_error("cost not defined!");
   }
 }

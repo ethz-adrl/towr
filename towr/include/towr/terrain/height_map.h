@@ -42,6 +42,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
+ * @defgroup Terrains
+ * @brief The heightmap and slope of various terrains.
+ * (\ref include/towr/terrain).
+ */
+
+/**
  * @brief Holds the height and slope information of the terrain.
  *
  * This class is responsible for providing the height values and slope at
@@ -55,6 +61,8 @@ namespace towr {
  * The height map is used to formulate constraints such as
  * "foot must be touching terrain during stance phase".
  * @sa TerrainConstraint
+ *
+ * @ingroup Terrains
  */
 class HeightMap {
 public:

@@ -1,0 +1,2 @@
+- builder: doxygen
+  file_patterns: '*.c *.cpp *.h *.cc *.hh *.dox *.md'
