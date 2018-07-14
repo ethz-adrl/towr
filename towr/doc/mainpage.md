@@ -3,7 +3,7 @@ TOWR - Trajectory Optimizer for Walking Robots {#mainpage}
 
 | *TOWR - A light-weight and extensible C++ library for trajectory optimization for legged robots.* | |
 | -------|------ |
-| <img src="../figures/towr_motion_snaps.png" width="700px"/> | |
+| \image html towr_motion_snaps.png | |
 
 This [Eigen]-based library implements variables, costs and constraints that can be 
 used to formulate and solve a legged locomotion optimization problem. 

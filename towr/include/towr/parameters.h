@@ -47,7 +47,7 @@ namespace towr {
  *
  * | Towr problem formulation | |
  * | -------|------ |
- * | <img src="../figures/towr_problem_with_code.png" width="700px"/> | |
+ * | \image html towr_problem_with_code.png | |
  *
  * ### Constraint discretization ###
  * Another factor that strongly impacts the **solution time** is how
