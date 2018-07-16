@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/models/robot_model.h>
 #include <towr/towr.h>
 
-#include <ifopt/ipopt.h>
+#include <ifopt/ipopt_solver.h>
 
 
 using namespace towr;
@@ -71,7 +71,7 @@ int main()
   towr.SetInitialState(initial_base, {initial_foot_pos_W});
   towr.SetParameters(goal, params, model, terrain);
 
-  auto solver = std::make_shared<ifopt::Ipopt>();
+  auto solver = std::make_shared<ifopt::IpoptSolver>();
   towr.SolveNLP(solver);
 
   auto x = towr.GetSolution();

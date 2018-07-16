@@ -50,7 +50,7 @@ namespace towr {
  * | \image html towr_problem_with_code.png | |
  *
  * ### Constraint discretization ###
- * Another factor that strongly impacts the **solution time** is how
+ * A factor that strongly impacts the **solution time** is how
  * often the DynamicConstraint and the RangeOfMotionConstraint are enforced
  * along the trajectory (given by the values of @ref dt_constraint_dynamic_
  * and @ref dt_constraint_range_of_motion_). Increasing the discretization
@@ -69,8 +69,8 @@ namespace towr {
  * that the dynamic model is being respected.
  *
  * ### Number of optimization variables ###
- * In order to **shorten the solution time**, one way is to use less polynomials,
- * but each of longer duration. This can be achieved by increasing the
+ * In order to **shorten the solution time**, another way way is to use less
+ * polynomials, but each of longer duration. This can be achieved by increasing the
  * @ref duration_base_polynomial_. However, the longer this duration becomes, the
  * less parameters (freedom), the solver has to find a solution that
  * fullfills all the constraints, so it becomes more likely that no solution

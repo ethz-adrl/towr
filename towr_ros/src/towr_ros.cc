@@ -59,10 +59,10 @@ TowrRos::TowrRos ()
   robot_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
                                     (xpp_msgs::robot_parameters, 1);
 
-  solver_ = std::make_shared<ifopt::Ipopt>(); // could also use SNOPT here
-  solver_->print_level_  = 5;
-  solver_->max_cpu_time_ = 20.0;
-  solver_->use_jacobian_approximation_ = false;
+  solver_ = std::make_shared<ifopt::IpoptSolver>(); // could also use SNOPT here
+  solver_->SetOption("linear_solver", "mumps");
+  solver_->SetOption("jacobian_approximation", "exact");
+  solver_->SetOption("max_cpu_time", 40.0);
 
   visualization_dt_ = 0.02;
 }

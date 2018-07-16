@@ -11,7 +11,6 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/ethz-adrl/towr/badge)](https://www.codefactor.io/repository/github/ethz-adrl/towr)
 [![License BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29#fulltext)
 
-
 This Eigen-based library implements variables, costs and constraints that can be used to formulate and solve a legged locomotion optimization problem. It has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
 
 Features:  
@@ -42,7 +41,7 @@ There are two ways to build this code:
   ```bash
   git clone https://github.com/ethz-adrl/towr.git && cd towr/towr
   mkdir build && cd build
-  cmake ..
+  cmake .. -DCMAKE_BUILD_TYPE=Release
   make
   sudo make install # copies files in this folder to /usr/local/*
   # sudo xargs rm < install_manifest.txt # in case you want to uninstall the above
@@ -76,7 +75,7 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   git clone https://github.com/ethz-adrl/ifopt.git
   git clone https://github.com/ethz-adrl/towr.git
   cd ..
-  catkin_make_isolated  # `catkin build` if you are using catkin command-line tools 
+  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release # or `catkin build`
   source ./devel/setup.bash
   ```
   

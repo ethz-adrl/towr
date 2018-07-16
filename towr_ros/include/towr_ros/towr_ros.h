@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr_ros/TowrCommand.h>
 
 #include <towr/towr.h>
-#include <ifopt/ipopt.h>
+#include <ifopt/ipopt_solver.h>
 
 
 namespace towr {
@@ -72,7 +72,7 @@ private:
 
   HeightMap::Ptr terrain_;
   TOWR towr_;
-  ifopt::Ipopt::Ptr solver_;
+  ifopt::IpoptSolver::Ptr solver_;
   double visualization_dt_; ///< discretization of output trajectory (1/TaskServoHz)
 
 private:
