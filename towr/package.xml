@@ -9,14 +9,15 @@
     that can be used to represent a legged locomotion problem. 
     The resulting Nonlinear Programming Problem (NLP) can then be solved with
     off-the-shelf solvers, e.g. Ipopt using the generic optimizer interface 
-    <a href="https://github.com/ethz-adrl/ifopt">ifopt</a>.
+    <a href="http://wiki.ros.org/ifopt">ifopt</a>.
   </description>
 
-  <author email="winklera@ethz.ch">Alexander W. Winkler</author>
-  <maintainer email="winklera@ethz.ch">Alexander W. Winkler</maintainer>
+  <author>Alexander W. Winkler</author>
+  <maintainer email="alexander.w.winkler@gmail.com">Alexander W. Winkler</maintainer>
   <license>BSD</license>
   
   <url type="website">http://github.com/ethz-adrl/towr</url>
+  <url type="bugtracker">http://github.com/ethz-adrl/towr/issues</url>
 
   <depend>ifopt</depend>
   <depend>eigen</depend>

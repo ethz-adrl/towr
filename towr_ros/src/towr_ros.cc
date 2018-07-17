@@ -63,6 +63,7 @@ TowrRos::TowrRos ()
   solver_->SetOption("linear_solver", "mumps");
   solver_->SetOption("jacobian_approximation", "exact");
   solver_->SetOption("max_cpu_time", 40.0);
+  solver_->SetOption("print_level", 5);
 
   visualization_dt_ = 0.02;
 }
