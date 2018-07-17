@@ -2,6 +2,11 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* adapt to more generic ifopt solver interface.
+* Contributors: Alexander Winkler
+
 1.3.1 (2018-07-10)
 ------------------
 * Improve API (`#23 <https://github.com/ethz-adrl/towr/issues/23>`_)

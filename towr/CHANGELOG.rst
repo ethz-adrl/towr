@@ -2,6 +2,15 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* adapt to more generic ifopt solver interface.
+* Improve doxygen  (`#26 <https://github.com/ethz-adrl/towr/issues/26>`_)
+  * add overview on main doxygen landing
+  * add doxygen groups to variables/constraints/costs
+  * add parameter explanation
+* Contributors: Alexander Winkler
+
 1.3.1 (2018-07-10)
 ------------------
 * Improve API (`#23 <https://github.com/ethz-adrl/towr/issues/23>`_)
