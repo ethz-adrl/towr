@@ -11,21 +11,25 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/ethz-adrl/towr/badge)](https://www.codefactor.io/repository/github/ethz-adrl/towr)
 [![License BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29#fulltext)
 
-This Eigen-based library implements variables, costs and constraints that can be used to formulate and solve a legged locomotion optimization problem. It has been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
+A base-set of variables, costs and constraints that can be combined and extended to formulate trajectory optimization problems for legged systems. These implementations have been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
 
 Features:  
-:heavy_check_mark: Inuitive formulations of variables, cost and constraints using [Eigen].   
-:heavy_check_mark: [ifopt] allows to choose between [Ipopt] or [Snopt] to solve the NLP.    
-:heavy_check_mark: fast performance due to Eigen sparse matrix exploitation.  
-:heavy_check_mark: light-weight ([~6k lines](https://i.imgur.com/gP3gv34.png) of code) makes it easy to use and extend with own formulations.  
-:heavy_check_mark: elegant rviz visualization of motion plans using [xpp].  
-:heavy_check_mark: [catkin] integration (optional).  
+:heavy_check_mark: Inuitive and efficient formulation of variables, cost and constraints using [Eigen].   
+:heavy_check_mark: [ifopt] enables using the high-performance solvers [Ipopt] and [Snopt].  
+:heavy_check_mark: Elegant rviz visualization of motion plans using [xpp].  
+:heavy_check_mark: [ROS]/[catkin] integration (optional).  
+:heavy_check_mark: Light-weight ([~6k lines](https://i.imgur.com/gP3gv34.png) of code) makes it easy to use and extend.  
 
-[<img src="https://i.imgur.com/j8lt5SE.png" />](https://youtu.be/0jE46GqzxMM "Play video on Youtube")
+[<img src="https://i.imgur.com/8M4v4aP.gif" />](https://youtu.be/0jE46GqzxMM "Show more examples on Youtube")
 
 
-## Building
-There are two ways to build this code:
+## Install
+The easiest way to install is through the [ROS binaries](http://wiki.ros.org/towr):
+```bash
+sudo apt-get install ros-<ros-distro>-towr_ros
+```
+
+In case these don't yet exist for your distro, there are two ways to build this code from source:
 * [Option 1](#towr-with-cmake): core library and hopper-example with pure [CMake].
 * [Option 2](#towr-ros-with-catkin) (recommended): core library & GUI & ROS-rviz-visualization built with [catkin] and [ROS]. 
 
@@ -102,8 +106,6 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   [![Documentation](https://img.shields.io/badge/docs-generated-brightgreen.svg)](http://docs.ros.org/kinetic/api/towr/html/)
   For more detailed information on the parameters and how to tune them according to your problem, please see the
   doxygen [documentation](http://docs.ros.org/kinetic/api/towr/html/). 
-
-[<img src="https://i.imgur.com/LNuyEIn.gif" />](https://www.youtube.com/embed/7dP_QTPOyQ8?rel=0&autoplay=1)
 
 
 ## Publications
