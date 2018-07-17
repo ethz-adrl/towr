@@ -2,8 +2,8 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.2 (2018-07-17)
+------------------
 * adapt to more generic ifopt solver interface.
 * Contributors: Alexander Winkler
 

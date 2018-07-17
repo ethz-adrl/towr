@@ -2,8 +2,8 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.2 (2018-07-17)
+------------------
 * adapt to more generic ifopt solver interface.
 * Improve doxygen  (`#26 <https://github.com/ethz-adrl/towr/issues/26>`_)
   * add overview on main doxygen landing
