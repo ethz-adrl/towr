@@ -39,7 +39,7 @@ PhaseNodes::SetBoundsEEMotion ()
     auto nvi = GetNodeInfoAtOptIndex(idx).front(); // bound idx by first node it represents
 
     // stance-node:
-    // Phase-base-Endeffector Parameterization:
+    // Phase-based End-effector Parameterization:
     // end-effector is not allowed to move if in stance phase
     if (IsConstantNode(nvi.id_)) {
       if (nvi.deriv_ == kVel)
@@ -71,7 +71,7 @@ PhaseNodes::SetBoundsEEForce ()
     NodeValueInfo nvi = GetNodeInfoAtOptIndex(idx).front(); // only one node anyway
 
     // swing node
-    // Phase-base-Endeffector Parameterization
+    // Phase-based End-effector Parameterization
     if (IsConstantNode(nvi.id_)) {
       bounds_.at(idx) = ifopt::BoundZero; // force must be zero during swing-phase
     }

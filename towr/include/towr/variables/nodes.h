@@ -106,7 +106,7 @@ public:
    * @brief Pure optimization variables that define the nodes.
    *
    * Not all node position and velocities are independent or optimized over, so
-   * usually the number of optimization variables is less than all nodes pos/vel.
+   * usually the number of optimization variables is less than all nodes' pos/vel.
    *
    * @sa GetNodeInfoAtOptIndex()
    */

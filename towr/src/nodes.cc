@@ -47,22 +47,6 @@ Nodes::InitMembers(int n_nodes, int n_variables)
   SetRows(n_variables);
 }
 
-void
-Nodes::InitializeNodesTowardsGoal(const VectorXd& initial_pos,
-                               const VectorXd& final_pos,
-                               double t_total)
-{
-  VectorXd dp = final_pos-initial_pos;
-  VectorXd average_velocity = dp/t_total;
-  int num_nodes = nodes_.size();
-  for (int i=0; i<nodes_.size(); ++i) {
-    Node n(n_dim_);
-    n.at(kPos) = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
-    n.at(kVel) = average_velocity;
-    nodes_.at(i) = n;
-  }
-}
-
 Nodes::NodeValueInfo::NodeValueInfo(int node_id, Dx deriv, int node_dim)
 {
   id_    = node_id;
@@ -173,6 +157,22 @@ const std::vector<Node>
 Nodes::GetNodes() const
 {
   return nodes_;
+}
+
+void
+Nodes::InitializeNodesTowardsGoal(const VectorXd& initial_pos,
+                               const VectorXd& final_pos,
+                               double t_total)
+{
+  VectorXd dp = final_pos-initial_pos;
+  VectorXd average_velocity = dp/t_total;
+  int num_nodes = nodes_.size();
+  for (int i=0; i<nodes_.size(); ++i) {
+    Node n(n_dim_);
+    n.at(kPos) = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
+    n.at(kVel) = average_velocity;
+    nodes_.at(i) = n;
+  }
 }
 
 void

@@ -21,7 +21,9 @@ Develop {#develop}
  * This code formulates the variables, costs and constraints using [ifopt](https://github.com/ethz-adrl/ifopt), so it makes sense to first briefly familiarize with the syntax using [this example](https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h). 
 
  * To understand the architecture of the code and which are the relevant classes
-and parameters to customize or build on, please see [Modules](modules.html). 
+and parameters to customize or build on, please see [Modules](modules.html).
+
+ * A nice graphical overview as UML can be seen [here](inherits.html).
 
 Paper {#paper}
 =================
