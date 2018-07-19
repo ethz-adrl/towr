@@ -47,8 +47,10 @@ namespace towr {
  * specifying a polynomial is called "Hermite". These are the node values
  * composed of position and velocity.
  *
+ * See this explanation: https://youtu.be/KhWuLvb934g?t=1004
+ *
  * @ingroup Variables
- * @sa class CubicHermitePolynomial
+ * @sa CubicHermitePolynomial PhaseNodes
  */
 class Nodes : public ifopt::VariableSet {
 public:
@@ -57,12 +59,13 @@ public:
   using ObserverPtr  = NodesObserver*;
 
   /**
-   * @brief Holds information about the node the optimization index represents.
+   * @brief Semantic information associated with one scalar optimization variable.
+   * @sa GetNodeInfoAtOptIndex()
    */
   struct IndexInfo {
-    int node_id_;   ///< The ID of the node of the optimization index.
-    Dx node_deriv_; ///< The derivative (pos,vel) of that optimziation index.
-    int node_dim_;  ///< the dimension (x,y,z) of that optimization index.
+    int node_id_;   ///< ID of the associated node.
+    Dx node_deriv_; ///< Derivative (pos,vel) of the node with that ID.
+    int node_dim_;  ///< Dimension (x,y,z) of that derivative.
 
     IndexInfo() = default;
     IndexInfo(int node_id, Dx deriv, int node_dim);
@@ -77,34 +80,37 @@ public:
    * One optimization variables can also represent multiple nodes in the spline
    * if they are always equal (e.g. constant phases). This is why this function
    * returns a vector.
+   *
    */
-  virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const = 0;
+  virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const;
 
   /**
-   * @brief The index at which a specific node variable is stored.
+   * @brief The index in the optimization vector for a specific nodes' pos/vel.
    * @param node_info The node variable we want to know the index for.
    * @return The position of this node value in the optimization variables.
    */
   int Index(const IndexInfo& node_info) const;
-  int Index(int node_id, Dx deriv, int node_dim) const;
 
   /**
-   * @brief Sets nodes pos/vel equally spaced from initial to final position.
-   * @param initial_pos  The position of the first node.
-   * @param final_pos  The position of the final node.
-   * @param t_total  The total duration to reach final node (to set velocities).
-   */
-  void InitializeNodesTowardsGoal(const VectorXd& initial_pos,
-                                  const VectorXd& final_pos,
-                                  double t_total);
-  /**
-   * @returns the stacked node position and velocity values.
+   * @brief the pure optimization variables to parameterize the nodes.
+   *
+   * Not all node position and velocities are independent or optimized over, so
+   * usually the number of optimization variables is less than
+   * all nodes pos/vel.
+   *
+   * @sa GetNodeInfoAtOptIndex
    */
   VectorXd GetValues () const override;
 
   /**
-   * @brief Sets the node position and velocity optimization variables.
-   * @param x The stacked variables.
+   * @brief Sets some node positions and velocity from the optimization variables.
+   * @param x The optimization variables.
+   *
+   * Not all node position and velocities are independent or optimized over, so
+   * usually the number of optimization variables is less than
+   * all nodes pos/vel.
+   *
+   * @sa GetNodeInfoAtOptIndex
    */
   void SetVariables (const VectorXd&x) override;
 
@@ -146,6 +152,16 @@ public:
    * @returns  The dimensions (x,y,z) of every node.
    */
   int GetDim() const;
+
+  /**
+   * @brief Sets nodes pos/vel equally spaced from initial to final position.
+   * @param initial_pos  The position of the first node.
+   * @param final_pos  The position of the final node.
+   * @param t_total  The total duration to reach final node (to set velocities).
+   */
+  void InitializeNodesTowardsGoal(const VectorXd& initial_pos,
+                                  const VectorXd& final_pos,
+                                  double t_total);
 
   /**
    * @brief Restricts the first node in the spline.

@@ -71,12 +71,6 @@ Nodes::IndexInfo::IndexInfo(int node_id, Dx deriv, int node_dim)
 }
 
 int
-Nodes::Index(int node_id, Dx deriv, int node_dim) const
-{
-  return Index(IndexInfo(node_id, deriv, node_dim));
-}
-
-int
 Nodes::Index(const IndexInfo& n) const
 {
   // could also cache this as map for more efficiency, but adding complexity

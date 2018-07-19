@@ -32,6 +32,55 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+void
+PhaseNodes::SetBoundsEEMotion ()
+{
+  for (int i=0; i<GetRows(); ++i) {
+    auto idx = GetNodeInfoAtOptIndex(i).front(); // bound idx by first node it represents
+
+    // stance node
+    if (IsConstantNode(idx.node_id_)) {
+      // endeffector is not allowed to move if in stance phase
+      if (idx.node_deriv_ == kVel)
+        bounds_.at(i) = ifopt::BoundZero;
+
+    // swing node
+    } else {
+      // zero velocity at top
+      if (idx.node_deriv_ == kVel && idx.node_dim_ == Z)
+        bounds_.at(i) = ifopt::BoundZero;
+
+      /*
+      // to not have really fast swing motions
+      if (idx.node_deriv_ == kVel)
+        bounds_.at(i) = ifopt::Bounds(-5.0, 5.0); // zero velocity at top
+      */
+    }
+  }
+}
+
+void
+PhaseNodes::SetBoundsEEForce ()
+{
+  for (int i=0; i<GetRows(); ++i) {
+    IndexInfo idx = GetNodeInfoAtOptIndex(i).front(); // only one node anyway
+
+    // stance node
+    if (!IsConstantNode(idx.node_id_)) {
+      /*
+      // zero slope to never exceed zero force between nodes
+      if (idx.node_deriv_ == kVel) {
+        bounds_.at(i) = ifopt::BoundZero;
+      }
+      */
+
+    // swing node
+    } else {
+      bounds_.at(i) = ifopt::BoundZero; // force must be zero
+    }
+  }
+}
+
 std::vector<PhaseNodes::PolyInfo>
 BuildPolyInfos (int phase_count, bool is_in_contact_at_start,
                 int n_polys_in_changing_phase, PhaseNodes::Type type)
@@ -137,11 +186,10 @@ PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
   IndexInfo node;
-  node.node_deriv_     = internal_id<GetDim()? kPos : kVel;
-  node.node_dim_ = internal_id%GetDim();
+  node.node_deriv_  = internal_id<GetDim()? kPos : kVel;
+  node.node_dim_    = internal_id%GetDim();
 
-  // this is different compared to standard node values
-  // because one index can represent multiple node (during constant phase)
+  // one index can represent multiple node (during constant phase)
   int opt_node = std::floor(idx/n_opt_values_per_node_);
   for (auto node_id : optnode_to_node_.at(opt_node)) {
     node.node_id_ = node_id;
@@ -231,55 +279,6 @@ PhaseNodes::GetAdjacentPolyIds (int node_id) const
   }
 
   return poly_ids;
-}
-
-void
-PhaseNodes::SetBoundsEEMotion ()
-{
-  for (int i=0; i<GetRows(); ++i) {
-    auto idx = GetNodeInfoAtOptIndex(i).front(); // bound idx by first node it represents
-
-    // stance node
-    if (IsConstantNode(idx.node_id_)) {
-      // endeffector is not allowed to move if in stance phase
-      if (idx.node_deriv_ == kVel)
-        bounds_.at(i) = ifopt::BoundZero;
-
-    // swing node
-    } else {
-      // zero velocity at top
-      if (idx.node_deriv_ == kVel && idx.node_dim_ == Z)
-        bounds_.at(i) = ifopt::BoundZero;
-
-      /*
-      // to not have really fast swing motions
-      if (idx.node_deriv_ == kVel)
-        bounds_.at(i) = ifopt::Bounds(-5.0, 5.0); // zero velocity at top
-      */
-    }
-  }
-}
-
-void
-PhaseNodes::SetBoundsEEForce ()
-{
-  for (int i=0; i<GetRows(); ++i) {
-    IndexInfo idx = GetNodeInfoAtOptIndex(i).front(); // only one node anyway
-
-    // stance node
-    if (!IsConstantNode(idx.node_id_)) {
-      /*
-      // zero slope to never exceed zero force between nodes
-      if (idx.node_deriv_ == kVel) {
-        bounds_.at(i) = ifopt::BoundZero;
-      }
-      */
-
-    // swing node
-    } else {
-      bounds_.at(i) = ifopt::BoundZero; // force must be zero
-    }
-  }
 }
 
 PhaseNodes::PolyInfo::PolyInfo(int phase, int poly_id_in_phase,

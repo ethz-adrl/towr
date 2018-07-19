@@ -43,6 +43,11 @@ namespace towr {
  * move (or a force in flight must be zero). This makes the number of
  * optimization variables less than the total node values.
  *
+ * The _Phase-based End-effector Parameterization_
+ * (https://youtu.be/KhWuLvb934g?t=1004) is enforced in
+ * SetBoundsEEMotion() and
+ * SetBoundsEEForce()
+ *
  * @ingroup Variables
  */
 class PhaseNodes : public Nodes {
@@ -149,6 +154,22 @@ public:
   virtual bool IsInConstantPhase(int polynomial_id) const;
 
 private:
+  /**
+   * @brief Sets the bounds on the node variables to model foot motions.
+   *
+   * _Phase-based End-effector Parameterization_:
+   * The velocity of the stance nodes is bounds to zero.
+   */
+  void SetBoundsEEMotion();
+
+  /**
+   * @brief Sets the bounds on the node variables to model foot forces.
+   *
+   * _Phase-based End-effector Parameterization_:
+   * The force of nodes representing swing-phases is set to zero.
+   */
+  void SetBoundsEEForce();
+
   std::vector<PolyInfo> polynomial_info_;
 
   // maps from the nodes that are actually optimized over to all the nodes.
@@ -163,20 +184,6 @@ private:
 
   static std::map<OptNodeIs, NodeIds>
   GetOptNodeToNodeMappings(const std::vector<PolyInfo>&);
-
-  /**
-   * @brief Sets the bounds on the node variables to model foot motions.
-   *
-   * For this the velocity of the stance nodes is bounds to zero.
-   */
-  void SetBoundsEEMotion();
-
-  /**
-   * @brief Sets the bounds on the node variables to model foot forces.
-   *
-   * For this the force for nodes representing swing-phases is set to zero.
-   */
-  void SetBoundsEEForce();
 
   std::vector<int> GetAdjacentPolyIds(int node_id) const;
 };

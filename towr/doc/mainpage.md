@@ -23,6 +23,15 @@ Features:
 
 [TOC]
 
+
+Paper {#paper}
+=======================
+It is helpful to read up on the theory underlying this code, which is explained 
+in this paper 
+[DOI: 10.1109/LRA.2018.2798285](https://doi.org/10.1109/LRA.2018.2798285) and
+watch this [explanatory video](https://youtu.be/KhWuLvb934g).
+
+
 Install {#install}
 ========================
 In case the binaries for you ROS distro don't exist, for more detailed
@@ -52,12 +61,6 @@ an explanation in how to tune the optimization problem.
 The number of parameters to tune is relatively small (~10), however, they
 do have a large impact on speed and convergence of the optimizer.
  
- 
-Paper {#paper}
-=======================
-It is helpful to read up on the theory underlying this code, which is explained 
-in this paper 
-[DOI: 10.1109/LRA.2018.2798285](https://doi.org/10.1109/LRA.2018.2798285).
 
 
 Contribute {#contribute}
