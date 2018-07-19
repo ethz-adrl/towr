@@ -39,6 +39,10 @@ namespace towr {
  * \addtogroup Robots
  * @{
  */
+
+/**
+ * @brief The Kinematics of a one-legged hopper with HyQ leg.
+ */
 class MonopedKinematicModel : public KinematicModel {
 public:
   MonopedKinematicModel () : KinematicModel(1)
@@ -48,7 +52,9 @@ public:
   }
 };
 
-
+/**
+ * @brief The Dynamics of a one-legged hopper with HyQ leg.
+ */
 class MonopedDynamicModel : public CentroidalModel {
 public:
   MonopedDynamicModel()

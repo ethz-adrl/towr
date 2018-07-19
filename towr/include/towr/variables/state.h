@@ -75,17 +75,17 @@ public:
   VectorXd& at(Dx deriv);
 
   /**
-   * @returns read access to the zero-derivative of the state, e.g. position.
+   * @brief read access to the zero-derivative of the state, e.g. position.
    */
   const VectorXd p() const;
 
   /**
-   * @returns read access to the first-derivative of the state, e.g. velocity.
+   * @brief read access to the first-derivative of the state, e.g. velocity.
    */
   const VectorXd v() const;
 
   /**
-   * @returns read access to the second-derivative of the state, e.g. acceleration.
+   * @brief read access to the second-derivative of the state, e.g. acceleration.
    */
   const VectorXd a() const;
 

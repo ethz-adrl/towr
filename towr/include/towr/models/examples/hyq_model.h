@@ -40,6 +40,10 @@ namespace towr {
  * \addtogroup Robots
  * @{
  */
+
+/**
+ * @brief The Kinematics of the quadruped robot HyQ.
+ */
 class HyqKinematicModel : public KinematicModel {
 public:
   HyqKinematicModel () : KinematicModel(4)
@@ -57,6 +61,9 @@ public:
   }
 };
 
+/**
+ * @brief The Dynamics of the quadruped robot HyQ.
+ */
 class HyqDynamicModel : public CentroidalModel {
 public:
   HyqDynamicModel() : CentroidalModel(83,

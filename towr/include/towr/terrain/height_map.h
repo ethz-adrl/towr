@@ -44,7 +44,11 @@ namespace towr {
 /**
  * @defgroup Terrains
  * @brief The heightmap and slope of various terrains.
- * (\ref include/towr/terrain).
+ *
+ * #### Further Reading
+ *  * The base class HeightMap is what all terrain depend on.
+ *
+ * \ref include/towr/terrain
  */
 
 /**

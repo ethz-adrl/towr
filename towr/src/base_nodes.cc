@@ -39,18 +39,18 @@ BaseNodes::BaseNodes (int n_nodes, std::string name) : Nodes(k3D, name)
   InitMembers(n_nodes, n_variables);
 }
 
-std::vector<BaseNodes::IndexInfo>
+std::vector<BaseNodes::NodeValueInfo>
 BaseNodes::GetNodeInfoAtOptIndex (int idx) const
 {
-  std::vector<IndexInfo> nodes;
+  std::vector<NodeValueInfo> nodes;
 
   int n_opt_values_per_node_ = 2*GetDim();
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
-  IndexInfo node;
-  node.node_deriv_ = internal_id<GetDim()? kPos : kVel;
-  node.node_dim_   = internal_id%GetDim();
-  node.node_id_    = std::floor(idx/n_opt_values_per_node_);
+  NodeValueInfo node;
+  node.deriv_ = internal_id<GetDim()? kPos : kVel;
+  node.dim_   = internal_id%GetDim();
+  node.id_    = std::floor(idx/n_opt_values_per_node_);
 
   nodes.push_back(node);
 

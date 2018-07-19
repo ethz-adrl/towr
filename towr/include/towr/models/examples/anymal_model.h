@@ -40,6 +40,10 @@ namespace towr {
  * \addtogroup Robots
  * @{
  */
+
+/**
+ * @brief The Kinematics of the quadruped robot ANYmal.
+ */
 class AnymalKinematicModel : public KinematicModel {
 public:
   AnymalKinematicModel () : KinematicModel(4)
@@ -57,7 +61,9 @@ public:
   }
 };
 
-
+/**
+ * @brief The Dynamics of the quadruped robot ANYmal.
+ */
 class AnymalDynamicModel : public CentroidalModel {
 public:
   AnymalDynamicModel()

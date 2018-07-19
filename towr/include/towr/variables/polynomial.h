@@ -102,6 +102,10 @@ private:
  * start and end of the polynomial as well as the duration. This way of
  * specifying a polynomial is called "Hermite".
  *
+ * | Three Cubic-Hermite-Polynomials | |
+ * | -------|------ |
+ * | \image html nodes.jpg | |
+ *
  * See also matlab/cubic_hermite_polynomial.m for generation of derivatives.
  */
 class CubicHermitePolynomial : public Polynomial {

@@ -86,17 +86,17 @@ NodeSpline::FillJacobianWrtNodes (int poly_id, double t_local, Dx dxdt,
                                   Jacobian& jac, bool fill_with_zeros) const
 {
   for (int idx=0; idx<jac.cols(); ++idx) {
-    for (auto info : node_values_->GetNodeInfoAtOptIndex(idx)) {
+    for (auto nvi : node_values_->GetNodeInfoAtOptIndex(idx)) {
       for (auto side : {Nodes::Side::Start, Nodes::Side::End}) { // every jacobian is affected by two nodes
         int node = node_values_->GetNodeId(poly_id, side);
 
-        if (node == info.node_id_) {
+        if (node == nvi.id_) {
           double val = 0.0;
 
           if (side == Nodes::Side::Start)
-            val = cubic_polys_.at(poly_id).GetDerivativeWrtStartNode(dxdt, info.node_deriv_, t_local);
+            val = cubic_polys_.at(poly_id).GetDerivativeWrtStartNode(dxdt, nvi.deriv_, t_local);
           else if (side == Nodes::Side::End)
-            val = cubic_polys_.at(poly_id).GetDerivativeWrtEndNode(dxdt, info.node_deriv_, t_local);
+            val = cubic_polys_.at(poly_id).GetDerivativeWrtEndNode(dxdt, nvi.deriv_, t_local);
           else
             assert(false); // this shouldn't happen
 
@@ -104,7 +104,7 @@ NodeSpline::FillJacobianWrtNodes (int poly_id, double t_local, Dx dxdt,
           if (fill_with_zeros)
             val = 0.0;
 
-          jac.coeffRef(info.node_dim_, idx) += val;
+          jac.coeffRef(nvi.dim_, idx) += val;
         }
       }
     }

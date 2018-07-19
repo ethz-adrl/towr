@@ -43,6 +43,8 @@ namespace towr {
  * and stance durations of one foot. These durations are then used in the
  * Spline together with NodeVariables to construct foot motions and forces.
  *
+ * See this explanation: https://youtu.be/KhWuLvb934g?t=788
+ *
  * @ingroup Variables
  */
 class PhaseDurations : public ifopt::VariableSet {

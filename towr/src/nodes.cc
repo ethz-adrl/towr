@@ -63,47 +63,40 @@ Nodes::InitializeNodesTowardsGoal(const VectorXd& initial_pos,
   }
 }
 
-Nodes::IndexInfo::IndexInfo(int node_id, Dx deriv, int node_dim)
+Nodes::NodeValueInfo::NodeValueInfo(int node_id, Dx deriv, int node_dim)
 {
-  node_id_    = node_id;
-  node_deriv_ = deriv;
-  node_dim_   = node_dim;
+  id_    = node_id;
+  deriv_ = deriv;
+  dim_   = node_dim;
 }
 
 int
-Nodes::Index(int node_id, Dx deriv, int node_dim) const
-{
-  return Index(IndexInfo(node_id, deriv, node_dim));
-}
-
-int
-Nodes::Index(const IndexInfo& n) const
+Nodes::GetOptIndex(const NodeValueInfo& n) const
 {
   // could also cache this as map for more efficiency, but adding complexity
   for (int idx=0; idx<GetRows(); ++idx)
-    for ( IndexInfo node_info : GetNodeInfoAtOptIndex(idx))
+    for ( NodeValueInfo node_info : GetNodeInfoAtOptIndex(idx))
       if ( node_info == n )
         return idx;
 
   assert(false); // index representing these quantities doesn't exist
 }
 
-// reverse of the above
-std::vector<Nodes::IndexInfo>
+std::vector<Nodes::NodeValueInfo>
 Nodes::GetNodeInfoAtOptIndex (int idx) const
 {
-  std::vector<IndexInfo> nodes;
+  std::vector<NodeValueInfo> nodes;
 
   // always two consecutive node pairs are equal
   int n_opt_values_per_node_ = 2*n_dim_;
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
-  IndexInfo node;
-  node.node_deriv_ = internal_id<n_dim_? kPos : kVel;
-  node.node_dim_   = internal_id%n_dim_;
-  node.node_id_    = std::floor(idx/n_opt_values_per_node_);
+  NodeValueInfo nvi;
+  nvi.deriv_ = internal_id<n_dim_? kPos : kVel;
+  nvi.dim_   = internal_id%n_dim_;
+  nvi.id_    = std::floor(idx/n_opt_values_per_node_);
 
-  nodes.push_back(node);
+  nodes.push_back(nvi);
 
   return nodes;
 }
@@ -115,7 +108,7 @@ Nodes::GetValues () const
 
   for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      x(idx) = nodes_.at(info.node_id_).at(info.node_deriv_)(info.node_dim_);
+      x(idx) = nodes_.at(info.id_).at(info.deriv_)(info.dim_);
 
   return x;
 }
@@ -125,7 +118,7 @@ Nodes::SetVariables (const VectorXd& x)
 {
   for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      nodes_.at(info.node_id_).at(info.node_deriv_)(info.node_dim_) = x(idx);
+      nodes_.at(info.id_).at(info.deriv_)(info.dim_) = x(idx);
 
   UpdateObservers();
 }
@@ -188,15 +181,15 @@ Nodes::AddBounds(int node_id, Dx deriv,
                  const VectorXd& val)
 {
   for (auto dim : dimensions)
-    AddBound(IndexInfo(node_id, deriv, dim), val(dim));
+    AddBound(NodeValueInfo(node_id, deriv, dim), val(dim));
 }
 
 void
-Nodes::AddBound (const IndexInfo& node_info, double val)
+Nodes::AddBound (const NodeValueInfo& nvi, double val)
 {
   for (int idx=0; idx<GetRows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      if (info == node_info)
+      if (info == nvi)
         bounds_.at(idx) = ifopt::Bounds(val, val);
 }
 
@@ -214,11 +207,11 @@ Nodes::AddFinalBound (Dx deriv, const std::vector<int>& dimensions,
 }
 
 int
-Nodes::IndexInfo::operator==(const IndexInfo& right) const
+Nodes::NodeValueInfo::operator==(const NodeValueInfo& right) const
 {
-  return (node_id_    == right.node_id_)
-      && (node_deriv_ == right.node_deriv_)
-      && (node_dim_   == right.node_dim_);
+  return (id_    == right.id_)
+      && (deriv_ == right.deriv_)
+      && (dim_   == right.dim_);
 };
 
 } /* namespace towr */

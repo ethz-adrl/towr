@@ -40,6 +40,10 @@ namespace towr {
  * \addtogroup Robots
  * @{
  */
+
+/**
+ * @brief The Kinematics of a tow-legged robot built from HyQ legs.
+ */
 class BipedKinematicModel : public KinematicModel {
 public:
   BipedKinematicModel () : KinematicModel(2)
@@ -54,7 +58,9 @@ public:
   }
 };
 
-
+/**
+ * @brief The Dynamics of a tow-legged robot built from HyQ legs.
+ */
 class BipedDynamicModel : public CentroidalModel {
 public:
   BipedDynamicModel()
