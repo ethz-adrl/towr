@@ -41,9 +41,13 @@ namespace towr {
 /**
  * @defgroup Robots
  * @brief The kinematic and dynamic model of the robot.
- * (\ref include/towr/models).
  *
  * These models contain all the robot specific quantities in this problem.
+ *
+ * ###Further Reading:
+ *  * RobotModel
+ *
+ * Folder: \ref include/towr/models.
  */
 
 /**
@@ -54,8 +58,6 @@ namespace towr {
 struct RobotModel {
   /**
    * @brief Examples robots for which kinematic and dynamic models exist.
-   *
-   * @ingroup Robots
    */
   enum Robot { Monoped, Biped, Hyq, Anymal, ROBOT_COUNT };
 

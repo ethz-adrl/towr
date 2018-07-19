@@ -93,15 +93,15 @@ SwingConstraint::FillJacobianBlock (std::string var_set,
     for (int node_id : pure_swing_node_ids_) {
       for (auto dim : {X,Y}) {
         // position constraint
-        jac.coeffRef(row, ee_motion_->Index(Nodes::IndexInfo(node_id,   kPos, dim))) =  1.0;  // current node
-        jac.coeffRef(row, ee_motion_->Index(Nodes::IndexInfo(node_id+1, kPos, dim))) = -0.5;  // next node
-        jac.coeffRef(row, ee_motion_->Index(Nodes::IndexInfo(node_id-1, kPos, dim))) = -0.5;  // previous node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id,   kPos, dim))) =  1.0;  // current node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id+1, kPos, dim))) = -0.5;  // next node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id-1, kPos, dim))) = -0.5;  // previous node
         row++;
 
         // velocity constraint
-        jac.coeffRef(row, ee_motion_->Index(Nodes::IndexInfo(node_id,   kVel, dim))) =  1.0;              // current node
-        jac.coeffRef(row, ee_motion_->Index(Nodes::IndexInfo(node_id+1, kPos, dim))) = -1.0/t_swing_avg_; // next node
-        jac.coeffRef(row, ee_motion_->Index(Nodes::IndexInfo(node_id-1, kPos, dim))) = +1.0/t_swing_avg_; // previous node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id,   kVel, dim))) =  1.0;              // current node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id+1, kPos, dim))) = -1.0/t_swing_avg_; // next node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id-1, kPos, dim))) = +1.0/t_swing_avg_; // previous node
         row++;
       }
     }

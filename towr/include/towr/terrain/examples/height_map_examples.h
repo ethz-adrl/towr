@@ -39,6 +39,9 @@ namespace towr {
  * @{
  */
 
+/**
+ * @brief Sample terrain of even height.
+ */
 class FlatGround : public HeightMap {
 public:
   FlatGround(double height = 0.0);
@@ -48,7 +51,9 @@ private:
   double height_; // [m]
 };
 
-
+/**
+ * @brief Sample terrain with a step in height in x-direction.
+ */
 class Block : public HeightMap {
 public:
   double GetHeight(double x, double y)  const override;
@@ -63,7 +68,9 @@ private:
   const double slope_ = height_/eps_;
 };
 
-
+/**
+ * @brief Sample terrain with a two-steps in height in x-direction.
+ */
 class Stairs : public HeightMap {
 public:
   double GetHeight(double x, double y) const override;
@@ -76,7 +83,9 @@ private:
   double width_top = 1.0;
 };
 
-
+/**
+ * @brief Sample terrain with parabola-modeled gap in x-direction.
+ */
 class Gap : public HeightMap {
 public:
   double GetHeight(double x, double y) const override;
@@ -102,7 +111,9 @@ private:
   const double c = -(h*(w - 2*xc)*(w + 2*xc))/(w*w);
 };
 
-
+/**
+ * @brief Sample terrain with an increasing and then decreasing slope in x-direction.
+ */
 class Slope : public HeightMap {
 public:
   double GetHeight(double x, double y) const override;
@@ -119,7 +130,9 @@ private:
   const double slope_ = height_center/up_length_;
 };
 
-
+/**
+ * @brief Sample terrain with a tilted vertical wall to cross a gap.
+ */
 class Chimney : public HeightMap {
 public:
   double GetHeight(double x, double y) const override;
@@ -134,7 +147,9 @@ private:
   const double x_end_ = x_start_+length_;
 };
 
-
+/**
+ * @brief Sample terrain with two tilted vertical walls to cross a gap.
+ */
 class ChimneyLR : public HeightMap {
 public:
   double GetHeight(double x, double y) const override;

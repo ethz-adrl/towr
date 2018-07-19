@@ -119,7 +119,7 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
       Vector3d t2 = terrain_->GetNormalizedBasis(HeightMap::Tangent2, p.x(), p.y());
 
       for (auto dim : {X,Y,Z}) {
-        int idx = ee_force_->Index(Nodes::IndexInfo(f_node_id, kPos, dim));
+        int idx = ee_force_->GetOptIndex(Nodes::NodeValueInfo(f_node_id, kPos, dim));
 
         int row_reset=row;
 
@@ -150,7 +150,7 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
         Vector3d dt1 = terrain_->GetDerivativeOfNormalizedBasisWrt(HeightMap::Tangent1, dim, p.x(), p.y());
         Vector3d dt2 = terrain_->GetDerivativeOfNormalizedBasisWrt(HeightMap::Tangent2, dim, p.x(), p.y());
 
-        int idx = ee_motion_->Index(Nodes::IndexInfo(ee_node_id, kPos, dim));
+        int idx = ee_motion_->GetOptIndex(Nodes::NodeValueInfo(ee_node_id, kPos, dim));
         int row_reset=row;
 
         // unilateral force

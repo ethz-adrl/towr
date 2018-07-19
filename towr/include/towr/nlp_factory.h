@@ -44,31 +44,43 @@ namespace towr {
 
 /**
  * @defgroup Variables
- * @brief Variables of the trajectory optimization problem
- * (@ref include/towr/variables).
+ * @brief Variables of the trajectory optimization problem.
  *
  * These are the quantities through which the optimization problem is
  * parameterized.
+ *
+ * ###Further Reading:
+ *  * Start with class Nodes, which is what all other variables are
+ *     built on.
+ *
+ *  * The implementation of _Phase-based Endeffector Parameterization_ for feet
+ *    and forces can be found in PhaseNodes.
+ *
+ * Folder: @ref include/towr/variables.
  */
 
 /**
  * @defgroup Constraints
  * @brief Constraints of the trajectory optimization problem.
- * (@ref include/towr/constraints)
  *
  * These are the constraint sets that characterize legged locomotion.
+ *
+ * Folder: @ref include/towr/constraints
  */
 
 /**
  * @defgroup Costs
  * @brief Costs of the trajectory optimization problem.
- * (@ref include/towr/costs)
  *
  * These the the cost terms that prioritize certain solutions to the
  * legged locomotion problem.
+ *
+ * Folder: @ref include/towr/costs
  */
 
-/** Builds variables, cost and constraints for the legged locomotion problem.
+/**
+ *
+ * @brief Builds variables, cost and constraints for the legged locomotion problem.
  *
  * Abstracts the entire problem of Trajectory Optimization for walking
  * robots into the formulation of variables, constraints and cost, solvable

@@ -36,6 +36,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
+ * @defgroup Parameters
+ * @brief %Parameters to tune the optimization problem.
+ *
+ * The number of parameters to tune is relatively small (~10), however, they
+ * do have a large impact on speed and convergence of the optimizer.
+ *
+ * ###Further Reading:
+ *  * Read-up on the details in class Parameters.
+ */
+
+/**
  * @brief The parameters to tune the optimization problem.
  *
  * The number of parameters to tune is relatively small (~10), however, they
@@ -45,12 +56,11 @@ namespace towr {
  * background knowledge, refer to the corresponding
  * [paper](https://doi.org/10.1109/LRA.2018.2798285).
  *
- * | Towr problem formulation | |
- * | -------|------ |
- * | \image html towr_problem_with_code.png | |
+ * #### Towr problem formulation
+ * \image html towr_problem_with_code.png
  *
  * ### Constraint discretization ###
- * A factor that strongly impacts the **solution time** is how
+ * A factor that strongly impacts the solution time is how
  * often the DynamicConstraint and the RangeOfMotionConstraint are enforced
  * along the trajectory (given by the values of @ref dt_constraint_dynamic_
  * and @ref dt_constraint_range_of_motion_). Increasing the discretization
@@ -69,7 +79,7 @@ namespace towr {
  * that the dynamic model is being respected.
  *
  * ### Number of optimization variables ###
- * In order to **shorten the solution time**, another way way is to use less
+ * In order to shorten the solution time, another way is to use less
  * polynomials, but each of longer duration. This can be achieved by increasing the
  * @ref duration_base_polynomial_. However, the longer this duration becomes, the
  * less parameters (freedom), the solver has to find a solution that
@@ -119,13 +129,13 @@ namespace towr {
  * this option should be treated with caution. An alternative to turning on
  * this option is initializing with different gaits and/or changing the
  * parameters described above.
+ *
+ * @ingroup Parameters
  */
 struct Parameters {
   /**
    * @brief Identifiers to be used to add certain constraints to the
    * optimization problem.
-   *
-   * @ingroup Constraints
    */
   enum ConstraintName { Dynamic,        ///< sets DynamicConstraint
                         EndeffectorRom, ///< sets RangeOfMotionConstraint
@@ -139,8 +149,6 @@ struct Parameters {
   /**
    *  @brief Indentifiers to be used to add certain costs to the optimization
    *  problem.
-   *
-   *  @ingroup Costs
    */
   enum CostName       { ForcesCostID    ///< sets NodeCost on force nodes
   };

@@ -37,16 +37,27 @@ namespace towr {
 /**
  * @brief Nodes that are associated to either swing or stance phases.
  *
- * In the node values, not every node is an optimization variable, but two
- * consecutive nodes forming a e.g. stance position spline belong to the
- * same optimization variable. This is because a foot in stance cannot
- * move (or a force in flight must be zero). This makes the number of
- * optimization variables less than the total node values.
+ * #### Four nodes defining a single spline (e.g. foot position in x-direction)
+ * \image html phase_nodes.png
  *
- * The _Phase-based End-effector Parameterization_
- * (https://youtu.be/KhWuLvb934g?t=1004) is enforced in
- * SetBoundsEEMotion() and
- * SetBoundsEEForce()
+ * In the above image the nodes are defined by the scalar position and velocity
+ * values x0, x0d, ..., xT, xTd. By optimizing over these nodes, different
+ * spline shapes are generated. **Not all node values must be optimized over**.
+ * We can for example fix the derivatives (x1d, x2d) to 0.0 and also use the
+ * same optimization variable to fill both x1 and x2. If this spline represents
+ * the position of an end-effector, this means that no matter which values the
+ * the solver chooses, the foot will never move during the time interval T2 (see image below).
+ *
+ * #### Motion (dim: x) and force (dim: z) spline for one foot
+ * \image html phase_nodes2.png
+ *
+ * This is called _Phase-based End-effector Parameterization_ and done by this
+ * class through GetNodeInfoAtOptIndex() and SetBoundsEEMotion().
+ * A similar logic is used to parameterize each force polynomial through
+ * SetBoundsEEForce().
+ *
+ * A high-level explanation of this concept can be found here:
+ * https://youtu.be/KhWuLvb934g?t=1004
  *
  * @ingroup Variables
  */
@@ -83,7 +94,15 @@ public:
 
   virtual ~PhaseNodes() = default;
 
-  std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const override;
+  /**
+   * @brief Uses the same optimization variable to fill multiple nodes.
+   *
+   * Overrides the base class implementation, where every node receives its own
+   * optimization variable and can be optimized independently.
+   * Here the same optimization variable is used to represent
+   * e.g. two consecutive motion nodes in stance.
+   */
+  std::vector<NodeValueInfo> GetNodeInfoAtOptIndex(int idx) const override;
 
   /**
    * @returns the value of the first node of the phase.
@@ -174,7 +193,6 @@ private:
 
   // maps from the nodes that are actually optimized over to all the nodes.
   // Optimized nodes are sometimes used twice in a constant phase.
-  // This is where the constant phases are enforced.
   std::map<OptNodeIs, NodeIds > optnode_to_node_;
 
   /**

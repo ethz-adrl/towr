@@ -49,19 +49,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
- * @brief TOWR - Trajectory Optimizer for Walking Robots.
+ * @brief %TOWR - Trajectory Optimizer for Walking Robots.
  *
  * Facade to the motion optimization framework. The user sets the initial
  * state and the desired motion parameters, then and NLP is constructed and
  * solved with the chosen solver and finally the solution splines can be
  * retrieved.
- *
- * @attention
- * To build this file into an executable, the solver IPOPT must be
- * installed and linked against its ifopt interface via
- *
- * find_package(ifopt)
- * target_link_libraries(towr_core PUBLIC ifopt::ifopt_ipopt)
  */
 class TOWR {
 public:
