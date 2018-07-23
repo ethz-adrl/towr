@@ -192,17 +192,14 @@ private:
 
   std::vector<PolyInfo> polynomial_info_;
 
-  // maps from the nodes that are actually optimized over to all the nodes.
-  // Optimized nodes are sometimes used twice in a constant phase.
-  std::map<OptNodeIs, NodeIds > optnode_to_node_;
+  // map from index to node_value_infos
+  std::map<int, std::vector<PhaseNodes::NodeValueInfo> > idx_to_nvis_;
+  void SetIdxToNvis (const std::vector<PolyInfo>& polynomial_info, int n_dim);
 
   /**
    * @returns the ID of the polynomial at the start of phase phase.
    */
   int GetPolyIDAtStartOfPhase(int phase) const;
-
-  static std::map<OptNodeIs, NodeIds>
-  GetOptNodeToNodeMappings(const std::vector<PolyInfo>&);
 
   std::vector<int> GetAdjacentPolyIds(int node_id) const;
 };

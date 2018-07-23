@@ -30,6 +30,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/variables/phase_nodes.h>
 #include <towr/variables/cartesian_dimensions.h>
 
+#include <iostream>
+
 namespace towr {
 
 void
@@ -47,15 +49,15 @@ PhaseNodes::SetBoundsEEMotion ()
 
     // swing node:
     // These are only the nodes where both the polynomial to the left and to the
-    // right represent a swing-phase -> No swing nodes if choosing only one
-    // spline for swing-phase.
+    // right represent a swing-phase -> Swing nodes don't exist if choosing
+    // only one polynomial for each swing-phase.
     } else {
       // zero velocity in z direction. Since we are typically choosing two
       // polynomials per swing-phase, this restricts the swing
       // to have reached it's extreme at half-time and creates smoother
       // stepping motions.
       //
-      // In contrast to the above bounds, these are more hacky and not general,
+      // In contrast to the above bounds, these are more hacky and less general,
       // and could be removed after e.g. adding a cost that penalizes
       // endeffector accelerations.
       if (nvi.deriv_ == kVel && nvi.dim_ == Z)
@@ -73,7 +75,7 @@ PhaseNodes::SetBoundsEEForce ()
     // swing node
     // Phase-based End-effector Parameterization
     if (IsConstantNode(nvi.id_)) {
-      bounds_.at(idx) = ifopt::BoundZero; // force must be zero during swing-phase
+      bounds_.at(idx) = ifopt::BoundZero; // force and derivative must be zero during swing-phase
     }
   }
 }
@@ -112,13 +114,12 @@ PhaseNodes::PhaseNodes (int phase_count,
     :NodesVariables(name)
 {
   polynomial_info_ = BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type);
-  optnode_to_node_ = GetOptNodeToNodeMappings(polynomial_info_);
 
   int n_dim = k3D;
-  int n_derivs = 2; // position and velocity
-  int n_opt_variables = optnode_to_node_.size()*n_derivs*n_dim;
+  SetIdxToNvis(polynomial_info_, n_dim);
   int n_nodes = polynomial_info_.size()+1;
-  InitMembers(n_nodes, n_dim, n_opt_variables);
+
+  InitMembers(n_nodes, n_dim, idx_to_nvis_.size());
 
   if (type == Motion)
     SetBoundsEEMotion();
@@ -154,48 +155,54 @@ PhaseNodes::GetNumberOfPrevPolynomialsInPhase(int poly_id) const
   return polynomial_info_.at(poly_id).poly_in_phase_;
 }
 
-std::map<PhaseNodes::OptNodeIs, PhaseNodes::NodeIds>
-PhaseNodes::GetOptNodeToNodeMappings (const std::vector<PolyInfo>& polynomial_info)
+void
+PhaseNodes::SetIdxToNvis (const std::vector<PolyInfo>& polynomial_info, int n_dim)
 {
-  std::map<OptNodeIs, NodeIds> optnode_to_node;
+  idx_to_nvis_.clear();
 
-  int opt_id = 0;
-  for (int i=0; i<polynomial_info.size(); ++i) {
-    int node_id_start = GetNodeId(i, Side::Start);
+  int idx_start = 0;
 
-    optnode_to_node[opt_id].push_back(node_id_start);
-    // use same value for next node if polynomial is constant
-    if (!polynomial_info.at(i).is_constant_)
-      opt_id++;
+
+  // define variables for first node manually
+  NodeValueInfo nvi;
+  nvi.id_ = 0;
+  for (int dim=0; dim<n_dim; ++dim) {
+    nvi.dim_ = dim;
+
+    nvi.deriv_ = kPos;
+    idx_to_nvis_[idx_start+dim].push_back(nvi);
+    nvi.deriv_ = kVel;
+    idx_to_nvis_[idx_start+n_dim+dim].push_back(nvi);
   }
 
-  int last_node_id = polynomial_info.size();
-  optnode_to_node[opt_id].push_back(last_node_id);
 
-  return optnode_to_node;
+
+  // go through all polynomial and only look at end node
+  for (int i=0; i<polynomial_info.size(); ++i) {
+
+    // if constant polynomial, same index is used,
+    // if non constant, end node gets separate index
+    if (!polynomial_info.at(i).is_constant_) {
+      idx_start += Node::n_derivatives*n_dim;
+    }
+
+    // node end
+    nvi.id_ = GetNodeId(i, Side::End);
+    for (int dim=0; dim<n_dim; ++dim) {
+      nvi.dim_ = dim;
+
+      nvi.deriv_ = kPos;
+      idx_to_nvis_[idx_start+dim].push_back(nvi);
+      nvi.deriv_ = kVel;
+      idx_to_nvis_[idx_start+n_dim+dim].push_back(nvi);
+    }
+  }
 }
 
 std::vector<PhaseNodes::NodeValueInfo>
 PhaseNodes::GetNodeValuesInfo(int idx) const
 {
-  std::vector<NodeValueInfo> vec_nvi;
-
-  // always two consecutive node pairs are equal
-  int n_opt_values_per_node_ = 2*GetDim();
-  int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
-
-  NodeValueInfo nvi;
-  nvi.deriv_ = internal_id<GetDim()? kPos : kVel;
-  nvi.dim_   = internal_id%GetDim();
-
-  // one index can represent multiple node (during constant phase)
-  int opt_node_id = std::floor(idx/n_opt_values_per_node_);
-  for (auto node_id : optnode_to_node_.at(opt_node_id)) {
-    nvi.id_ = node_id;
-    vec_nvi.push_back(nvi);
-  }
-
-  return vec_nvi;
+  return idx_to_nvis_.at(idx);
 }
 
 bool
