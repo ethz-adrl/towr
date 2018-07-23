@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/variables/nodes_observer.h>
-#include <towr/variables/nodes.h>
+#include <towr/variables/nodes_variables.h>
 
 namespace towr {
 

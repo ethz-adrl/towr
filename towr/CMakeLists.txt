@@ -23,7 +23,7 @@ add_library(${PROJECT_NAME} SHARED
   # variables
   src/state.cc
   src/polynomial.cc
-  src/nodes.cc
+  src/nodes_variables.cc
   src/phase_nodes.cc
   src/base_nodes.cc
   src/spline.cc

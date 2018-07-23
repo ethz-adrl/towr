@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_BASE_NODES_H_
 #define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_BASE_NODES_H_
 
-#include "nodes.h"
+#include "nodes_variables.h"
 
 namespace towr {
 
@@ -42,7 +42,7 @@ namespace towr {
  *
  * @ingroup Variables
  */
-class BaseNodes : public Nodes {
+class BaseNodes : public NodesVariables {
 public:
   /**
    * @param n_nodes  The number of nodes to construct the spline.

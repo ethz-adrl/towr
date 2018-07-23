@@ -44,7 +44,7 @@ NodeCost::NodeCost (const std::string& nodes_id, Dx deriv, int dim)
 void
 NodeCost::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  nodes_ = x->GetComponent<Nodes>(node_id_);
+  nodes_ = x->GetComponent<NodesVariables>(node_id_);
 }
 
 double

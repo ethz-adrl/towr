@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-class Nodes;
+class NodesVariables;
 
 /**
  * @brief Base class to receive up-to-date values of the NodeVariables.
@@ -49,7 +49,7 @@ class Nodes;
  */
 class NodesObserver {
 public:
-  using NodeSubjectPtr = Nodes*; // observer shouldn't own subject
+  using NodeSubjectPtr = NodesVariables*; // observer shouldn't own subject
 
   /**
    * @brief Registers this observer with the subject class to receive updates.

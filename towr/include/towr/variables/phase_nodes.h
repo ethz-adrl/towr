@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_VARIABLES_PHASE_NODES_H_
 #define TOWR_VARIABLES_PHASE_NODES_H_
 
-#include "nodes.h"
+#include "nodes_variables.h"
 
 namespace towr {
 
@@ -62,7 +62,7 @@ namespace towr {
  *
  * @ingroup Variables
  */
-class PhaseNodes : public Nodes {
+class PhaseNodes : public NodesVariables {
 public:
   using Ptr       = std::shared_ptr<PhaseNodes>;
   using OptNodeIs = int;

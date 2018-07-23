@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "phase_nodes.h"
 #include "phase_durations.h"
 #include "node_spline.h"
-#include "nodes.h"
+#include "nodes_variables.h"
 
 namespace towr {
 
@@ -56,8 +56,8 @@ struct SplineHolder {
    * @param phase_durations  The phase durations of each endeffector.
    * @param ee_durations_change  True if the ee durations are optimized over.
    */
-  SplineHolder (Nodes::Ptr base_lin,
-                Nodes::Ptr base_ang,
+  SplineHolder (NodesVariables::Ptr base_lin,
+                NodesVariables::Ptr base_ang,
                 const std::vector<double>& base_poly_durations,
                 std::vector<PhaseNodes::Ptr> ee_motion,
                 std::vector<PhaseNodes::Ptr> ee_force,

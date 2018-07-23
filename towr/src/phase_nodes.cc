@@ -109,7 +109,7 @@ PhaseNodes::PhaseNodes (int phase_count,
                         const std::string& name,
                         int n_polys_in_changing_phase,
                         Type type)
-    :Nodes(3, name)
+    :NodesVariables(3, name)
 {
   polynomial_info_ = BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type);
   optnode_to_node_ = GetOptNodeToNodeMappings(polynomial_info_);

@@ -78,10 +78,10 @@ NlpFactory::GetVariableSets ()
   return vars;
 }
 
-std::vector<Nodes::Ptr>
+std::vector<NodesVariables::Ptr>
 NlpFactory::MakeBaseVariables () const
 {
-  std::vector<Nodes::Ptr> vars;
+  std::vector<NodesVariables::Ptr> vars;
 
   int n_nodes = params_.GetBasePolyDurations().size() + 1;
 

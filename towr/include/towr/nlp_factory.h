@@ -124,7 +124,7 @@ public:
 
 private:
   // variables
-  std::vector<Nodes::Ptr> MakeBaseVariables() const;
+  std::vector<NodesVariables::Ptr> MakeBaseVariables() const;
   std::vector<PhaseNodes::Ptr> MakeEndeffectorVariables() const;
   std::vector<PhaseNodes::Ptr> MakeForceVariables() const;
   std::vector<PhaseDurations::Ptr> MakeContactScheduleVariables() const;
