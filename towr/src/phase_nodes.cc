@@ -109,14 +109,16 @@ PhaseNodes::PhaseNodes (int phase_count,
                         const std::string& name,
                         int n_polys_in_changing_phase,
                         Type type)
-    :NodesVariables(3, name)
+    :NodesVariables(name)
 {
   polynomial_info_ = BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type);
   optnode_to_node_ = GetOptNodeToNodeMappings(polynomial_info_);
 
-  int n_opt_variables = optnode_to_node_.size() * 2*GetDim();
+  int n_dim = k3D;
+  int n_derivs = 2; // position and velocity
+  int n_opt_variables = optnode_to_node_.size()*n_derivs*n_dim;
   int n_nodes = polynomial_info_.size()+1;
-  InitMembers(n_nodes, n_opt_variables);
+  InitMembers(n_nodes, n_dim, n_opt_variables);
 
   if (type == Motion)
     SetBoundsEEMotion();

@@ -21,11 +21,11 @@ add_library(${PROJECT_NAME} SHARED
   src/nlp_factory.cc
   src/parameters.cc
   # variables
+  src/nodes_variables.cc
+  src/node_variables_all.cc
+  src/phase_nodes.cc
   src/state.cc
   src/polynomial.cc
-  src/nodes_variables.cc
-  src/phase_nodes.cc
-  src/base_nodes.cc
   src/spline.cc
   src/phase_spline.cc
   src/node_spline.cc

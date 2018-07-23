@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/nlp_factory.h>
 
 #include <towr/variables/variable_names.h>
-#include <towr/variables/base_nodes.h>
+#include <towr/variables/node_variables_all.h>
 #include <towr/variables/phase_durations.h>
 
 #include <towr/constraints/base_motion_constraint.h>
@@ -85,7 +85,7 @@ NlpFactory::MakeBaseVariables () const
 
   int n_nodes = params_.GetBasePolyDurations().size() + 1;
 
-  auto spline_lin = std::make_shared<BaseNodes>(n_nodes, id::base_lin_nodes);
+  auto spline_lin = std::make_shared<NodeVariablesAll>(n_nodes, k3D, id::base_lin_nodes);
 
   double x = final_base_.lin.p().x();
   double y = final_base_.lin.p().y();
@@ -99,7 +99,7 @@ NlpFactory::MakeBaseVariables () const
   spline_lin->AddFinalBound(kVel, params_.bounds_final_lin_vel, final_base_.lin.v());
   vars.push_back(spline_lin);
 
-  auto spline_ang = std::make_shared<BaseNodes>(n_nodes,  id::base_ang_nodes);
+  auto spline_ang = std::make_shared<NodeVariablesAll>(n_nodes, k3D, id::base_ang_nodes);
   spline_ang->SetByLinearInterpolation(initial_base_.ang.p(), final_base_.ang.p(), params_.GetTotalTime());
   spline_ang->AddStartBound(kPos, {X,Y,Z}, initial_base_.ang.p());
   spline_ang->AddStartBound(kVel, {X,Y,Z}, initial_base_.ang.v());

@@ -32,16 +32,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-NodesVariables::NodesVariables (int n_dim, const std::string& name)
+NodesVariables::NodesVariables (const std::string& name)
     : VariableSet(kSpecifyLater, name)
 {
-  n_dim_ = n_dim;
 }
 
 void
-NodesVariables::InitMembers(int n_nodes, int n_variables)
+NodesVariables::InitMembers(int n_nodes, int n_dim,  int n_variables)
 {
-  nodes_  = std::vector<Node>(n_nodes, Node(n_dim_));
+  n_dim_ = n_dim;
+  nodes_  = std::vector<Node>(n_nodes, Node(n_dim));
   bounds_ = VecBound(n_variables, ifopt::NoBound);
   SetRows(n_variables);
 }

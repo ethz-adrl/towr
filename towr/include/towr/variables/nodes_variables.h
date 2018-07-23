@@ -199,20 +199,21 @@ protected:
    * @param n_dim  The number of dimensions (x,y,..) each node has.
    * @param variable_name  The name of the variables in the optimization problem.
    */
-  NodesVariables (int n_dim, const std::string& variable_name);
+  NodesVariables (const std::string& variable_name);
   virtual ~NodesVariables () = default;
 
   VecBound bounds_; ///< the bounds on the node values.
 
   /**
    * @brief initializes the member variables.
-   * @param n_nodes  The number of nodes composing the spline.
-   * @param n_variables  The number of variables being optimized over.
+   * @param n_nodes  Number of nodes composing the spline.
+   * @param n_dim    Number of dimensions (x,y,..) per node.
+   * @param n_variables  Number of variables being optimized over.
    *
    * Not every node value must be optimized, so n_variables can be different
-   * than 2*n_nodes*n_dim.
+   * than 2*n_nodes*n_dim, (2 since every node has position and velocity).
    */
-  void InitMembers(int n_nodes, int n_variables);
+  void InitMembers(int n_nodes, int n_dim, int n_variables);
 
 private:
   std::vector<Node> nodes_;

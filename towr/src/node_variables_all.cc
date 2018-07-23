@@ -27,21 +27,20 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/variables/base_nodes.h>
-#include <towr/variables/cartesian_dimensions.h>
+#include <towr/variables/node_variables_all.h>
 
 namespace towr {
 
-BaseNodes::BaseNodes (int n_nodes, std::string variable_id)
-    : NodesVariables(k3D, variable_id)
+NodeVariablesAll::NodeVariablesAll (int n_nodes, int n_dim, std::string variable_id)
+    : NodesVariables(variable_id)
 {
   int n_derivs = 2; // position and velocity
-  int n_opt_variables = n_nodes*n_derivs*k3D;
-  InitMembers(n_nodes, n_opt_variables);
+  int n_opt_variables = n_nodes*n_derivs*n_dim;
+  InitMembers(n_nodes, n_dim, n_opt_variables);
 }
 
-std::vector<BaseNodes::NodeValueInfo>
-BaseNodes::GetNodeValuesInfo (int idx) const
+std::vector<NodeVariablesAll::NodeValueInfo>
+NodeVariablesAll::GetNodeValuesInfo (int idx) const
 {
   std::vector<NodeValueInfo> vec_nvi;
 
