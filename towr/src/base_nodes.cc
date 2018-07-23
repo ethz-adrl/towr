@@ -35,26 +35,26 @@ namespace towr {
 BaseNodes::BaseNodes (int n_nodes, std::string name) : Nodes(k3D, name)
 {
   int n_derivs = 2; // position and velocity
-  int n_variables = n_nodes*n_derivs*k3D;
-  InitMembers(n_nodes, n_variables);
+  int n_opt_variables = n_nodes*n_derivs*k3D;
+  InitMembers(n_nodes, n_opt_variables);
 }
 
 std::vector<BaseNodes::NodeValueInfo>
-BaseNodes::GetNodeInfoAtOptIndex (int idx) const
+BaseNodes::GetNodeValuesInfo (int idx) const
 {
-  std::vector<NodeValueInfo> nodes;
+  std::vector<NodeValueInfo> vec_nvi;
 
   int n_opt_values_per_node_ = 2*GetDim();
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
-  NodeValueInfo node;
-  node.deriv_ = internal_id<GetDim()? kPos : kVel;
-  node.dim_   = internal_id%GetDim();
-  node.id_    = std::floor(idx/n_opt_values_per_node_);
+  NodeValueInfo nvi;
+  nvi.deriv_ = internal_id<GetDim()? kPos : kVel;
+  nvi.dim_   = internal_id%GetDim();
+  nvi.id_    = std::floor(idx/n_opt_values_per_node_);
 
-  nodes.push_back(node);
+  vec_nvi.push_back(nvi);
 
-  return nodes;
+  return vec_nvi;
 }
 
 } /* namespace towr */

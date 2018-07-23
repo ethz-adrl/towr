@@ -92,7 +92,7 @@ NlpFactory::MakeBaseVariables () const
   double z = terrain_->GetHeight(x,y) - model_.kinematic_model_->GetNominalStanceInBase().front().z();
   Vector3d final_pos(x, y, z);
 
-  spline_lin->InitializeNodesTowardsGoal(initial_base_.lin.p(), final_pos, params_.GetTotalTime());
+  spline_lin->SetByLinearInterpolation(initial_base_.lin.p(), final_pos, params_.GetTotalTime());
   spline_lin->AddStartBound(kPos, {X,Y,Z}, initial_base_.lin.p());
   spline_lin->AddStartBound(kVel, {X,Y,Z}, initial_base_.lin.v());
   spline_lin->AddFinalBound(kPos, params_.bounds_final_lin_pos,   final_base_.lin.p());
@@ -100,7 +100,7 @@ NlpFactory::MakeBaseVariables () const
   vars.push_back(spline_lin);
 
   auto spline_ang = std::make_shared<BaseNodes>(n_nodes,  id::base_ang_nodes);
-  spline_ang->InitializeNodesTowardsGoal(initial_base_.ang.p(), final_base_.ang.p(), params_.GetTotalTime());
+  spline_ang->SetByLinearInterpolation(initial_base_.ang.p(), final_base_.ang.p(), params_.GetTotalTime());
   spline_ang->AddStartBound(kPos, {X,Y,Z}, initial_base_.ang.p());
   spline_ang->AddStartBound(kVel, {X,Y,Z}, initial_base_.ang.v());
   spline_ang->AddFinalBound(kPos, params_.bounds_final_ang_pos, final_base_.ang.p());
@@ -132,7 +132,7 @@ NlpFactory::MakeEndeffectorVariables () const
     double x = final_ee_pos_W.x();
     double y = final_ee_pos_W.y();
     double z = terrain_->GetHeight(x,y);
-    nodes->InitializeNodesTowardsGoal(initial_ee_W_.at(ee), Vector3d(x,y,z), T);
+    nodes->SetByLinearInterpolation(initial_ee_W_.at(ee), Vector3d(x,y,z), T);
 
     nodes->AddStartBound(kPos, {X,Y,Z}, initial_ee_W_.at(ee));
     vars.push_back(nodes);
@@ -159,7 +159,7 @@ NlpFactory::MakeForceVariables () const
     double g = model_.dynamic_model_->g();
 
     Vector3d f_stance(0.0, 0.0, m*g/params_.GetEECount());
-    nodes->InitializeNodesTowardsGoal(f_stance, f_stance, T);
+    nodes->SetByLinearInterpolation(f_stance, f_stance, T); // stay constant
     vars.push_back(nodes);
   }
 

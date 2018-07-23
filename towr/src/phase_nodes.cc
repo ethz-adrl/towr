@@ -36,7 +36,7 @@ void
 PhaseNodes::SetBoundsEEMotion ()
 {
   for (int idx=0; idx<GetRows(); ++idx) {
-    auto nvi = GetNodeInfoAtOptIndex(idx).front(); // bound idx by first node it represents
+    auto nvi = GetNodeValuesInfo(idx).front(); // bound idx by first node it represents
 
     // stance-node:
     // Phase-based End-effector Parameterization:
@@ -68,7 +68,7 @@ void
 PhaseNodes::SetBoundsEEForce ()
 {
   for (int idx=0; idx<GetRows(); ++idx) {
-    NodeValueInfo nvi = GetNodeInfoAtOptIndex(idx).front(); // only one node anyway
+    NodeValueInfo nvi = GetNodeValuesInfo(idx).front(); // only one node anyway
 
     // swing node
     // Phase-based End-effector Parameterization
@@ -174,7 +174,7 @@ PhaseNodes::GetOptNodeToNodeMappings (const std::vector<PolyInfo>& polynomial_in
 }
 
 std::vector<PhaseNodes::NodeValueInfo>
-PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
+PhaseNodes::GetNodeValuesInfo(int idx) const
 {
   std::vector<NodeValueInfo> vec_nvi;
 
@@ -187,8 +187,8 @@ PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
   nvi.dim_   = internal_id%GetDim();
 
   // one index can represent multiple node (during constant phase)
-  int opt_node = std::floor(idx/n_opt_values_per_node_);
-  for (auto node_id : optnode_to_node_.at(opt_node)) {
+  int opt_node_id = std::floor(idx/n_opt_values_per_node_);
+  for (auto node_id : optnode_to_node_.at(opt_node_id)) {
     nvi.id_ = node_id;
     vec_nvi.push_back(nvi);
   }

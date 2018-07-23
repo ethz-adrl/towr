@@ -62,6 +62,7 @@ TowrRos::TowrRos ()
   solver_ = std::make_shared<ifopt::IpoptSolver>(); // could also use SNOPT here
   solver_->SetOption("linear_solver", "mumps");
   solver_->SetOption("jacobian_approximation", "exact");
+//  solver_->SetOption("derivative_test", "first-order");
   solver_->SetOption("max_cpu_time", 40.0);
   solver_->SetOption("print_level", 5);
 

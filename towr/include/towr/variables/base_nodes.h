@@ -51,7 +51,7 @@ public:
   BaseNodes (int n_nodes, std::string variable_id);
   virtual ~BaseNodes () = default;
 
-  std::vector<NodeValueInfo> GetNodeInfoAtOptIndex(int idx) const override;
+  std::vector<NodeValueInfo> GetNodeValuesInfo(int idx) const override;
 };
 
 } /* namespace towr */

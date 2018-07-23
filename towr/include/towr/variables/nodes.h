@@ -72,7 +72,7 @@ public:
    * This includes all information except the actual value. This comes from
    * the vector of optimization variables.
    *
-   * @sa GetNodeInfoAtOptIndex()
+   * @sa GetNodeValuesInfo()
    */
   struct NodeValueInfo {
     int id_;   ///< ID of the associated node (0 =< id < number of nodes in spline).
@@ -85,13 +85,16 @@ public:
   };
 
   /**
-   * @brief Node values affected by the optimization variable at index idx.
-   * @param idx  The index (=row) of the node optimization variable.
-   * @return All node values associated to this optimization variable.
+   * @brief Node values affected by one specific optimization variable.
+   * @param opt_idx  The index (=row) of the optimization variable.
+   * @return All node values affected by this optimization variable.
    *
-   * @sa Nodes class detailed description for more information.
+   * This function determines which node values are optimized over, and which
+   * nodes values are set by the same optimization variable.
+   *
+   * Reverse of GetOptIndex().
    */
-  virtual std::vector<NodeValueInfo> GetNodeInfoAtOptIndex(int idx) const;
+  virtual std::vector<NodeValueInfo> GetNodeValuesInfo(int opt_idx) const = 0;
 
   /**
    * @brief Index in the optimization vector for a specific nodes' pos/vel.
@@ -120,7 +123,7 @@ public:
    * usually the number of optimization variables is less than
    * all nodes pos/vel.
    *
-   * @sa GetNodeInfoAtOptIndex()
+   * @sa GetNodeValuesInfo()
    */
   void SetVariables (const VectorXd&x) override;
 
@@ -165,13 +168,13 @@ public:
 
   /**
    * @brief Sets nodes pos/vel equally spaced from initial to final position.
-   * @param initial_pos  The position of the first node.
-   * @param final_pos  The position of the final node.
+   * @param initial_val  value of the first node.
+   * @param final_val  value of the final node.
    * @param t_total  The total duration to reach final node (to set velocities).
    */
-  void InitializeNodesTowardsGoal(const VectorXd& initial_pos,
-                                  const VectorXd& final_pos,
-                                  double t_total);
+  void SetByLinearInterpolation(const VectorXd& initial_val,
+                                const VectorXd& final_val,
+                                double t_total);
 
   /**
    * @brief Restricts the first node in the spline.

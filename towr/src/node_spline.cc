@@ -86,7 +86,7 @@ NodeSpline::FillJacobianWrtNodes (int poly_id, double t_local, Dx dxdt,
                                   Jacobian& jac, bool fill_with_zeros) const
 {
   for (int idx=0; idx<jac.cols(); ++idx) {
-    for (auto nvi : node_values_->GetNodeInfoAtOptIndex(idx)) {
+    for (auto nvi : node_values_->GetNodeValuesInfo(idx)) {
       for (auto side : {Nodes::Side::Start, Nodes::Side::End}) { // every jacobian is affected by two nodes
         int node = node_values_->GetNodeId(poly_id, side);
 

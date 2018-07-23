@@ -29,7 +29,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/variables/nodes.h>
 
-
 namespace towr {
 
 
@@ -47,42 +46,16 @@ Nodes::InitMembers(int n_nodes, int n_variables)
   SetRows(n_variables);
 }
 
-Nodes::NodeValueInfo::NodeValueInfo(int node_id, Dx deriv, int node_dim)
-{
-  id_    = node_id;
-  deriv_ = deriv;
-  dim_   = node_dim;
-}
-
 int
-Nodes::GetOptIndex(const NodeValueInfo& n) const
+Nodes::GetOptIndex(const NodeValueInfo& nvi_des) const
 {
   // could also cache this as map for more efficiency, but adding complexity
   for (int idx=0; idx<GetRows(); ++idx)
-    for ( NodeValueInfo node_info : GetNodeInfoAtOptIndex(idx))
-      if ( node_info == n )
+    for ( NodeValueInfo nvi : GetNodeValuesInfo(idx))
+      if ( nvi == nvi_des )
         return idx;
 
   assert(false); // index representing these quantities doesn't exist
-}
-
-std::vector<Nodes::NodeValueInfo>
-Nodes::GetNodeInfoAtOptIndex (int idx) const
-{
-  std::vector<NodeValueInfo> nodes;
-
-  // always two consecutive node pairs are equal
-  int n_opt_values_per_node_ = 2*n_dim_;
-  int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
-
-  NodeValueInfo nvi;
-  nvi.deriv_ = internal_id<n_dim_? kPos : kVel;
-  nvi.dim_   = internal_id%n_dim_;
-  nvi.id_    = std::floor(idx/n_opt_values_per_node_);
-
-  nodes.push_back(nvi);
-
-  return nodes;
 }
 
 Eigen::VectorXd
@@ -91,8 +64,8 @@ Nodes::GetValues () const
   VectorXd x(GetRows());
 
   for (int idx=0; idx<x.rows(); ++idx)
-    for (auto info : GetNodeInfoAtOptIndex(idx))
-      x(idx) = nodes_.at(info.id_).at(info.deriv_)(info.dim_);
+    for (auto nvi : GetNodeValuesInfo(idx))
+      x(idx) = nodes_.at(nvi.id_).at(nvi.deriv_)(nvi.dim_);
 
   return x;
 }
@@ -101,8 +74,8 @@ void
 Nodes::SetVariables (const VectorXd& x)
 {
   for (int idx=0; idx<x.rows(); ++idx)
-    for (auto info : GetNodeInfoAtOptIndex(idx))
-      nodes_.at(info.id_).at(info.deriv_)(info.dim_) = x(idx);
+    for (auto nvi : GetNodeValuesInfo(idx))
+      nodes_.at(nvi.id_).at(nvi.deriv_)(nvi.dim_) = x(idx);
 
   UpdateObservers();
 }
@@ -160,16 +133,16 @@ Nodes::GetNodes() const
 }
 
 void
-Nodes::InitializeNodesTowardsGoal(const VectorXd& initial_pos,
-                               const VectorXd& final_pos,
-                               double t_total)
+Nodes::SetByLinearInterpolation(const VectorXd& initial_val,
+                                const VectorXd& final_val,
+                                double t_total)
 {
-  VectorXd dp = final_pos-initial_pos;
-  VectorXd average_velocity = dp/t_total;
+  VectorXd dp = final_val-initial_val;
+  VectorXd average_velocity = dp / t_total;
   int num_nodes = nodes_.size();
   for (int i=0; i<nodes_.size(); ++i) {
     Node n(n_dim_);
-    n.at(kPos) = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
+    n.at(kPos) = initial_val + i/static_cast<double>(num_nodes-1)*dp;
     n.at(kVel) = average_velocity;
     nodes_.at(i) = n;
   }
@@ -185,11 +158,11 @@ Nodes::AddBounds(int node_id, Dx deriv,
 }
 
 void
-Nodes::AddBound (const NodeValueInfo& nvi, double val)
+Nodes::AddBound (const NodeValueInfo& nvi_des, double val)
 {
   for (int idx=0; idx<GetRows(); ++idx)
-    for (auto info : GetNodeInfoAtOptIndex(idx))
-      if (info == nvi)
+    for (auto nvi : GetNodeValuesInfo(idx))
+      if (nvi == nvi_des)
         bounds_.at(idx) = ifopt::Bounds(val, val);
 }
 
@@ -204,6 +177,13 @@ Nodes::AddFinalBound (Dx deriv, const std::vector<int>& dimensions,
                       const VectorXd& val)
 {
   AddBounds(nodes_.size()-1, deriv, dimensions, val);
+}
+
+Nodes::NodeValueInfo::NodeValueInfo(int node_id, Dx deriv, int node_dim)
+{
+  id_    = node_id;
+  deriv_ = deriv;
+  dim_   = node_dim;
 }
 
 int
