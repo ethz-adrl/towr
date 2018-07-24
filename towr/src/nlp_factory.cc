@@ -30,7 +30,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/nlp_factory.h>
 
 #include <towr/variables/variable_names.h>
-#include <towr/variables/node_variables_all.h>
 #include <towr/variables/phase_durations.h>
 
 #include <towr/constraints/base_motion_constraint.h>
@@ -43,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/constraints/spline_acc_constraint.h>
 
 #include <towr/costs/node_cost.h>
+#include <towr/variables/nodes_variables_all.h>
 
 namespace towr {
 
@@ -85,7 +85,7 @@ NlpFactory::MakeBaseVariables () const
 
   int n_nodes = params_.GetBasePolyDurations().size() + 1;
 
-  auto spline_lin = std::make_shared<NodeVariablesAll>(n_nodes, k3D, id::base_lin_nodes);
+  auto spline_lin = std::make_shared<NodesVariablesAll>(n_nodes, k3D, id::base_lin_nodes);
 
   double x = final_base_.lin.p().x();
   double y = final_base_.lin.p().y();
@@ -99,7 +99,7 @@ NlpFactory::MakeBaseVariables () const
   spline_lin->AddFinalBound(kVel, params_.bounds_final_lin_vel, final_base_.lin.v());
   vars.push_back(spline_lin);
 
-  auto spline_ang = std::make_shared<NodeVariablesAll>(n_nodes, k3D, id::base_ang_nodes);
+  auto spline_ang = std::make_shared<NodesVariablesAll>(n_nodes, k3D, id::base_ang_nodes);
   spline_ang->SetByLinearInterpolation(initial_base_.ang.p(), final_base_.ang.p(), params_.GetTotalTime());
   spline_ang->AddStartBound(kPos, {X,Y,Z}, initial_base_.ang.p());
   spline_ang->AddStartBound(kVel, {X,Y,Z}, initial_base_.ang.v());
@@ -110,19 +110,19 @@ NlpFactory::MakeBaseVariables () const
   return vars;
 }
 
-std::vector<PhaseNodes::Ptr>
+std::vector<NodesVariablesPhaseBased::Ptr>
 NlpFactory::MakeEndeffectorVariables () const
 {
-  std::vector<PhaseNodes::Ptr> vars;
+  std::vector<NodesVariablesPhaseBased::Ptr> vars;
 
   // Endeffector Motions
   double T = params_.GetTotalTime();
   for (int ee=0; ee<params_.GetEECount(); ee++) {
-    auto nodes = std::make_shared<PhaseNodes>(params_.GetPhaseCount(ee),
+    auto nodes = std::make_shared<NodesVariablesEEMotion>(
+                                              params_.GetPhaseCount(ee),
                                               params_.ee_in_contact_at_start_.at(ee),
                                               id::EEMotionNodes(ee),
-                                              params_.ee_polynomials_per_swing_phase_,
-                                              PhaseNodes::Motion);
+                                              params_.ee_polynomials_per_swing_phase_);
 
     // initialize towards final footholds
     double yaw = final_base_.ang.p().z();
@@ -141,18 +141,18 @@ NlpFactory::MakeEndeffectorVariables () const
   return vars;
 }
 
-std::vector<PhaseNodes::Ptr>
+std::vector<NodesVariablesPhaseBased::Ptr>
 NlpFactory::MakeForceVariables () const
 {
-  std::vector<PhaseNodes::Ptr> vars;
+  std::vector<NodesVariablesPhaseBased::Ptr> vars;
 
   double T = params_.GetTotalTime();
   for (int ee=0; ee<params_.GetEECount(); ee++) {
-    auto nodes = std::make_shared<PhaseNodes>(params_.GetPhaseCount(ee),
+    auto nodes = std::make_shared<NodesVariablesEEForce>(
+                                              params_.GetPhaseCount(ee),
                                               params_.ee_in_contact_at_start_.at(ee),
                                               id::EEForceNodes(ee),
-                                              params_.force_polynomials_per_stance_phase_,
-                                              PhaseNodes::Force);
+                                              params_.force_polynomials_per_stance_phase_);
 
     // initialize with mass of robot distributed equally on all legs
     double m = model_.dynamic_model_->m();

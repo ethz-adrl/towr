@@ -22,18 +22,9 @@ add_library(${PROJECT_NAME} SHARED
   src/parameters.cc
   # variables
   src/nodes_variables.cc
-  src/node_variables_all.cc
-  src/phase_nodes.cc
-  src/state.cc
-  src/polynomial.cc
-  src/spline.cc
-  src/phase_spline.cc
-  src/node_spline.cc
-  src/nodes_observer.cc
-  src/spline_holder.cc
-  src/euler_converter.cc
+  src/nodes_variables_all.cc
+  src/nodes_variables_phase_based.cc
   src/phase_durations.cc
-  src/phase_durations_observer.cc
   # models
   src/robot_model.cc
   src/dynamic_model.cc
@@ -60,6 +51,16 @@ add_library(${PROJECT_NAME} SHARED
   # terrain
   src/height_map_examples.cc
   src/height_map.cc
+  # helpers
+  src/state.cc
+  src/polynomial.cc
+  src/spline.cc
+  src/phase_spline.cc
+  src/node_spline.cc
+  src/nodes_observer.cc
+  src/spline_holder.cc
+  src/euler_converter.cc
+  src/phase_durations_observer.cc
 )
 target_link_libraries(${PROJECT_NAME} 
   PUBLIC 

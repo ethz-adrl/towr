@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ifopt/constraint_set.h>
 
-#include <towr/variables/phase_nodes.h>
+#include <towr/variables/nodes_variables_phase_based.h>
 
 namespace towr {
 
@@ -64,7 +64,7 @@ public:
   void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
 private:
-  PhaseNodes::Ptr ee_motion_;
+  NodesVariablesPhaseBased::Ptr ee_motion_;
   double t_swing_avg_ = 0.3;
   std::string ee_motion_id_;
 

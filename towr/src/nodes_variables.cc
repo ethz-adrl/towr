@@ -37,15 +37,6 @@ NodesVariables::NodesVariables (const std::string& name)
 {
 }
 
-void
-NodesVariables::InitMembers(int n_nodes, int n_dim,  int n_variables)
-{
-  n_dim_ = n_dim;
-  nodes_  = std::vector<Node>(n_nodes, Node(n_dim));
-  bounds_ = VecBound(n_variables, ifopt::NoBound);
-  SetRows(n_variables);
-}
-
 int
 NodesVariables::GetOptIndex(const NodeValueInfo& nvi_des) const
 {
@@ -55,7 +46,7 @@ NodesVariables::GetOptIndex(const NodeValueInfo& nvi_des) const
       if ( nvi == nvi_des )
         return idx;
 
-  assert(false); // index representing these quantities doesn't exist
+  return NodeValueNotOptimized; // index representing these quantities doesn't exist
 }
 
 Eigen::VectorXd
@@ -134,17 +125,27 @@ NodesVariables::GetNodes() const
 
 void
 NodesVariables::SetByLinearInterpolation(const VectorXd& initial_val,
-                                const VectorXd& final_val,
-                                double t_total)
+                                         const VectorXd& final_val,
+                                         double t_total)
 {
+  // only set those that are part of optimization variables,
+  // do not overwrite phase-based parameterization
   VectorXd dp = final_val-initial_val;
   VectorXd average_velocity = dp / t_total;
   int num_nodes = nodes_.size();
-  for (int i=0; i<nodes_.size(); ++i) {
-    Node n(n_dim_);
-    n.at(kPos) = initial_val + i/static_cast<double>(num_nodes-1)*dp;
-    n.at(kVel) = average_velocity;
-    nodes_.at(i) = n;
+
+  for (int idx=0; idx<GetRows(); ++idx) {
+    for (auto nvi : GetNodeValuesInfo(idx)) {
+
+      if (nvi.deriv_ == kPos) {
+        VectorXd pos = initial_val + nvi.id_/static_cast<double>(num_nodes-1)*dp;
+        nodes_.at(nvi.id_).at(kPos)(nvi.dim_) = pos(nvi.dim_);
+      }
+
+      if (nvi.deriv_ == kVel) {
+        nodes_.at(nvi.id_).at(kVel)(nvi.dim_) = average_velocity(nvi.dim_);
+      }
+    }
   }
 }
 

@@ -27,20 +27,23 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/variables/node_variables_all.h>
+#include <towr/variables/nodes_variables_all.h>
 
 namespace towr {
 
-NodeVariablesAll::NodeVariablesAll (int n_nodes, int n_dim, std::string variable_id)
+NodesVariablesAll::NodesVariablesAll (int n_nodes, int n_dim, std::string variable_id)
     : NodesVariables(variable_id)
 {
-  int n_derivs = 2; // position and velocity
-  int n_opt_variables = n_nodes*n_derivs*n_dim;
-  InitMembers(n_nodes, n_dim, n_opt_variables);
+  int n_opt_variables = n_nodes*Node::n_derivatives*n_dim;
+
+  n_dim_ = n_dim;
+  nodes_  = std::vector<Node>(n_nodes, Node(n_dim));
+  bounds_ = VecBound(n_opt_variables, ifopt::NoBound);
+  SetRows(n_opt_variables);
 }
 
-std::vector<NodeVariablesAll::NodeValueInfo>
-NodeVariablesAll::GetNodeValuesInfo (int idx) const
+std::vector<NodesVariablesAll::NodeValueInfo>
+NodesVariablesAll::GetNodeValuesInfo (int idx) const
 {
   std::vector<NodeValueInfo> vec_nvi;
 

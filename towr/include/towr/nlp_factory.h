@@ -49,13 +49,6 @@ namespace towr {
  * These are the quantities through which the optimization problem is
  * parameterized.
  *
- * ###Further Reading:
- *  * Start with class Nodes, which is what all other variables are
- *     built on.
- *
- *  * The implementation of _Phase-based Endeffector Parameterization_ for feet
- *    and forces can be found in PhaseNodes.
- *
  * Folder: @ref include/towr/variables.
  */
 
@@ -125,8 +118,8 @@ public:
 private:
   // variables
   std::vector<NodesVariables::Ptr> MakeBaseVariables() const;
-  std::vector<PhaseNodes::Ptr> MakeEndeffectorVariables() const;
-  std::vector<PhaseNodes::Ptr> MakeForceVariables() const;
+  std::vector<NodesVariablesPhaseBased::Ptr> MakeEndeffectorVariables() const;
+  std::vector<NodesVariablesPhaseBased::Ptr> MakeForceVariables() const;
   std::vector<PhaseDurations::Ptr> MakeContactScheduleVariables() const;
 
   // constraints

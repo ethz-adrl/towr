@@ -30,10 +30,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_SPLINE_HOLDER_H_
 #define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_SPLINE_HOLDER_H_
 
-#include "phase_nodes.h"
 #include "phase_durations.h"
 #include "node_spline.h"
 #include "nodes_variables.h"
+#include "nodes_variables_phase_based.h"
 
 namespace towr {
 
@@ -42,8 +42,6 @@ namespace towr {
  *        optimization variables.
  *
  * This is independent from whether they are added as optimization variables.
- *
- * @ingroup Variables
  */
 struct SplineHolder {
   /**
@@ -59,8 +57,8 @@ struct SplineHolder {
   SplineHolder (NodesVariables::Ptr base_lin,
                 NodesVariables::Ptr base_ang,
                 const std::vector<double>& base_poly_durations,
-                std::vector<PhaseNodes::Ptr> ee_motion,
-                std::vector<PhaseNodes::Ptr> ee_force,
+                std::vector<NodesVariablesPhaseBased::Ptr> ee_motion,
+                std::vector<NodesVariablesPhaseBased::Ptr> ee_force,
                 std::vector<PhaseDurations::Ptr> phase_durations,
                 bool ee_durations_change);
 

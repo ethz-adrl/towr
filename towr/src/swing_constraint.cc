@@ -41,7 +41,7 @@ SwingConstraint::SwingConstraint (std::string ee_motion)
 void
 towr::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_motion_ = x->GetComponent<PhaseNodes>(ee_motion_id_);
+  ee_motion_ = x->GetComponent<NodesVariablesPhaseBased>(ee_motion_id_);
 
   pure_swing_node_ids_ = ee_motion_->GetIndicesOfNonConstantNodes();
 

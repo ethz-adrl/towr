@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 PhaseSpline::PhaseSpline(
-    PhaseNodes::Ptr const nodes,
+    NodesVariablesPhaseBased::Ptr const nodes,
     PhaseDurations* const phase_durations)
     : NodeSpline(nodes.get(), nodes->ConvertPhaseToPolyDurations(phase_durations->GetPhaseDurations())),
       PhaseDurationsObserver(phase_durations)

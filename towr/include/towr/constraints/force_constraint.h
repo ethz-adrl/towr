@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ifopt/constraint_set.h>
 
-#include <towr/variables/phase_nodes.h>
+#include <towr/variables/nodes_variables_phase_based.h>
 #include <towr/terrain/height_map.h> // for friction cone
 
 namespace towr {
@@ -75,8 +75,8 @@ public:
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
 private:
-  PhaseNodes::Ptr ee_force_;  ///< the current xyz foot forces.
-  PhaseNodes::Ptr ee_motion_; ///< the current xyz foot positions.
+  NodesVariablesPhaseBased::Ptr ee_force_;  ///< the current xyz foot forces.
+  NodesVariablesPhaseBased::Ptr ee_motion_; ///< the current xyz foot positions.
 
   HeightMap::Ptr terrain_; ///< gradient information at every position (x,y).
   double fn_max_;          ///< force limit in normal direction.

@@ -50,8 +50,8 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
 void
 ForceConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_force_  = x->GetComponent<PhaseNodes>(id::EEForceNodes(ee_));
-  ee_motion_ = x->GetComponent<PhaseNodes>(id::EEMotionNodes(ee_));
+  ee_force_  = x->GetComponent<NodesVariablesPhaseBased>(id::EEForceNodes(ee_));
+  ee_motion_ = x->GetComponent<NodesVariablesPhaseBased>(id::EEMotionNodes(ee_));
 
   pure_stance_force_node_ids_ = ee_force_->GetIndicesOfNonConstantNodes();
 

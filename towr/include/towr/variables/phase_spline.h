@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "node_spline.h"
 #include "phase_durations_observer.h"
-#include "phase_nodes.h"
+#include "nodes_variables_phase_based.h"
 
 namespace towr {
 
@@ -43,8 +43,6 @@ namespace towr {
  * the optimized phase durations to construct a sequence of
  * CubicHermitePolynomial. For this it observers whether one of the quantities
  * changed and then updates all the polynomials accordingly.
- *
- * @ingroup Variables
  */
 class PhaseSpline : public NodeSpline, public PhaseDurationsObserver{
 public:
@@ -56,7 +54,7 @@ public:
    * @param node_variables The optimized node variables (pos, vel).
    * @param phase_durations Pointer to the changing phase duration variables.
    */
-  PhaseSpline(PhaseNodes::Ptr const node_variables,
+  PhaseSpline(NodesVariablesPhaseBased::Ptr const node_variables,
               PhaseDurations* const phase_durations);
   ~PhaseSpline() = default;
 
@@ -82,7 +80,7 @@ private:
    */
   Eigen::VectorXd GetDerivativeOfPosWrtPhaseDuration (double t) const;
 
-  PhaseNodes::Ptr phase_nodes_; // retain pointer for extended functionality
+  NodesVariablesPhaseBased::Ptr phase_nodes_; // retain pointer for extended functionality
 };
 
 } /* namespace towr */

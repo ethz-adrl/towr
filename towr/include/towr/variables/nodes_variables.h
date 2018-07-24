@@ -54,11 +54,10 @@ namespace towr {
  * spline shapes are generated. It is important to note that **not all node
  * values must be optimized over**. We can fix specific node values in advance, or
  * _one_ optimization variables can represent _multiple_ nodes values in the
- * spline. This is exploited in the subclass PhaseNodes using
+ * spline. This is exploited in the subclass NodesVariablesPhaseBased using
  * _Phase-based End-effector Parameterization_.
  *
  * @ingroup Variables
- * @sa PhaseNodes
  */
 class NodesVariables : public ifopt::VariableSet {
 public:
@@ -104,6 +103,7 @@ public:
    * Reverse of GetNodeInfoAtOptIndex().
    */
   int GetOptIndex(const NodeValueInfo& nvi) const;
+  static const int NodeValueNotOptimized = -1;
 
   /**
    * @brief Pure optimization variables that define the nodes.
@@ -203,22 +203,10 @@ protected:
   virtual ~NodesVariables () = default;
 
   VecBound bounds_; ///< the bounds on the node values.
-
-  /**
-   * @brief initializes the member variables.
-   * @param n_nodes  Number of nodes composing the spline.
-   * @param n_dim    Number of dimensions (x,y,..) per node.
-   * @param n_variables  Number of variables being optimized over.
-   *
-   * Not every node value must be optimized, so n_variables can be different
-   * than 2*n_nodes*n_dim, (2 since every node has position and velocity).
-   */
-  void InitMembers(int n_nodes, int n_dim, int n_variables);
-
-private:
   std::vector<Node> nodes_;
   int n_dim_;
 
+private:
   /**
    * @brief Notifies the subscribed observers that the node values changes.
    */

@@ -45,8 +45,6 @@ namespace towr {
  * fixed polynomial durations to construct a sequence of CubicHermitePolynomial.
  * For this it observers whether the node values change and then updates all the
  * polynomials accordingly.
- *
- * @ingroup Variables
  */
 class NodeSpline : public Spline, public NodesObserver {
 public:
