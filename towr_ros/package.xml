@@ -33,4 +33,6 @@
   
   <exec_depend>xterm</exec_depend>
   <exec_depend>xpp_hyq</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>rqt_bag</exec_depend>
 </package>

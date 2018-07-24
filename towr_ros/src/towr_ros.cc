@@ -162,6 +162,10 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
         + " --quiet " + bag_file).c_str());
   }
 
+  if (msg.plot_trajectory) {
+    int success = system(("killall rqt_bag; rqt_bag " + bag_file + "&").c_str());
+  }
+
   // to publish entire trajectory (e.g. to send to controller)
   // xpp_msgs::RobotStateCartesianTrajectory xpp_msg = xpp::Convert::ToRos(GetTrajectory());
 }
