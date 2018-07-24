@@ -32,15 +32,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-TOWR::TOWR () {
-  using namespace std;
-  cout << "\n";
-  cout << "************************************************************\n";
-  cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.2.2)\n";
-  cout << "                \u00a9 Alexander W. Winkler\n";
-  cout << "           https://github.com/ethz-adrl/towr\n";
-  cout << "************************************************************";
-  cout << "\n\n";
+TOWR::TOWR (bool print_boilerplate) {
+  if (print_boilerplate) {
+    using namespace std;
+    cout << "\n";
+    cout << "************************************************************\n";
+    cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.3)\n";
+    cout << "                \u00a9 Alexander W. Winkler\n";
+    cout << "           https://github.com/ethz-adrl/towr\n";
+    cout << "************************************************************";
+    cout << "\n\n";
+  }
 }
 
 void

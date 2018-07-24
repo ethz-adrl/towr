@@ -55,7 +55,7 @@ static constexpr int X_VALUE       = 35;
 TowrUserInterface::TowrUserInterface ()
 {
   printw(" ******************************************************************************\n");
-  printw("                          TOWR user interface (v1.2.2) \n");
+  printw("                          TOWR user interface (v1.3) \n");
   printw("                            \u00a9 Alexander W. Winkler \n");
   printw("                        https://github.com/ethz-adrl/towr\n");
   printw(" ******************************************************************************\n\n");
@@ -183,9 +183,6 @@ TowrUserInterface::PrintScreen() const
   printw("Close user interface");
   wmove(stdscr, CLOSE, X_VALUE);
   printw("-");
-
-  wmove(stdscr, Y_STATUS, X_KEY);
-  printw("Status:");
 }
 
 void
@@ -255,10 +252,10 @@ TowrUserInterface::CallbackKey (int c)
       total_duration_ -= 0.2;
     break;
     case '\'':
-      replay_speed_ += 0.2;
+      replay_speed_ += 0.1;
     break;
     case ';':
-      replay_speed_ -= 0.2;
+      replay_speed_ -= 0.1;
     break;
     case 'y':
       optimize_phase_durations_ = !optimize_phase_durations_;
@@ -267,23 +264,24 @@ TowrUserInterface::CallbackKey (int c)
 
     case 'o':
       optimize_ = true;
-      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
-      printw("Optimize motion request sent\n");
+      wmove(stdscr, Y_STATUS, 0);
+      printw("Optimizing motion\n\n");
       break;
     case 'v':
       visualize_trajectory_ = true;
-      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
-      printw("Visualizing optimized trajectory\n");
+      wmove(stdscr, Y_STATUS, 0);
+      printw("Visualizing current bag file\n\n");
       break;
     case 'i':
       play_initialization_ = true;
-      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
-      printw("Visualizing initialization (iteration 0)\n");
+      wmove(stdscr, Y_STATUS, 0);
+      printw("Visualizing initialization (iteration 0)\n\n");
       break;
     case 'p':
       plot_trajectory_ = true;
-      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
-      printw("In rqt_bag: right-click on xpp/state_des -> View -> Plot\n");
+      wmove(stdscr, Y_STATUS, 0);
+      printw("In rqt_bag: right-click on xpp/state_des -> View -> Plot.\n"
+             "Then expand the values you wish to plot on the right\n");
       break;
     case 'q':
       printw("Closing user interface\n");
@@ -338,7 +336,6 @@ TowrUserInterface::PrintVector2D(const Eigen::Vector2d& v) const
 {
   printw("%.2f  %.2f", v.x(), v.y());
 }
-
 
 } /* namespace towr */
 
