@@ -99,7 +99,7 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
 ## Run / Develop
   Launch the program using
   ```bash
-  roslaunch towr_ros towr_ros.launch
+  roslaunch towr_ros towr_ros.launch  # debug:=true  (to debug with gdb)
   ```
   Click in the xterm terminal and hit 'o'. 
   
