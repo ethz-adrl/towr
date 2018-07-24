@@ -1,5 +1,7 @@
 <launch>  
-
+  <!-- must be passed in when calling this launch file -->
+  <arg name="gdb" />
+  
   <!-- translate keyboard input to TOWR commands -->
   <node 
     name="user_interface" 
@@ -14,7 +16,9 @@
     name="rviz_terrain_publisher" 
     pkg="towr_ros" 
     type="rviz_terrain_publisher" 
-    output="screen">
+    output="screen"
+    launch-prefix="$(arg gdb)"
+    >
   </node>
   
   <!--  visualize the goal pose in RVIZ -->
@@ -22,7 +26,9 @@
     name="goal_pose_publisher" 
     pkg="towr_ros" 
     type="goal_pose_publisher" 
-    output="screen">
+    output="screen"
+    launch-prefix="$(arg gdb)"
+    >
   </node>
 
   <!-- start the actual NLP solver using TOWR -->
@@ -30,7 +36,9 @@
     name="towr_ros" 
     pkg="towr_ros" 
     type="towr_ros" 
-    output="screen">
+    output="screen"
+    launch-prefix="$(arg gdb)"
+    >
   </node>
     
 </launch>
