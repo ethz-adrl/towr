@@ -67,6 +67,7 @@ private:
   int gait_combo_;
   int robot_;
   bool replay_trajectory_;
+  bool play_initialization_;
   double replay_speed_;
   bool optimize_;
   bool publish_optimized_trajectory_;

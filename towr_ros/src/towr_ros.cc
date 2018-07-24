@@ -140,16 +140,21 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
   towr_.SetInitialState(initial_base_, initial_ee_pos_);
   towr_.SetParameters(goal, params, model, terrain_);
 
+  // set solver parameters
+  if (msg.play_initialization)
+    solver_->SetOption("max_iter", 0);
+  else
+    solver_->SetOption("max_iter", 3000);
 
   // Defaults to /home/user/.ros/
   std::string bag_file = "towr_trajectory.bag";
-  if (msg.optimize) {
+  if (msg.optimize || msg.play_initialization) {
     towr_.SolveNLP(solver_);
     SaveOptimizationAsRosbag(bag_file, robot_params_msg, msg, false);
   }
 
   // playback using terminal commands
-  if (msg.replay_trajectory || msg.optimize) {
+  if (msg.replay_trajectory || msg.play_initialization || msg.optimize) {
     int success = system(("rosbag play --topics "
         + xpp_msgs::robot_state_desired + " "
         + xpp_msgs::terrain_info

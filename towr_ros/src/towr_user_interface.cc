@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-enum YCursorRows {HEADING=6, OPTIMIZE=8, REPLAY, REPLAY_SPEED, GOAL_POS, GOAL_ORI, ROBOT,
+enum YCursorRows {HEADING=6, OPTIMIZE=8, REPLAY, INITIALIZATION, REPLAY_SPEED, GOAL_POS, GOAL_ORI, ROBOT,
                   GAIT, OPTIMIZE_GAIT, TERRAIN, DURATION, CLOSE, END};
 static constexpr int Y_STATUS      = END+1;
 static constexpr int X_KEY         = 1;
@@ -101,6 +101,13 @@ TowrUserInterface::PrintScreen() const
   wmove(stdscr, REPLAY, X_DESCRIPTION);
   printw("play motion (bag)");
   wmove(stdscr, REPLAY, X_VALUE);
+  printw("-");
+
+  wmove(stdscr, INITIALIZATION, X_KEY);
+  printw("i");
+  wmove(stdscr, INITIALIZATION, X_DESCRIPTION);
+  printw("play initialization");
+  wmove(stdscr, INITIALIZATION, X_VALUE);
   printw("-");
 
   wmove(stdscr, REPLAY_SPEED, X_KEY);
@@ -259,6 +266,11 @@ TowrUserInterface::CallbackKey (int c)
       wmove(stdscr, Y_STATUS, X_DESCRIPTION);
       printw("Replaying optimized trajectory\n");
       break;
+    case 'i':
+      play_initialization_ = true;
+      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
+      printw("Playing initialization\n");
+      break;
     case 'q':
       printw("Closing user interface\n");
       ros::shutdown(); break;
@@ -276,6 +288,7 @@ void TowrUserInterface::PublishCommand()
   msg.goal_ang                 = xpp::Convert::ToRos(goal_geom_.ang);
   msg.total_duration           = total_duration_;
   msg.replay_trajectory        = replay_trajectory_;
+  msg.play_initialization      = play_initialization_;
   msg.replay_speed             = replay_speed_;
   msg.optimize                 = optimize_;
   msg.terrain                  = terrain_;
@@ -289,6 +302,7 @@ void TowrUserInterface::PublishCommand()
 
   optimize_ = false;
   replay_trajectory_  = false;
+  play_initialization_  = false;
   publish_optimized_trajectory_ = false;
 }
 
