@@ -46,8 +46,7 @@ towr::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
   pure_swing_node_ids_ = ee_motion_->GetIndicesOfNonConstantNodes();
 
   // constrain xy position and velocity of every swing node
-  // add +1 per node if swing in apex is constrained
-  int constraint_count =  pure_swing_node_ids_.size()*2*k2D;
+  int constraint_count =  pure_swing_node_ids_.size()*Node::n_derivatives*k2D;
 
   SetRows(constraint_count);
 }

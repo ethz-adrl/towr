@@ -212,7 +212,7 @@ NodesVariablesEEMotion::GetPhaseBasedEEParameterization ()
 {
   OptIndexMap index_map;
 
-  int idx = 0;
+  int idx = 0; // index in variables set
   for (int node_id=0; node_id<nodes_.size(); ++node_id) {
     // swing node:
     if (!IsConstantNode(node_id)) {
@@ -231,7 +231,7 @@ NodesVariablesEEMotion::GetPhaseBasedEEParameterization ()
           index_map[idx++].push_back(NodeValueInfo(node_id, kVel, dim));
       }
     }
-    // stance node:
+    // stance node (next one will also be stance, so handle that one too):
     else {
       // ensure that foot doesn't move by not even optimizing over velocities
       nodes_.at(node_id).at(kVel).setZero();
@@ -270,7 +270,7 @@ NodesVariablesEEForce::GetPhaseBasedEEParameterization ()
 {
   OptIndexMap index_map;
 
-  int idx = 0;
+  int idx = 0; // index in variables set
   for (int id=0; id<nodes_.size(); ++id) {
     // stance node:
     // forces can be created during stance, so these nodes are optimized over.
@@ -280,7 +280,7 @@ NodesVariablesEEForce::GetPhaseBasedEEParameterization ()
         index_map[idx++].push_back(NodeValueInfo(id, kVel, dim));
       }
     }
-    // swing node
+    // swing node (next one will also be swing, so handle that one too)
     else {
       // forces can't exist during swing phase, so no need to be optimized
       // -> all node values simply set to zero.

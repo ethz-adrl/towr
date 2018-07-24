@@ -330,7 +330,8 @@ NlpFactory::CostPtrVec
 NlpFactory::GetCost(const Parameters::CostName& name, double weight) const
 {
   switch (name) {
-    case Parameters::ForcesCostID: return MakeForcesCost(weight);
+    case Parameters::ForcesCostID:   return MakeForcesCost(weight);
+    case Parameters::EEMotionCostID: return MakeEEMotionCost(weight);
     default: throw std::runtime_error("cost not defined!");
   }
 }
@@ -342,6 +343,19 @@ NlpFactory::MakeForcesCost(double weight) const
 
   for (int ee=0; ee<params_.GetEECount(); ee++)
     cost.push_back(std::make_shared<NodeCost>(id::EEForceNodes(ee), kPos, Z));
+
+  return cost;
+}
+
+NlpFactory::CostPtrVec
+NlpFactory::MakeEEMotionCost(double weight) const
+{
+  CostPtrVec cost;
+
+  for (int ee=0; ee<params_.GetEECount(); ee++) {
+    cost.push_back(std::make_shared<NodeCost>(id::EEMotionNodes(ee), kVel, X));
+    cost.push_back(std::make_shared<NodeCost>(id::EEMotionNodes(ee), kVel, Y));
+  }
 
   return cost;
 }

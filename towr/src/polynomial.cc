@@ -105,8 +105,8 @@ CubicHermitePolynomial::UpdateCoeff()
 
 double
 CubicHermitePolynomial::GetDerivativeWrtStartNode (Dx dfdt,
-                                             Dx node_derivative, // pos or velocity node
-                                             double t_local) const
+                                                   Dx node_derivative, // pos or velocity node
+                                                   double t_local) const
 {
   switch (dfdt) {
     case kPos:
@@ -122,8 +122,8 @@ CubicHermitePolynomial::GetDerivativeWrtStartNode (Dx dfdt,
 
 double
 CubicHermitePolynomial::GetDerivativeWrtEndNode (Dx dfdt,
-                                           Dx node_derivative, // pos or velocity node
-                                           double t_local) const
+                                                 Dx node_derivative, // pos or velocity node
+                                                 double t_local) const
 {
   switch (dfdt) {
     case kPos:
@@ -156,7 +156,7 @@ CubicHermitePolynomial::GetDerivativeOfPosWrtStartNode(Dx node_value,
 
 double
 CubicHermitePolynomial::GetDerivativeOfVelWrtStartNode (Dx node_value,
-                                                  double t) const
+                                                        double t) const
 {
   double t2 = std::pow(t,2);
   double T  = T_;
@@ -172,7 +172,7 @@ CubicHermitePolynomial::GetDerivativeOfVelWrtStartNode (Dx node_value,
 
 double
 CubicHermitePolynomial::GetDerivativeOfAccWrtStartNode (Dx node_value,
-                                                  double t) const
+                                                        double t) const
 {
   double T  = T_;
   double T2 = std::pow(T_,2);
@@ -187,7 +187,7 @@ CubicHermitePolynomial::GetDerivativeOfAccWrtStartNode (Dx node_value,
 
 double
 CubicHermitePolynomial::GetDerivativeOfPosWrtEndNode (Dx node_value,
-                                                double t) const
+                                                      double t) const
 {
   double t2 = std::pow(t,2);
   double t3 = std::pow(t,3);
@@ -204,7 +204,7 @@ CubicHermitePolynomial::GetDerivativeOfPosWrtEndNode (Dx node_value,
 
 double
 CubicHermitePolynomial::GetDerivativeOfVelWrtEndNode (Dx node_value,
-                                                double t) const
+                                                      double t) const
 {
   double t2 = std::pow(t,2);
   double T  = T_;
@@ -220,7 +220,7 @@ CubicHermitePolynomial::GetDerivativeOfVelWrtEndNode (Dx node_value,
 
 double
 CubicHermitePolynomial::GetDerivativeOfAccWrtEndNode (Dx node_value,
-                                                double t) const
+                                                      double t) const
 {
   double T  = T_;
   double T2 = std::pow(T_,2);

@@ -40,13 +40,12 @@ namespace towr {
  * #### Four nodes defining a single spline (e.g. foot position in x-direction)
  * \image html phase_nodes.png
  *
- * Nodes are defined by the scalar position and velocity
- * values x0, x0d, ..., xT, xTd. By optimizing over these nodes, different
- * spline shapes are generated. **Not all node values must be optimized over**.
+ * **Not all node values must be optimized over**.
  * We can for example fix the derivatives (x1d, x2d) to 0.0 and also use the
  * same optimization variable to fill both x1 and x2. If this spline represents
  * the position of an end-effector, this means that no matter which values the
- * the solver chooses, the foot will never move during the time interval T2
+ * the solver chooses, the foot will never move during the time interval T2.
+ * This is done in NodesVariablesEEMotion::GetPhaseBasedEEParameterization()
  * (see image below).
  *
  * #### Motion (dim: x) and force (dim: z) spline for one foot
@@ -199,6 +198,7 @@ public:
   OptIndexMap GetPhaseBasedEEParameterization ();
 };
 
+
 /**
  * @brief Variables fully defining the endeffector forces.
  *
@@ -213,7 +213,6 @@ public:
   virtual ~NodesVariablesEEForce() = default;
   OptIndexMap GetPhaseBasedEEParameterization ();
 };
-
 
 } /* namespace towr */
 

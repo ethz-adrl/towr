@@ -90,19 +90,13 @@ public:
   NlpFactory () = default;
   virtual ~NlpFactory () = default;
 
-  /**
-   * @returns The ifopt variable sets that will be optimized over.
-   */
+  /** @brief The ifopt variable sets that will be optimized over. */
   VariablePtrVec GetVariableSets();
 
-  /**
-   * @returns The ifopt constraints that enforce feasible motions.
-   */
+  /** @brief The ifopt constraints that enforce feasible motions. */
   ContraintPtrVec GetConstraints() const;
 
-  /**
-   * @returns The ifopt costs to tune the motion.
-   */
+  /** @brief The ifopt costs to tune the motion. */
   ContraintPtrVec GetCosts() const;
 
 
@@ -136,6 +130,7 @@ private:
   // costs
   CostPtrVec GetCost(const Parameters::CostName& id, double weight) const;
   CostPtrVec MakeForcesCost(double weight) const;
+  CostPtrVec MakeEEMotionCost(double weight) const;
 };
 
 } /* namespace towr */

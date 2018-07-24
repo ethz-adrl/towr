@@ -92,7 +92,6 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, std::string var_set
     jac_model = model_->GetJacobianWrtBaseAng(base_angular_, t);
   }
 
-
   // sensitivity of dynamic constraint w.r.t. endeffector variables
   for (int ee=0; ee<model_->GetEECount(); ++ee) {
     if (var_set == id::EEForceNodes(ee)) {
