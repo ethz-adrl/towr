@@ -105,10 +105,34 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   
   Information about how to tune the paramters can be found [here](http://docs.ros.org/api/towr/html/group__Parameters.html) 
   
+## Develop
+Useful information for developers: [:arrow_right: doxygen documentation](http://docs.ros.org/kinetic/api/towr/html/). 
+
+#### Code Overview
+ * To understand the architecture of the code and which are the relevant classes
+and parameters to customize or build on, please see [Modules](http://docs.ros.org/api/towr/html/modules.html).
+ * A nice graphical overview as UML can be seen [here](http://docs.ros.org/api/towr/html/inherits.html).
+
+#### Problem formulation
+ * This code formulates the variables, costs and constraints using [ifopt](https://github.com/ethz-adrl/ifopt), so it makes sense to first briefly familiarize with the syntax using [this example](https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h). 
+
+#### Add your own robot
+ * Want to add your own robot to towr? Start [here](http://docs.ros.org/api/towr/html/group__Robots.html).
+
+ * To afterwards also visualize your URDF, see [xpp].
+
+
+## Contribute
+We love pull request, whether its new constraint formulations, additional robot models, bug fixes, unit tests or updating the documentation. Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) for more information.  
+See here the list of [contributors](https://github.com/ethz-adrl/towr/graphs/contributors) who participated in this project.
+
+
+##  Bugs & Feature Requests
+To report bugs, request features or ask questions, please have a look at [CONTRIBUTING.md](CONTRIBUTING.md). 
+
 
 ## Publications
-All publications underlying this code can be found [here](https://awinkler.github.io/publications):  
-
+All publications underlying this code can be found [here](https://awinkler.github.io/publications). 
 The core paper is:
  
     @article{winkler18,
@@ -135,37 +159,6 @@ the Single-Rigid-Body Dynamics model used in this work:
 The work was carried out at the following institutions:
 
 [<img src="https://i.imgur.com/aGOnNTZ.png" height="45" />](https://www.ethz.ch/en.html "ETH Zurich") &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/uCvLs2j.png" height="45" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="45" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")
-
-
-
-## Develop
-Useful information for developers:  
-[**:arrow_right: doxygen documentation**](http://docs.ros.org/kinetic/api/towr/html/). 
-
-#### Code Overview
- * To understand the architecture of the code and which are the relevant classes
-and parameters to customize or build on, please see [Modules](http://docs.ros.org/api/towr/html/modules.html).
-
- * A nice graphical overview as UML can be seen [here](http://docs.ros.org/api/towr/html/inherits.html).
-
-#### Problem formulation
- 
- * This code formulates the variables, costs and constraints using [ifopt](https://github.com/ethz-adrl/ifopt), so it makes sense to first briefly familiarize with the syntax using [this example](https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h). 
-
-#### Add your own robot {#add_robot}
- * Want to add your own robot to towr? Start [here](http://docs.ros.org/api/towr/html/group__Robots.html).
- * To visualize your URDF, see [xpp].
-
-
-
-
-## Contribute
-We love pull request, whether its new constraint formulations, additional robot models, bug fixes, unit tests or updating the documentation. Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) for more information.  
-See here the list of [contributors](https://github.com/ethz-adrl/towr/graphs/contributors) who participated in this project.
-
-
-##  Bugs & Feature Requests
-To report bugs, request features or ask questions, please have a look at [CONTRIBUTING.md](CONTRIBUTING.md). 
 
 
 
