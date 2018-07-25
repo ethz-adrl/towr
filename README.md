@@ -20,17 +20,17 @@ Features:
 :heavy_check_mark: [ROS]/[catkin] integration (optional).  
 :heavy_check_mark: Light-weight ([~6k lines](https://i.imgur.com/gP3gv34.png) of code) makes it easy to use and extend.  
 
-[<img src="https://i.imgur.com/8M4v4aP.gif" />](https://youtu.be/0jE46GqzxMM "Show more examples on Youtube")
-
-
 <p align="center">
   <a href="#install">Install</a> •
   <a href="#run">Run</a> •
   <a href="#develop">Develop</a> •
   <a href="#contribute">Contribute</a> •
+  <a href="#bugs-and-feature-requests">Issues</a> •
   <a href="#publications">Publications</a> •
   <a href="#authors">Authors</a>
 </p>
+
+[<img src="https://i.imgur.com/8M4v4aP.gif" />](https://youtu.be/0jE46GqzxMM "Show more examples on Youtube")
 
 ## Install
 The easiest way to install is through the [ROS binaries](http://wiki.ros.org/towr):
@@ -43,7 +43,7 @@ In case these don't yet exist for your distro, there are two ways to build this 
 * [Option 2](#towr-ros-with-catkin) (recommended): core library & GUI & ROS-rviz-visualization built with [catkin] and [ROS]. 
 
 
-### <a name="towr-with-cmake"></a> Building with CMake
+#### <a name="towr-with-cmake"></a> Building with CMake
 * Install dependencies [CMake], [Eigen], [Ipopt]:
   ```bash
   sudo apt-get install cmake libeigen3-dev coinor-libipopt-dev
@@ -73,7 +73,7 @@ In case these don't yet exist for your distro, there are two ways to build this 
   target_link_libraries(main PUBLIC towr::towr) # adds include directories and libraries
   ```
 
-### <a name="towr-ros-with-catkin"></a> Building with catkin
+#### <a name="towr-ros-with-catkin"></a> Building with catkin
 We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboard interface to modify goal state and motion types as well as visualizes the produces motions plans in rviz using [xpp]. 
 
 * Install dependencies [CMake], [catkin], [Eigen], [Ipopt], [ROS], [xpp], [ncurses], [xterm]:
@@ -135,8 +135,7 @@ and parameters to customize or build on, please see [Modules](http://docs.ros.or
 We love pull request, whether its new constraint formulations, additional robot models, bug fixes, unit tests or updating the documentation. Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) for more information.  
 See here the list of [contributors](https://github.com/ethz-adrl/towr/graphs/contributors) who participated in this project.
 
-
-##  Bugs & Feature Requests
+##  Bugs and Feature Requests
 To report bugs, request features or ask questions, please have a look at [CONTRIBUTING.md](CONTRIBUTING.md). 
 
 
@@ -168,7 +167,6 @@ the Single-Rigid-Body Dynamics model used in this work:
 The work was carried out at the following institutions:
 
 [<img src="https://i.imgur.com/aGOnNTZ.png" height="45" />](https://www.ethz.ch/en.html "ETH Zurich") &nbsp; &nbsp; &nbsp; &nbsp; [<img src="https://i.imgur.com/uCvLs2j.png" height="45" />](http://www.adrl.ethz.ch/doku.php "Agile and Dexterous Robotics Lab")  &nbsp; &nbsp; &nbsp; &nbsp;[<img src="https://i.imgur.com/gYxWH9p.png" height="45" />](http://www.rsl.ethz.ch/ "Robotic Systems Lab")
-
 
 
 [A. W. Winkler]: https://awinkler.github.io/publications.html
