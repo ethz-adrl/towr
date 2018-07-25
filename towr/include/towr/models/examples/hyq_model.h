@@ -37,11 +37,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
- * \addtogroup Robots
- * @{
- */
-
-/**
  * @brief The Kinematics of the quadruped robot HyQ.
  */
 class HyqKinematicModel : public KinematicModel {
@@ -70,7 +65,6 @@ public:
                       4.26, 8.97, 9.88, -0.0063, 0.193, 0.0126,
                       4) {}
 };
-/** @}*/
 
 } /* namespace towr */
 

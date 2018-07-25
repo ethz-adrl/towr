@@ -36,11 +36,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
- * \addtogroup Robots
- * @{
- */
-
-/**
  * @brief The Kinematics of a one-legged hopper with HyQ leg.
  */
 class MonopedKinematicModel : public KinematicModel {
@@ -62,7 +57,6 @@ public:
                     1.2, 5.5, 6.0, 0.0, -0.2, -0.01, // base inertia
                     1) {}                            // number of endeffectors
 };
-/** @}*/
 
 } /* namespace towr */
 

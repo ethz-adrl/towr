@@ -37,11 +37,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
- * \addtogroup Robots
- * @{
- */
-
-/**
  * @brief The Kinematics of the quadruped robot ANYmal.
  */
 class AnymalKinematicModel : public KinematicModel {
@@ -71,7 +66,6 @@ public:
                     0.946438, 1.94478, 2.01835, 0.000938112, -0.00595386, -0.00146328,
                     4) {}
 };
-/** @}*/
 
 } // namespace towr
 

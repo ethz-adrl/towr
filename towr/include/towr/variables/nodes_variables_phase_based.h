@@ -37,16 +37,16 @@ namespace towr {
 /**
  * @brief Nodes that are associated to either swing or stance phases.
  *
- * #### Four nodes defining a single spline (e.g. foot position in x-direction)
- * \image html phase_nodes.png
+ * \image html phase_based_parameterization1.png
  *
  * **Not all node values must be optimized over**.
- * We can for example fix the derivatives (x1d, x2d) to 0.0 and also use the
- * same optimization variable to fill both x1 and x2. If this spline represents
+ * We can for example fix node derivatives to 0.0 and also use the
+ * same optimization variable to fill to node positions. If the spline represents
  * the position of an end-effector, this means that no matter which values the
- * the solver chooses, the foot will never move during the time interval T2.
- * This is done in NodesVariablesEEMotion::GetPhaseBasedEEParameterization()
- * (see image below).
+ * the solver chooses, the foot will never move during the stance phase.
+ * This is done in NodesVariablesEEMotion.
+ * A force spline is parameterized in the reverse way, with multiple nodes
+ * during stance phase. This is implemented in NodesVariablesEEForce.
  *
  * #### Motion (dim: x) and force (dim: z) spline for one foot
  * \image html phase_nodes2.png
