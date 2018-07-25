@@ -23,6 +23,15 @@ Features:
 [<img src="https://i.imgur.com/8M4v4aP.gif" />](https://youtu.be/0jE46GqzxMM "Show more examples on Youtube")
 
 
+<p align="center">
+  <a href="#install">Install</a> •
+  <a href="#run">Run</a> •
+  <a href="#develop">Develop</a> •
+  <a href="#contribute">Contribute</a> •
+  <a href="#publications">Publications</a> •
+  <a href="#authors">Authors</a>
+</p>
+
 ## Install
 The easiest way to install is through the [ROS binaries](http://wiki.ros.org/towr):
 ```bash
