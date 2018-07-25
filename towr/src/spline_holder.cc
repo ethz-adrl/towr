@@ -32,11 +32,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr{
 
-SplineHolder::SplineHolder (Nodes::Ptr base_lin_nodes,
-                            Nodes::Ptr base_ang_nodes,
+SplineHolder::SplineHolder (NodesVariables::Ptr base_lin_nodes,
+                            NodesVariables::Ptr base_ang_nodes,
                             const std::vector<double>& base_poly_durations,
-                            std::vector<PhaseNodes::Ptr> ee_motion_nodes,
-                            std::vector<PhaseNodes::Ptr> ee_force_nodes,
+                            std::vector<NodesVariablesPhaseBased::Ptr> ee_motion_nodes,
+                            std::vector<NodesVariablesPhaseBased::Ptr> ee_force_nodes,
                             std::vector<PhaseDurations::Ptr> phase_durations,
                             bool durations_change)
 {

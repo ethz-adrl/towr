@@ -29,7 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/variables/node_spline.h>
 
-#include <towr/variables/nodes.h>
+#include <towr/variables/nodes_variables.h>
 
 namespace towr {
 
@@ -86,16 +86,16 @@ NodeSpline::FillJacobianWrtNodes (int poly_id, double t_local, Dx dxdt,
                                   Jacobian& jac, bool fill_with_zeros) const
 {
   for (int idx=0; idx<jac.cols(); ++idx) {
-    for (auto nvi : node_values_->GetNodeInfoAtOptIndex(idx)) {
-      for (auto side : {Nodes::Side::Start, Nodes::Side::End}) { // every jacobian is affected by two nodes
+    for (auto nvi : node_values_->GetNodeValuesInfo(idx)) {
+      for (auto side : {NodesVariables::Side::Start, NodesVariables::Side::End}) { // every jacobian is affected by two nodes
         int node = node_values_->GetNodeId(poly_id, side);
 
         if (node == nvi.id_) {
           double val = 0.0;
 
-          if (side == Nodes::Side::Start)
+          if (side == NodesVariables::Side::Start)
             val = cubic_polys_.at(poly_id).GetDerivativeWrtStartNode(dxdt, nvi.deriv_, t_local);
-          else if (side == Nodes::Side::End)
+          else if (side == NodesVariables::Side::End)
             val = cubic_polys_.at(poly_id).GetDerivativeWrtEndNode(dxdt, nvi.deriv_, t_local);
           else
             assert(false); // this shouldn't happen

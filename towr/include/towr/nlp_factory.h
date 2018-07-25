@@ -43,23 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
- * @defgroup Variables
- * @brief Variables of the trajectory optimization problem.
- *
- * These are the quantities through which the optimization problem is
- * parameterized.
- *
- * ###Further Reading:
- *  * Start with class Nodes, which is what all other variables are
- *     built on.
- *
- *  * The implementation of _Phase-based Endeffector Parameterization_ for feet
- *    and forces can be found in PhaseNodes.
- *
- * Folder: @ref include/towr/variables.
- */
-
-/**
  * @defgroup Constraints
  * @brief Constraints of the trajectory optimization problem.
  *
@@ -97,19 +80,13 @@ public:
   NlpFactory () = default;
   virtual ~NlpFactory () = default;
 
-  /**
-   * @returns The ifopt variable sets that will be optimized over.
-   */
+  /** @brief The ifopt variable sets that will be optimized over. */
   VariablePtrVec GetVariableSets();
 
-  /**
-   * @returns The ifopt constraints that enforce feasible motions.
-   */
+  /** @brief The ifopt constraints that enforce feasible motions. */
   ContraintPtrVec GetConstraints() const;
 
-  /**
-   * @returns The ifopt costs to tune the motion.
-   */
+  /** @brief The ifopt costs to tune the motion. */
   ContraintPtrVec GetCosts() const;
 
 
@@ -124,9 +101,9 @@ public:
 
 private:
   // variables
-  std::vector<Nodes::Ptr> MakeBaseVariables() const;
-  std::vector<PhaseNodes::Ptr> MakeEndeffectorVariables() const;
-  std::vector<PhaseNodes::Ptr> MakeForceVariables() const;
+  std::vector<NodesVariables::Ptr> MakeBaseVariables() const;
+  std::vector<NodesVariablesPhaseBased::Ptr> MakeEndeffectorVariables() const;
+  std::vector<NodesVariablesPhaseBased::Ptr> MakeForceVariables() const;
   std::vector<PhaseDurations::Ptr> MakeContactScheduleVariables() const;
 
   // constraints
@@ -143,6 +120,7 @@ private:
   // costs
   CostPtrVec GetCost(const Parameters::CostName& id, double weight) const;
   CostPtrVec MakeForcesCost(double weight) const;
+  CostPtrVec MakeEEMotionCost(double weight) const;
 };
 
 } /* namespace towr */

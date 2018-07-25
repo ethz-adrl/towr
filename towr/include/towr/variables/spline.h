@@ -41,8 +41,6 @@ namespace towr {
  *
  * This class is responsible for stitching together multiple individual
  * polynomials into one spline.
- *
- * @ingroup Variables
  */
 class Spline  {
 public:

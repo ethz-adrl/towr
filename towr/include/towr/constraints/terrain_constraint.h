@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ifopt/constraint_set.h>
 
-#include <towr/variables/phase_nodes.h>
+#include <towr/variables/nodes_variables_phase_based.h>
 #include <towr/terrain/height_map.h>
 
 namespace towr {
@@ -67,7 +67,7 @@ public:
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
 private:
-  PhaseNodes::Ptr ee_motion_; ///< the position of the endeffector.
+  NodesVariablesPhaseBased::Ptr ee_motion_; ///< the position of the endeffector.
   HeightMap::Ptr terrain_;    ///< the height map of the current terrain.
 
   std::string ee_motion_id_;  ///< the name of the endeffector variable set.

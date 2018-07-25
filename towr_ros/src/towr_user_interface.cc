@@ -43,7 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-enum YCursorRows {HEADING=6, OPTIMIZE=8, REPLAY, REPLAY_SPEED, GOAL_POS, GOAL_ORI, ROBOT,
+enum YCursorRows {HEADING=6, OPTIMIZE=8, VISUALIZE, INITIALIZATION, PLOT,
+                  REPLAY_SPEED, GOAL_POS, GOAL_ORI, ROBOT,
                   GAIT, OPTIMIZE_GAIT, TERRAIN, DURATION, CLOSE, END};
 static constexpr int Y_STATUS      = END+1;
 static constexpr int X_KEY         = 1;
@@ -54,7 +55,7 @@ static constexpr int X_VALUE       = 35;
 TowrUserInterface::TowrUserInterface ()
 {
   printw(" ******************************************************************************\n");
-  printw("                          TOWR user interface (v1.2.2) \n");
+  printw("                          TOWR user interface (v1.3) \n");
   printw("                            \u00a9 Alexander W. Winkler \n");
   printw("                        https://github.com/ethz-adrl/towr\n");
   printw(" ******************************************************************************\n\n");
@@ -70,7 +71,8 @@ TowrUserInterface::TowrUserInterface ()
   terrain_    = HeightMap::FlatID;
   gait_combo_ = GaitGenerator::C0;
   total_duration_ = 2.4;
-  replay_trajectory_ = false;
+  visualize_trajectory_ = false;
+  plot_trajectory_ = false;
   replay_speed_ = 1.0; // realtime
   optimize_ = false;
   publish_optimized_trajectory_ = false;
@@ -87,7 +89,7 @@ TowrUserInterface::PrintScreen() const
   wmove(stdscr, HEADING, X_DESCRIPTION);
   printw("Description");
   wmove(stdscr, HEADING, X_VALUE);
-  printw("Value");
+  printw("Info");
 
   wmove(stdscr, OPTIMIZE, X_KEY);
   printw("o");
@@ -96,11 +98,25 @@ TowrUserInterface::PrintScreen() const
   wmove(stdscr, OPTIMIZE, X_VALUE);
   printw("-");
 
-  wmove(stdscr, REPLAY, X_KEY);
+  wmove(stdscr, VISUALIZE, X_KEY);
+  printw("v");
+  wmove(stdscr, VISUALIZE, X_DESCRIPTION);
+  printw("visualize motion in rviz");
+  wmove(stdscr, VISUALIZE, X_VALUE);
+  printw("-");
+
+  wmove(stdscr, INITIALIZATION, X_KEY);
+  printw("i");
+  wmove(stdscr, INITIALIZATION, X_DESCRIPTION);
+  printw("play initialization");
+  wmove(stdscr, INITIALIZATION, X_VALUE);
+  printw("-");
+
+  wmove(stdscr, PLOT, X_KEY);
   printw("p");
-  wmove(stdscr, REPLAY, X_DESCRIPTION);
-  printw("play motion (bag)");
-  wmove(stdscr, REPLAY, X_VALUE);
+  wmove(stdscr, PLOT, X_DESCRIPTION);
+  printw("Plot values (rqt_bag)");
+  wmove(stdscr, PLOT, X_VALUE);
   printw("-");
 
   wmove(stdscr, REPLAY_SPEED, X_KEY);
@@ -167,9 +183,6 @@ TowrUserInterface::PrintScreen() const
   printw("Close user interface");
   wmove(stdscr, CLOSE, X_VALUE);
   printw("-");
-
-  wmove(stdscr, Y_STATUS, X_KEY);
-  printw("Status:");
 }
 
 void
@@ -239,10 +252,10 @@ TowrUserInterface::CallbackKey (int c)
       total_duration_ -= 0.2;
     break;
     case '\'':
-      replay_speed_ += 0.2;
+      replay_speed_ += 0.1;
     break;
     case ';':
-      replay_speed_ -= 0.2;
+      replay_speed_ -= 0.1;
     break;
     case 'y':
       optimize_phase_durations_ = !optimize_phase_durations_;
@@ -251,13 +264,24 @@ TowrUserInterface::CallbackKey (int c)
 
     case 'o':
       optimize_ = true;
-      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
-      printw("Optimize motion request sent\n");
+      wmove(stdscr, Y_STATUS, 0);
+      printw("Optimizing motion\n\n");
+      break;
+    case 'v':
+      visualize_trajectory_ = true;
+      wmove(stdscr, Y_STATUS, 0);
+      printw("Visualizing current bag file\n\n");
+      break;
+    case 'i':
+      play_initialization_ = true;
+      wmove(stdscr, Y_STATUS, 0);
+      printw("Visualizing initialization (iteration 0)\n\n");
       break;
     case 'p':
-      replay_trajectory_ = true;
-      wmove(stdscr, Y_STATUS, X_DESCRIPTION);
-      printw("Replaying optimized trajectory\n");
+      plot_trajectory_ = true;
+      wmove(stdscr, Y_STATUS, 0);
+      printw("In rqt_bag: right-click on xpp/state_des -> View -> Plot.\n"
+             "Then expand the values you wish to plot on the right\n");
       break;
     case 'q':
       printw("Closing user interface\n");
@@ -275,20 +299,24 @@ void TowrUserInterface::PublishCommand()
   msg.goal_lin                 = xpp::Convert::ToRos(goal_geom_.lin);
   msg.goal_ang                 = xpp::Convert::ToRos(goal_geom_.ang);
   msg.total_duration           = total_duration_;
-  msg.replay_trajectory        = replay_trajectory_;
+  msg.replay_trajectory        = visualize_trajectory_;
+  msg.play_initialization      = play_initialization_;
   msg.replay_speed             = replay_speed_;
   msg.optimize                 = optimize_;
   msg.terrain                  = terrain_;
   msg.gait                     = gait_combo_;
   msg.robot                    = robot_;
   msg.optimize_phase_durations = optimize_phase_durations_;
+  msg.plot_trajectory          = plot_trajectory_;
 
   user_command_pub_.publish(msg);
 
   PrintScreen();
 
   optimize_ = false;
-  replay_trajectory_  = false;
+  visualize_trajectory_ = false;
+  plot_trajectory_ = false;
+  play_initialization_ = false;
   publish_optimized_trajectory_ = false;
 }
 
@@ -308,7 +336,6 @@ TowrUserInterface::PrintVector2D(const Eigen::Vector2d& v) const
 {
   printw("%.2f  %.2f", v.x(), v.y());
 }
-
 
 } /* namespace towr */
 

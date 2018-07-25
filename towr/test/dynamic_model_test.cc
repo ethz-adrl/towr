@@ -27,33 +27,25 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_BASE_NODES_H_
-#define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_BASE_NODES_H_
+#include <gtest/gtest.h>
 
-#include "nodes.h"
+#include <towr/models/single_rigid_body_dynamics.h>
 
 namespace towr {
 
-/**
- * @brief Node variables used to construct the base motion spline.
- *
- * Every node is optimized over, in contrast to PhaseNodes, where multiple
- * nodes in the spline are represented by the same optimization variables.
- *
- * @ingroup Variables
- */
-class BaseNodes : public Nodes {
-public:
-  /**
-   * @param n_nodes  The number of nodes to construct the spline.
-   * @param variable_id  The name of this variables set in the optimization.
-   */
-  BaseNodes (int n_nodes, std::string variable_id);
-  virtual ~BaseNodes () = default;
+TEST(DynamicModelTest, GetBaseAcceleration)
+{
+  // update test
+}
 
-  std::vector<NodeValueInfo> GetNodeInfoAtOptIndex(int idx) const override;
-};
+TEST(DynamicModelTest, GetJacobianOfAccWrtBase)
+{
+  // update test
+}
 
-} /* namespace towr */
+TEST(DynamicModelTest, TestRotations)
+{
+  // update test
+}
 
-#endif /* TOWR_TOWR_INCLUDE_TOWR_VARIABLES_BASE_NODES_H_ */
+} /* namespace xpp */

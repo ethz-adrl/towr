@@ -31,15 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_BIPED_MODEL_H_
 
 #include <towr/models/kinematic_model.h>
-#include <towr/models/centroidal_model.h>
+#include <towr/models/single_rigid_body_dynamics.h>
 #include <towr/models/endeffector_mappings.h>
 
 namespace towr {
-
-/**
- * \addtogroup Robots
- * @{
- */
 
 /**
  * @brief The Kinematics of a tow-legged robot built from HyQ legs.
@@ -61,14 +56,13 @@ public:
 /**
  * @brief The Dynamics of a tow-legged robot built from HyQ legs.
  */
-class BipedDynamicModel : public CentroidalModel {
+class BipedDynamicModel : public SingleRigidBodyDynamics {
 public:
   BipedDynamicModel()
-  : CentroidalModel(20,
+  : SingleRigidBodyDynamics(20,
                     1.209,5.583,6.056,0.005,-0.190,-0.012,
                     2) {}
 };
-/** @}*/
 
 } /* namespace towr */
 

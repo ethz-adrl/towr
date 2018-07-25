@@ -44,7 +44,7 @@ TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
 void
 TerrainConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_motion_ = x->GetComponent<PhaseNodes>(ee_motion_id_);
+  ee_motion_ = x->GetComponent<NodesVariablesPhaseBased>(ee_motion_id_);
 
   // skip first node, b/c already constrained by initial stance
   for (int id=1; id<ee_motion_->GetNodes().size(); ++id)
@@ -94,12 +94,12 @@ TerrainConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
     auto nodes = ee_motion_->GetNodes();
     int row = 0;
     for (int id : node_ids_) {
-      int idx = ee_motion_->GetOptIndex(Nodes::NodeValueInfo(id, kPos, Z));
+      int idx = ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(id, kPos, Z));
       jac.coeffRef(row, idx) = 1.0;
 
       Vector3d p = nodes.at(id).p();
       for (auto dim : {X,Y}) {
-        int idx = ee_motion_->GetOptIndex(Nodes::NodeValueInfo(id, kPos, dim));
+        int idx = ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(id, kPos, dim));
         jac.coeffRef(row, idx) = -terrain_->GetDerivativeOfHeightWrt(To2D(dim), p.x(), p.y());
       }
       row++;

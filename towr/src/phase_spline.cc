@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 PhaseSpline::PhaseSpline(
-    PhaseNodes::Ptr const nodes,
+    NodesVariablesPhaseBased::Ptr const nodes,
     PhaseDurations* const phase_durations)
     : NodeSpline(nodes.get(), nodes->ConvertPhaseToPolyDurations(phase_durations->GetPhaseDurations())),
       PhaseDurationsObserver(phase_durations)
@@ -86,7 +86,7 @@ PhaseSpline::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
   double inner_derivative = phase_nodes_->GetDerivativeOfPolyDurationWrtPhaseDuration(poly_id);
   double prev_polys_in_phase = phase_nodes_->GetNumberOfPrevPolynomialsInPhase(poly_id);
 
-  // where does this minus stuff come from?
+  // where this minus term comes from:
   // from number of polynomials before current polynomial that
   // cause shifting of entire spline
   return inner_derivative*(dxdT - prev_polys_in_phase*vel);

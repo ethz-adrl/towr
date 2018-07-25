@@ -43,10 +43,8 @@ namespace towr {
  *
  * This class is responsible for combining the optimized node values with
  * fixed polynomial durations to construct a sequence of CubicHermitePolynomial.
- * For this it observers whether the node values change and then updates all the
+ * For this it observes whether the node values change and then updates all the
  * polynomials accordingly.
- *
- * @ingroup Variables
  */
 class NodeSpline : public Spline, public NodesObserver {
 public:

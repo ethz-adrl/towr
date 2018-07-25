@@ -31,14 +31,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_MONOPED_MODEL_H_
 
 #include <towr/models/kinematic_model.h>
-#include <towr/models/centroidal_model.h>
+#include <towr/models/single_rigid_body_dynamics.h>
 
 namespace towr {
-
-/**
- * \addtogroup Robots
- * @{
- */
 
 /**
  * @brief The Kinematics of a one-legged hopper with HyQ leg.
@@ -55,14 +50,13 @@ public:
 /**
  * @brief The Dynamics of a one-legged hopper with HyQ leg.
  */
-class MonopedDynamicModel : public CentroidalModel {
+class MonopedDynamicModel : public SingleRigidBodyDynamics {
 public:
   MonopedDynamicModel()
-  : CentroidalModel(20,                              // mass of the robot
+  : SingleRigidBodyDynamics(20,                      // mass of the robot
                     1.2, 5.5, 6.0, 0.0, -0.2, -0.01, // base inertia
                     1) {}                            // number of endeffectors
 };
-/** @}*/
 
 } /* namespace towr */
 

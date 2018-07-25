@@ -34,7 +34,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 NodeCost::NodeCost (const std::string& nodes_id, Dx deriv, int dim)
-    : CostTerm("node")
+    : CostTerm(nodes_id
+               +"-dx_"+std::to_string(deriv)
+               +"-dim_"+std::to_string(dim))
 {
   node_id_ = nodes_id;
   deriv_ = deriv;
@@ -44,7 +46,7 @@ NodeCost::NodeCost (const std::string& nodes_id, Dx deriv, int dim)
 void
 NodeCost::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  nodes_ = x->GetComponent<Nodes>(node_id_);
+  nodes_ = x->GetComponent<NodesVariables>(node_id_);
 }
 
 double
@@ -64,7 +66,7 @@ NodeCost::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 {
   if (var_set == node_id_) {
     for (int i=0; i<nodes_->GetRows(); ++i)
-      for (auto nvi : nodes_->GetNodeInfoAtOptIndex(i))
+      for (auto nvi : nodes_->GetNodeValuesInfo(i))
         if (nvi.deriv_==deriv_ && nvi.dim_==dim_) {
           double val = nodes_->GetNodes().at(nvi.id_).at(deriv_)(dim_);
           jac.coeffRef(0, i) += 2.0*val;

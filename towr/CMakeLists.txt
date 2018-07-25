@@ -21,23 +21,14 @@ add_library(${PROJECT_NAME} SHARED
   src/nlp_factory.cc
   src/parameters.cc
   # variables
-  src/state.cc
-  src/polynomial.cc
-  src/nodes.cc
-  src/phase_nodes.cc
-  src/base_nodes.cc
-  src/spline.cc
-  src/phase_spline.cc
-  src/node_spline.cc
-  src/nodes_observer.cc
-  src/spline_holder.cc
-  src/euler_converter.cc
+  src/nodes_variables.cc
+  src/nodes_variables_all.cc
+  src/nodes_variables_phase_based.cc
   src/phase_durations.cc
-  src/phase_durations_observer.cc
   # models
   src/robot_model.cc
   src/dynamic_model.cc
-  src/centroidal_model.cc
+  src/single_rigid_body_dynamics.cc
   # constraints
   src/time_discretization_constraint.cc
   src/base_motion_constraint.cc
@@ -60,6 +51,16 @@ add_library(${PROJECT_NAME} SHARED
   # terrain
   src/height_map_examples.cc
   src/height_map.cc
+  # helpers
+  src/state.cc
+  src/polynomial.cc
+  src/spline.cc
+  src/phase_spline.cc
+  src/node_spline.cc
+  src/nodes_observer.cc
+  src/spline_holder.cc
+  src/euler_converter.cc
+  src/phase_durations_observer.cc
 )
 target_link_libraries(${PROJECT_NAME} 
   PUBLIC 
@@ -93,7 +94,7 @@ if (TARGET GTest::GTest) # only build when modern targets exists
 
   add_executable(${PROJECT_NAME}-test
     test/dynamic_constraint_test.cc
-    test/centroidal_dynamics_test.cc
+    test/dynamic_model_test.cc
   )
   target_link_libraries(${PROJECT_NAME}-test
     PRIVATE

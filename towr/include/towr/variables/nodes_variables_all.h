@@ -27,34 +27,34 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/variables/base_nodes.h>
-#include <towr/variables/cartesian_dimensions.h>
+#ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_BASE_NODES_H_
+#define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_BASE_NODES_H_
+
+#include "nodes_variables.h"
 
 namespace towr {
 
-BaseNodes::BaseNodes (int n_nodes, std::string name) : Nodes(k3D, name)
-{
-  int n_derivs = 2; // position and velocity
-  int n_variables = n_nodes*n_derivs*k3D;
-  InitMembers(n_nodes, n_variables);
-}
+/**
+ * @brief Node variables used to construct the base motion spline.
+ *
+ * Every node is optimized over, in contrast to PhaseNodes, where multiple
+ * nodes in the spline are represented by the same optimization variables.
+ *
+ * @ingroup Variables
+ */
+class NodesVariablesAll : public NodesVariables {
+public:
+  /**
+   * @param n_nodes  Number of nodes to construct the spline.
+   * @param n_dim    Number of dimensions of each node.
+   * @param variable_id  Name of this variables set in the optimization.
+   */
+  NodesVariablesAll (int n_nodes, int n_dim, std::string variable_id);
+  virtual ~NodesVariablesAll () = default;
 
-std::vector<BaseNodes::NodeValueInfo>
-BaseNodes::GetNodeInfoAtOptIndex (int idx) const
-{
-  std::vector<NodeValueInfo> nodes;
-
-  int n_opt_values_per_node_ = 2*GetDim();
-  int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
-
-  NodeValueInfo node;
-  node.deriv_ = internal_id<GetDim()? kPos : kVel;
-  node.dim_   = internal_id%GetDim();
-  node.id_    = std::floor(idx/n_opt_values_per_node_);
-
-  nodes.push_back(node);
-
-  return nodes;
-}
+  std::vector<NodeValueInfo> GetNodeValuesInfo(int idx) const override;
+};
 
 } /* namespace towr */
+
+#endif /* TOWR_TOWR_INCLUDE_TOWR_VARIABLES_BASE_NODES_H_ */

@@ -27,25 +27,37 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <gtest/gtest.h>
-
-#include <towr/models/centroidal_model.h>
+#include <towr/variables/nodes_variables_all.h>
 
 namespace towr {
 
-TEST(CentroidalDynamicsTest, GetBaseAcceleration)
+NodesVariablesAll::NodesVariablesAll (int n_nodes, int n_dim, std::string variable_id)
+    : NodesVariables(variable_id)
 {
-  // update test
+  int n_opt_variables = n_nodes*Node::n_derivatives*n_dim;
+
+  n_dim_ = n_dim;
+  nodes_  = std::vector<Node>(n_nodes, Node(n_dim));
+  bounds_ = VecBound(n_opt_variables, ifopt::NoBound);
+  SetRows(n_opt_variables);
 }
 
-TEST(CentroidalDynamicsTest, GetJacobianOfAccWrtBase)
+std::vector<NodesVariablesAll::NodeValueInfo>
+NodesVariablesAll::GetNodeValuesInfo (int idx) const
 {
-  // update test
+  std::vector<NodeValueInfo> vec_nvi;
+
+  int n_opt_values_per_node_ = 2*GetDim();
+  int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
+
+  NodeValueInfo nvi;
+  nvi.deriv_ = internal_id<GetDim()? kPos : kVel;
+  nvi.dim_   = internal_id%GetDim();
+  nvi.id_    = std::floor(idx/n_opt_values_per_node_);
+
+  vec_nvi.push_back(nvi);
+
+  return vec_nvi;
 }
 
-TEST(CentroidalDynamicsTest, TestRotations)
-{
-  // update test
-}
-
-} /* namespace xpp */
+} /* namespace towr */

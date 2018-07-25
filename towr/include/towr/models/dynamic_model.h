@@ -48,12 +48,18 @@ namespace towr {
  * dynamics, so
  * g = xdd(t) - f(x(t), f(t)).
  *
- * This model is used in @ref DynamicConstraint to ensure that the optimized
- * motion trajectory complies to this.
+ * Dynamic models can for example be:
+ * Linear Inverted Pendulum (LIP),
+ * SingleRigidBodyDynamics (SRBD),
+ * Centroidal Dynamics,
+ * Full Rigid Body Dynamics (RBD).
  *
- * Currently, only @ref CentroidalModel is implemented, but this can be
- * extended in the future to also incorporate full rigid body dynamics. This
- * interface to the solver should remain the same.
+ * An overview of all these models can be found here:
+ * https://doi.org/10.3929/ethz-b-000272432
+ *
+ * This model is used in DynamicConstraint to ensure that the optimized
+ * motion trajectory complies to this. Currently, only SingleRigidBodyDynamics
+ * is implemented.
  *
  * @ingroup Robots
  */

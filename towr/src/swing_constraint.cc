@@ -41,13 +41,12 @@ SwingConstraint::SwingConstraint (std::string ee_motion)
 void
 towr::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_motion_ = x->GetComponent<PhaseNodes>(ee_motion_id_);
+  ee_motion_ = x->GetComponent<NodesVariablesPhaseBased>(ee_motion_id_);
 
   pure_swing_node_ids_ = ee_motion_->GetIndicesOfNonConstantNodes();
 
   // constrain xy position and velocity of every swing node
-  // add +1 per node if swing in apex is constrained
-  int constraint_count =  pure_swing_node_ids_.size()*2*k2D;
+  int constraint_count =  pure_swing_node_ids_.size()*Node::n_derivatives*k2D;
 
   SetRows(constraint_count);
 }
@@ -93,15 +92,15 @@ SwingConstraint::FillJacobianBlock (std::string var_set,
     for (int node_id : pure_swing_node_ids_) {
       for (auto dim : {X,Y}) {
         // position constraint
-        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id,   kPos, dim))) =  1.0;  // current node
-        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id+1, kPos, dim))) = -0.5;  // next node
-        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id-1, kPos, dim))) = -0.5;  // previous node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id,   kPos, dim))) =  1.0;  // current node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id+1, kPos, dim))) = -0.5;  // next node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id-1, kPos, dim))) = -0.5;  // previous node
         row++;
 
         // velocity constraint
-        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id,   kVel, dim))) =  1.0;              // current node
-        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id+1, kPos, dim))) = -1.0/t_swing_avg_; // next node
-        jac.coeffRef(row, ee_motion_->GetOptIndex(Nodes::NodeValueInfo(node_id-1, kPos, dim))) = +1.0/t_swing_avg_; // previous node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id,   kVel, dim))) =  1.0;              // current node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id+1, kPos, dim))) = -1.0/t_swing_avg_; // next node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id-1, kPos, dim))) = +1.0/t_swing_avg_; // previous node
         row++;
       }
     }

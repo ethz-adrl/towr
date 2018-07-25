@@ -27,7 +27,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/models/centroidal_model.h>
+#include <towr/models/single_rigid_body_dynamics.h>
 #include <towr/variables/cartesian_dimensions.h>
 
 namespace towr {
@@ -44,10 +44,10 @@ static Eigen::Matrix3d BuildInertiaTensor( double Ixx, double Iyy, double Izz,
 }
 
 // builds a cross product matrix out of "in", so in x v = X(in)*v
-CentroidalModel::Jac
+SingleRigidBodyDynamics::Jac
 Cross(const Eigen::Vector3d& in)
 {
-  CentroidalModel::Jac out(3,3);
+  SingleRigidBodyDynamics::Jac out(3,3);
 
   out.coeffRef(0,1) = -in(2); out.coeffRef(0,2) =  in(1);
   out.coeffRef(1,0) =  in(2); out.coeffRef(1,2) = -in(0);
@@ -56,25 +56,25 @@ Cross(const Eigen::Vector3d& in)
   return out;
 }
 
-CentroidalModel::CentroidalModel (double mass,
+SingleRigidBodyDynamics::SingleRigidBodyDynamics (double mass,
                                   double Ixx, double Iyy, double Izz,
                                   double Ixy, double Ixz, double Iyz,
                                   int ee_count)
-   : CentroidalModel(mass,
+   : SingleRigidBodyDynamics(mass,
                      BuildInertiaTensor(Ixx, Iyy, Izz, Ixy, Ixz, Iyz),
                      ee_count)
 {
 }
 
-CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia_b,
+SingleRigidBodyDynamics::SingleRigidBodyDynamics (double mass, const Eigen::Matrix3d& inertia_b,
                                   int ee_count)
     :DynamicModel(mass, ee_count)
 {
   I_b = inertia_b.sparseView();
 }
 
-CentroidalModel::BaseAcc
-CentroidalModel::GetDynamicViolation () const
+SingleRigidBodyDynamics::BaseAcc
+SingleRigidBodyDynamics::GetDynamicViolation () const
 {
   // https://en.wikipedia.org/wiki/Newton%E2%80%93Euler_equations
 
@@ -100,8 +100,8 @@ CentroidalModel::GetDynamicViolation () const
   return acc;
 }
 
-CentroidalModel::Jac
-CentroidalModel::GetJacobianWrtBaseLin (const Jac& jac_pos_base_lin,
+SingleRigidBodyDynamics::Jac
+SingleRigidBodyDynamics::GetJacobianWrtBaseLin (const Jac& jac_pos_base_lin,
                                         const Jac& jac_acc_base_lin) const
 {
   // build the com jacobian
@@ -120,8 +120,8 @@ CentroidalModel::GetJacobianWrtBaseLin (const Jac& jac_pos_base_lin,
   return jac;
 }
 
-CentroidalModel::Jac
-CentroidalModel::GetJacobianWrtBaseAng (const EulerConverter& base_euler,
+SingleRigidBodyDynamics::Jac
+SingleRigidBodyDynamics::GetJacobianWrtBaseAng (const EulerConverter& base_euler,
                                         double t) const
 {
   Jac I_w = w_R_b_.sparseView() * I_b * w_R_b_.transpose().sparseView();
@@ -164,8 +164,8 @@ CentroidalModel::GetJacobianWrtBaseAng (const EulerConverter& base_euler,
   return jac;
 }
 
-CentroidalModel::Jac
-CentroidalModel::GetJacobianWrtForce (const Jac& jac_force, EE ee) const
+SingleRigidBodyDynamics::Jac
+SingleRigidBodyDynamics::GetJacobianWrtForce (const Jac& jac_force, EE ee) const
 {
   Vector3d r = com_pos_ - ee_pos_.at(ee);
   Jac jac_tau = -Cross(r)*jac_force;
@@ -178,8 +178,8 @@ CentroidalModel::GetJacobianWrtForce (const Jac& jac_force, EE ee) const
   return jac;
 }
 
-CentroidalModel::Jac
-CentroidalModel::GetJacobianWrtEEPos (const Jac& jac_ee_pos, EE ee) const
+SingleRigidBodyDynamics::Jac
+SingleRigidBodyDynamics::GetJacobianWrtEEPos (const Jac& jac_ee_pos, EE ee) const
 {
   Vector3d f = ee_force_.at(ee);
   Jac jac_tau = Cross(f)*(-jac_ee_pos);

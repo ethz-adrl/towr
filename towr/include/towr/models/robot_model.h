@@ -44,22 +44,34 @@ namespace towr {
  *
  * These models contain all the robot specific quantities in this problem.
  *
- * ###Further Reading:
- *  * RobotModel
- *
- * Folder: \ref include/towr/models.
+ * ### Add your own robot
+ * To add your own robot, you must create its KinematicModel and DynamicModel.
+ * The kinematics simply define a workspace for each end-effector. The
+ * Dynamic Model can be everything from a Linear Inverted Pendulum,
+ * SingleRigidBodyDynamics (SRBD), Centroidal Dynamics to Full-Rigid-Body
+ * Dynamics (RBD). This library provides an implementation for the
+ * SingleRigidBodyDynamics in which only the combined mass and inertia must
+ * be adapted, but other models can be used as well. For example robots
+ * to use as a guideline, see \ref include/towr/models/examples.
  */
 
 /**
- * @brief Holds pointers to the robot specific kinematics and dynamics.
+ * @brief Base class for robot specific kinematics and dynamics.
  *
- * @ingroup RobotModels
+ * @ingroup Robots
  */
 struct RobotModel {
   /**
-   * @brief Examples robots for which kinematic and dynamic models exist.
+   * @brief Robots for which kinematic and dynamic models are implemented.
+   *
+   * See folder: \ref include/towr/models/examples for more information.
+   * @ingroup Robots
    */
-  enum Robot { Monoped, Biped, Hyq, Anymal, ROBOT_COUNT };
+  enum Robot { Monoped, ///< one-legged hopper
+               Biped,   ///< two-legged
+               Hyq,     ///< four-legged robot from IIT
+               Anymal,  ///< four-legged robot from Anybotics
+               ROBOT_COUNT };
 
 
   RobotModel() = default;

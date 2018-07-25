@@ -50,8 +50,8 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
 void
 ForceConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_force_  = x->GetComponent<PhaseNodes>(id::EEForceNodes(ee_));
-  ee_motion_ = x->GetComponent<PhaseNodes>(id::EEMotionNodes(ee_));
+  ee_force_  = x->GetComponent<NodesVariablesPhaseBased>(id::EEForceNodes(ee_));
+  ee_motion_ = x->GetComponent<NodesVariablesPhaseBased>(id::EEMotionNodes(ee_));
 
   pure_stance_force_node_ids_ = ee_force_->GetIndicesOfNonConstantNodes();
 
@@ -119,7 +119,7 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
       Vector3d t2 = terrain_->GetNormalizedBasis(HeightMap::Tangent2, p.x(), p.y());
 
       for (auto dim : {X,Y,Z}) {
-        int idx = ee_force_->GetOptIndex(Nodes::NodeValueInfo(f_node_id, kPos, dim));
+        int idx = ee_force_->GetOptIndex(NodesVariables::NodeValueInfo(f_node_id, kPos, dim));
 
         int row_reset=row;
 
@@ -150,7 +150,7 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
         Vector3d dt1 = terrain_->GetDerivativeOfNormalizedBasisWrt(HeightMap::Tangent1, dim, p.x(), p.y());
         Vector3d dt2 = terrain_->GetDerivativeOfNormalizedBasisWrt(HeightMap::Tangent2, dim, p.x(), p.y());
 
-        int idx = ee_motion_->GetOptIndex(Nodes::NodeValueInfo(ee_node_id, kPos, dim));
+        int idx = ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(ee_node_id, kPos, dim));
         int row_reset=row;
 
         // unilateral force

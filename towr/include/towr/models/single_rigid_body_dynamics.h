@@ -27,57 +27,57 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef TOWR_MODELS_CENTROIDAL_MODEL_H_
-#define TOWR_MODELS_CENTROIDAL_MODEL_H_
+#ifndef TOWR_MODELS_SINGLE_RIBID_BODY_DYNAMICS_MODEL_H_
+#define TOWR_MODELS_SINGLE_RIBID_BODY_DYNAMICS_MODEL_H_
 
 #include "dynamic_model.h"
 
 namespace towr {
 
 /**
- * @brief Centroidal Dynamics model relating forces to base accelerations.
+ * @brief Dynamics model relating forces to base accelerations.
  *
- * This class implements a simplified Centroidal dynamics model, a reduced
- * dimensional model, lying in terms of accuracy between a simple Linear
- * Inverted Pendulum model and a complex full
- * Centroidal (https://doi.org/10.1007/s10514-013-9341-4) or
- * Rigid-body-dynamics Model.
+ * This class implements a Single Rigid Body dynamics model, a reduced
+ * dimensional model, lying in terms of accuracy between a Linear
+ * Inverted Pendulum model and a full Centroidal or Rigid-body-dynamics model.
  *
  * This model makes the assumption that the motion of the limbs does not
  * incur significant momentum and can therefore be neglected. This eliminates
- * the often very nonnlinear dependency on joint angles and allows to express
+ * the nonlinear dependency on joint angles and allows to express
  * all quantities in Cartesian space.
+ *
+ * For the derivation and all assumptions of this model, see:
+ * https://doi.org/10.3929/ethz-b-000272432
  *
  * \sa https://en.wikipedia.org/wiki/Newton%E2%80%93Euler_equations
  *
  * @ingroup Robots
  */
-class CentroidalModel : public DynamicModel {
+class SingleRigidBodyDynamics : public DynamicModel {
 public:
   /**
-   * @brief Constructs a specific Centroidal model.
+   * @brief Constructs a specific model.
    * @param mass         The mass of the robot.
    * @param ee_count     The number of endeffectors/forces.
    * @param inertia_b    The elements of the 3x3 Inertia matrix around the CoM.
-   *                     This matrix maps angular accelerations expressed in base frame
-   *                     to Moments in base frame.
+   *                     This matrix maps angular accelerations expressed in
+   *                     base frame to moments in base frame.
    */
-  CentroidalModel (double mass, const Eigen::Matrix3d& inertia_b, int ee_count);
+  SingleRigidBodyDynamics (double mass, const Eigen::Matrix3d& inertia_b, int ee_count);
 
   /**
-   * @brief Constructs a specific Centroidal model.
+   * @brief Constructs a specific model.
    * @param mass      Mass of the robot.
-   * @param I..       Elements of the 3x3 Inertia matrix (@see CentroidalModel())
+   * @param I..       Elements of the 3x3 Inertia matrix
    * @param ee_count  Number of endeffectors/forces.
    */
-  CentroidalModel (double mass,
+  SingleRigidBodyDynamics (double mass,
                    double Ixx, double Iyy, double Izz,
                    double Ixy, double Ixz, double Iyz,
                    int ee_count);
 
-  virtual ~CentroidalModel () = default;
+  virtual ~SingleRigidBodyDynamics () = default;
 
-  // for documentation, see definition in base class DynamicModel
   BaseAcc GetDynamicViolation() const override;
 
   Jac GetJacobianWrtBaseLin(const Jac& jac_base_lin_pos,
@@ -85,6 +85,7 @@ public:
   Jac GetJacobianWrtBaseAng(const EulerConverter& base_angular,
                             double t) const override;
   Jac GetJacobianWrtForce(const Jac& jac_force, EE) const override;
+
   Jac GetJacobianWrtEEPos(const Jac& jac_ee_pos, EE) const override;
 
 private:
@@ -97,4 +98,4 @@ private:
 
 } /* namespace towr */
 
-#endif /* TOWR_MODELS_CENTROIDAL_MODEL_H_ */
+#endif /* TOWR_MODELS_SINGLE_RIBID_BODY_DYNAMICS_MODEL_H_ */
