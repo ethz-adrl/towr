@@ -28,7 +28,7 @@ add_library(${PROJECT_NAME} SHARED
   # models
   src/robot_model.cc
   src/dynamic_model.cc
-  src/centroidal_model.cc
+  src/single_rigid_body_dynamics.cc
   # constraints
   src/time_discretization_constraint.cc
   src/base_motion_constraint.cc
@@ -94,7 +94,7 @@ if (TARGET GTest::GTest) # only build when modern targets exists
 
   add_executable(${PROJECT_NAME}-test
     test/dynamic_constraint_test.cc
-    test/centroidal_dynamics_test.cc
+    test/dynamic_model_test.cc
   )
   target_link_libraries(${PROJECT_NAME}-test
     PRIVATE

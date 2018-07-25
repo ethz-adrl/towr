@@ -29,21 +29,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtest/gtest.h>
 
-#include <towr/models/centroidal_model.h>
+#include <towr/models/single_rigid_body_dynamics.h>
 
 namespace towr {
 
-TEST(CentroidalDynamicsTest, GetBaseAcceleration)
+TEST(DynamicModelTest, GetBaseAcceleration)
 {
   // update test
 }
 
-TEST(CentroidalDynamicsTest, GetJacobianOfAccWrtBase)
+TEST(DynamicModelTest, GetJacobianOfAccWrtBase)
 {
   // update test
 }
 
-TEST(CentroidalDynamicsTest, TestRotations)
+TEST(DynamicModelTest, TestRotations)
 {
   // update test
 }

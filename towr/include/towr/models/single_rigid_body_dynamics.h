@@ -27,8 +27,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef TOWR_MODELS_CENTROIDAL_MODEL_H_
-#define TOWR_MODELS_CENTROIDAL_MODEL_H_
+#ifndef TOWR_MODELS_SINGLE_RIBID_BODY_DYNAMICS_MODEL_H_
+#define TOWR_MODELS_SINGLE_RIBID_BODY_DYNAMICS_MODEL_H_
 
 #include "dynamic_model.h"
 
@@ -53,7 +53,7 @@ namespace towr {
  *
  * @ingroup Robots
  */
-class CentroidalModel : public DynamicModel {
+class SingleRigidBodyDynamics : public DynamicModel {
 public:
   /**
    * @brief Constructs a specific model.
@@ -63,7 +63,7 @@ public:
    *                     This matrix maps angular accelerations expressed in
    *                     base frame to moments in base frame.
    */
-  CentroidalModel (double mass, const Eigen::Matrix3d& inertia_b, int ee_count);
+  SingleRigidBodyDynamics (double mass, const Eigen::Matrix3d& inertia_b, int ee_count);
 
   /**
    * @brief Constructs a specific model.
@@ -71,12 +71,12 @@ public:
    * @param I..       Elements of the 3x3 Inertia matrix
    * @param ee_count  Number of endeffectors/forces.
    */
-  CentroidalModel (double mass,
+  SingleRigidBodyDynamics (double mass,
                    double Ixx, double Iyy, double Izz,
                    double Ixy, double Ixz, double Iyz,
                    int ee_count);
 
-  virtual ~CentroidalModel () = default;
+  virtual ~SingleRigidBodyDynamics () = default;
 
   BaseAcc GetDynamicViolation() const override;
 
@@ -98,4 +98,4 @@ private:
 
 } /* namespace towr */
 
-#endif /* TOWR_MODELS_CENTROIDAL_MODEL_H_ */
+#endif /* TOWR_MODELS_SINGLE_RIBID_BODY_DYNAMICS_MODEL_H_ */

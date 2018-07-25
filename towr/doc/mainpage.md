@@ -18,20 +18,34 @@ Github's README.md
 
 Develop {#develop}
 ==============
- * This code formulates the variables, costs and constraints using [ifopt](https://github.com/ethz-adrl/ifopt), so it makes sense to first briefly familiarize with the syntax using [this example](https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h). 
 
+Code Overview {#overview}
+-----------
  * To understand the architecture of the code and which are the relevant classes
 and parameters to customize or build on, please see [Modules](modules.html).
 
  * A nice graphical overview as UML can be seen [here](inherits.html).
 
-Paper {#paper}
+Problem formulation {#ifopt}
+-----------
+ * This code formulates the variables, costs and constraints using [ifopt](https://github.com/ethz-adrl/ifopt), so it makes sense to first briefly familiarize with the syntax using [this example](https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h). 
+
+Add your own robot {#add_robot}
+-----------
+ * Want to add your own robot to towr? Start [here](group__Robots.html).
+ * To visualize your URDF, see [xpp](http://wiki.ros.org/xpp).
+
+Literature {#paper}
 =================
  * It is helpful to read up on the theory underlying this code, which is explained 
 in this paper 
 [DOI: 10.1109/LRA.2018.2798285](https://doi.org/10.1109/LRA.2018.2798285) and
 watch this [explanatory video](https://youtu.be/KhWuLvb934g).
 
+ * This PhD thesis inludes also a broader overview of the topic of 
+ trajectory optimization and derives the Single-Rigid-Body Dynamics
+ model used in this work:
+ [DOI: 10.3929/ethz-b-000272432](https://doi.org/10.3929/ethz-b-000272432)
 
 Contribute {#contribute}
 =================

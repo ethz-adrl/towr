@@ -43,16 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 /**
- * @defgroup Variables
- * @brief Variables of the trajectory optimization problem.
- *
- * These are the quantities through which the optimization problem is
- * parameterized.
- *
- * Folder: @ref include/towr/variables.
- */
-
-/**
  * @defgroup Constraints
  * @brief Constraints of the trajectory optimization problem.
  *

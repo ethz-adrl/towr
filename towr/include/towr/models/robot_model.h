@@ -48,10 +48,10 @@ namespace towr {
  * To add your own robot, you must create its KinematicModel and DynamicModel.
  * The kinematics simply define a workspace for each end-effector. The
  * Dynamic Model can be everything from a Linear Inverted Pendulum,
- * Single-Rigid-Body Dynamics (SRBD), Centroidal Dynamics to Full-Rigid-Body
+ * SingleRigidBodyDynamics (SRBD), Centroidal Dynamics to Full-Rigid-Body
  * Dynamics (RBD). This library provides an implementation for the
  * SingleRigidBodyDynamics in which only the combined mass and inertia must
- * be adapted, but other models can be used as well. For examples robots
+ * be adapted, but other models can be used as well. For example robots
  * to use as a guideline, see \ref include/towr/models/examples.
  */
 

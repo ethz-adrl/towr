@@ -50,7 +50,7 @@ namespace towr {
  *
  * Dynamic models can for example be:
  * Linear Inverted Pendulum (LIP),
- * Single Rigid Body Dynamics (SRBD),
+ * SingleRigidBodyDynamics (SRBD),
  * Centroidal Dynamics,
  * Full Rigid Body Dynamics (RBD).
  *
