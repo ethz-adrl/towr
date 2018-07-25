@@ -96,22 +96,21 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   </package>
   ```
   
-## Run / Develop
+## Run
   Launch the program using
   ```bash
   roslaunch towr_ros towr_ros.launch  # debug:=true  (to debug with gdb)
   ```
   Click in the xterm terminal and hit 'o'. 
   
-  Understand how to tune the parameters according to your problem and other useful information for developers:  
-  [**:arrow_right: doxygen documentation**](http://docs.ros.org/kinetic/api/towr/html/). 
-
+  Information about how to tune the paramters can be found [here](http://docs.ros.org/api/towr/html/group__Parameters.html) 
+  
 
 ## Publications
-The theory behind this code can be found in this paper:  
+All publications underlying this code can be found [here](https://awinkler.github.io/publications):  
 
-A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimization for Legged Systems through Phase-based End-Effector Parameterization](https://awinkler.github.io/publications), IEEE Robotics and Automation Letters (RA-L), 2018:
-
+The core paper is:
+ 
     @article{winkler18,
       author    = {Winkler, Alexander W and Bellicoso, Dario C and 
                    Hutter, Marco and Buchli, Jonas},
@@ -124,6 +123,10 @@ A. W. Winkler, D. Bellicoso, M. Hutter, J. Buchli, [Gait and Trajectory Optimiza
       volume    = {3},
       doi       = {10.1109/LRA.2018.2798285},
     }
+    
+A broader overview of the topic of Trajectory optimization and derivation of 
+the Single-Rigid-Body Dynamics model used in this work: 
+[DOI 10.3929/ethz-b-000272432](https://doi.org/10.3929/ethz-b-000272432)  
 
 
 ## Authors 
@@ -135,7 +138,28 @@ The work was carried out at the following institutions:
 
 
 
-## Contributing
+## Develop
+Useful information for developers:  
+[**:arrow_right: doxygen documentation**](http://docs.ros.org/kinetic/api/towr/html/). 
+
+#### Code Overview
+ * To understand the architecture of the code and which are the relevant classes
+and parameters to customize or build on, please see [Modules](http://docs.ros.org/api/towr/html/modules.html).
+
+ * A nice graphical overview as UML can be seen [here](http://docs.ros.org/api/towr/html/inherits.html).
+
+#### Problem formulation
+ 
+ * This code formulates the variables, costs and constraints using [ifopt](https://github.com/ethz-adrl/ifopt), so it makes sense to first briefly familiarize with the syntax using [this example](https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h). 
+
+#### Add your own robot {#add_robot}
+ * Want to add your own robot to towr? Start [here](http://docs.ros.org/api/towr/html/group__Robots.html).
+ * To visualize your URDF, see [xpp].
+
+
+
+
+## Contribute
 We love pull request, whether its new constraint formulations, additional robot models, bug fixes, unit tests or updating the documentation. Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) for more information.  
 See here the list of [contributors](https://github.com/ethz-adrl/towr/graphs/contributors) who participated in this project.
 

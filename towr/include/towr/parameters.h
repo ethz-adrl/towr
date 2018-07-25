@@ -41,9 +41,6 @@ namespace towr {
  *
  * The number of parameters to tune is relatively small (~10), however, they
  * do have a large impact on speed and convergence of the optimizer.
- *
- * ###Further Reading:
- *  * Read-up on the details in class Parameters.
  */
 
 /**
