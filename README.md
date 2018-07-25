@@ -127,7 +127,6 @@ and parameters to customize or build on, please see [Modules](http://docs.ros.or
 
 #### Add your own robot
  * Want to add your own robot to towr? Start [here](http://docs.ros.org/api/towr/html/group__Robots.html).
-
  * To afterwards also visualize your URDF, see [xpp].
 
 

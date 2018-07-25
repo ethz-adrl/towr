@@ -37,7 +37,7 @@ namespace towr {
 /**
  * @brief Nodes that are associated to either swing or stance phases.
  *
- * \image html phase_based_parameterization1.png
+ * \image html phase_based_parameterization.png
  *
  * **Not all node values must be optimized over**.
  * We can for example fix node derivatives to 0.0 and also use the
