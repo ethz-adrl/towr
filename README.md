@@ -123,8 +123,8 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   can be seen [here](towr/test/hopper_example.cc) and is great starting point.
  * We recommend using the ROS infrastructure provided to dynamically visualize, plot and change the problem formulation. To define your own problem using this infrastructure, use this [example](towr_ros/src/towr_ros_app.cc) as a guide. 
 
-#### Library Overview
- * The relevant classes and parameters to build on are collected [Modules](http://docs.ros.org/api/towr/html/modules.html).
+#### Library overview
+ * The relevant classes and parameters to build on are collected [modules](http://docs.ros.org/api/towr/html/modules.html).
  * A nice graphical overview as UML can be seen [here](http://docs.ros.org/api/towr/html/inherits.html).
  * The [doxygen documentation](http://docs.ros.org/api/towr/html/) provides helpul information for developers.
 
