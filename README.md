@@ -112,7 +112,7 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   ```
   Click in the xterm terminal and hit 'o'. 
   
-  Information about how to tune the paramters can be found [here](http://docs.ros.org/api/towr/html/group__Parameters.html) 
+  Information about how to tune the paramters can be found [here](http://docs.ros.org/api/towr/html/group__Parameters.html). 
   
 ## Develop
 #### Problem formulation
