@@ -115,15 +115,19 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   Information about how to tune the paramters can be found [here](http://docs.ros.org/api/towr/html/group__Parameters.html) 
   
 ## Develop
-Useful information for developers: [:arrow_right: doxygen documentation](http://docs.ros.org/kinetic/api/towr/html/). 
+Useful information for developers can be found in the *doxygen documentation*:
 
-#### Code Overview
+#### Problem formulation
+ * This code formulates the variables, costs and constraints using [ifopt](https://github.com/ethz-adrl/ifopt), so it makes sense to briefly familiarize with the syntax using [this example](https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h).
+ * A minimal towr example without ROS, formulating a problem for a one-legged hopper, 
+  can be seen [here](towr/test/hopper_example.cc) and is great starting point.
+ * We recommend using the ROS infrastructure provided to dynamically visualize, plot and change the problem formulation. To define your own problem using this infrastructure, use this [example](towr_ros/src/towr_ros_app.cc) as a guide. 
+
+#### Library Overview
  * To understand the architecture of the code and which are the relevant classes
 and parameters to customize or build on, please see [Modules](http://docs.ros.org/api/towr/html/modules.html).
  * A nice graphical overview as UML can be seen [here](http://docs.ros.org/api/towr/html/inherits.html).
 
-#### Problem formulation
- * This code formulates the variables, costs and constraints using [ifopt](https://github.com/ethz-adrl/ifopt), so it makes sense to first briefly familiarize with the syntax using [this example](https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h). 
 
 #### Add your own robot
  * Want to add your own robot to towr? Start [here](http://docs.ros.org/api/towr/html/group__Robots.html).
