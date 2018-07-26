@@ -33,6 +33,7 @@ include_directories(
 
 ## The main executable that runs TOWR
 add_executable(towr_ros 
+  src/towr_app.cc
   src/towr_ros.cc
 )
 add_dependencies(towr_ros 

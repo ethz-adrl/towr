@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
  * @file towr_xpp_ee_map.h
  *
- * Mapping information/types between towr and xpp domain.
+ * Mapping information/types between towr and xpp domain for visualization.
  */
 #ifndef TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_TOWR_XPP_EE_MAP_H_
 #define TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_TOWR_XPP_EE_MAP_H_

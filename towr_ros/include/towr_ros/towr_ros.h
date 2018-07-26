@@ -46,39 +46,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
+
+
 class TowrRos {
 public:
   using XppVec         = std::vector<xpp::RobotStateCartesian>;
   using TowrCommandMsg = towr_ros::TowrCommand;
   using Vector3d       = Eigen::Vector3d;
 
+protected:
   TowrRos ();
   virtual ~TowrRos () = default;
 
-private:
-  void UserCommandCallback(const TowrCommandMsg& msg);
-
-  XppVec GetTrajectory() const;
-
-  // publishing to rviz with ROS bag
-  ::ros::Subscriber user_command_sub_;
-  ::ros::Publisher initial_state_pub_;
-  ::ros::Publisher robot_parameters_pub_;
-
-  void SetInitialFromNominal(const std::vector<Vector3d>& nomial_stance_B);
-  void PublishInitial();
-  BaseState initial_base_;
-  std::vector<Vector3d> initial_ee_pos_;
+  virtual void SetSolverParameters(const TowrCommandMsg& msg) = 0;
+  virtual void SetTowrInitialState(const std::vector<Eigen::Vector3d>& nominal_stance) = 0;
+  virtual Parameters GetTowrParameters(int n_ee, const TowrCommandMsg& msg) const = 0;
 
   HeightMap::Ptr terrain_;
   TOWR towr_;
-  ifopt::IpoptSolver::Ptr solver_;
-  double visualization_dt_; ///< discretization of output trajectory (1/TaskServoHz)
+  ifopt::IpoptSolver::Ptr solver_; // could also use SNOPT
 
 private:
+  ::ros::Subscriber user_command_sub_;
+  ::ros::Publisher initial_state_pub_;
+  ::ros::Publisher robot_parameters_pub_;
+  double visualization_dt_; ///< duration between two rviz visualization states.
+
+  void UserCommandCallback(const TowrCommandMsg& msg);
+  XppVec GetTrajectory() const;
+  virtual BaseState GetGoalState(const TowrCommandMsg& msg) const;
+  void PublishInitialState();
   std::vector<XppVec>GetIntermediateSolutions();
   xpp_msgs::RobotParameters BuildRobotParametersMsg(const RobotModel& model) const;
-
   void SaveOptimizationAsRosbag(const std::string& bag_name,
                                 const xpp_msgs::RobotParameters& robot_params,
                                 const TowrCommandMsg user_command_msg,

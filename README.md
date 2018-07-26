@@ -25,7 +25,6 @@ Features:
   <a href="#run">Run</a> •
   <a href="#develop">Develop</a> •
   <a href="#contribute">Contribute</a> •
-  <a href="#bugs-and-feature-requests">Issues</a> •
   <a href="#publications">Publications</a> •
   <a href="#authors">Authors</a>
 </p>
@@ -133,9 +132,6 @@ and parameters to customize or build on, please see [Modules](http://docs.ros.or
 ## Contribute
 We love pull request, whether its new constraint formulations, additional robot models, bug fixes, unit tests or updating the documentation. Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) for more information.  
 See here the list of [contributors](https://github.com/ethz-adrl/towr/graphs/contributors) who participated in this project.
-
-##  Bugs and Feature Requests
-To report bugs, request features or ask questions, please have a look at [CONTRIBUTING.md](CONTRIBUTING.md). 
 
 
 ## Publications
