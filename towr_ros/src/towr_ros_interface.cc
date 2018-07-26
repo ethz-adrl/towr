@@ -27,7 +27,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/towr_ros.h>
+#include <towr_ros/towr_ros_interface.h>
 
 #include <std_msgs/Int32.h>
 
@@ -44,12 +44,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-TowrRos::TowrRos ()
+TowrRosInterface::TowrRosInterface ()
 {
   ::ros::NodeHandle n;
 
   user_command_sub_ = n.subscribe(towr_msgs::user_command, 1,
-                                  &TowrRos::UserCommandCallback, this);
+                                  &TowrRosInterface::UserCommandCallback, this);
 
   initial_state_pub_  = n.advertise<xpp_msgs::RobotStateCartesian>
                                           (xpp_msgs::robot_state_desired, 1);
@@ -63,7 +63,7 @@ TowrRos::TowrRos ()
 }
 
 BaseState
-TowrRos::GetGoalState(const TowrCommandMsg& msg) const
+TowrRosInterface::GetGoalState(const TowrCommandMsg& msg) const
 {
   BaseState goal;
   goal.lin.at(kPos) = xpp::Convert::ToXpp(msg.goal_lin.pos);
@@ -75,25 +75,28 @@ TowrRos::GetGoalState(const TowrCommandMsg& msg) const
 }
 
 void
-TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
+TowrRosInterface::UserCommandCallback(const TowrCommandMsg& msg)
 {
+  // robot model
   auto model = RobotModel(static_cast<RobotModel::Robot>(msg.robot));
+  auto robot_params_msg = BuildRobotParametersMsg(model);
+  robot_parameters_pub_.publish(robot_params_msg);
 
-  SetTowrInitialState(model.kinematic_model_->GetNominalStanceInBase());
-
+  // terrain
   auto terrain_id = static_cast<HeightMap::TerrainID>(msg.terrain);
   terrain_ = HeightMap::MakeTerrain(terrain_id);
 
+  // towr formulation
   int n_ee = model.kinematic_model_->GetNumberOfEndeffectors();
   auto params = GetTowrParameters(n_ee, msg);
   towr_.SetParameters(GetGoalState(msg), params, model, terrain_);
+  SetTowrInitialState(model.kinematic_model_->GetNominalStanceInBase());
 
-  // visualize stuff
-  auto robot_params_msg = BuildRobotParametersMsg(model);
-  robot_parameters_pub_.publish(robot_params_msg);
+  // solver parameters
+  SetIpoptParameters(msg);
+
+  // visualization
   PublishInitialState();
-
-  SetSolverParameters(msg);
 
   // Defaults to /home/user/.ros/
   std::string bag_file = "towr_trajectory.bag";
@@ -120,7 +123,7 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
 }
 
 void
-TowrRos::PublishInitialState()
+TowrRosInterface::PublishInitialState()
 {
   int n_ee = towr_.GetInitialEndeffectorsW().size();
   xpp::RobotStateCartesian xpp(n_ee);
@@ -137,8 +140,8 @@ TowrRos::PublishInitialState()
   initial_state_pub_.publish(xpp::Convert::ToRos(xpp));
 }
 
-std::vector<TowrRos::XppVec>
-TowrRos::GetIntermediateSolutions ()
+std::vector<TowrRosInterface::XppVec>
+TowrRosInterface::GetIntermediateSolutions ()
 {
   std::vector<XppVec> trajectories;
 
@@ -150,8 +153,8 @@ TowrRos::GetIntermediateSolutions ()
   return trajectories;
 }
 
-TowrRos::XppVec
-TowrRos::GetTrajectory () const
+TowrRosInterface::XppVec
+TowrRosInterface::GetTrajectory () const
 {
   SplineHolder solution = towr_.GetSolution();
 
@@ -188,7 +191,7 @@ TowrRos::GetTrajectory () const
 }
 
 xpp_msgs::RobotParameters
-TowrRos::BuildRobotParametersMsg(const RobotModel& model) const
+TowrRosInterface::BuildRobotParametersMsg(const RobotModel& model) const
 {
   xpp_msgs::RobotParameters params_msg;
   auto max_dev_xyz = model.kinematic_model_->GetMaximumDeviationFromNominal();
@@ -208,7 +211,7 @@ TowrRos::BuildRobotParametersMsg(const RobotModel& model) const
 }
 
 void
-TowrRos::SaveOptimizationAsRosbag (const std::string& bag_name,
+TowrRosInterface::SaveOptimizationAsRosbag (const std::string& bag_name,
                                    const xpp_msgs::RobotParameters& robot_params,
                                    const TowrCommandMsg user_command_msg,
                                    bool include_iterations)
@@ -242,7 +245,7 @@ TowrRos::SaveOptimizationAsRosbag (const std::string& bag_name,
 }
 
 void
-TowrRos::SaveTrajectoryInRosbag (rosbag::Bag& bag,
+TowrRosInterface::SaveTrajectoryInRosbag (rosbag::Bag& bag,
                                  const XppVec& traj,
                                  const std::string& topic) const
 {

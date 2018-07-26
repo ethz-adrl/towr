@@ -93,6 +93,7 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   
 * Use: Include in your catkin project by adding to your *CMakeLists.txt* 
   ```cmake
+  add_compile_options(-std=c++11)
   find_package(catkin COMPONENTS towr) 
   include_directories(${catkin_INCLUDE_DIRS})
   target_link_libraries(foo ${catkin_LIBRARIES})

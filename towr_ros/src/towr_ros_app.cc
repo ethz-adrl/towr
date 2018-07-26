@@ -27,31 +27,25 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/towr_ros.h>
 #include <towr/initialization/gait_generator.h>
+#include <towr_ros/towr_ros_interface.h>
 
 
 namespace towr {
 
-
-class TowrApp : public TowrRos {
+/**
+ * @brief An example application of using TOWR together with ROS.
+ *
+ * Build your own application with your own formulation using the building
+ * blocks provided in TOWR and following the example below.
+ */
+class TowrRosApp : public TowrRosInterface {
 public:
-  void SetSolverParameters(const TowrCommandMsg& msg) override {
-    solver_->SetOption("linear_solver", "mumps");
-    solver_->SetOption("jacobian_approximation", "exact");
-    solver_->SetOption("max_cpu_time", 40.0);
-    solver_->SetOption("print_level", 5);
-    //  solver_->SetOption("derivative_test", "first-order");
-    //  solver_->SetOption("max_iter", 0);
-
-    // modify solver parameters
-    if (msg.play_initialization)
-      solver_->SetOption("max_iter", 0);
-    else
-      solver_->SetOption("max_iter", 3000);
-  }
-
-  void SetTowrInitialState(const std::vector<Eigen::Vector3d>& nominal_stance_B) override {
+  /**
+   * @brief Sets the feet to nominal position on flat ground and base above.
+   */
+  void SetTowrInitialState(const std::vector<Eigen::Vector3d>& nominal_stance_B) override
+  {
     double z_ground = 0.0;
     std::vector<Eigen::Vector3d> initial_ee_pos =  nominal_stance_B;
     std::for_each(initial_ee_pos.begin(), initial_ee_pos.end(),
@@ -64,8 +58,16 @@ public:
     towr_.SetInitialState(initial_base, initial_ee_pos);
   }
 
-  Parameters GetTowrParameters(int n_ee, const TowrCommandMsg& msg) const override {
+  /**
+   * @brief Sets the parameters required to formulate the TOWR problem.
+   */
+  Parameters GetTowrParameters(int n_ee, const TowrCommandMsg& msg) const override
+  {
     Parameters params;
+
+    // Instead of manually defining the initial durations for each foot and
+    // step, for convenience we use a GaitGenerator with some predefined gaits
+    // for a variety of robots (walk, trot, pace, ...).
     auto gait_gen_ = GaitGenerator::MakeGaitGenerator(n_ee);
     auto id_gait   = static_cast<GaitGenerator::Combos>(msg.gait);
     gait_gen_->SetCombo(id_gait);
@@ -74,21 +76,56 @@ public:
       params.ee_in_contact_at_start_.push_back(gait_gen_->IsInContactAtStart(ee));
     }
 
+    // Here you can also add other constraints or values.
+    // creates smoother swing motions, not absolutely required.
     params.SetSwingConstraint();
 
+    // increases optimization time, but sometimes helps find a solution for
+    // more difficult terrain.
     if (msg.optimize_phase_durations)
       params.OptimizePhaseDurations();
 
     return params;
   }
+
+  /**
+   * @brief Sets the paramters for IPOPT.
+   */
+  void SetIpoptParameters(const TowrCommandMsg& msg) override
+  {
+    // the HA-L solvers are alot faster, so consider installing and using
+    solver_->SetOption("linear_solver", "mumps"); // ma27, ma57
+
+    // Analytically defining the derivatives in IFOPT as we do it, makes the
+    // problem a lot faster. However, if this becomes too difficult, we can also
+    // tell IPOPT to just approximate them using finite differences. However,
+    // this uses numerical derivatives for ALL constraints, there doesn't yet
+    // exist an option to turn on numerical derivatives for only some constraint
+    // sets.
+    solver_->SetOption("jacobian_approximation", "exact"); // finite difference-values
+
+    // This is a great to test if the analytical derivatives implemented in are
+    // correct. Some derivatives that are correct are still flagged, showing a
+    // deviation of 10e-4, which is fine. What to watch out for is deviations > 10e-2.
+    // solver_->SetOption("derivative_test", "first-order");
+
+    solver_->SetOption("max_cpu_time", 40.0);
+    solver_->SetOption("print_level", 5);
+
+    if (msg.play_initialization)
+      solver_->SetOption("max_iter", 0);
+    else
+      solver_->SetOption("max_iter", 3000);
+  }
 };
 
 } // namespace towr
 
+
 int main(int argc, char *argv[])
 {
-  ros::init(argc, argv, "towr_app");
-  towr::TowrApp towr_app;
+  ros::init(argc, argv, "my_towr_ros_app");
+  towr::TowrRosApp towr_app;
   ros::spin();
 
   return 1;

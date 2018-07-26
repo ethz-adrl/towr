@@ -47,20 +47,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-
-class TowrRos {
+/**
+ * @brief Base class to interface TOWR with a ROS GUI and RVIZ.
+ *
+ * This is very convenient to change goal states or terrains on the fly and
+ * test how your formulation holds up. A sample application implementing this
+ * interface is TowrRosApp.
+ */
+class TowrRosInterface {
 public:
   using XppVec         = std::vector<xpp::RobotStateCartesian>;
   using TowrCommandMsg = towr_ros::TowrCommand;
   using Vector3d       = Eigen::Vector3d;
 
 protected:
-  TowrRos ();
-  virtual ~TowrRos () = default;
+  TowrRosInterface ();
+  virtual ~TowrRosInterface () = default;
 
-  virtual void SetSolverParameters(const TowrCommandMsg& msg) = 0;
+  /**
+   * @brief Sets the base state and end-effector position.
+   *
+   * As a default the endeffectors can be set to the nominal postions and
+   * the base at nominal height.
+   */
   virtual void SetTowrInitialState(const std::vector<Eigen::Vector3d>& nominal_stance) = 0;
+
+  /**
+   * @brief Formulates the actual TOWR problem to be solved
+   * @param msg User message to adjust the parameters dynamically.
+   *
+   * When formulating your own application, here you can set your specific
+   * set of constraints and variables.
+   */
   virtual Parameters GetTowrParameters(int n_ee, const TowrCommandMsg& msg) const = 0;
+
+  /**
+   * @brief Sets the parameters of the nonlinear programming solver IPOPT.
+   * @param msg User message that can be used to change the parameters.
+   */
+  virtual void SetIpoptParameters(const TowrCommandMsg& msg) = 0;
 
   HeightMap::Ptr terrain_;
   TOWR towr_;
