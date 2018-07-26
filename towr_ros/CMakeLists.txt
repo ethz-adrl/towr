@@ -19,8 +19,17 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files( FILES TowrCommand.msg )
 generate_messages( DEPENDENCIES std_msgs xpp_msgs )
 
-catkin_package()
 
+###################################
+## catkin specific configuration ##
+###################################
+## The catkin_package macro generates cmake config files for your package
+catkin_package(
+   INCLUDE_DIRS include
+   LIBRARIES ${PROJECT_NAME}
+   CATKIN_DEPENDS xpp_states roscpp
+   DEPENDS towr
+)
 
 ###########
 ## Build ##
@@ -30,16 +39,28 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-
-## The main executable that runs TOWR
-add_executable(towr_ros 
-  src/towr_ros.cc
+# The interface to derive from for ros integration
+add_library(${PROJECT_NAME} SHARED
+  src/towr_ros_interface.cc
 )
-add_dependencies(towr_ros 
+add_dependencies(${PROJECT_NAME} 
   ${PROJECT_NAME}_gencpp
 )
-target_link_libraries(towr_ros
+target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+)
+
+
+## An example executable that runs TOWR
+add_executable(towr_ros_app 
+  src/towr_ros_app.cc
+)
+add_dependencies(towr_ros_app 
+  ${PROJECT_NAME}_gencpp
+)
+target_link_libraries(towr_ros_app
+  ${catkin_LIBRARIES}
+  ${PROJECT_NAME}
 )
 
 
@@ -103,15 +124,23 @@ target_link_libraries(rosbag_geom_msg_extractor
 #############
 # Mark library for installation
 install(
-  TARGETS towr_ros 
+  TARGETS towr_ros_app
           towr_user_interface
           rviz_terrain_publisher
           goal_pose_publisher
           rosbag_traj_combiner
           rosbag_geom_msg_extractor
+          ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+# Mark header files for installation
+install(
+  DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
 )
 
 # Mark other files for installation

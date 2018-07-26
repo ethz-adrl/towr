@@ -111,9 +111,19 @@ public:
   void SetSolution(int solver_iteration);
 
   /**
-   * @returns The number of iterations the solver took to find the solution.
+   * @brief The number of iterations the solver took to find the solution.
    */
   int GetIterationCount() const;
+
+  /**
+   * @brief the state to constraint the first base-motion node to.
+   */
+  BaseState GetInitialBase() const;
+
+  /**
+   * @brief the states to constraint the first end-effector positions to.
+   */
+  std::vector<Eigen::Vector3d> GetInitialEndeffectorsW() const;
 
 private:
   /**

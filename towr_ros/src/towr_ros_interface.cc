@@ -27,7 +27,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr_ros/towr_ros.h>
+#include <towr_ros/towr_ros_interface.h>
 
 #include <std_msgs/Int32.h>
 
@@ -35,10 +35,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_msgs/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
 
-#include <towr/initialization/gait_generator.h>
 #include <towr/terrain/height_map.h>
 #include <towr/variables/euler_converter.h>
-
 #include <towr_ros/topic_names.h>
 #include <towr_ros/towr_xpp_ee_map.h>
 
@@ -46,12 +44,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace towr {
 
 
-TowrRos::TowrRos ()
+TowrRosInterface::TowrRosInterface ()
 {
   ::ros::NodeHandle n;
 
   user_command_sub_ = n.subscribe(towr_msgs::user_command, 1,
-                                  &TowrRos::UserCommandCallback, this);
+                                  &TowrRosInterface::UserCommandCallback, this);
 
   initial_state_pub_  = n.advertise<xpp_msgs::RobotStateCartesian>
                                           (xpp_msgs::robot_state_desired, 1);
@@ -59,92 +57,46 @@ TowrRos::TowrRos ()
   robot_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
                                     (xpp_msgs::robot_parameters, 1);
 
-  solver_ = std::make_shared<ifopt::IpoptSolver>(); // could also use SNOPT here
-  solver_->SetOption("linear_solver", "mumps");
-  solver_->SetOption("jacobian_approximation", "exact");
-//  solver_->SetOption("derivative_test", "first-order");
-//  solver_->SetOption("max_iter", 0);
-  solver_->SetOption("max_cpu_time", 40.0);
-  solver_->SetOption("print_level", 5);
+  solver_ = std::make_shared<ifopt::IpoptSolver>();
 
   visualization_dt_ = 0.02;
 }
 
-void
-TowrRos::SetInitialFromNominal(const std::vector<Vector3d>& nomial_stance_B)
+BaseState
+TowrRosInterface::GetGoalState(const TowrCommandMsg& msg) const
 {
-  double z_ground = 0.0;
-  initial_ee_pos_ =  nomial_stance_B;
-  std::for_each(initial_ee_pos_.begin(), initial_ee_pos_.end(),
-                [&](Vector3d& p){ p.z() = z_ground; } // feet at 0 height
-  );
-  initial_base_.lin.at(kPos).z() = - nomial_stance_B.front().z() + z_ground;
-}
-
-void
-TowrRos::PublishInitial()
-{
-  int n_ee = initial_ee_pos_.size();
-  xpp::RobotStateCartesian xpp(n_ee);
-  xpp.base_.lin.p_ = initial_base_.lin.p();
-  xpp.base_.ang.q  = EulerConverter::GetQuaternionBaseToWorld(initial_base_.ang.p());
-
-  for (int ee_towr=0; ee_towr<n_ee; ++ee_towr) {
-    int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
-    xpp.ee_contact_.at(ee_xpp)   = true;
-    xpp.ee_motion_.at(ee_xpp).p_ = initial_ee_pos_.at(ee_towr);
-    xpp.ee_forces_.at(ee_xpp).setZero(); // zero for visualization
-  }
-
-  initial_state_pub_.publish(xpp::Convert::ToRos(xpp));
-}
-
-void
-TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
-{
-  // robot model
-  RobotModel model(static_cast<RobotModel::Robot>(msg.robot));
-  auto robot_params_msg = BuildRobotParametersMsg(model);
-  robot_parameters_pub_.publish(robot_params_msg);
-
-  // initial state
-  SetInitialFromNominal(model.kinematic_model_->GetNominalStanceInBase());
-  PublishInitial();
-
-  // goal state
   BaseState goal;
   goal.lin.at(kPos) = xpp::Convert::ToXpp(msg.goal_lin.pos);
   goal.lin.at(kVel) = xpp::Convert::ToXpp(msg.goal_lin.vel);
   goal.ang.at(kPos) = xpp::Convert::ToXpp(msg.goal_ang.pos);
   goal.ang.at(kVel) = xpp::Convert::ToXpp(msg.goal_ang.vel);
 
+  return goal;
+}
+
+void
+TowrRosInterface::UserCommandCallback(const TowrCommandMsg& msg)
+{
+  // robot model
+  auto model = RobotModel(static_cast<RobotModel::Robot>(msg.robot));
+  auto robot_params_msg = BuildRobotParametersMsg(model);
+  robot_parameters_pub_.publish(robot_params_msg);
+
   // terrain
   auto terrain_id = static_cast<HeightMap::TerrainID>(msg.terrain);
   terrain_ = HeightMap::MakeTerrain(terrain_id);
 
-  // solver parameters
-  Parameters params;
+  // towr formulation
   int n_ee = model.kinematic_model_->GetNumberOfEndeffectors();
-  auto gait_gen_ = GaitGenerator::MakeGaitGenerator(n_ee);
-  auto id_gait   = static_cast<GaitGenerator::Combos>(msg.gait);
-  gait_gen_->SetCombo(id_gait);
-  for (int ee=0; ee<n_ee; ++ee) {
-    params.ee_phase_durations_.push_back(gait_gen_->GetPhaseDurations(msg.total_duration, ee));
-    params.ee_in_contact_at_start_.push_back(gait_gen_->IsInContactAtStart(ee));
-  }
-  params.SetSwingConstraint();
-  if (msg.optimize_phase_durations)
-    params.OptimizePhaseDurations();
+  auto params = GetTowrParameters(n_ee, msg);
+  towr_.SetParameters(GetGoalState(msg), params, model, terrain_);
+  SetTowrInitialState(model.kinematic_model_->GetNominalStanceInBase());
 
-  // TOWR
-  towr_.SetInitialState(initial_base_, initial_ee_pos_);
-  towr_.SetParameters(goal, params, model, terrain_);
+  // solver parameters
+  SetIpoptParameters(msg);
 
-  // set solver parameters
-  if (msg.play_initialization)
-    solver_->SetOption("max_iter", 0);
-  else
-    solver_->SetOption("max_iter", 3000);
+  // visualization
+  PublishInitialState();
 
   // Defaults to /home/user/.ros/
   std::string bag_file = "towr_trajectory.bag";
@@ -170,8 +122,26 @@ TowrRos::UserCommandCallback(const TowrCommandMsg& msg)
   // xpp_msgs::RobotStateCartesianTrajectory xpp_msg = xpp::Convert::ToRos(GetTrajectory());
 }
 
-std::vector<TowrRos::XppVec>
-TowrRos::GetIntermediateSolutions ()
+void
+TowrRosInterface::PublishInitialState()
+{
+  int n_ee = towr_.GetInitialEndeffectorsW().size();
+  xpp::RobotStateCartesian xpp(n_ee);
+  xpp.base_.lin.p_ = towr_.GetInitialBase().lin.p();
+  xpp.base_.ang.q  = EulerConverter::GetQuaternionBaseToWorld(towr_.GetInitialBase().ang.p());
+
+  for (int ee_towr=0; ee_towr<n_ee; ++ee_towr) {
+    int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
+    xpp.ee_contact_.at(ee_xpp)   = true;
+    xpp.ee_motion_.at(ee_xpp).p_ = towr_.GetInitialEndeffectorsW().at(ee_towr);
+    xpp.ee_forces_.at(ee_xpp).setZero(); // zero for visualization
+  }
+
+  initial_state_pub_.publish(xpp::Convert::ToRos(xpp));
+}
+
+std::vector<TowrRosInterface::XppVec>
+TowrRosInterface::GetIntermediateSolutions ()
 {
   std::vector<XppVec> trajectories;
 
@@ -183,8 +153,8 @@ TowrRos::GetIntermediateSolutions ()
   return trajectories;
 }
 
-TowrRos::XppVec
-TowrRos::GetTrajectory () const
+TowrRosInterface::XppVec
+TowrRosInterface::GetTrajectory () const
 {
   SplineHolder solution = towr_.GetSolution();
 
@@ -221,7 +191,7 @@ TowrRos::GetTrajectory () const
 }
 
 xpp_msgs::RobotParameters
-TowrRos::BuildRobotParametersMsg(const RobotModel& model) const
+TowrRosInterface::BuildRobotParametersMsg(const RobotModel& model) const
 {
   xpp_msgs::RobotParameters params_msg;
   auto max_dev_xyz = model.kinematic_model_->GetMaximumDeviationFromNominal();
@@ -241,7 +211,7 @@ TowrRos::BuildRobotParametersMsg(const RobotModel& model) const
 }
 
 void
-TowrRos::SaveOptimizationAsRosbag (const std::string& bag_name,
+TowrRosInterface::SaveOptimizationAsRosbag (const std::string& bag_name,
                                    const xpp_msgs::RobotParameters& robot_params,
                                    const TowrCommandMsg user_command_msg,
                                    bool include_iterations)
@@ -275,7 +245,7 @@ TowrRos::SaveOptimizationAsRosbag (const std::string& bag_name,
 }
 
 void
-TowrRos::SaveTrajectoryInRosbag (rosbag::Bag& bag,
+TowrRosInterface::SaveTrajectoryInRosbag (rosbag::Bag& bag,
                                  const XppVec& traj,
                                  const std::string& topic) const
 {
@@ -298,15 +268,4 @@ TowrRos::SaveTrajectoryInRosbag (rosbag::Bag& bag,
 }
 
 } /* namespace towr */
-
-
-
-int main(int argc, char *argv[])
-{
-  ros::init(argc, argv, "towr_ros");
-  towr::TowrRos towr_ros;
-  ros::spin();
-
-  return 1;
-}
 

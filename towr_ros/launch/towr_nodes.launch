@@ -33,9 +33,9 @@
 
   <!-- start the actual NLP solver using TOWR -->
   <node 
-    name="towr_ros" 
+    name="towr_ros_app" 
     pkg="towr_ros" 
-    type="towr_ros" 
+    type="towr_ros_app" 
     output="screen"
     launch-prefix="$(arg gdb)"
     >

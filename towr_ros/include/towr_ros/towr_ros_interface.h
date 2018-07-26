@@ -46,39 +46,63 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-class TowrRos {
+
+/**
+ * @brief Base class to interface TOWR with a ROS GUI and RVIZ.
+ *
+ * This is very convenient to change goal states or terrains on the fly and
+ * test how your formulation holds up. A sample application implementing this
+ * interface is TowrRosApp.
+ */
+class TowrRosInterface {
 public:
   using XppVec         = std::vector<xpp::RobotStateCartesian>;
   using TowrCommandMsg = towr_ros::TowrCommand;
   using Vector3d       = Eigen::Vector3d;
 
-  TowrRos ();
-  virtual ~TowrRos () = default;
+protected:
+  TowrRosInterface ();
+  virtual ~TowrRosInterface () = default;
 
-private:
-  void UserCommandCallback(const TowrCommandMsg& msg);
+  /**
+   * @brief Sets the base state and end-effector position.
+   *
+   * As a default the endeffectors can be set to the nominal postions and
+   * the base at nominal height.
+   */
+  virtual void SetTowrInitialState(const std::vector<Eigen::Vector3d>& nominal_stance) = 0;
 
-  XppVec GetTrajectory() const;
+  /**
+   * @brief Formulates the actual TOWR problem to be solved
+   * @param msg User message to adjust the parameters dynamically.
+   *
+   * When formulating your own application, here you can set your specific
+   * set of constraints and variables.
+   */
+  virtual Parameters GetTowrParameters(int n_ee, const TowrCommandMsg& msg) const = 0;
 
-  // publishing to rviz with ROS bag
-  ::ros::Subscriber user_command_sub_;
-  ::ros::Publisher initial_state_pub_;
-  ::ros::Publisher robot_parameters_pub_;
-
-  void SetInitialFromNominal(const std::vector<Vector3d>& nomial_stance_B);
-  void PublishInitial();
-  BaseState initial_base_;
-  std::vector<Vector3d> initial_ee_pos_;
+  /**
+   * @brief Sets the parameters of the nonlinear programming solver IPOPT.
+   * @param msg User message that can be used to change the parameters.
+   */
+  virtual void SetIpoptParameters(const TowrCommandMsg& msg) = 0;
 
   HeightMap::Ptr terrain_;
   TOWR towr_;
-  ifopt::IpoptSolver::Ptr solver_;
-  double visualization_dt_; ///< discretization of output trajectory (1/TaskServoHz)
+  ifopt::IpoptSolver::Ptr solver_; // could also use SNOPT
 
 private:
+  ::ros::Subscriber user_command_sub_;
+  ::ros::Publisher initial_state_pub_;
+  ::ros::Publisher robot_parameters_pub_;
+  double visualization_dt_; ///< duration between two rviz visualization states.
+
+  void UserCommandCallback(const TowrCommandMsg& msg);
+  XppVec GetTrajectory() const;
+  virtual BaseState GetGoalState(const TowrCommandMsg& msg) const;
+  void PublishInitialState();
   std::vector<XppVec>GetIntermediateSolutions();
   xpp_msgs::RobotParameters BuildRobotParametersMsg(const RobotModel& model) const;
-
   void SaveOptimizationAsRosbag(const std::string& bag_name,
                                 const xpp_msgs::RobotParameters& robot_params,
                                 const TowrCommandMsg user_command_msg,

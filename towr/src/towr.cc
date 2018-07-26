@@ -107,4 +107,16 @@ TOWR::BuildNLP()
   return nlp;
 }
 
+BaseState
+TOWR::GetInitialBase() const
+{
+  return factory_.initial_base_;
+}
+
+std::vector<Eigen::Vector3d>
+TOWR::GetInitialEndeffectorsW() const
+{
+  return factory_.initial_ee_W_;
+}
+
 } /* namespace towr */
