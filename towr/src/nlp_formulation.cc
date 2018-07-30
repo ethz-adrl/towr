@@ -27,7 +27,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/nlp_factory.h>
+#include <towr/nlp_formulation.h>
 
 #include <towr/variables/variable_names.h>
 #include <towr/variables/phase_durations.h>
@@ -44,11 +44,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/costs/node_cost.h>
 #include <towr/variables/nodes_variables_all.h>
 
+#include <iostream>
+
 namespace towr {
 
+NlpFormulation::NlpFormulation ()
+{
+  using namespace std;
+  cout << "\n";
+  cout << "************************************************************\n";
+  cout << " TOWR - Trajectory Optimization for Walking Robots (v1.4)\n";
+  cout << "                \u00a9 Alexander W. Winkler\n";
+  cout << "           https://github.com/ethz-adrl/towr\n";
+  cout << "************************************************************";
+  cout << "\n\n";
+}
 
-NlpFactory::VariablePtrVec
-NlpFactory::GetVariableSets ()
+NlpFormulation::VariablePtrVec
+NlpFormulation::GetVariableSets (SplineHolder& spline_holder)
 {
   VariablePtrVec vars;
 
@@ -62,24 +75,25 @@ NlpFactory::GetVariableSets ()
   vars.insert(vars.end(), ee_force.begin(), ee_force.end());
 
   auto contact_schedule = MakeContactScheduleVariables();
+  // can also just be fixed timings that aren't optimized over, but still added
+  // to spline_holder.
   if (params_.IsOptimizeTimings()) {
     vars.insert(vars.end(), contact_schedule.begin(), contact_schedule.end());
   }
 
-  // stores these readily constructed spline, independent of whether the
-  // nodes and durations these depend on are optimized over
-  spline_holder_ = SplineHolder(base_motion.at(0), // linear
-                                base_motion.at(1), // angular
-                                params_.GetBasePolyDurations(),
-                                ee_motion,
-                                ee_force,
-                                contact_schedule,
-                                params_.IsOptimizeTimings());
+  // stores these readily constructed spline
+  spline_holder = SplineHolder(base_motion.at(0), // linear
+                               base_motion.at(1), // angular
+                               params_.GetBasePolyDurations(),
+                               ee_motion,
+                               ee_force,
+                               contact_schedule,
+                               params_.IsOptimizeTimings());
   return vars;
 }
 
 std::vector<NodesVariables::Ptr>
-NlpFactory::MakeBaseVariables () const
+NlpFormulation::MakeBaseVariables () const
 {
   std::vector<NodesVariables::Ptr> vars;
 
@@ -111,7 +125,7 @@ NlpFactory::MakeBaseVariables () const
 }
 
 std::vector<NodesVariablesPhaseBased::Ptr>
-NlpFactory::MakeEndeffectorVariables () const
+NlpFormulation::MakeEndeffectorVariables () const
 {
   std::vector<NodesVariablesPhaseBased::Ptr> vars;
 
@@ -142,7 +156,7 @@ NlpFactory::MakeEndeffectorVariables () const
 }
 
 std::vector<NodesVariablesPhaseBased::Ptr>
-NlpFactory::MakeForceVariables () const
+NlpFormulation::MakeForceVariables () const
 {
   std::vector<NodesVariablesPhaseBased::Ptr> vars;
 
@@ -167,7 +181,7 @@ NlpFactory::MakeForceVariables () const
 }
 
 std::vector<PhaseDurations::Ptr>
-NlpFactory::MakeContactScheduleVariables () const
+NlpFormulation::MakeContactScheduleVariables () const
 {
   std::vector<PhaseDurations::Ptr> vars;
 
@@ -183,54 +197,55 @@ NlpFactory::MakeContactScheduleVariables () const
   return vars;
 }
 
-NlpFactory::ContraintPtrVec
-NlpFactory::GetConstraints() const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::GetConstraints(const SplineHolder& spline_holder) const
 {
   ContraintPtrVec constraints;
   for (auto name : params_.constraints_)
-    for (auto c : GetConstraint(name))
+    for (auto c : GetConstraint(name, spline_holder))
       constraints.push_back(c);
 
   return constraints;
 }
 
-NlpFactory::ContraintPtrVec
-NlpFactory::GetConstraint (Parameters::ConstraintName name) const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::GetConstraint (Parameters::ConstraintName name,
+                           const SplineHolder& s) const
 {
   switch (name) {
-    case Parameters::Dynamic:        return MakeDynamicConstraint();
-    case Parameters::EndeffectorRom: return MakeRangeOfMotionBoxConstraint();
-    case Parameters::BaseRom:        return MakeBaseRangeOfMotionConstraint();
+    case Parameters::Dynamic:        return MakeDynamicConstraint(s);
+    case Parameters::EndeffectorRom: return MakeRangeOfMotionBoxConstraint(s);
+    case Parameters::BaseRom:        return MakeBaseRangeOfMotionConstraint(s);
     case Parameters::TotalTime:      return MakeTotalTimeConstraint();
     case Parameters::Terrain:        return MakeTerrainConstraint();
     case Parameters::Force:          return MakeForceConstraint();
     case Parameters::Swing:          return MakeSwingConstraint();
-    case Parameters::BaseAcc:        return MakeBaseAccConstraint();
+    case Parameters::BaseAcc:        return MakeBaseAccConstraint(s);
     default: throw std::runtime_error("constraint not defined!");
   }
 }
 
 
-NlpFactory::ContraintPtrVec
-NlpFactory::MakeBaseRangeOfMotionConstraint () const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::MakeBaseRangeOfMotionConstraint (const SplineHolder& s) const
 {
   return {std::make_shared<BaseMotionConstraint>(params_.GetTotalTime(),
                                                  params_.dt_constraint_base_motion_,
-                                                 spline_holder_)};
+                                                 s)};
 }
 
-NlpFactory::ContraintPtrVec
-NlpFactory::MakeDynamicConstraint() const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::MakeDynamicConstraint(const SplineHolder& s) const
 {
   auto constraint = std::make_shared<DynamicConstraint>(model_.dynamic_model_,
                                                         params_.GetTotalTime(),
                                                         params_.dt_constraint_dynamic_,
-                                                        spline_holder_);
+                                                        s);
   return {constraint};
 }
 
-NlpFactory::ContraintPtrVec
-NlpFactory::MakeRangeOfMotionBoxConstraint () const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::MakeRangeOfMotionBoxConstraint (const SplineHolder& s) const
 {
   ContraintPtrVec c;
 
@@ -239,15 +254,15 @@ NlpFactory::MakeRangeOfMotionBoxConstraint () const
                                                          params_.GetTotalTime(),
                                                          params_.dt_constraint_range_of_motion_,
                                                          ee,
-                                                         spline_holder_);
+                                                         s);
     c.push_back(rom);
   }
 
   return c;
 }
 
-NlpFactory::ContraintPtrVec
-NlpFactory::MakeTotalTimeConstraint () const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::MakeTotalTimeConstraint () const
 {
   ContraintPtrVec c;
   double T = params_.GetTotalTime();
@@ -260,8 +275,8 @@ NlpFactory::MakeTotalTimeConstraint () const
   return c;
 }
 
-NlpFactory::ContraintPtrVec
-NlpFactory::MakeTerrainConstraint () const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::MakeTerrainConstraint () const
 {
   ContraintPtrVec constraints;
 
@@ -273,8 +288,8 @@ NlpFactory::MakeTerrainConstraint () const
   return constraints;
 }
 
-NlpFactory::ContraintPtrVec
-NlpFactory::MakeForceConstraint () const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::MakeForceConstraint () const
 {
   ContraintPtrVec constraints;
 
@@ -288,8 +303,8 @@ NlpFactory::MakeForceConstraint () const
   return constraints;
 }
 
-NlpFactory::ContraintPtrVec
-NlpFactory::MakeSwingConstraint () const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::MakeSwingConstraint () const
 {
   ContraintPtrVec constraints;
 
@@ -301,22 +316,22 @@ NlpFactory::MakeSwingConstraint () const
   return constraints;
 }
 
-NlpFactory::ContraintPtrVec
-NlpFactory::MakeBaseAccConstraint () const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::MakeBaseAccConstraint (const SplineHolder& s) const
 {
   ContraintPtrVec constraints;
 
   constraints.push_back(std::make_shared<SplineAccConstraint>
-                        (spline_holder_.base_linear_, id::base_lin_nodes));
+                        (s.base_linear_, id::base_lin_nodes));
 
   constraints.push_back(std::make_shared<SplineAccConstraint>
-                        (spline_holder_.base_angular_, id::base_ang_nodes));
+                        (s.base_angular_, id::base_ang_nodes));
 
   return constraints;
 }
 
-NlpFactory::ContraintPtrVec
-NlpFactory::GetCosts() const
+NlpFormulation::ContraintPtrVec
+NlpFormulation::GetCosts() const
 {
   ContraintPtrVec costs;
   for (const auto& pair : params_.costs_)
@@ -326,8 +341,8 @@ NlpFactory::GetCosts() const
   return costs;
 }
 
-NlpFactory::CostPtrVec
-NlpFactory::GetCost(const Parameters::CostName& name, double weight) const
+NlpFormulation::CostPtrVec
+NlpFormulation::GetCost(const Parameters::CostName& name, double weight) const
 {
   switch (name) {
     case Parameters::ForcesCostID:   return MakeForcesCost(weight);
@@ -336,8 +351,8 @@ NlpFactory::GetCost(const Parameters::CostName& name, double weight) const
   }
 }
 
-NlpFactory::CostPtrVec
-NlpFactory::MakeForcesCost(double weight) const
+NlpFormulation::CostPtrVec
+NlpFormulation::MakeForcesCost(double weight) const
 {
   CostPtrVec cost;
 
@@ -347,8 +362,8 @@ NlpFactory::MakeForcesCost(double weight) const
   return cost;
 }
 
-NlpFactory::CostPtrVec
-NlpFactory::MakeEEMotionCost(double weight) const
+NlpFormulation::CostPtrVec
+NlpFormulation::MakeEEMotionCost(double weight) const
 {
   CostPtrVec cost;
 

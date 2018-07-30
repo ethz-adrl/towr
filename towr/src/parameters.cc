@@ -39,8 +39,8 @@ namespace towr {
 
 Parameters::Parameters ()
 {
-  // optimization variables
-  duration_base_polynomial_ = 0.1;
+  // constructs optimization variables
+  duration_base_polynomial_ = 0.1; // [s]
   force_polynomials_per_stance_phase_ = 3;
   ee_polynomials_per_swing_phase_ = 2; // so step can at least lift leg
 
@@ -63,7 +63,7 @@ Parameters::SetDynamicConstraint ()
 {
   dt_constraint_dynamic_ = 0.1;
   constraints_.push_back(Dynamic);
-  constraints_.push_back(BaseAcc); // so accelerations don't jump between splines
+  constraints_.push_back(BaseAcc); // so accelerations don't jump between polynomials
 }
 
 void

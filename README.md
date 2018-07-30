@@ -117,16 +117,19 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   Information about how to tune the paramters can be found [here](http://docs.ros.org/api/towr/html/group__Parameters.html). 
   
 ## Develop
-#### Problem formulation
- * This code formulates the variables, costs and constraints using [ifopt](https://github.com/ethz-adrl/ifopt), so it makes sense to briefly familiarize with the syntax using [this example](https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h).
- * A minimal towr example without ROS, formulating a problem for a one-legged hopper, 
-  can be seen [here](towr/test/hopper_example.cc) and is great starting point.
- * We recommend using the ROS infrastructure provided to dynamically visualize, plot and change the problem formulation. To define your own problem using this infrastructure, use this [example](towr_ros/src/towr_ros_app.cc) as a guide. 
-
 #### Library overview
  * The relevant classes and parameters to build on are collected [modules](http://docs.ros.org/api/towr/html/modules.html).
  * A nice graphical overview as UML can be seen [here](http://docs.ros.org/api/towr/html/inherits.html).
  * The [doxygen documentation](http://docs.ros.org/api/towr/html/) provides helpul information for developers.
+
+#### Problem formulation
+ * This code formulates the variables, costs and constraints using ifopt, so it makes sense to briefly familiarize with the syntax using [this example].
+ * A minimal towr example without ROS, formulating a problem for a one-legged hopper, 
+  can be seen [here](towr/test/hopper_example.cc) and is great starting point.
+ * We recommend using the ROS infrastructure provided to dynamically visualize, plot and change the problem formulation. To define your own problem using this infrastructure, use this [example](towr_ros/src/towr_ros_app.cc) as a guide. 
+ 
+#### Add your own variables, costs and constraints
+ * This library provides a set of variables, costs and constraints to formulate the trajectory optimization problem. An [example formulation](towr/include/towr/nlp_formulation.h) of how to combine these is given, however, this formulation can probably be improved. To add your own e.g. constraint-set, define a class with it's values and derivatives, and then add it to the formulation ```nlp.AddConstraintSet(your_custom_constraints);``` as shown [here](towr/test/hopper_example.cc).
 
 #### Add your own robot
  * Want to add your own robot to towr? Start [here](http://docs.ros.org/api/towr/html/group__Robots.html).
@@ -188,3 +191,4 @@ The work was carried out at the following institutions:
 [catkin]: http://wiki.ros.org/catkin
 [catkin tools]: http://catkin-tools.readthedocs.org/
 [Eigen]: http://eigen.tuxfamily.org
+[this example]: https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h

@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_msgs/RobotParameters.h>
 #include <towr_ros/TowrCommand.h>
 
-#include <towr/towr.h>
+#include <towr/nlp_formulation.h>
 #include <ifopt/ipopt_solver.h>
 
 
@@ -66,11 +66,8 @@ protected:
 
   /**
    * @brief Sets the base state and end-effector position.
-   *
-   * As a default the endeffectors can be set to the nominal postions and
-   * the base at nominal height.
    */
-  virtual void SetTowrInitialState(const std::vector<Eigen::Vector3d>& nominal_stance) = 0;
+  virtual void SetTowrInitialState() = 0;
 
   /**
    * @brief Formulates the actual TOWR problem to be solved
@@ -87,15 +84,17 @@ protected:
    */
   virtual void SetIpoptParameters(const TowrCommandMsg& msg) = 0;
 
-  HeightMap::Ptr terrain_;
-  TOWR towr_;
-  ifopt::IpoptSolver::Ptr solver_; // could also use SNOPT
+  NlpFormulation formulation_;         ///< the default formulation, can be adapted
+  ifopt::IpoptSolver::Ptr solver_; ///< NLP solver, could also use SNOPT.
 
 private:
+  SplineHolder solution; ///< the solution splines linked to the opt-variables.
+  ifopt::Problem nlp_;   ///< the actual nonlinear program to be solved.
+  double visualization_dt_; ///< duration between two rviz visualization states.
+
   ::ros::Subscriber user_command_sub_;
   ::ros::Publisher initial_state_pub_;
   ::ros::Publisher robot_parameters_pub_;
-  double visualization_dt_; ///< duration between two rviz visualization states.
 
   void UserCommandCallback(const TowrCommandMsg& msg);
   XppVec GetTrajectory() const;

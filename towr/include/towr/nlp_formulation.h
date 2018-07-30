@@ -35,10 +35,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ifopt/cost_term.h>
 
 #include <towr/variables/spline_holder.h>
-
 #include <towr/models/robot_model.h>
 #include <towr/terrain/height_map.h>
-#include "parameters.h"
+#include <towr/parameters.h>
 
 namespace towr {
 
@@ -63,13 +62,15 @@ namespace towr {
 
 /**
  *
- * @brief Builds variables, cost and constraints for the legged locomotion problem.
+ * @brief A sample combination of variables, cost and constraints.
  *
- * Abstracts the entire problem of Trajectory Optimization for walking
- * robots into the formulation of variables, constraints and cost, solvable
- * by any NLP solver.
+ * This is _one_ example of how to combine the variables, constraints and costs
+ * provided by this library. Additional variables or constraints can be added
+ * to the NLP, or existing elements replaced to find a more powerful/general
+ * formulation. This formulation was used to generate the motions described
+ * in this paper: https://ieeexplore.ieee.org/document/8283570/
  */
-class NlpFactory {
+class NlpFormulation {
 public:
   using VariablePtrVec   = std::vector<ifopt::VariableSet::Ptr>;
   using ContraintPtrVec  = std::vector<ifopt::ConstraintSet::Ptr>;
@@ -77,14 +78,20 @@ public:
   using EEPos            = std::vector<Eigen::Vector3d>;
   using Vector3d         = Eigen::Vector3d;
 
-  NlpFactory () = default;
-  virtual ~NlpFactory () = default;
+  NlpFormulation ();
+  virtual ~NlpFormulation () = default;
 
-  /** @brief The ifopt variable sets that will be optimized over. */
-  VariablePtrVec GetVariableSets();
+  /**
+   * @brief The ifopt variable sets that will be optimized over.
+   * @param[in/out] builds fully-constructed splines from the variables.
+   */
+  VariablePtrVec GetVariableSets(SplineHolder& spline_holder);
 
-  /** @brief The ifopt constraints that enforce feasible motions. */
-  ContraintPtrVec GetConstraints() const;
+  /**
+   * @brief The ifopt constraints that enforce feasible motions.
+   * @param[in] uses the fully-constructed splines for initialization of constraints.
+   */
+  ContraintPtrVec GetConstraints(const SplineHolder& spline_holder) const;
 
   /** @brief The ifopt costs to tune the motion. */
   ContraintPtrVec GetCosts() const;
@@ -97,8 +104,6 @@ public:
   HeightMap::Ptr terrain_;
   Parameters params_;
 
-  SplineHolder spline_holder_;
-
 private:
   // variables
   std::vector<NodesVariables::Ptr> MakeBaseVariables() const;
@@ -107,15 +112,16 @@ private:
   std::vector<PhaseDurations::Ptr> MakeContactScheduleVariables() const;
 
   // constraints
-  ContraintPtrVec GetConstraint(Parameters::ConstraintName name) const;
-  ContraintPtrVec MakeDynamicConstraint() const;
-  ContraintPtrVec MakeRangeOfMotionBoxConstraint() const;
+  ContraintPtrVec GetConstraint(Parameters::ConstraintName name,
+                                const SplineHolder& splines) const;
+  ContraintPtrVec MakeDynamicConstraint(const SplineHolder& s) const;
+  ContraintPtrVec MakeRangeOfMotionBoxConstraint(const SplineHolder& s) const;
   ContraintPtrVec MakeTotalTimeConstraint() const;
   ContraintPtrVec MakeTerrainConstraint() const;
   ContraintPtrVec MakeForceConstraint() const;
   ContraintPtrVec MakeSwingConstraint() const;
-  ContraintPtrVec MakeBaseRangeOfMotionConstraint() const;
-  ContraintPtrVec MakeBaseAccConstraint() const;
+  ContraintPtrVec MakeBaseRangeOfMotionConstraint(const SplineHolder& s) const;
+  ContraintPtrVec MakeBaseAccConstraint(const SplineHolder& s) const;
 
   // costs
   CostPtrVec GetCost(const Parameters::CostName& id, double weight) const;
