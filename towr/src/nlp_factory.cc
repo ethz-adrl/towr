@@ -62,6 +62,8 @@ NlpFactory::GetVariableSets ()
   vars.insert(vars.end(), ee_force.begin(), ee_force.end());
 
   auto contact_schedule = MakeContactScheduleVariables();
+  // can also just be fixed timings that aren't optimized over, but still added
+  // to spline_holder.
   if (params_.IsOptimizeTimings()) {
     vars.insert(vars.end(), contact_schedule.begin(), contact_schedule.end());
   }

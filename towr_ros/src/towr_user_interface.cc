@@ -55,7 +55,7 @@ static constexpr int X_VALUE       = 35;
 TowrUserInterface::TowrUserInterface ()
 {
   printw(" ******************************************************************************\n");
-  printw("                          TOWR user interface (v1.3) \n");
+  printw("                          TOWR user interface (v1.4) \n");
   printw("                            \u00a9 Alexander W. Winkler \n");
   printw("                        https://github.com/ethz-adrl/towr\n");
   printw(" ******************************************************************************\n\n");

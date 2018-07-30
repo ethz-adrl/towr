@@ -59,7 +59,7 @@ TowrRosInterface::TowrRosInterface ()
 
   solver_ = std::make_shared<ifopt::IpoptSolver>();
 
-  visualization_dt_ = 0.02;
+  visualization_dt_ = 0.01;
 }
 
 BaseState

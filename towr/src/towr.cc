@@ -37,7 +37,7 @@ TOWR::TOWR (bool print_boilerplate) {
     using namespace std;
     cout << "\n";
     cout << "************************************************************\n";
-    cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.3)\n";
+    cout << " TOWR - Trajectory Optimizer for Walking Robots (v1.4)\n";
     cout << "                \u00a9 Alexander W. Winkler\n";
     cout << "           https://github.com/ethz-adrl/towr\n";
     cout << "************************************************************";
@@ -54,9 +54,9 @@ TOWR::SetInitialState(const BaseState& base, const FeetPos& feet)
 
 void
 TOWR::SetParameters(const BaseState& final_base,
-                   const Parameters& params,
-                   const RobotModel& model,
-                   HeightMap::Ptr terrain)
+                    const Parameters& params,
+                    const RobotModel& model,
+                    HeightMap::Ptr terrain)
 {
   factory_.final_base_ = final_base;
   factory_.params_ = params;
