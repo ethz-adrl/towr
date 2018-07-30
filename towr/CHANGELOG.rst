@@ -2,8 +2,8 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.0 (2018-07-30)
+------------------
 * Simplify extension / adding own formulation (`#38 <https://github.com/ethz-adrl/towr/issues/38>`_)
 * Facilitate towr_ros user extension (`#34 <https://github.com/ethz-adrl/towr/issues/34>`_)
 * Greatly simplify phase node formulations (`#33 <https://github.com/ethz-adrl/towr/issues/33>`_) 
