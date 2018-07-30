@@ -45,7 +45,6 @@ namespace towr {
  * to construct the splines from the variables new every time.
  */
 struct SplineHolder {
-
   /**
    * @brief Fully construct all splines.
    * @param base_lin  The nodes describing the base linear motion.
@@ -64,6 +63,9 @@ struct SplineHolder {
                 std::vector<PhaseDurations::Ptr> phase_durations,
                 bool ee_durations_change);
 
+  /**
+   * @brief Attention, nothing initialized.
+   */
   SplineHolder () = default;
 
   NodeSpline::Ptr base_linear_;
