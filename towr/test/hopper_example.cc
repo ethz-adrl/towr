@@ -37,7 +37,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace towr;
 
-
+// A minimal example how to build a trajectory optimization problem using TOWR.
+//
+// The more advanced example that includes ROS integration, GUI, rviz
+// visualization and plotting can be found here:
+// towr_ros/src/towr_ros_app.cc
 int main()
 {
   NlpFormulation formulation;
