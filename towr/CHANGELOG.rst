@@ -2,6 +2,16 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Simplify extension / adding own formulation (`#38 <https://github.com/ethz-adrl/towr/issues/38>`_)
+* Facilitate towr_ros user extension (`#34 <https://github.com/ethz-adrl/towr/issues/34>`_)
+* Greatly simplify phase node formulations (`#33 <https://github.com/ethz-adrl/towr/issues/33>`_) 
+* keep overview in github readme, not separated into doxygen & github
+* rename CD to SRBD and improve documentation
+* rename nodes to node variables
+* Contributors: Alexander Winkler
+
 1.3.2 (2018-07-17)
 ------------------
 * adapt to more generic ifopt solver interface.

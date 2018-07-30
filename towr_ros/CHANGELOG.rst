@@ -2,6 +2,14 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Facilitate towr_ros user extension (`#34 <https://github.com/ethz-adrl/towr/issues/34>`_)
+* Add easy plotting of trajectories with rqt_bag
+* add option to visualize variable initialization
+* Allow shorthand to launch with gdb
+* Contributors: Alexander Winkler
+
 1.3.2 (2018-07-17)
 ------------------
 * adapt to more generic ifopt solver interface.
