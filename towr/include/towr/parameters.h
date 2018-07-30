@@ -156,7 +156,7 @@ struct Parameters {
   using VecTimes         = std::vector<double>;
   using EEID             = unsigned int;
 
-  friend class NlpFactory;
+  friend class NlpFormulation;
 
   /**
    * @brief Default parameters to use.

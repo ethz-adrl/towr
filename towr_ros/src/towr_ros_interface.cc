@@ -78,19 +78,19 @@ void
 TowrRosInterface::UserCommandCallback(const TowrCommandMsg& msg)
 {
   // robot model
-  auto model = RobotModel(static_cast<RobotModel::Robot>(msg.robot));
-  auto robot_params_msg = BuildRobotParametersMsg(model);
+  formulation_.model_ = RobotModel(static_cast<RobotModel::Robot>(msg.robot));
+  auto robot_params_msg = BuildRobotParametersMsg(formulation_.model_);
   robot_parameters_pub_.publish(robot_params_msg);
 
   // terrain
   auto terrain_id = static_cast<HeightMap::TerrainID>(msg.terrain);
-  terrain_ = HeightMap::MakeTerrain(terrain_id);
+  formulation_.terrain_ = HeightMap::MakeTerrain(terrain_id);
 
-  // towr formulation
-  int n_ee = model.kinematic_model_->GetNumberOfEndeffectors();
-  auto params = GetTowrParameters(n_ee, msg);
-  towr_.SetParameters(GetGoalState(msg), params, model, terrain_);
-  SetTowrInitialState(model.kinematic_model_->GetNominalStanceInBase());
+  int n_ee = formulation_.model_.kinematic_model_->GetNumberOfEndeffectors();
+  formulation_.params_ = GetTowrParameters(n_ee, msg);
+  formulation_.final_base_ = GetGoalState(msg);
+
+  SetTowrInitialState();
 
   // solver parameters
   SetIpoptParameters(msg);
@@ -101,7 +101,16 @@ TowrRosInterface::UserCommandCallback(const TowrCommandMsg& msg)
   // Defaults to /home/user/.ros/
   std::string bag_file = "towr_trajectory.bag";
   if (msg.optimize || msg.play_initialization) {
-    towr_.SolveNLP(solver_);
+
+    nlp_ = ifopt::Problem();
+    for (auto c : formulation_.GetVariableSets(solution))
+      nlp_.AddVariableSet(c);
+    for (auto c : formulation_.GetConstraints(solution))
+      nlp_.AddConstraintSet(c);
+    for (auto c : formulation_.GetCosts())
+      nlp_.AddCostSet(c);
+
+    solver_->Solve(nlp_);
     SaveOptimizationAsRosbag(bag_file, robot_params_msg, msg, false);
   }
 
@@ -125,15 +134,15 @@ TowrRosInterface::UserCommandCallback(const TowrCommandMsg& msg)
 void
 TowrRosInterface::PublishInitialState()
 {
-  int n_ee = towr_.GetInitialEndeffectorsW().size();
+  int n_ee = formulation_.initial_ee_W_.size();
   xpp::RobotStateCartesian xpp(n_ee);
-  xpp.base_.lin.p_ = towr_.GetInitialBase().lin.p();
-  xpp.base_.ang.q  = EulerConverter::GetQuaternionBaseToWorld(towr_.GetInitialBase().ang.p());
+  xpp.base_.lin.p_ = formulation_.initial_base_.lin.p();
+  xpp.base_.ang.q  = EulerConverter::GetQuaternionBaseToWorld(formulation_.initial_base_.ang.p());
 
   for (int ee_towr=0; ee_towr<n_ee; ++ee_towr) {
     int ee_xpp = ToXppEndeffector(n_ee, ee_towr).first;
     xpp.ee_contact_.at(ee_xpp)   = true;
-    xpp.ee_motion_.at(ee_xpp).p_ = towr_.GetInitialEndeffectorsW().at(ee_towr);
+    xpp.ee_motion_.at(ee_xpp).p_ = formulation_.initial_ee_W_.at(ee_towr);
     xpp.ee_forces_.at(ee_xpp).setZero(); // zero for visualization
   }
 
@@ -145,8 +154,8 @@ TowrRosInterface::GetIntermediateSolutions ()
 {
   std::vector<XppVec> trajectories;
 
-  for (int iter=0; iter<towr_.GetIterationCount(); ++iter) {
-    towr_.SetSolution(iter);
+  for (int iter=0; iter<nlp_.GetIterationCount(); ++iter) {
+    nlp_.SetOptVariables(iter);
     trajectories.push_back(GetTrajectory());
   }
 
@@ -156,8 +165,6 @@ TowrRosInterface::GetIntermediateSolutions ()
 TowrRosInterface::XppVec
 TowrRosInterface::GetTrajectory () const
 {
-  SplineHolder solution = towr_.GetSolution();
-
   XppVec trajectory;
   double t = 0.0;
   double T = solution.base_linear_->GetTotalTime();
@@ -258,9 +265,9 @@ TowrRosInterface::SaveTrajectoryInRosbag (rosbag::Bag& bag,
 
     xpp_msgs::TerrainInfo terrain_msg;
     for (auto ee : state.ee_motion_.ToImpl()) {
-      Vector3d n = terrain_->GetNormalizedBasis(HeightMap::Normal, ee.p_.x(), ee.p_.y());
+      Vector3d n = formulation_.terrain_->GetNormalizedBasis(HeightMap::Normal, ee.p_.x(), ee.p_.y());
       terrain_msg.surface_normals.push_back(xpp::Convert::ToRos<geometry_msgs::Vector3>(n));
-      terrain_msg.friction_coeff = terrain_->GetFrictionCoeff();
+      terrain_msg.friction_coeff = formulation_.terrain_->GetFrictionCoeff();
     }
 
     bag.write(xpp_msgs::terrain_info, timestamp, terrain_msg);
