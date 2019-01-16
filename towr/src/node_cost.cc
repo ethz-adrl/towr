@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-NodeCost::NodeCost (const std::string& nodes_id, Dx deriv, int dim)
+NodeCost::NodeCost (const std::string& nodes_id, Dx deriv, int dim, double weight)
     : CostTerm(nodes_id
                +"-dx_"+std::to_string(deriv)
                +"-dim_"+std::to_string(dim))
@@ -41,6 +41,7 @@ NodeCost::NodeCost (const std::string& nodes_id, Dx deriv, int dim)
   node_id_ = nodes_id;
   deriv_ = deriv;
   dim_   = dim;
+  weight_ = weight;
 }
 
 void
@@ -55,7 +56,7 @@ NodeCost::GetCost () const
   double cost;
   for (auto n : nodes_->GetNodes()) {
     double val = n.at(deriv_)(dim_);
-    cost += std::pow(val,2);
+    cost += weight_*std::pow(val,2);
   }
 
   return cost;
@@ -69,7 +70,7 @@ NodeCost::FillJacobianBlock (std::string var_set, Jacobian& jac) const
       for (auto nvi : nodes_->GetNodeValuesInfo(i))
         if (nvi.deriv_==deriv_ && nvi.dim_==dim_) {
           double val = nodes_->GetNodes().at(nvi.id_).at(deriv_)(dim_);
-          jac.coeffRef(0, i) += 2.0*val;
+          jac.coeffRef(0, i) += weight_*2.0*val;
         }
   }
 }

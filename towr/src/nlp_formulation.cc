@@ -357,7 +357,7 @@ NlpFormulation::MakeForcesCost(double weight) const
   CostPtrVec cost;
 
   for (int ee=0; ee<params_.GetEECount(); ee++)
-    cost.push_back(std::make_shared<NodeCost>(id::EEForceNodes(ee), kPos, Z));
+    cost.push_back(std::make_shared<NodeCost>(id::EEForceNodes(ee), kPos, Z, weight));
 
   return cost;
 }
@@ -368,8 +368,8 @@ NlpFormulation::MakeEEMotionCost(double weight) const
   CostPtrVec cost;
 
   for (int ee=0; ee<params_.GetEECount(); ee++) {
-    cost.push_back(std::make_shared<NodeCost>(id::EEMotionNodes(ee), kVel, X));
-    cost.push_back(std::make_shared<NodeCost>(id::EEMotionNodes(ee), kVel, Y));
+    cost.push_back(std::make_shared<NodeCost>(id::EEMotionNodes(ee), kVel, X, weight));
+    cost.push_back(std::make_shared<NodeCost>(id::EEMotionNodes(ee), kVel, Y, weight));
   }
 
   return cost;
