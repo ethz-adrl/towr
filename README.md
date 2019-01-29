@@ -164,7 +164,7 @@ the Single-Rigid-Body Dynamics model used in this work:
 
 
 ## Authors 
-[Alexander W. Winkler](http://awinkler.me) - Initial Work/Maintainer
+[Alexander W. Winkler](https://www.alex-winkler.com) - Initial Work/Maintainer
 
 The work was carried out at the following institutions:
 
