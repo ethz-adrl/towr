@@ -36,7 +36,7 @@ Features:
 ## Install
 The easiest way to install is through the [ROS binaries](http://wiki.ros.org/towr):
 ```bash
-sudo apt-get install ros-<ros-distro>-towr_ros
+sudo apt-get install ros-<ros-distro>-towr-ros
 ```
 
 In case these don't yet exist for your distro, there are two ways to build this code from source:
