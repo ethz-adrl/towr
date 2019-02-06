@@ -50,10 +50,10 @@ Parameters::Parameters ()
   SetKinematicConstraint();
   SetForceConstraint();
 
-  bounds_final_lin_pos = {X,Y};
-  bounds_final_lin_vel = {X,Y,Z};
-  bounds_final_ang_pos = {X,Y,Z};
-  bounds_final_ang_vel = {X,Y,Z};
+  bounds_final_lin_pos_ = {X,Y};
+  bounds_final_lin_vel_ = {X,Y,Z};
+  bounds_final_ang_pos_ = {X,Y,Z};
+  bounds_final_ang_vel_ = {X,Y,Z};
   // additional restrictions are set directly on the variables in nlp_factory,
   // such as e.g. initial and endeffector,...
 }

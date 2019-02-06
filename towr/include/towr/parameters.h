@@ -258,10 +258,10 @@ private:
   void SetForceConstraint();
 
   /// which dimensions (x,y,z) of the final base state should be bounded
-  std::vector<int> bounds_final_lin_pos,
-                   bounds_final_lin_vel,
-                   bounds_final_ang_pos,
-                   bounds_final_ang_vel;
+  std::vector<int> bounds_final_lin_pos_,
+                   bounds_final_lin_vel_,
+                   bounds_final_ang_pos_,
+                   bounds_final_ang_vel_;
 };
 
 } // namespace towr
