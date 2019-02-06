@@ -56,31 +56,16 @@ Parameters::Parameters ()
 
   // these are the basic constraints that always have to be set
   constraints_.push_back(Terrain);
-  SetDynamicConstraint();
-  SetKinematicConstraint();
-  SetForceConstraint();
+  // dynamic constraints
+  constraints_.push_back(Dynamic);
+  constraints_.push_back(BaseAcc); 
+  // robot kinematics
+  constraints_.push_back(EndeffectorRom);
+  // force cones
+  constraints_.push_back(Force);
 
   // additional restrictions are set directly on the variables in nlp_factory,
   // such as e.g. initial and endeffector,...
-}
-
-void
-Parameters::SetDynamicConstraint ()
-{
-  constraints_.push_back(Dynamic);
-  constraints_.push_back(BaseAcc); // so accelerations don't jump between polynomials
-}
-
-void
-Parameters::SetKinematicConstraint ()
-{
-  constraints_.push_back(EndeffectorRom);
-}
-
-void
-Parameters::SetForceConstraint()
-{
-  constraints_.push_back(Force);
 }
 
 void

@@ -134,14 +134,14 @@ struct Parameters {
    * @brief Identifiers to be used to add certain constraints to the
    * optimization problem.
    */
-  enum ConstraintName { Dynamic,        ///< sets DynamicConstraint
-                        EndeffectorRom, ///< sets RangeOfMotionConstraint
-                        TotalTime,      ///< sets TotalDurationConstraint
-                        Terrain,        ///< sets TerrainConstraint
-                        Force,          ///< sets ForceConstraint
-                        Swing,          ///< sets SwingConstraint
+  enum ConstraintName { Dynamic,        ///< sets DynamicConstraint (The dynamic model is fullfilled at discrete times).
+                        EndeffectorRom, ///< sets RangeOfMotionConstraint (The range of motion is respected at discrete times).
+                        TotalTime,      ///< sets TotalDurationConstraint (Optimize phase durations).
+                        Terrain,        ///< sets TerrainConstraint (When in contact Leg is placed onto terrain).
+                        Force,          ///< sets ForceConstraint (Unilateral forces are inside the friction cone).
+                        Swing,          ///< sets SwingConstraint (Smooth endeffector motion during swing-phase).
                         BaseRom,        ///< sets BaseMotionConstraint
-                        BaseAcc         ///< sets SplineAccConstraint
+                        BaseAcc         ///< sets SplineAccConstraint (Accelerations don't jump between polynomials).
   };
   /**
    *  @brief Indentifiers to be used to add certain costs to the optimization
@@ -164,34 +164,26 @@ struct Parameters {
   Parameters();
   virtual ~Parameters() = default;
 
-  /// Number and initial duration of each foot's swing and stance phases.
+  /*
+   * @brief Number and initial duration of each foot's swing and stance phases.
+   */
   std::vector<VecTimes> ee_phase_durations_;
 
-  /// True if the foot is initially in contact with the terrain.
+  /*
+   * @brief Initial robot pose.
+   * True if the foot is initially in contact with the terrain.
+   */
   std::vector<bool> ee_in_contact_at_start_;
 
-  /// Specifies that timings of all feet, so the gait, should be optimized.
-  void OptimizePhaseDurations();
+  /**
+   * Which constraints should be used in the optimization problem.
+   */
+  UsedConstraints constraints_;
 
   /**
-   * @brief Ensures smooth endeffector motion during swing-phase (recommended)
+   * Which costs should be used in the optimiation problem.
    */
-  void SetSwingConstraint();
-
-  /**
-   * Adds base_motion_constraint to restrict 6D base movement. Careful, this
-   * can be very limiting.
-   *
-   * @param dt  interval [s] at which this constraint is enforced.
-   */
-  void RestrictBaseRangeOfMotion();
-
-  /**
-   * @brief Add cost that penalizes large endeffector forces.
-   */
-  void PenalizeEndeffectorForces();
-
-public:
+  CostWeights costs_;
 
   /**
    * @brief  Interval at which the dynamic constraint is enforced.
@@ -215,6 +207,9 @@ public:
 
   /** Minimum and maximum time for each phase (swing,stance).
    *  Only used when optimizing over phase durations
+   *  Limiting phase durations can help convergence when optimizing gait
+   *  if phase durations too short, can also cause kinematic constraint to
+   *  be violated, so @ref dt_constraint_range_of_motion must be decreased.
    */
   std::array<double,2> bound_phase_duration_ = {{0.0, 1e10}};
 
@@ -242,12 +237,29 @@ public:
                    bounds_final_ang_pos_,
                    bounds_final_ang_vel_;
 
-private:
-  /// Which constraints should be used in the optimization problem.
-  UsedConstraints constraints_;
+public:
+  /**
+   * @brief Specifies that timings of all feet, so the gait, should be optimized.
+   */
+  void OptimizePhaseDurations();
 
-  /// Which costs should be used in the optimiation problem.
-  CostWeights costs_;
+  /**
+   * @brief Ensures smooth endeffector motion during swing-phase (recommended)
+   */
+  void SetSwingConstraint();
+
+  /**
+   * Adds BaseMotionConstraint to restrict 6D base movement. Careful, this
+   * can be very limiting.
+   */
+  void RestrictBaseRangeOfMotion();
+
+  /**
+   * @brief Add cost that penalizes large endeffector forces.
+   */
+  void PenalizeEndeffectorForces();
+
+private:
 
   /// The durations of each base polynomial in the spline (lin+ang).
   VecTimes GetBasePolyDurations() const;
@@ -266,21 +278,6 @@ private:
 
   /// Bounds for the phase durations.
   std::array<double,2> GetPhaseDurationBounds() const;
-
-  /**
-   * @brief Ensures that the dynamic model is fullfilled at discrete times.
-   */
-  void SetDynamicConstraint();
-
-  /**
-   * @brief Ensures that the range of motion is respected at discrete times.
-   */
-  void SetKinematicConstraint();
-
-  /**
-   * @brief Ensures unilateral forces and inside the friction cone.
-   */
-  void SetForceConstraint();
 
 };
 
