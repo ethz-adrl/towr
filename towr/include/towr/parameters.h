@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vector>
 #include <array>
+#include <towr/variables/cartesian_dimensions.h>
 
 namespace towr {
 
@@ -186,56 +187,56 @@ struct Parameters {
   CostWeights costs_;
 
   /**
-   * @brief  Interval at which the dynamic constraint is enforced.
+   * @brief  Interval [s] at which the dynamic constraint is enforced. 
    */
-  double dt_constraint_dynamic_;
+  double dt_constraint_dynamic_ = 0.1;
 
   /**
-   * @brief  Interval at which the range of motion constraint is enforced.
+   * @brief  Interval [s] at which the range of motion constraint is enforced. 
    */
-  double dt_constraint_range_of_motion_;
+  double dt_constraint_range_of_motion_ = 0.08;
 
   /**
-   * @brief  Interval at which the base motion constraint is enforced.
+   * @brief  Interval [s] at which the base motion constraint is enforced.
    */
-  double dt_constraint_base_motion_;
+  double dt_constraint_base_motion_ = 0.1/4.0;
 
   /**
-   * @brief  Fixed duration of each cubic polynomial describing the base motion.
+   * @brief  Fixed duration [s] of each cubic polynomial describing the base motion.
    */
-  double duration_base_polynomial_;
+  double duration_base_polynomial_ = 0.1;
 
-  /** Minimum and maximum time for each phase (swing,stance).
+  /** Minimum and maximum time [s] for each phase (swing,stance).
    *  Only used when optimizing over phase durations
    *  Limiting phase durations can help convergence when optimizing gait
    *  if phase durations too short, can also cause kinematic constraint to
    *  be violated, so @ref dt_constraint_range_of_motion must be decreased.
    */
-  std::pair<double,double> bound_phase_duration_ = {0.0, 1e10};
+  std::pair<double,double> bound_phase_duration_ = {0.2, 1.0};
 
   /**
    * @brief  Number of polynomials to parameterize foot movement during swing phases.
    */
-  int ee_polynomials_per_swing_phase_;
+  int ee_polynomials_per_swing_phase_ = 2; // so step can at least lift leg
 
   /**
    * @brief  Number of polynomials to parameterize each contact force during stance phase.
    */
-  int force_polynomials_per_stance_phase_;
+  int force_polynomials_per_stance_phase_ = 3;
 
   /**
    * @brief  The maximum allowable force [N] in normal direction
    */
-  double force_limit_in_normal_direction_;
+  double force_limit_in_normal_direction_ = 1000;
 
   /**
    * @brief  which dimensions (x,y,z) of the final base state should be bounded
    * Use @ref Dim3D enum to select desired dimentions.
    */
-  std::vector<int> bounds_final_lin_pos_,
-                   bounds_final_lin_vel_,
-                   bounds_final_ang_pos_,
-                   bounds_final_ang_vel_;
+  std::vector<int> bounds_final_lin_pos_ = { X,Y };
+  std::vector<int> bounds_final_lin_vel_ = { X,Y,Z };
+  std::vector<int> bounds_final_ang_pos_ = { X,Y,Z };
+  std::vector<int> bounds_final_ang_vel_ = { X,Y,Z };
 
 public:
   /**

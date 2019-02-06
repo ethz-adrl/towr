@@ -28,7 +28,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/parameters.h>
-#include <towr/variables/cartesian_dimensions.h>
 
 #include <algorithm>
 #include <numeric>      // std::accumulate
@@ -39,21 +38,6 @@ namespace towr {
 
 Parameters::Parameters ()
 {
-  // default optimization parameteres
-  duration_base_polynomial_ = 0.1; // [s]
-  dt_constraint_dynamic_ = 0.1; // [s]
-  dt_constraint_range_of_motion_ = 0.08; // [s]
-  dt_constraint_base_motion_ = duration_base_polynomial_/4.0;
-  bound_phase_duration_.first = 0.2;
-  bound_phase_duration_.second  = 1.0;
-  ee_polynomials_per_swing_phase_ = 2; // so step can at least lift leg
-  force_polynomials_per_stance_phase_ = 3;
-  force_limit_in_normal_direction_ = 1000;
-  bounds_final_lin_pos_ = {X,Y};
-  bounds_final_lin_vel_ = {X,Y,Z};
-  bounds_final_ang_pos_ = {X,Y,Z};
-  bounds_final_ang_vel_ = {X,Y,Z};
-
   // these are the basic constraints that always have to be set
   constraints_.push_back(Terrain);
   // dynamic constraints
