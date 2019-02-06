@@ -118,7 +118,6 @@ protected:
 private:
   FootDurations GetPhaseDurations() const;
   virtual GaitInfo GetGait(Gaits gait) const = 0;
-  VecTimes GetNormalizedPhaseDurations(EE ee) const;
 };
 
 } /* namespace towr */

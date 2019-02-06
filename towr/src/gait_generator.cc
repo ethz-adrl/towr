@@ -52,25 +52,30 @@ GaitGenerator::MakeGaitGenerator(int leg_count)
 }
 
 GaitGenerator::VecTimes
-GaitGenerator::GetPhaseDurations (double t_total, EE ee) const
+GaitGenerator::GetPhaseDurations (double new_t_total, EE ee) const
 {
-  // scale total time tu t_total
+  double d_accumulated = 0.0;
+
   std::vector<double> durations;
-  for (auto d : GetNormalizedPhaseDurations(ee))
-    durations.push_back(d*t_total);
+  for (int phase=0; phase<contacts_.size()-1; ++phase) {
+    d_accumulated += times_.at(phase);
+    // if contact will change in next phase, so this phase duration complete
+    bool contacts_will_change = contacts_[phase].at(ee) != contacts_.at(phase+1).at(ee);
+    if (contacts_will_change)  {
+      durations.push_back(d_accumulated);
+      d_accumulated = 0.0;
+    }
+  }
+  // push back last phase
+  durations.push_back(d_accumulated + times_.back());
+  // calculate total time 
+  double old_t_total = std::accumulate(durations.begin(), durations.end(), 0.0);
+  // scale to new total time
+  std::transform(durations.begin(), durations.end(), durations.begin(),
+                 [new_t_total, old_t_total](double t){ return t / old_t_total * new_t_total; });
 
   return durations;
-}
 
-GaitGenerator::VecTimes
-GaitGenerator::GetNormalizedPhaseDurations (EE ee) const
-{
-  auto v = GetPhaseDurations().at(ee); // shorthand
-  double total_time = std::accumulate(v.begin(), v.end(), 0.0);
-  std::transform(v.begin(), v.end(), v.begin(),
-                 [total_time](double t_phase){ return t_phase/total_time;});
-
-  return v;
 }
 
 GaitGenerator::FootDurations
