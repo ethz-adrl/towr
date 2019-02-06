@@ -191,6 +191,57 @@ struct Parameters {
    */
   void PenalizeEndeffectorForces();
 
+public:
+
+  /**
+   * @brief  Interval at which the dynamic constraint is enforced.
+   */
+  double dt_constraint_dynamic_;
+
+  /**
+   * @brief  Interval at which the range of motion constraint is enforced.
+   */
+  double dt_constraint_range_of_motion_;
+
+  /**
+   * @brief  Interval at which the base motion constraint is enforced.
+   */
+  double dt_constraint_base_motion_;
+
+  /**
+   * @brief  Fixed duration of each cubic polynomial describing the base motion.
+   */
+  double duration_base_polynomial_;
+
+  /** Minimum and maximum time for each phase (swing,stance).
+   *  Only used when optimizing over phase durations
+   */
+  std::array<double,2> bound_phase_duration_ = {{0.0, 1e10}};
+
+  /**
+   * @brief  Number of polynomials to parameterize foot movement during swing phases.
+   */
+  int ee_polynomials_per_swing_phase_;
+
+  /**
+   * @brief  Number of polynomials to parameterize each contact force during stance phase.
+   */
+  int force_polynomials_per_stance_phase_;
+
+  /**
+   * @brief  The maximum allowable force [N] in normal direction
+   */
+  double force_limit_in_normal_direction_;
+
+  /**
+   * @brief  which dimensions (x,y,z) of the final base state should be bounded
+   * Use @ref Dim3D enum to select desired dimentions.
+   */
+  std::vector<int> bounds_final_lin_pos_,
+                   bounds_final_lin_vel_,
+                   bounds_final_ang_pos_,
+                   bounds_final_ang_vel_;
+
 private:
   /// Which constraints should be used in the optimization problem.
   UsedConstraints constraints_;
@@ -216,32 +267,6 @@ private:
   /// Bounds for the phase durations.
   std::array<double,2> GetPhaseDurationBounds() const;
 
-  /// Interval at which the dynamic constraint is enforced.
-  double dt_constraint_dynamic_;
-
-  /// Interval at which the range of motion constraint is enforced.
-  double dt_constraint_range_of_motion_;
-
-  /// Interval at which the base motion constraint is enforced.
-  double dt_constraint_base_motion_;
-
-  /// Fixed duration of each cubic polynomial describing the base motion.
-  double duration_base_polynomial_;
-
-  /** Minimum and maximum time for each phase (swing,stance).
-   *  Only used when optimizing over phase durations
-   */
-  std::array<double,2> bound_phase_duration_ = {{0.0, 1e10}};
-
-  /// Number of polynomials to parameterize foot movement during swing phases.
-  int ee_polynomials_per_swing_phase_;
-
-  /// Number of polynomials to parameterize each contact force during stance phase.
-  int force_polynomials_per_stance_phase_;
-
-  /// The maximum allowable force [N] in normal direction
-  double force_limit_in_normal_direction_;
-
   /**
    * @brief Ensures that the dynamic model is fullfilled at discrete times.
    */
@@ -257,11 +282,6 @@ private:
    */
   void SetForceConstraint();
 
-  /// which dimensions (x,y,z) of the final base state should be bounded
-  std::vector<int> bounds_final_lin_pos_,
-                   bounds_final_lin_vel_,
-                   bounds_final_ang_pos_,
-                   bounds_final_ang_vel_;
 };
 
 } // namespace towr
