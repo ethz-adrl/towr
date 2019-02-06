@@ -189,8 +189,8 @@ NlpFormulation::MakeContactScheduleVariables () const
     auto var = std::make_shared<PhaseDurations>(ee,
                                                 params_.ee_phase_durations_.at(ee),
                                                 params_.ee_in_contact_at_start_.at(ee),
-                                                params_.GetPhaseDurationBounds().front(),
-                                                params_.GetPhaseDurationBounds().back());
+                                                params_.GetPhaseDurationBounds().first,
+                                                params_.GetPhaseDurationBounds().second);
     vars.push_back(var);
   }
 

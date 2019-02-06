@@ -211,7 +211,7 @@ struct Parameters {
    *  if phase durations too short, can also cause kinematic constraint to
    *  be violated, so @ref dt_constraint_range_of_motion must be decreased.
    */
-  std::array<double,2> bound_phase_duration_ = {{0.0, 1e10}};
+  std::pair<double,double> bound_phase_duration_ = {0.0, 1e10};
 
   /**
    * @brief  Number of polynomials to parameterize foot movement during swing phases.
@@ -277,7 +277,7 @@ private:
   double GetTotalTime() const;
 
   /// Bounds for the phase durations.
-  std::array<double,2> GetPhaseDurationBounds() const;
+  std::pair<double,double> GetPhaseDurationBounds() const;
 
 };
 

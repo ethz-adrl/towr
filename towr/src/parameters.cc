@@ -44,8 +44,8 @@ Parameters::Parameters ()
   dt_constraint_dynamic_ = 0.1; // [s]
   dt_constraint_range_of_motion_ = 0.08; // [s]
   dt_constraint_base_motion_ = duration_base_polynomial_/4.0;
-  bound_phase_duration_.front() = 0.2;
-  bound_phase_duration_.back()  = 1.0;
+  bound_phase_duration_.first = 0.2;
+  bound_phase_duration_.second  = 1.0;
   ee_polynomials_per_swing_phase_ = 2; // so step can at least lift leg
   force_polynomials_per_stance_phase_ = 3;
   force_limit_in_normal_direction_ = 1000;
@@ -148,13 +148,13 @@ Parameters::IsOptimizeTimings () const
   return std::find(v.begin(), v.end(), c) != v.end();
 }
 
-std::array<double,2>
+std::pair<double,double>
 Parameters::GetPhaseDurationBounds () const
 {
   // adjust bound to always be less than total duration of trajectory
-  double upper_bound = bound_phase_duration_.back();
-  double max = GetTotalTime()>upper_bound? upper_bound : GetTotalTime();
-  return {bound_phase_duration_.front(), max};
+  double upper_bound = bound_phase_duration_.second;
+  double max = GetTotalTime()>upper_bound ? upper_bound : GetTotalTime();
+  return {bound_phase_duration_.first, max};
 }
 
 } // namespace towr
