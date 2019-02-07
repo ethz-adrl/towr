@@ -75,9 +75,8 @@ public:
       params.ee_in_contact_at_start_.push_back(gait_gen_->IsInContactAtStart(ee));
     }
 
-    // Here you can also add other constraints or values.
-    // creates smoother swing motions, not absolutely required.
-    params.SetSwingConstraint();
+    // Here you can also add other constraints or change parameters
+    // params.constraints_.push_back(Parameters::BaseRom);
 
     // increases optimization time, but sometimes helps find a solution for
     // more difficult terrain.
