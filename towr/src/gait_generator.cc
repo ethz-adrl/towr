@@ -51,6 +51,12 @@ GaitGenerator::MakeGaitGenerator(int leg_count)
   }
 }
 
+double
+GaitGenerator::GetUnscaledTotalDuration () const
+{
+  return std::accumulate(times_.begin(), times_.end(), 0.0);
+}
+
 GaitGenerator::VecTimes
 GaitGenerator::GetUnscaledPhaseDurations (EE ee) const
 {

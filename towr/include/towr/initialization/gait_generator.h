@@ -73,6 +73,14 @@ public:
   virtual ~GaitGenerator () = default;
 
   /**
+   * @brief return unscaled total duration of step sequence
+   * Usually unscaled duration of each @ref Gaits element equal to one. So
+   * this number can be used to scale constraints checks.
+   * @return total unscaled duration of step sequence
+   **/
+  double GetUnscaledTotalDuration() const;
+
+  /**
    * @returns the swing and stance durations for the set gait without scaling.
    * @param ee  endeffector for which the phase durations are desired.
    */
