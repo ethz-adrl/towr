@@ -73,7 +73,13 @@ public:
   virtual ~GaitGenerator () = default;
 
   /**
-   * @returns the swing and stance durations for the set gait.
+   * @returns the swing and stance durations for the set gait without scaling.
+   * @param ee  endeffector for which the phase durations are desired.
+   */
+  VecTimes GetUnscaledPhaseDurations(EE ee) const;
+
+  /**
+   * @returns the swing and stance durations for the set gait scaled to given time.
    * @param ee  endeffector for which the phase durations are desired.
    * @param T   total time for all phases, durations are scaled by that.
    */

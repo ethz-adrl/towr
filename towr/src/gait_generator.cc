@@ -52,7 +52,7 @@ GaitGenerator::MakeGaitGenerator(int leg_count)
 }
 
 GaitGenerator::VecTimes
-GaitGenerator::GetPhaseDurations (double new_t_total, EE ee) const
+GaitGenerator::GetUnscaledPhaseDurations (EE ee) const
 {
   double d_accumulated = 0.0;
 
@@ -68,6 +68,14 @@ GaitGenerator::GetPhaseDurations (double new_t_total, EE ee) const
   }
   // push back last phase
   durations.push_back(d_accumulated + times_.back());
+
+  return durations;
+}
+
+GaitGenerator::VecTimes
+GaitGenerator::GetPhaseDurations (double new_t_total, EE ee) const
+{
+  std::vector<double> durations = GetUnscaledPhaseDurations(ee);
   // calculate total time 
   double old_t_total = std::accumulate(durations.begin(), durations.end(), 0.0);
   // scale to new total time
