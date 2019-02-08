@@ -91,37 +91,6 @@ GaitGenerator::GetPhaseDurations (double new_t_total, EE ee) const
   return durations;
 }
 
-GaitGenerator::FootDurations
-GaitGenerator::GetPhaseDurations () const
-{
-  int n_ee = contacts_.front().size();
-  VecTimes d_accumulated(n_ee, 0.0);
-
-  FootDurations foot_durations(n_ee);
-  for (int phase=0; phase<contacts_.size()-1; ++phase) {
-    ContactState curr = contacts_.at(phase);
-    ContactState next = contacts_.at(phase+1);
-
-    for (int ee=0; ee<curr.size(); ++ee) {
-      d_accumulated.at(ee) += times_.at(phase);
-
-      // if contact will change in next phase, so this phase duration complete
-      bool contacts_will_change = curr.at(ee) != next.at(ee);
-      if (contacts_will_change)  {
-        foot_durations.at(ee).push_back(d_accumulated.at(ee));
-        d_accumulated.at(ee) = 0.0;
-      }
-    }
-  }
-
-  // push back last phase
-  for (int ee=0; ee<contacts_.back().size(); ++ee)
-    foot_durations.at(ee).push_back(d_accumulated.at(ee) + times_.back());
-
-
-  return foot_durations;
-}
-
 bool
 GaitGenerator::IsInContactAtStart (EE ee) const
 {
