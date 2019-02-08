@@ -75,7 +75,6 @@ GaitGenerator::GetPhaseDurations (double new_t_total, EE ee) const
                  [new_t_total, old_t_total](double t){ return t / old_t_total * new_t_total; });
 
   return durations;
-
 }
 
 GaitGenerator::FootDurations

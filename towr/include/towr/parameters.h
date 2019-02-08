@@ -261,7 +261,6 @@ public:
   void PenalizeEndeffectorForces();
 
 private:
-
   /// The durations of each base polynomial in the spline (lin+ang).
   VecTimes GetBasePolyDurations() const;
 
@@ -279,7 +278,6 @@ private:
 
   /// Bounds for the phase durations.
   std::pair<double,double> GetPhaseDurationBounds() const;
-
 };
 
 } // namespace towr
