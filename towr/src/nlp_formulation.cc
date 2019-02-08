@@ -109,16 +109,16 @@ NlpFormulation::MakeBaseVariables () const
   spline_lin->SetByLinearInterpolation(initial_base_.lin.p(), final_pos, params_.GetTotalTime());
   spline_lin->AddStartBound(kPos, {X,Y,Z}, initial_base_.lin.p());
   spline_lin->AddStartBound(kVel, {X,Y,Z}, initial_base_.lin.v());
-  spline_lin->AddFinalBound(kPos, params_.bounds_final_lin_pos,   final_base_.lin.p());
-  spline_lin->AddFinalBound(kVel, params_.bounds_final_lin_vel, final_base_.lin.v());
+  spline_lin->AddFinalBound(kPos, params_.bounds_final_lin_pos_,   final_base_.lin.p());
+  spline_lin->AddFinalBound(kVel, params_.bounds_final_lin_vel_, final_base_.lin.v());
   vars.push_back(spline_lin);
 
   auto spline_ang = std::make_shared<NodesVariablesAll>(n_nodes, k3D, id::base_ang_nodes);
   spline_ang->SetByLinearInterpolation(initial_base_.ang.p(), final_base_.ang.p(), params_.GetTotalTime());
   spline_ang->AddStartBound(kPos, {X,Y,Z}, initial_base_.ang.p());
   spline_ang->AddStartBound(kVel, {X,Y,Z}, initial_base_.ang.v());
-  spline_ang->AddFinalBound(kPos, params_.bounds_final_ang_pos, final_base_.ang.p());
-  spline_ang->AddFinalBound(kVel, params_.bounds_final_ang_vel, final_base_.ang.v());
+  spline_ang->AddFinalBound(kPos, params_.bounds_final_ang_pos_, final_base_.ang.p());
+  spline_ang->AddFinalBound(kVel, params_.bounds_final_ang_vel_, final_base_.ang.v());
   vars.push_back(spline_ang);
 
   return vars;
@@ -189,8 +189,8 @@ NlpFormulation::MakeContactScheduleVariables () const
     auto var = std::make_shared<PhaseDurations>(ee,
                                                 params_.ee_phase_durations_.at(ee),
                                                 params_.ee_in_contact_at_start_.at(ee),
-                                                params_.bound_phase_duration_.at(0),
-                                                params_.bound_phase_duration_.at(1));
+                                                params_.bound_phase_duration_.first,
+                                                params_.bound_phase_duration_.second);
     vars.push_back(var);
   }
 

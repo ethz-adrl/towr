@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vector>
 #include <array>
+#include <utility> // std::pair, std::make_pair
 
 namespace towr {
 
@@ -197,10 +198,10 @@ public:
   double force_limit_in_normal_direction_;
 
   /// which dimensions (x,y,z) of the final base state should be bounded
-  std::vector<int> bounds_final_lin_pos,
-                   bounds_final_lin_vel,
-                   bounds_final_ang_pos,
-                   bounds_final_ang_vel;
+  std::vector<int> bounds_final_lin_pos_,
+                   bounds_final_lin_vel_,
+                   bounds_final_ang_pos_,
+                   bounds_final_ang_vel_;
 
   /** Minimum and maximum time [s] for each phase (swing,stance).
    *
@@ -208,7 +209,7 @@ public:
    *  Make sure max time is less than total duration of trajectory, or segfault.
    *  limiting this range can help convergence when optimizing gait.
    */
-  std::array<double,2> bound_phase_duration_;
+  std::pair<double,double> bound_phase_duration_;
 
   /// Specifies that timings of all feet, so the gait, should be optimized.
   void OptimizePhaseDurations();
