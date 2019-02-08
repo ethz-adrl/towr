@@ -90,7 +90,7 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   git clone https://github.com/ethz-adrl/towr.git
   cd ..
   catkin_make_isolated -DCMAKE_BUILD_TYPE=Release # or `catkin build`
-  source ./devel/setup.bash
+  source ./devel_isolated/setup.bash
   ```
   
 * Use: Include in your catkin project by adding to your *CMakeLists.txt* 
