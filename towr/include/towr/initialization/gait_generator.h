@@ -52,7 +52,14 @@ public:
   using GaitInfo      = std::pair<VecTimes,std::vector<ContactState>>;
   using EE            = uint;
 
+  /**
+   * @brief Predefined combinations of different strides.
+   */
   enum Combos { C0, C1, C2, C3, C4, COMBO_COUNT};
+
+  /**
+   * @brief Predefined strides, each with a different gait diagram.
+   */
   enum Gaits  {Stand=0, Flight,
                Walk1, Walk2, Walk2E,
                Run2, Run2E, Run1, Run1E, Run3, Run3E,
@@ -85,6 +92,12 @@ public:
    */
   virtual void SetCombo(Combos combo) = 0;
 
+  /**
+   * @brief  Sets the times_ and contacts_ variables according to the gaits.
+   * @param gaits The sequence of steps which defines gait. For example use @c {Stand,Walk1,Walk1,Stand} to declare walking gait with two steps.
+   */
+  void SetGaits(const std::vector<Gaits>& gaits);
+
 protected:
   /// Phase times for the complete robot during which no contact state changes.
   std::vector<double> times_;
@@ -94,9 +107,6 @@ protected:
    * be equal to the above times_.
    */
   std::vector<ContactState> contacts_;
-
-  /// Sets the times_ and contacts_ variables according to the gaits.
-  void SetGaits(const std::vector<Gaits>& gaits);
 
   /**
    * Removes the last phase that would transition to a new stride.

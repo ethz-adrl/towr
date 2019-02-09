@@ -79,11 +79,23 @@ PhaseDurations::GetValues () const
 void
 PhaseDurations::SetVariables (const VectorXd& x)
 {
+  // the sum of all phase durations should never be larger than the total time of
+  // the trajectory. This would e.g. query constraints after duration of the trajectory and
+  // causes undefined behavior. However, when IPOPT optimizes the phase durations,
+  // it's not possible to enforce that in every iteration this condition is fulfilled. Sure,
+  // we can set this as a constraint, but during the solution process constraints might still
+  // be violated.
+  // Fortunately, violation of this doesn't seem to mess up IPOPT too much and a solution is
+  // often found. So if you get this error you can ignore it by compiling in Release mode,
+  // but I'm leaving this in here to show that this is undefined behavior and a clean
+  // implementation is still required. PR desired ;)
+  assert(t_total_>x.sum());
+
   for (int i=0; i<GetRows(); ++i)
     durations_.at(i) = x(i);
 
+  // last phase duration not optimized, used to fill up to total time.
   durations_.back() =  t_total_ - x.sum();
-  assert(durations_.back()>0);
   UpdateObservers();
 }
 

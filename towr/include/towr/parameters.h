@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vector>
 #include <array>
+#include <utility> // std::pair, std::make_pair
 
 namespace towr {
 
@@ -129,7 +130,8 @@ namespace towr {
  *
  * @ingroup Parameters
  */
-struct Parameters {
+class Parameters {
+public:
   /**
    * @brief Identifiers to be used to add certain constraints to the
    * optimization problem.
@@ -156,10 +158,8 @@ struct Parameters {
   using VecTimes         = std::vector<double>;
   using EEID             = unsigned int;
 
-  friend class NlpFormulation;
-
   /**
-   * @brief Default parameters to use.
+   * @brief Default parameters to get started.
    */
   Parameters();
   virtual ~Parameters() = default;
@@ -170,33 +170,49 @@ struct Parameters {
   /// True if the foot is initially in contact with the terrain.
   std::vector<bool> ee_in_contact_at_start_;
 
-  /// Specifies that timings of all feet, so the gait, should be optimized.
-  void OptimizePhaseDurations();
-
-  /**
-   * @brief Ensures smooth endeffector motion during swing-phase (recommended)
-   */
-  void SetSwingConstraint();
-
-  /**
-   * Adds base_motion_constraint to restrict 6D base movement. Careful, this
-   * can be very limiting.
-   *
-   * @param dt  interval [s] at which this constraint is enforced.
-   */
-  void RestrictBaseRangeOfMotion();
-
-  /**
-   * @brief Add cost that penalizes large endeffector forces.
-   */
-  void PenalizeEndeffectorForces();
-
-private:
   /// Which constraints should be used in the optimization problem.
   UsedConstraints constraints_;
 
   /// Which costs should be used in the optimiation problem.
   CostWeights costs_;
+
+  /// Interval at which the dynamic constraint is enforced.
+  double dt_constraint_dynamic_;
+
+  /// Interval at which the range of motion constraint is enforced.
+  double dt_constraint_range_of_motion_;
+
+  /// Interval at which the base motion constraint is enforced.
+  double dt_constraint_base_motion_;
+
+  /// Fixed duration of each cubic polynomial describing the base motion.
+  double duration_base_polynomial_;
+
+  /// Number of polynomials to parameterize foot movement during swing phases.
+  int ee_polynomials_per_swing_phase_;
+
+  /// Number of polynomials to parameterize each contact force during stance phase.
+  int force_polynomials_per_stance_phase_;
+
+  /// The maximum allowable force [N] in normal direction
+  double force_limit_in_normal_direction_;
+
+  /// which dimensions (x,y,z) of the final base state should be bounded
+  std::vector<int> bounds_final_lin_pos_,
+                   bounds_final_lin_vel_,
+                   bounds_final_ang_pos_,
+                   bounds_final_ang_vel_;
+
+  /** Minimum and maximum time [s] for each phase (swing,stance).
+   *
+   *  Only used when optimizing over phase durations.
+   *  Make sure max time is less than total duration of trajectory, or segfault.
+   *  limiting this range can help convergence when optimizing gait.
+   */
+  std::pair<double,double> bound_phase_duration_;
+
+  /// Specifies that timings of all feet, so the gait, should be optimized.
+  void OptimizePhaseDurations();
 
   /// The durations of each base polynomial in the spline (lin+ang).
   VecTimes GetBasePolyDurations() const;
@@ -212,56 +228,6 @@ private:
 
   /// Total duration [s] of the motion.
   double GetTotalTime() const;
-
-  /// Bounds for the phase durations.
-  std::array<double,2> GetPhaseDurationBounds() const;
-
-  /// Interval at which the dynamic constraint is enforced.
-  double dt_constraint_dynamic_;
-
-  /// Interval at which the range of motion constraint is enforced.
-  double dt_constraint_range_of_motion_;
-
-  /// Interval at which the base motion constraint is enforced.
-  double dt_constraint_base_motion_;
-
-  /// Fixed duration of each cubic polynomial describing the base motion.
-  double duration_base_polynomial_;
-
-  /** Minimum and maximum time for each phase (swing,stance).
-   *  Only used when optimizing over phase durations
-   */
-  std::array<double,2> bound_phase_duration_ = {{0.0, 1e10}};
-
-  /// Number of polynomials to parameterize foot movement during swing phases.
-  int ee_polynomials_per_swing_phase_;
-
-  /// Number of polynomials to parameterize each contact force during stance phase.
-  int force_polynomials_per_stance_phase_;
-
-  /// The maximum allowable force [N] in normal direction
-  double force_limit_in_normal_direction_;
-
-  /**
-   * @brief Ensures that the dynamic model is fullfilled at discrete times.
-   */
-  void SetDynamicConstraint();
-
-  /**
-   * @brief Ensures that the range of motion is respected at discrete times.
-   */
-  void SetKinematicConstraint();
-
-  /**
-   * @brief Ensures unilateral forces and inside the friction cone.
-   */
-  void SetForceConstraint();
-
-  /// which dimensions (x,y,z) of the final base state should be bounded
-  std::vector<int> bounds_final_lin_pos,
-                   bounds_final_lin_vel,
-                   bounds_final_ang_pos,
-                   bounds_final_ang_vel;
 };
 
 } // namespace towr

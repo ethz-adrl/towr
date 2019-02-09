@@ -40,75 +40,43 @@ namespace towr {
 Parameters::Parameters ()
 {
   // constructs optimization variables
-  duration_base_polynomial_ = 0.1; // [s]
+  duration_base_polynomial_ = 0.1;
   force_polynomials_per_stance_phase_ = 3;
   ee_polynomials_per_swing_phase_ = 2; // so step can at least lift leg
 
-  // these are the basic constraints that always have to be set
-  constraints_.push_back(Terrain);
-  SetDynamicConstraint();
-  SetKinematicConstraint();
-  SetForceConstraint();
+  // parameters related to specific constraints (only used when it is added as well)
+  force_limit_in_normal_direction_ = 1000;
+  dt_constraint_range_of_motion_ = 0.08;
+  dt_constraint_dynamic_ = 0.1;
+  dt_constraint_base_motion_ = duration_base_polynomial_/4.; // only for base RoM constraint
+  bound_phase_duration_ = std::make_pair(0.2, 1.0);  // used only when optimizing phase durations, so gait
 
-  bounds_final_lin_pos = {X,Y};
-  bounds_final_lin_vel = {X,Y,Z};
-  bounds_final_ang_pos = {X,Y,Z};
-  bounds_final_ang_vel = {X,Y,Z};
+  // a minimal set of basic constraints
+  constraints_.push_back(Terrain);
+  constraints_.push_back(Dynamic); //Ensures that the dynamic model is fullfilled at discrete times.
+  constraints_.push_back(BaseAcc); // so accelerations don't jump between polynomials
+  constraints_.push_back(EndeffectorRom); //Ensures that the range of motion is respected at discrete times.
+  constraints_.push_back(Force); // ensures unilateral forces and inside the friction cone.
+  constraints_.push_back(Swing); // creates smoother swing motions, not absolutely required.
+
+  // optional costs to e.g penalize endeffector forces
+  // costs_.push_back({ForcesCostID, 1.0}); weighed by 1.0 relative to other costs
+
+  // bounds on final 6DoF base state
+  bounds_final_lin_pos_ = {X,Y};
+  bounds_final_lin_vel_ = {X,Y,Z};
+  bounds_final_ang_pos_ = {X,Y,Z};
+  bounds_final_ang_vel_ = {X,Y,Z};
+
   // additional restrictions are set directly on the variables in nlp_factory,
   // such as e.g. initial and endeffector,...
 }
 
 void
-Parameters::SetDynamicConstraint ()
-{
-  dt_constraint_dynamic_ = 0.1;
-  constraints_.push_back(Dynamic);
-  constraints_.push_back(BaseAcc); // so accelerations don't jump between polynomials
-}
 
-void
-Parameters::SetKinematicConstraint ()
-{
-  dt_constraint_range_of_motion_ = 0.08;
-  constraints_.push_back(EndeffectorRom);
-}
-
-void
-Parameters::SetForceConstraint()
-{
-  force_limit_in_normal_direction_ = 1000;
-  constraints_.push_back(Force);
-}
-
-void
-Parameters::SetSwingConstraint()
-{
-  constraints_.push_back(Swing);
-}
-
-void
 Parameters::OptimizePhaseDurations ()
 {
-  // limiting this range can help convergence when optimizing gait
-  // if phase durations too short, can also cause kinematic constraint to
-  // be violated, so dt_constraint_range_of_motion must be decreased.
-  bound_phase_duration_.front() = 0.2;
-  bound_phase_duration_.back()  = 1.0;
   constraints_.push_back(TotalTime);
-}
-
-void
-Parameters::RestrictBaseRangeOfMotion ()
-{
-  dt_constraint_base_motion_ = duration_base_polynomial_/4.;
-  constraints_.push_back(BaseRom);
-}
-
-void
-Parameters::PenalizeEndeffectorForces ()
-{
-  // cost weighed by 1.0
-  costs_.push_back({ForcesCostID, 1.0});
 }
 
 Parameters::VecTimes
@@ -164,15 +132,6 @@ Parameters::IsOptimizeTimings () const
   ConstraintName c = TotalTime;
   auto v = constraints_; // shorthand
   return std::find(v.begin(), v.end(), c) != v.end();
-}
-
-std::array<double,2>
-Parameters::GetPhaseDurationBounds () const
-{
-  // adjust bound to always be less than total duration of trajectory
-  double upper_bound = bound_phase_duration_.back();
-  double max = GetTotalTime()>upper_bound? upper_bound : GetTotalTime();
-  return {bound_phase_duration_.front(), max};
 }
 
 } // namespace towr
