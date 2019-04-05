@@ -2,6 +2,20 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request (`#56 <https://github.com/ethz-adrl/towr/issues/56>`_) from ethz-adrl/expose-params
+* add explanation for assert in phase_durations
+* Merge branch 'sweetie-bot-project-feat/access-optimization-parameteres' into expose-params
+* Optimize GetPhaseDurations(). Remove unnecessary GetNormalizedPhaseDurations().
+* Make GaitGenerator::SetGaits() method public.
+* Move default parameter values to header.
+* Use pair<double,double> instead of array<double,2> to store bounds.
+* Expose contstraints and costs field to user. Remove unnecessary private functions.
+* Add missing underscore postfix for bounds_final variables.
+* Take into account weights of the costs. (`#51 <https://github.com/ethz-adrl/towr/issues/51>`_)
+* Contributors: Alexander Winkler, Mathieu Geisert, awinkler, disRecord
+
 1.4.0 (2018-07-30)
 ------------------
 * Simplify extension / adding own formulation (`#38 <https://github.com/ethz-adrl/towr/issues/38>`_)
