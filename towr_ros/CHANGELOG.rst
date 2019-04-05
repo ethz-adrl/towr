@@ -2,8 +2,8 @@
 Changelog for package towr_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.1 (2019-04-05)
+------------------
 * Merge pull request (`#56 <https://github.com/ethz-adrl/towr/issues/56>`_) from ethz-adrl/expose-params
 * Contributors: Alexander Winkler, awinkler
 

@@ -2,8 +2,8 @@
 Changelog for package towr
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.1 (2019-04-05)
+------------------
 * Merge pull request (`#56 <https://github.com/ethz-adrl/towr/issues/56>`_) from ethz-adrl/expose-params
 * add explanation for assert in phase_durations
 * Merge branch 'sweetie-bot-project-feat/access-optimization-parameteres' into expose-params
