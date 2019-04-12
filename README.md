@@ -142,7 +142,7 @@ See here the list of [contributors](https://github.com/ethz-adrl/towr/graphs/con
 
 
 ## Publications
-All publications underlying this code can be found [here](https://awinkler.github.io/publications). 
+All publications underlying this code can be found [here](https://www.alex-winkler.com). 
 The core paper is:
  
     @article{winkler18,
