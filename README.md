@@ -135,11 +135,12 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
  * Want to add your own robot to towr? Start [here](http://docs.ros.org/api/towr/html/group__Robots.html).
  * To visualize that robot in rviz, see [xpp].
 
-
 ## Contribute
 We love pull request, whether its new constraint formulations, additional robot models, bug fixes, unit tests or updating the documentation. Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) for more information.  
 See here the list of [contributors](https://github.com/ethz-adrl/towr/graphs/contributors) who participated in this project.
 
+## Projects using towr
+ * https://github.com/popi-mkx3/popi_project
 
 ## Publications
 All publications underlying this code can be found [here](https://www.alex-winkler.com). 
