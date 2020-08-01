@@ -29,5 +29,6 @@
   
   <!--  Launches the URDF visualizers  --> 
   <include file="$(find xpp_hyq)/launch/all.launch"></include>
+  <include file="$(find xpp_anymal)/launch/anymal.launch"></include>
        
 </launch>

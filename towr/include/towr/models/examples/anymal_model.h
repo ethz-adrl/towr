@@ -61,9 +61,10 @@ public:
  */
 class AnymalDynamicModel : public SingleRigidBodyDynamics {
 public:
+  // trying to stay in sync with leggedrobotics/xpp/xpp_anymal
   AnymalDynamicModel()
-  : SingleRigidBodyDynamics(29.5,
-                    0.946438, 1.94478, 2.01835, 0.000938112, -0.00595386, -0.00146328,
+  : SingleRigidBodyDynamics(30.42,
+                    1.16485, 2.21088, 2.3175, -0.00137526, -0.00062895, -0.000189223,
                     4) {}
 };
 
