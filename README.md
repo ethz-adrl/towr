@@ -132,7 +132,7 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
  * This library provides a set of variables, costs and constraints to formulate the trajectory optimization problem. An [example formulation](towr/include/towr/nlp_formulation.h) of how to combine these is given, however, this formulation can probably be improved. To add your own e.g. constraint-set, define a class with it's values and derivatives, and then add it to the formulation ```nlp.AddConstraintSet(your_custom_constraints);``` as shown [here](towr/test/hopper_example.cc).
 
 #### Add your own robot
- * Want to add your own robot to towr? Start [here](http://docs.ros.org/api/towr/html/group__Robots.html).
+ * Want to add your own robot to towr? Start [here](http://docs.ros.org/en/melodic/api/towr/html/group__Robots.html).
  * To visualize that robot in rviz, see [xpp].
 
 ## Contribute
