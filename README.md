@@ -120,7 +120,7 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
 #### Library overview
  * The relevant classes and parameters to build on are collected [modules](http://docs.ros.org/api/towr/html/modules.html).
  * A nice graphical overview as UML can be seen [here](http://docs.ros.org/api/towr/html/inherits.html).
- * The [doxygen documentation](http://docs.ros.org/api/towr/html/) provides helpul information for developers.
+ * The [doxygen documentation](http://docs.ros.org/api/towr/html/) provides helpful information for developers.
 
 #### Problem formulation
  * This code formulates the variables, costs and constraints using ifopt, so it makes sense to briefly familiarize with the syntax using [this example].
