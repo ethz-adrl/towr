@@ -14,7 +14,7 @@
 A base-set of variables, costs and constraints that can be combined and extended to formulate trajectory optimization problems for legged systems. These implementations have been used to generate a variety of motions such as monoped hopping, biped walking, or a complete quadruped trotting cycle, while optimizing over the gait and step durations in less than 100ms ([paper](https://ieeexplore.ieee.org/document/8283570/)).  
 
 Features:  
-:heavy_check_mark: Inuitive and efficient formulation of variables, cost and constraints using [Eigen].   
+:heavy_check_mark: Intuitive and efficient formulation of variables, cost and constraints using [Eigen].   
 :heavy_check_mark: [ifopt] enables using the high-performance solvers [Ipopt] and [Snopt].  
 :heavy_check_mark: Elegant rviz visualization of motion plans using [xpp].  
 :heavy_check_mark: [ROS]/[catkin] integration (optional).  
