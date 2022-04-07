@@ -86,8 +86,12 @@ HeightMap::GetDerivativeOfNormalizedBasisWrt (Direction basis, Dim2D dim,
 
   // outer derivative
   Vector3d v = GetBasis(basis, x,y, {});
-  Vector3d dn_norm_wrt_n = GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(v, dim);
-  return dn_norm_wrt_n.cwiseProduct(dv_wrt_dim);
+  Vector3d result = Vector3d::Zero();
+  for (auto inner_dim : {X,Y,Z}) {
+    auto dn_norm_wrt_n = GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(v, inner_dim);
+    result = result + dv_wrt_dim(inner_dim) * dn_norm_wrt_n;
+  }
+  return result;
 }
 
 HeightMap::Vector3d
