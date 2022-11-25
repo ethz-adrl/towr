@@ -31,40 +31,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-
-LinearEqualityConstraint::LinearEqualityConstraint (
-  const Eigen::MatrixXd& M,
-  const Eigen::VectorXd& v,
-  const std::string& variable_name)
+LinearEqualityConstraint::LinearEqualityConstraint(
+    const Eigen::MatrixXd& M, const Eigen::VectorXd& v,
+    const std::string& variable_name)
     : ConstraintSet(v.rows(), "linear-equality-" + variable_name)
 {
-  M_ = M;
-  v_ = v;
-  variable_name_   = variable_name;
+  M_             = M;
+  v_             = v;
+  variable_name_ = variable_name;
 }
 
-LinearEqualityConstraint::VectorXd
-LinearEqualityConstraint::GetValues () const
+LinearEqualityConstraint::VectorXd LinearEqualityConstraint::GetValues() const
 {
   VectorXd x = GetVariables()->GetComponent(variable_name_)->GetValues();
-  return M_*x;
+  return M_ * x;
 }
 
-LinearEqualityConstraint::VecBound
-LinearEqualityConstraint::GetBounds () const
+LinearEqualityConstraint::VecBound LinearEqualityConstraint::GetBounds() const
 {
   VecBound bounds;
 
-  for (int i=0; i<GetRows(); ++i) {
-    ifopt::Bounds bound(-v_[i],-v_[i]);
+  for (int i = 0; i < GetRows(); ++i) {
+    ifopt::Bounds bound(-v_[i], -v_[i]);
     bounds.push_back(bound);
   }
 
   return bounds;
 }
 
-void
-LinearEqualityConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
+void LinearEqualityConstraint::FillJacobianBlock(std::string var_set,
+                                                 Jacobian& jac) const
 {
   // the constraints are all linear w.r.t. the decision variables.
   // careful, sparseView is only valid when the Jacobian is constant
@@ -73,4 +69,3 @@ LinearEqualityConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac)
 }
 
 } /* namespace towr */
-

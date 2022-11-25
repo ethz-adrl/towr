@@ -64,13 +64,13 @@ namespace towr {
  * @ingroup Robots
  */
 class DynamicModel {
-public:
+ public:
   using Ptr      = std::shared_ptr<DynamicModel>;
   using Vector3d = Eigen::Vector3d;
   using Matrix3d = Eigen::Matrix3d;
   using ComPos   = Eigen::Vector3d;
   using AngVel   = Eigen::Vector3d;
-  using BaseAcc  = Eigen::Matrix<double,6,1>;
+  using BaseAcc  = Eigen::Matrix<double, 6, 1>;
   using Jac      = Eigen::SparseMatrix<double, Eigen::RowMajor>;
   using EEPos    = std::vector<Eigen::Vector3d>;
   using EELoad   = EEPos;
@@ -87,8 +87,9 @@ public:
    * @param pos_W        Position of each foot expressed in world frame
    */
   void SetCurrent(const ComPos& com_W, const Vector3d com_acc_W,
-                  const Matrix3d& w_R_b, const AngVel& omega_W, const Vector3d& omega_dot_W,
-                  const EELoad& force_W, const EEPos& pos_W);
+                  const Matrix3d& w_R_b, const AngVel& omega_W,
+                  const Vector3d& omega_dot_W, const EELoad& force_W,
+                  const EEPos& pos_W);
 
   /**
    * @brief  The violation of the system dynamics incurred by the current values.
@@ -153,27 +154,27 @@ public:
    */
   int GetEECount() const { return ee_pos_.size(); };
 
-protected:
-  ComPos com_pos_;   ///< x-y-z position of the Center-of-Mass.
-  Vector3d com_acc_; ///< x-y-z acceleration of the Center-of-Mass.
+ protected:
+  ComPos com_pos_;    ///< x-y-z position of the Center-of-Mass.
+  Vector3d com_acc_;  ///< x-y-z acceleration of the Center-of-Mass.
 
-  Matrix3d w_R_b_;     ///< rotation matrix from base (b) to world (w) frame.
-  AngVel omega_;       ///< angular velocity expressed in world frame.
-  Vector3d omega_dot_; ///< angular acceleration expressed in world frame.
+  Matrix3d w_R_b_;      ///< rotation matrix from base (b) to world (w) frame.
+  AngVel omega_;        ///< angular velocity expressed in world frame.
+  Vector3d omega_dot_;  ///< angular acceleration expressed in world frame.
 
-  EEPos  ee_pos_;   ///< The x-y-z position of each endeffector.
-  EELoad ee_force_; ///< The endeffector force expressed in world frame.
+  EEPos ee_pos_;     ///< The x-y-z position of each endeffector.
+  EELoad ee_force_;  ///< The endeffector force expressed in world frame.
 
   /**
    * @brief Construct a dynamic object. Protected as this is abstract base class.
    * @param mass The mass of the system.
    */
   DynamicModel(double mass, int ee_count);
-  virtual ~DynamicModel () = default;
+  virtual ~DynamicModel() = default;
 
-private:
-  double g_; ///< gravity acceleration [m/s^2]
-  double m_; ///< mass of the robot
+ private:
+  double g_;  ///< gravity acceleration [m/s^2]
+  double m_;  ///< mass of the robot
 };
 
 } /* namespace towr */

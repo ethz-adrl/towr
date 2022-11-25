@@ -30,10 +30,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_HEIGHT_MAP_H_
 #define TOWR_HEIGHT_MAP_H_
 
-#include <memory>
-#include <vector>
 #include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include <Eigen/Dense>
 
@@ -69,28 +69,30 @@ namespace towr {
  * @ingroup Terrains
  */
 class HeightMap {
-public:
+ public:
   using Ptr      = std::shared_ptr<HeightMap>;
   using Vector3d = Eigen::Vector3d;
 
   /**
    * @brief Terrains IDs corresponding for factory method.
    */
-  enum TerrainID { FlatID,
-                   BlockID,
-                   StairsID,
-                   GapID,
-                   SlopeID,
-                   ChimneyID,
-                   ChimneyLRID,
-                   TERRAIN_COUNT };
+  enum TerrainID {
+    FlatID,
+    BlockID,
+    StairsID,
+    GapID,
+    SlopeID,
+    ChimneyID,
+    ChimneyLRID,
+    TERRAIN_COUNT
+  };
 
   static HeightMap::Ptr MakeTerrain(TerrainID type);
 
   enum Direction { Normal, Tangent1, Tangent2 };
 
-  HeightMap() = default;
-  virtual ~HeightMap () = default;
+  HeightMap()          = default;
+  virtual ~HeightMap() = default;
 
   /**
    * @returns The height of the terrain [m] at a specific 2D position.
@@ -132,11 +134,11 @@ public:
    */
   double GetFrictionCoeff() const { return friction_coeff_; };
 
-protected:
+ protected:
   double friction_coeff_ = 0.5;
 
-private:
-  using DimDerivs = std::vector<Dim2D>; ///< dimensional derivatives
+ private:
+  using DimDerivs = std::vector<Dim2D>;  ///< dimensional derivatives
   /**
    * @brief returns either the terrain normal/tangent or its derivative.
    * @param direction Terrain normal or tangent vector.
@@ -147,14 +149,14 @@ private:
    * @returns the 3D @b not-normalized vector.
    */
   Vector3d GetBasis(Direction direction, double x, double y,
-                    const DimDerivs& dim_deriv= {}) const;
+                    const DimDerivs& dim_deriv = {}) const;
 
-  Vector3d GetNormal(double x,   double y, const DimDerivs& = {}) const;
+  Vector3d GetNormal(double x, double y, const DimDerivs& = {}) const;
   Vector3d GetTangent1(double x, double y, const DimDerivs& = {}) const;
   Vector3d GetTangent2(double x, double y, const DimDerivs& = {}) const;
 
-  double GetSecondDerivativeOfHeightWrt(Dim2D dim1, Dim2D dim2,
-                                        double x, double y) const;
+  double GetSecondDerivativeOfHeightWrt(Dim2D dim1, Dim2D dim2, double x,
+                                        double y) const;
 
   Vector3d GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(
       const Vector3d& non_normalized, int index) const;
@@ -170,17 +172,11 @@ private:
   virtual double GetHeightDerivWrtYY(double x, double y) const { return 0.0; };
 };
 
-
-const static std::map<HeightMap::TerrainID, std::string> terrain_names =
-{
-  {HeightMap::FlatID,        "Flat"       },
-  {HeightMap::BlockID,       "Block"      },
-  {HeightMap::StairsID,      "Stairs"     },
-  {HeightMap::GapID,         "Gap"        },
-  {HeightMap::SlopeID,       "Slope"      },
-  {HeightMap::ChimneyID,     "Chimney"    },
-  {HeightMap::ChimneyLRID,   "ChimenyLR"  }
-};
+const static std::map<HeightMap::TerrainID, std::string> terrain_names = {
+    {HeightMap::FlatID, "Flat"},          {HeightMap::BlockID, "Block"},
+    {HeightMap::StairsID, "Stairs"},      {HeightMap::GapID, "Gap"},
+    {HeightMap::SlopeID, "Slope"},        {HeightMap::ChimneyID, "Chimney"},
+    {HeightMap::ChimneyLRID, "ChimenyLR"}};
 
 } /* namespace towr */
 

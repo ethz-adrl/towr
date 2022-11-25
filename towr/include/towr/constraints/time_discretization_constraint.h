@@ -48,7 +48,7 @@ namespace towr {
  * @ingroup Constraints
  */
 class TimeDiscretizationConstraint : public ifopt::ConstraintSet {
-public:
+ public:
   using VecTimes = std::vector<double>;
   using Bounds   = ifopt::Bounds;
 
@@ -58,25 +58,26 @@ public:
    * @param dt The discretization interval at which each constraint is evaluated.
    * @param constraint_name  The name of the constraint.
    */
-  TimeDiscretizationConstraint (double T, double dt, std::string constraint_name);
+  TimeDiscretizationConstraint(double T, double dt,
+                               std::string constraint_name);
 
   /**
    * @brief construct a constraint for ifopt.
    * @param dts  Time instances at which to evaluate the constraints.
    * @param name The name of the constraint.
    */
-  TimeDiscretizationConstraint (const VecTimes& dts, std::string name);
-  virtual ~TimeDiscretizationConstraint () = default;
+  TimeDiscretizationConstraint(const VecTimes& dts, std::string name);
+  virtual ~TimeDiscretizationConstraint() = default;
 
   Eigen::VectorXd GetValues() const override;
   VecBound GetBounds() const override;
-  void FillJacobianBlock (std::string var_set, Jacobian&) const override;
+  void FillJacobianBlock(std::string var_set, Jacobian&) const override;
 
-protected:
+ protected:
   int GetNumberOfNodes() const;
-  VecTimes dts_; ///< times at which the constraint is evaluated.
+  VecTimes dts_;  ///< times at which the constraint is evaluated.
 
-private:
+ private:
   /**
    * @brief Sets the constraint value a specific time t, corresponding to node k.
    * @param t  The time along the trajectory to set the constraint.
@@ -84,7 +85,8 @@ private:
    * @param[in/out] g  The complete vector of constraint values, for which the
    *                   corresponding row must be filled.
    */
-  virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const = 0;
+  virtual void UpdateConstraintAtInstance(double t, int k,
+                                          VectorXd& g) const = 0;
 
   /**
    * @brief Sets upper/lower bound a specific time t, corresponding to node k.

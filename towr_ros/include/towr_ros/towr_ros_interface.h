@@ -35,17 +35,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ros/ros.h>
 #include <rosbag/bag.h>
 
-#include <xpp_states/robot_state_cartesian.h>
-#include <xpp_msgs/RobotStateCartesian.h>
-#include <xpp_msgs/RobotParameters.h>
 #include <towr_ros/TowrCommand.h>
+#include <xpp_msgs/RobotParameters.h>
+#include <xpp_msgs/RobotStateCartesian.h>
+#include <xpp_states/robot_state_cartesian.h>
 
-#include <towr/nlp_formulation.h>
 #include <ifopt/ipopt_solver.h>
-
+#include <towr/nlp_formulation.h>
 
 namespace towr {
-
 
 /**
  * @brief Base class to interface TOWR with a ROS GUI and RVIZ.
@@ -55,14 +53,14 @@ namespace towr {
  * interface is TowrRosApp.
  */
 class TowrRosInterface {
-public:
+ public:
   using XppVec         = std::vector<xpp::RobotStateCartesian>;
   using TowrCommandMsg = towr_ros::TowrCommand;
   using Vector3d       = Eigen::Vector3d;
 
-protected:
-  TowrRosInterface ();
-  virtual ~TowrRosInterface () = default;
+ protected:
+  TowrRosInterface();
+  virtual ~TowrRosInterface() = default;
 
   /**
    * @brief Sets the base state and end-effector position.
@@ -76,7 +74,8 @@ protected:
    * When formulating your own application, here you can set your specific
    * set of constraints and variables.
    */
-  virtual Parameters GetTowrParameters(int n_ee, const TowrCommandMsg& msg) const = 0;
+  virtual Parameters GetTowrParameters(int n_ee,
+                                       const TowrCommandMsg& msg) const = 0;
 
   /**
    * @brief Sets the parameters of the nonlinear programming solver IPOPT.
@@ -84,13 +83,13 @@ protected:
    */
   virtual void SetIpoptParameters(const TowrCommandMsg& msg) = 0;
 
-  NlpFormulation formulation_;         ///< the default formulation, can be adapted
-  ifopt::IpoptSolver::Ptr solver_; ///< NLP solver, could also use SNOPT.
+  NlpFormulation formulation_;      ///< the default formulation, can be adapted
+  ifopt::IpoptSolver::Ptr solver_;  ///< NLP solver, could also use SNOPT.
 
-private:
-  SplineHolder solution; ///< the solution splines linked to the opt-variables.
-  ifopt::Problem nlp_;   ///< the actual nonlinear program to be solved.
-  double visualization_dt_; ///< duration between two rviz visualization states.
+ private:
+  SplineHolder solution;  ///< the solution splines linked to the opt-variables.
+  ifopt::Problem nlp_;    ///< the actual nonlinear program to be solved.
+  double visualization_dt_;  ///< duration between 2 rviz visualization states.
 
   ::ros::Subscriber user_command_sub_;
   ::ros::Publisher initial_state_pub_;
@@ -100,15 +99,16 @@ private:
   XppVec GetTrajectory() const;
   virtual BaseState GetGoalState(const TowrCommandMsg& msg) const;
   void PublishInitialState();
-  std::vector<XppVec>GetIntermediateSolutions();
-  xpp_msgs::RobotParameters BuildRobotParametersMsg(const RobotModel& model) const;
+  std::vector<XppVec> GetIntermediateSolutions();
+  xpp_msgs::RobotParameters BuildRobotParametersMsg(
+      const RobotModel& model) const;
   void SaveOptimizationAsRosbag(const std::string& bag_name,
                                 const xpp_msgs::RobotParameters& robot_params,
                                 const TowrCommandMsg user_command_msg,
-                                bool include_iterations=false);
-  void SaveTrajectoryInRosbag (rosbag::Bag&,
-                               const std::vector<xpp::RobotStateCartesian>& traj,
-                               const std::string& topic) const;
+                                bool include_iterations = false);
+  void SaveTrajectoryInRosbag(rosbag::Bag&,
+                              const std::vector<xpp::RobotStateCartesian>& traj,
+                              const std::string& topic) const;
 };
 
 } /* namespace towr */

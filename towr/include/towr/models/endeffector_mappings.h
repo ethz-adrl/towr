@@ -43,6 +43,6 @@ namespace towr {
 enum BipedIDs { L, R };
 enum QuadrupedIDs { LF, RF, LH, RH };
 
-} // namespace towr
+}  // namespace towr
 
 #endif /* TOWR_STATES_ENDEFFECTOR_MAPPINGS_H_ */

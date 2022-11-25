@@ -40,20 +40,20 @@ namespace towr {
  * @sa GaitGenerator for more documentation
  */
 class MonopedGaitGenerator : public GaitGenerator {
-public:
-  MonopedGaitGenerator () = default;
-  virtual ~MonopedGaitGenerator () = default;
+ public:
+  MonopedGaitGenerator()          = default;
+  virtual ~MonopedGaitGenerator() = default;
 
-private:
+ private:
   GaitInfo GetGait(Gaits gait) const override;
 
-  GaitInfo GetStrideStand()   const;
-  GaitInfo GetStrideFlight()  const;
-  GaitInfo GetStrideHop()     const;
+  GaitInfo GetStrideStand() const;
+  GaitInfo GetStrideFlight() const;
+  GaitInfo GetStrideHop() const;
   GaitInfo GetStrideHopLong() const;
 
-  ContactState o_ = ContactState(1, true);  // stance
-  ContactState x_ = ContactState(1, false); // flight
+  ContactState o_ = ContactState(1, true);   // stance
+  ContactState x_ = ContactState(1, false);  // flight
 
   void SetCombo(Combos combo) override;
 };

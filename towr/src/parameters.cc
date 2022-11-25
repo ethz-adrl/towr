@@ -30,43 +30,50 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <towr/parameters.h>
 #include <towr/variables/cartesian_dimensions.h>
 
+#include <math.h>  // fabs
 #include <algorithm>
-#include <numeric>      // std::accumulate
-#include <math.h>       // fabs
 #include <cassert>
+#include <numeric>  // std::accumulate
 
 namespace towr {
 
-Parameters::Parameters ()
+Parameters::Parameters()
 {
   // constructs optimization variables
-  duration_base_polynomial_ = 0.1;
+  duration_base_polynomial_           = 0.1;
   force_polynomials_per_stance_phase_ = 3;
-  ee_polynomials_per_swing_phase_ = 2; // so step can at least lift leg
+  ee_polynomials_per_swing_phase_     = 2;  // so step can at least lift leg
 
   // parameters related to specific constraints (only used when it is added as well)
   force_limit_in_normal_direction_ = 1000;
-  dt_constraint_range_of_motion_ = 0.08;
-  dt_constraint_dynamic_ = 0.1;
-  dt_constraint_base_motion_ = duration_base_polynomial_/4.; // only for base RoM constraint
-  bound_phase_duration_ = std::make_pair(0.2, 1.0);  // used only when optimizing phase durations, so gait
+  dt_constraint_range_of_motion_   = 0.08;
+  dt_constraint_dynamic_           = 0.1;
+  // only for base RoM constraint
+  dt_constraint_base_motion_ = duration_base_polynomial_ / 4.;
+  // used only when optimizing phase durations, so gait
+  bound_phase_duration_ = std::make_pair(0.2, 1.0);
 
   // a minimal set of basic constraints
   constraints_.push_back(Terrain);
-  constraints_.push_back(Dynamic); //Ensures that the dynamic model is fullfilled at discrete times.
-  constraints_.push_back(BaseAcc); // so accelerations don't jump between polynomials
-  constraints_.push_back(EndeffectorRom); //Ensures that the range of motion is respected at discrete times.
-  constraints_.push_back(Force); // ensures unilateral forces and inside the friction cone.
-  constraints_.push_back(Swing); // creates smoother swing motions, not absolutely required.
+  //Ensures that the dynamic model is fullfilled at discrete times.
+  constraints_.push_back(Dynamic);
+  // so accelerations don't jump between polynomials
+  constraints_.push_back(BaseAcc);
+  //Ensures that the range of motion is respected at discrete times.
+  constraints_.push_back(EndeffectorRom);
+  // ensures unilateral forces and inside the friction cone.
+  constraints_.push_back(Force);
+  // creates smoother swing motions, not absolutely required.
+  constraints_.push_back(Swing);
 
   // optional costs to e.g penalize endeffector forces
   // costs_.push_back({ForcesCostID, 1.0}); weighed by 1.0 relative to other costs
 
   // bounds on final 6DoF base state
-  bounds_final_lin_pos_ = {X,Y};
-  bounds_final_lin_vel_ = {X,Y,Z};
-  bounds_final_ang_pos_ = {X,Y,Z};
-  bounds_final_ang_vel_ = {X,Y,Z};
+  bounds_final_lin_pos_ = {X, Y};
+  bounds_final_lin_vel_ = {X, Y, Z};
+  bounds_final_ang_pos_ = {X, Y, Z};
+  bounds_final_ang_vel_ = {X, Y, Z};
 
   // additional restrictions are set directly on the variables in nlp_factory,
   // such as e.g. initial and endeffector,...
@@ -79,16 +86,15 @@ Parameters::OptimizePhaseDurations ()
   constraints_.push_back(TotalTime);
 }
 
-Parameters::VecTimes
-Parameters::GetBasePolyDurations () const
+Parameters::VecTimes Parameters::GetBasePolyDurations() const
 {
   std::vector<double> base_spline_timings_;
-  double dt = duration_base_polynomial_;
-  double t_left = GetTotalTime ();
+  double dt     = duration_base_polynomial_;
+  double t_left = GetTotalTime();
 
-  double eps = 1e-10; // since repeated subtraction causes inaccuracies
+  double eps = 1e-10;  // since repeated subtraction causes inaccuracies
   while (t_left > eps) {
-    double duration = t_left>dt?  dt : t_left;
+    double duration = t_left > dt ? dt : t_left;
     base_spline_timings_.push_back(duration);
 
     t_left -= dt;
@@ -97,20 +103,17 @@ Parameters::GetBasePolyDurations () const
   return base_spline_timings_;
 }
 
-int
-Parameters::GetPhaseCount(EEID ee) const
+int Parameters::GetPhaseCount(EEID ee) const
 {
   return ee_phase_durations_.at(ee).size();
 }
 
-int
-Parameters::GetEECount() const
+int Parameters::GetEECount() const
 {
   return ee_in_contact_at_start_.size();
 }
 
-double
-Parameters::GetTotalTime () const
+double Parameters::GetTotalTime() const
 {
   std::vector<double> T_feet;
 
@@ -118,20 +121,20 @@ Parameters::GetTotalTime () const
     T_feet.push_back(std::accumulate(v.begin(), v.end(), 0.0));
 
   // safety check that all feet durations sum to same value
-  double T = T_feet.empty()? 0.0 : T_feet.front(); // take first foot as reference
+  double T =
+      T_feet.empty() ? 0.0 : T_feet.front();  // take first foot as reference
   for (double Tf : T_feet)
     assert(fabs(Tf - T) < 1e-6);
 
   return T;
 }
 
-bool
-Parameters::IsOptimizeTimings () const
+bool Parameters::IsOptimizeTimings() const
 {
   // if total time is constrained, then timings are optimized
   ConstraintName c = TotalTime;
-  auto v = constraints_; // shorthand
+  auto v           = constraints_;  // shorthand
   return std::find(v.begin(), v.end(), c) != v.end();
 }
 
-} // namespace towr
+}  // namespace towr

@@ -34,11 +34,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <Eigen/Dense>
 
-
 namespace towr {
 
 ///< the values or derivative. For motions e.g. position, velocity, ...
-enum Dx { kPos=0, kVel, kAcc, kJerk };
+enum Dx { kPos = 0, kVel, kAcc, kJerk };
 
 /**
  * @brief Stores at state comprised of values and higher-order derivatives.
@@ -47,7 +46,7 @@ enum Dx { kPos=0, kVel, kAcc, kJerk };
  * accelerations, but also a force-profiles with forces, force-derivatives etc.
  */
 class State {
-public:
+ public:
   using VectorXd = Eigen::VectorXd;
 
   /**
@@ -89,10 +88,10 @@ public:
    */
   const VectorXd a() const;
 
-private:
-  std::vector<VectorXd> values_; ///< e.g. position, velocity and acceleration, ...
+ private:
+  ///< e.g. position, velocity and acceleration, ...
+  std::vector<VectorXd> values_;
 };
-
 
 /**
  * @brief A node represents the state of a trajectory at a specific time.
@@ -105,28 +104,26 @@ private:
  * acceleration.
  */
 class Node : public State {
-public:
-  static const int n_derivatives = 2; ///< value and first derivative.
+ public:
+  static const int n_derivatives = 2;  ///< value and first derivative.
 
   /**
    * @brief Constructs a @a dim - dimensional node (default zero-dimensional).
    */
-  explicit Node(int dim = 0) : State(dim, n_derivatives) {};
+  explicit Node(int dim = 0) : State(dim, n_derivatives){};
   virtual ~Node() = default;
 };
-
 
 /**
  * @brief Can represent the 6Degree-of-Freedom floating base of a robot.
  */
 struct BaseState {
-  BaseState(): lin(3), ang(3) {}
+  BaseState() : lin(3), ang(3) {}
 
-  Node lin; ///< linear position x,y,z and velocities.
-  Node ang; ///< angular euler roll, pitch, yaw and rates.
+  Node lin;  ///< linear position x,y,z and velocities.
+  Node ang;  ///< angular euler roll, pitch, yaw and rates.
 };
 
+}  // namespace towr
 
-} // namespace towr
-
-#endif // TOWR_VARIABLES
+#endif  // TOWR_VARIABLES

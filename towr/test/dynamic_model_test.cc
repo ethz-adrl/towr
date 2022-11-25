@@ -48,4 +48,4 @@ TEST(DynamicModelTest, TestRotations)
   // update test
 }
 
-} /* namespace xpp */
+}  // namespace towr

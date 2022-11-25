@@ -36,191 +36,190 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-BipedGaitGenerator::BipedGaitGenerator ()
+BipedGaitGenerator::BipedGaitGenerator()
 {
   ContactState init(2, false);
   I_ = b_ = P_ = B_ = init;
 
   P_.at(L) = true;
   b_.at(R) = true;
-  B_       = { true, true };
+  B_       = {true, true};
 
   SetGaits({Stand});
 }
 
-void
-BipedGaitGenerator::SetCombo (Combos combo)
+void BipedGaitGenerator::SetCombo(Combos combo)
 {
   switch (combo) {
-    case C0: SetGaits({Stand, Walk1, Walk1, Walk1, Walk1, Stand}); break;
-    case C1: SetGaits({Stand, Run1, Run1, Run1, Run1, Stand});     break;
-    case C2: SetGaits({Stand, Hop1, Hop1, Hop1, Stand});       break;
-    case C3: SetGaits({Stand, Hop1, Hop2, Hop2, Stand});       break;
-    case C4: SetGaits({Stand, Hop5, Hop5, Hop5, Stand});       break;
-    default: assert(false); std::cout << "Gait not defined\n"; break;
+    case C0:
+      SetGaits({Stand, Walk1, Walk1, Walk1, Walk1, Stand});
+      break;
+    case C1:
+      SetGaits({Stand, Run1, Run1, Run1, Run1, Stand});
+      break;
+    case C2:
+      SetGaits({Stand, Hop1, Hop1, Hop1, Stand});
+      break;
+    case C3:
+      SetGaits({Stand, Hop1, Hop2, Hop2, Stand});
+      break;
+    case C4:
+      SetGaits({Stand, Hop5, Hop5, Hop5, Stand});
+      break;
+    default:
+      assert(false);
+      std::cout << "Gait not defined\n";
+      break;
   }
 }
 
-BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetGait (Gaits gait) const
+BipedGaitGenerator::GaitInfo BipedGaitGenerator::GetGait(Gaits gait) const
 {
   switch (gait) {
-    case Stand:   return GetStrideStand();
-    case Flight:  return GetStrideFlight();
-    case Walk1:   return GetStrideWalk();
-    case Walk2:   return GetStrideWalk();
-    case Run1:    return GetStrideRun();
-    case Run3:    return GetStrideRun();
-    case Hop1:    return GetStrideHop();
-    case Hop2:    return GetStrideLeftHop();
-    case Hop3:    return GetStrideRightHop();
-    case Hop5:    return GetStrideGallopHop();
-    default: assert(false); // gait not implemented
+    case Stand:
+      return GetStrideStand();
+    case Flight:
+      return GetStrideFlight();
+    case Walk1:
+      return GetStrideWalk();
+    case Walk2:
+      return GetStrideWalk();
+    case Run1:
+      return GetStrideRun();
+    case Run3:
+      return GetStrideRun();
+    case Hop1:
+      return GetStrideHop();
+    case Hop2:
+      return GetStrideLeftHop();
+    case Hop3:
+      return GetStrideRightHop();
+    case Hop5:
+      return GetStrideGallopHop();
+    default:
+      assert(false);  // gait not implemented
   }
 }
 
-BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetStrideStand () const
+BipedGaitGenerator::GaitInfo BipedGaitGenerator::GetStrideStand() const
 {
-  auto times =
-  {
+  auto times = {
       0.2,
   };
-  auto contacts =
-  {
+  auto contacts = {
       B_,
   };
 
   return std::make_pair(times, contacts);
 }
 
-BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetStrideFlight () const
+BipedGaitGenerator::GaitInfo BipedGaitGenerator::GetStrideFlight() const
 {
-  auto times =
-  {
+  auto times = {
       0.5,
   };
-  auto contacts =
-  {
+  auto contacts = {
       I_,
   };
 
   return std::make_pair(times, contacts);
 }
 
-BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetStrideWalk () const
+BipedGaitGenerator::GaitInfo BipedGaitGenerator::GetStrideWalk() const
 {
-  double step = 0.3;
+  double step   = 0.3;
   double stance = 0.05;
-  auto times =
-  {
-      step, stance,
-      step, stance,
+  auto times    = {
+      step,
+      stance,
+      step,
+      stance,
   };
-  auto phase_contacts =
-  {
-      b_, B_, // swing left foot
-      P_, B_, // swing right foot
+  auto phase_contacts = {
+      b_, B_,  // swing left foot
+      P_, B_,  // swing right foot
   };
 
   return std::make_pair(times, phase_contacts);
 }
 
-BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetStrideRun () const
+BipedGaitGenerator::GaitInfo BipedGaitGenerator::GetStrideRun() const
 {
-  double flight = 0.4;
+  double flight  = 0.4;
   double pushoff = 0.15;
   double landing = 0.15;
-  auto times =
-  {
-      pushoff, flight,
-      landing+pushoff, flight, landing,
+  auto times     = {
+      pushoff, flight, landing + pushoff, flight, landing,
   };
-  auto phase_contacts =
-  {
-      b_, I_,     // swing left foot
-      P_, I_, b_, // swing right foot
+  auto phase_contacts = {
+      b_, I_,      // swing left foot
+      P_, I_, b_,  // swing right foot
   };
 
   return std::make_pair(times, phase_contacts);
 }
 
-BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetStrideHop () const
+BipedGaitGenerator::GaitInfo BipedGaitGenerator::GetStrideHop() const
 {
-  double push   = 0.15;
-  double flight = 0.5;
-  double land   = 0.15;
-  auto times =
-  {
-      push, flight, land
-  };
-  auto phase_contacts =
-  {
-      B_, I_, B_,
+  double push         = 0.15;
+  double flight       = 0.5;
+  double land         = 0.15;
+  auto times          = {push, flight, land};
+  auto phase_contacts = {
+      B_,
+      I_,
+      B_,
   };
 
   return std::make_pair(times, phase_contacts);
 }
 
-BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetStrideGallopHop () const
+BipedGaitGenerator::GaitInfo BipedGaitGenerator::GetStrideGallopHop() const
 {
   double push   = 0.2;
   double flight = 0.3;
   double land   = 0.2;
 
-  auto times =
-  {
-      push, flight,
-      land, land,
+  auto times = {
+      push,
+      flight,
+      land,
+      land,
   };
-  auto phase_contacts =
-  {
-      P_, I_,
-      b_, B_,
+  auto phase_contacts = {
+      P_,
+      I_,
+      b_,
+      B_,
   };
 
   return std::make_pair(times, phase_contacts);
 }
 
-BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetStrideLeftHop () const
+BipedGaitGenerator::GaitInfo BipedGaitGenerator::GetStrideLeftHop() const
 {
   double push   = 0.15;
   double flight = 0.4;
   double land   = 0.15;
 
-  auto times =
-  {
-      push, flight, land,
+  auto times = {
+      push,
+      flight,
+      land,
   };
-  auto phase_contacts =
-  {
-      b_, I_, b_
-  };
+  auto phase_contacts = {b_, I_, b_};
 
   return std::make_pair(times, phase_contacts);
 }
 
-BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetStrideRightHop () const
+BipedGaitGenerator::GaitInfo BipedGaitGenerator::GetStrideRightHop() const
 {
   double push   = 0.2;
   double flight = 0.2;
   double land   = 0.2;
 
-  auto times =
-  {
-      push, flight, land
-  };
-  auto phase_contacts =
-  {
-      P_, I_, P_
-  };
+  auto times          = {push, flight, land};
+  auto phase_contacts = {P_, I_, P_};
 
   return std::make_pair(times, phase_contacts);
 }

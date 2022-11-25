@@ -30,9 +30,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_BIPED_MODEL_H_
 #define TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_BIPED_MODEL_H_
 
+#include <towr/models/endeffector_mappings.h>
 #include <towr/models/kinematic_model.h>
 #include <towr/models/single_rigid_body_dynamics.h>
-#include <towr/models/endeffector_mappings.h>
 
 namespace towr {
 
@@ -40,16 +40,16 @@ namespace towr {
  * @brief The Kinematics of a tow-legged robot built from HyQ legs.
  */
 class BipedKinematicModel : public KinematicModel {
-public:
-  BipedKinematicModel () : KinematicModel(2)
+ public:
+  BipedKinematicModel() : KinematicModel(2)
   {
     const double z_nominal_b = -0.65;
-    const double y_nominal_b =  0.20;
+    const double y_nominal_b = 0.20;
 
-    nominal_stance_.at(L) << 0.0,  y_nominal_b, z_nominal_b;
+    nominal_stance_.at(L) << 0.0, y_nominal_b, z_nominal_b;
     nominal_stance_.at(R) << 0.0, -y_nominal_b, z_nominal_b;
 
-    max_dev_from_nominal_  << 0.25, 0.15, 0.15;
+    max_dev_from_nominal_ << 0.25, 0.15, 0.15;
   }
 };
 
@@ -57,11 +57,11 @@ public:
  * @brief The Dynamics of a tow-legged robot built from HyQ legs.
  */
 class BipedDynamicModel : public SingleRigidBodyDynamics {
-public:
+ public:
   BipedDynamicModel()
-  : SingleRigidBodyDynamics(20,
-                    1.209,5.583,6.056,0.005,-0.190,-0.012,
-                    2) {}
+      : SingleRigidBodyDynamics(20, 1.209, 5.583, 6.056, 0.005, -0.190, -0.012,
+                                2)
+  {}
 };
 
 } /* namespace towr */

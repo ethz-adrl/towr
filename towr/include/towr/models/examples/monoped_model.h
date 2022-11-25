@@ -39,10 +39,10 @@ namespace towr {
  * @brief The Kinematics of a one-legged hopper with HyQ leg.
  */
 class MonopedKinematicModel : public KinematicModel {
-public:
-  MonopedKinematicModel () : KinematicModel(1)
+ public:
+  MonopedKinematicModel() : KinematicModel(1)
   {
-    nominal_stance_.at(0) = Eigen::Vector3d( 0.0, 0.0, -0.58);
+    nominal_stance_.at(0) = Eigen::Vector3d(0.0, 0.0, -0.58);
     max_dev_from_nominal_ << 0.25, 0.15, 0.2;
   }
 };
@@ -51,11 +51,13 @@ public:
  * @brief The Dynamics of a one-legged hopper with HyQ leg.
  */
 class MonopedDynamicModel : public SingleRigidBodyDynamics {
-public:
+ public:
+  // clang-format off
   MonopedDynamicModel()
-  : SingleRigidBodyDynamics(20,                      // mass of the robot
-                    1.2, 5.5, 6.0, 0.0, -0.2, -0.01, // base inertia
-                    1) {}                            // number of endeffectors
+      : SingleRigidBodyDynamics(20,  // mass of the robot
+                                1.2, 5.5, 6.0, 0.0, -0.2, -0.01,  // base inertia
+                                1) {}  // number of endeffectors
+  // clang-format on
 };
 
 } /* namespace towr */

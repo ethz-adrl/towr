@@ -37,7 +37,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/variables/nodes_variables.h>
 
-
 namespace towr {
 
 /**
@@ -46,21 +45,21 @@ namespace towr {
  * @ingroup Costs
  */
 class NodeCost : public ifopt::CostTerm {
-public:
+ public:
   /**
    * @brief Constructs a cost term for the optimization problem.
    * @param nodes_id  The name of the node variables.
    * @param deriv     The node derivative (pos, vel) which should be penalized.
    * @param dim       The node dimension which should be penalized.
    */
-  NodeCost (const std::string& nodes_id, Dx deriv, int dim, double weight);
-  virtual ~NodeCost () = default;
+  NodeCost(const std::string& nodes_id, Dx deriv, int dim, double weight);
+  virtual ~NodeCost() = default;
 
   void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
-  double GetCost () const override;
+  double GetCost() const override;
 
-private:
+ private:
   std::shared_ptr<NodesVariables> nodes_;
 
   std::string node_id_;

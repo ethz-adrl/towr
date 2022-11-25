@@ -40,11 +40,11 @@ namespace towr {
  * @sa GaitGenerator for more documentation
  */
 class BipedGaitGenerator : public GaitGenerator {
-public:
-  BipedGaitGenerator ();
-  virtual ~BipedGaitGenerator () = default;
+ public:
+  BipedGaitGenerator();
+  virtual ~BipedGaitGenerator() = default;
 
-private:
+ private:
   GaitInfo GetGait(Gaits gait) const override;
 
   GaitInfo GetStrideStand() const;
@@ -59,10 +59,10 @@ private:
   void SetCombo(Combos combo) override;
 
   // naming convention:, where the circle is is contact, front is right ->.
-  ContactState I_; // flight
-  ContactState b_; // right-leg in contact
-  ContactState P_; // left leg in contact
-  ContactState B_; // stance (both legs in contact)
+  ContactState I_;  // flight
+  ContactState b_;  // right-leg in contact
+  ContactState P_;  // left leg in contact
+  ContactState B_;  // stance (both legs in contact)
 };
 
 } /* namespace towr */

@@ -32,8 +32,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ifopt/variable_set.h>
 
-#include "state.h"
 #include "nodes_observer.h"
+#include "state.h"
 
 namespace towr {
 
@@ -69,7 +69,7 @@ namespace towr {
  * @ingroup Variables
  */
 class NodesVariables : public ifopt::VariableSet {
-public:
+ public:
   using Ptr          = std::shared_ptr<NodesVariables>;
   using VecDurations = std::vector<double>;
   using ObserverPtr  = NodesObserver*;
@@ -83,9 +83,9 @@ public:
    * @sa GetNodeValuesInfo()
    */
   struct NodeValueInfo {
-    int id_;   ///< ID of the associated node (0 =< id < number of nodes in spline).
-    Dx deriv_; ///< Derivative (pos,vel) of the node with that ID.
-    int dim_;  ///< Dimension (x,y,z) of that derivative.
+    int id_;  ///< ID of the associated node (0 =< id < number of nodes in spline).
+    Dx deriv_;  ///< Derivative (pos,vel) of the node with that ID.
+    int dim_;   ///< Dimension (x,y,z) of that derivative.
 
     NodeValueInfo() = default;
     NodeValueInfo(int node_id, Dx deriv, int node_dim);
@@ -122,7 +122,7 @@ public:
    *
    * @sa GetNodeInfoAtOptIndex()
    */
-  VectorXd GetValues () const override;
+  VectorXd GetValues() const override;
 
   /**
    * @brief Sets some node positions and velocity from the optimization variables.
@@ -134,12 +134,12 @@ public:
    *
    * @sa GetNodeValuesInfo()
    */
-  void SetVariables (const VectorXd&x) override;
+  void SetVariables(const VectorXd& x) override;
 
   /**
    * @returns the bounds on position and velocity of each node and dimension.
    */
-  VecBound GetBounds () const override;
+  VecBound GetBounds() const override;
 
   /**
    * @returns All the nodes that can be used to reconstruct the spline.
@@ -156,7 +156,7 @@ public:
    */
   const std::vector<Node> GetBoundaryNodes(int poly_id) const;
 
-  enum Side {Start=0, End};
+  enum Side { Start = 0, End };
   /**
    * @brief The node ID that belongs to a specific side of a specific polynomial.
    * @param poly_id The ID of the polynomial within the spline.
@@ -182,8 +182,7 @@ public:
    * @param t_total  The total duration to reach final node (to set velocities).
    */
   void SetByLinearInterpolation(const VectorXd& initial_val,
-                                const VectorXd& final_val,
-                                double t_total);
+                                const VectorXd& final_val, double t_total);
 
   /**
    * @brief Restricts the first node in the spline.
@@ -191,8 +190,8 @@ public:
    * @param dimensions Which dimensions (x,y,z) should be restricted.
    * @param val The values the fist node should be set to.
    */
-  void AddStartBound (Dx deriv, const std::vector<int>& dimensions,
-                      const VectorXd& val);
+  void AddStartBound(Dx deriv, const std::vector<int>& dimensions,
+                     const VectorXd& val);
 
   /**
    * @brief Restricts the last node in the spline.
@@ -203,19 +202,19 @@ public:
   void AddFinalBound(Dx deriv, const std::vector<int>& dimensions,
                      const VectorXd& val);
 
-protected:
+ protected:
   /**
    * @param n_dim  The number of dimensions (x,y,..) each node has.
    * @param variable_name  The name of the variables in the optimization problem.
    */
-  NodesVariables (const std::string& variable_name);
-  virtual ~NodesVariables () = default;
+  NodesVariables(const std::string& variable_name);
+  virtual ~NodesVariables() = default;
 
-  VecBound bounds_; ///< the bounds on the node values.
+  VecBound bounds_;  ///< the bounds on the node values.
   std::vector<Node> nodes_;
   int n_dim_;
 
-private:
+ private:
   /**
    * @brief Notifies the subscribed observers that the node values changes.
    */

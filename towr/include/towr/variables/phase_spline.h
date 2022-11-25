@@ -31,8 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_PHASE_SPLINE_H_
 
 #include "node_spline.h"
-#include "phase_durations_observer.h"
 #include "nodes_variables_phase_based.h"
+#include "phase_durations_observer.h"
 
 namespace towr {
 
@@ -44,9 +44,9 @@ namespace towr {
  * CubicHermitePolynomial. For this it observers whether one of the quantities
  * changed and then updates all the polynomials accordingly.
  */
-class PhaseSpline : public NodeSpline, public PhaseDurationsObserver{
-public:
-  using Ptr = std::shared_ptr<PhaseSpline>;
+class PhaseSpline : public NodeSpline, public PhaseDurationsObserver {
+ public:
+  using Ptr      = std::shared_ptr<PhaseSpline>;
   using VectorXd = Eigen::VectorXd;
 
   /**
@@ -72,15 +72,16 @@ public:
    */
   Jacobian GetJacobianOfPosWrtDurations(double t) const override;
 
-private:
+ private:
   /**
    * @brief How the position at time t changes with current phase duration.
    * @param t The global time along the spline.
    * @return How a duration change affects the x,y,z position.
    */
-  Eigen::VectorXd GetDerivativeOfPosWrtPhaseDuration (double t) const;
+  Eigen::VectorXd GetDerivativeOfPosWrtPhaseDuration(double t) const;
 
-  NodesVariablesPhaseBased::Ptr phase_nodes_; // retain pointer for extended functionality
+  // retain pointer for extended functionality
+  NodesVariablesPhaseBased::Ptr phase_nodes_;
 };
 
 } /* namespace towr */

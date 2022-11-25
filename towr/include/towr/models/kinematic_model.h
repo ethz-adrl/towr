@@ -46,7 +46,7 @@ namespace towr {
  * @ingroup Robots
  */
 class KinematicModel {
-public:
+ public:
   using Ptr      = std::shared_ptr<KinematicModel>;
   using EEPos    = std::vector<Eigen::Vector3d>;
   using Vector3d = Eigen::Vector3d;
@@ -55,22 +55,19 @@ public:
    * @brief Constructs a kinematic model of a robot with zero range of motion.
    * @param n_ee  The number of endeffectors of the robot.
    */
-  KinematicModel (int n_ee)
+  KinematicModel(int n_ee)
   {
     nominal_stance_.resize(n_ee);
     max_dev_from_nominal_.setZero();
   }
 
-  virtual ~KinematicModel () = default;
+  virtual ~KinematicModel() = default;
 
   /**
    * @brief  The xyz-position [m] of each foot in default stance.
    * @returns The vector from base to each foot expressed in the base frame.
    */
-  virtual EEPos GetNominalStanceInBase() const
-  {
-    return nominal_stance_;
-  }
+  virtual EEPos GetNominalStanceInBase() const { return nominal_stance_; }
 
   /**
    * @brief How far each foot can deviate from its nominal position.
@@ -84,12 +81,9 @@ public:
   /**
    * @returns returns the number of endeffectors of this robot.
    */
-  int GetNumberOfEndeffectors() const
-  {
-    return nominal_stance_.size();
-  }
+  int GetNumberOfEndeffectors() const { return nominal_stance_.size(); }
 
-protected:
+ protected:
   EEPos nominal_stance_;
   Vector3d max_dev_from_nominal_;
 };

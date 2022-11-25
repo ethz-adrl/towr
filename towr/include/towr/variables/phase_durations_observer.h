@@ -30,7 +30,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_PHASE_DURATIONS_OBSERVER_H_
 #define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_PHASE_DURATIONS_OBSERVER_H_
 
-
 namespace towr {
 
 class PhaseDurations;
@@ -48,8 +47,9 @@ class PhaseDurations;
  * https://sourcemaking.com/design_patterns/observer
  */
 class PhaseDurationsObserver {
-public:
-  using PhaseDurationsSubjectPtr = PhaseDurations*; // observer shouldn't own subject
+ public:
+  // observer shouldn't own subject
+  using PhaseDurationsSubjectPtr = PhaseDurations*;
 
   PhaseDurationsObserver() = default;
 
@@ -65,7 +65,7 @@ public:
    */
   virtual void UpdatePolynomialDurations() = 0;
 
-protected:
+ protected:
   PhaseDurationsSubjectPtr phase_durations_;
 };
 

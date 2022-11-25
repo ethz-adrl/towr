@@ -30,10 +30,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_SPLINE_HOLDER_H_
 #define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_SPLINE_HOLDER_H_
 
-#include "phase_durations.h"
 #include "node_spline.h"
 #include "nodes_variables.h"
 #include "nodes_variables_phase_based.h"
+#include "phase_durations.h"
 
 namespace towr {
 
@@ -55,18 +55,17 @@ struct SplineHolder {
    * @param phase_durations  The phase durations of each endeffector.
    * @param ee_durations_change  True if the ee durations are optimized over.
    */
-  SplineHolder (NodesVariables::Ptr base_lin,
-                NodesVariables::Ptr base_ang,
-                const std::vector<double>& base_poly_durations,
-                std::vector<NodesVariablesPhaseBased::Ptr> ee_motion,
-                std::vector<NodesVariablesPhaseBased::Ptr> ee_force,
-                std::vector<PhaseDurations::Ptr> phase_durations,
-                bool ee_durations_change);
+  SplineHolder(NodesVariables::Ptr base_lin, NodesVariables::Ptr base_ang,
+               const std::vector<double>& base_poly_durations,
+               std::vector<NodesVariablesPhaseBased::Ptr> ee_motion,
+               std::vector<NodesVariablesPhaseBased::Ptr> ee_force,
+               std::vector<PhaseDurations::Ptr> phase_durations,
+               bool ee_durations_change);
 
   /**
    * @brief Attention, nothing initialized.
    */
-  SplineHolder () = default;
+  SplineHolder() = default;
 
   NodeSpline::Ptr base_linear_;
   NodeSpline::Ptr base_angular_;

@@ -35,44 +35,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_TOWR_XPP_EE_MAP_H_
 #define TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_TOWR_XPP_EE_MAP_H_
 
-#include <map>
 #include <towr/models/endeffector_mappings.h>
 #include <xpp_states/endeffector_mappings.h>
-
+#include <map>
 
 namespace towr {
 
 /** Mapping endeffector IDs */
-static std::map<towr::BipedIDs, xpp::biped::FootIDs> biped_to_xpp_id =
-{
+static std::map<towr::BipedIDs, xpp::biped::FootIDs> biped_to_xpp_id = {
     {L, xpp::biped::L},
     {R, xpp::biped::R},
 };
 
-static std::map<towr::QuadrupedIDs, xpp::quad::FootIDs> quad_to_xpp_id =
-{
+static std::map<towr::QuadrupedIDs, xpp::quad::FootIDs> quad_to_xpp_id = {
     {LF, xpp::quad::LF},
     {RF, xpp::quad::RF},
     {LH, xpp::quad::LH},
-    {RH, xpp::quad::RH}
-};
-
+    {RH, xpp::quad::RH}};
 
 /** Mapping endeffector names */
-static std::map<towr::BipedIDs, std::string> biped_to_name =
-{
-  {L, "Left" },
-  {R, "Right"}
-};
+static std::map<towr::BipedIDs, std::string> biped_to_name = {{L, "Left"},
+                                                              {R, "Right"}};
 
-static std::map<towr::QuadrupedIDs, std::string> quad_to_name =
-{
-  {LF, "Left-Front" },
-  {RF, "Right-Front"},
-  {LH, "Left-Hind"  },
-  {RH, "Right-Hind" }
-};
-
+static std::map<towr::QuadrupedIDs, std::string> quad_to_name = {
+    {LF, "Left-Front"},
+    {RF, "Right-Front"},
+    {LH, "Left-Hind"},
+    {RH, "Right-Hind"}};
 
 /**
  * Converts endeffector IDs of towr into the corresponding number used in xpp.
@@ -82,8 +71,8 @@ static std::map<towr::QuadrupedIDs, std::string> quad_to_name =
  * @return corresponding endeffector and string name in the xpp domain.
  */
 
-static std::pair<xpp::EndeffectorID, std::string>
-ToXppEndeffector(int number_of_ee, int towr_ee_id)
+static std::pair<xpp::EndeffectorID, std::string> ToXppEndeffector(
+    int number_of_ee, int towr_ee_id)
 {
   std::pair<xpp::EndeffectorID, std::string> ee;
 
@@ -93,19 +82,19 @@ ToXppEndeffector(int number_of_ee, int towr_ee_id)
       ee.second = "E0";
       break;
     case 2: {
-      auto id = static_cast<towr::BipedIDs>(towr_ee_id);
+      auto id   = static_cast<towr::BipedIDs>(towr_ee_id);
       ee.first  = biped_to_xpp_id.at(id);
       ee.second = biped_to_name.at(id);
       break;
     }
     case 4: {
-      auto id = static_cast<towr::QuadrupedIDs>(towr_ee_id);
+      auto id   = static_cast<towr::QuadrupedIDs>(towr_ee_id);
       ee.first  = quad_to_xpp_id.at(id);
       ee.second = quad_to_name.at(id);
       break;
     }
     default:
-      assert(false); // endeffector mapping not defined
+      assert(false);  // endeffector mapping not defined
       break;
   }
 
@@ -126,6 +115,6 @@ static xpp::StateLinXd ToXpp(const towr::State& towr)
   return xpp;
 }
 
-} // namespace towr
+}  // namespace towr
 
 #endif /* TOWR_TOWR_ROS_INCLUDE_TOWR_ROS_TOWR_XPP_EE_MAP_H_ */

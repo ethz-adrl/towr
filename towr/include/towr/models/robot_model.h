@@ -67,28 +67,26 @@ struct RobotModel {
    * See folder: \ref include/towr/models/examples for more information.
    * @ingroup Robots
    */
-  enum Robot { Monoped, ///< one-legged hopper
-               Biped,   ///< two-legged
-               Hyq,     ///< four-legged robot from IIT
-               Anymal,  ///< four-legged robot from Anybotics
-               ROBOT_COUNT };
-
+  enum Robot {
+    Monoped,  ///< one-legged hopper
+    Biped,    ///< two-legged
+    Hyq,      ///< four-legged robot from IIT
+    Anymal,   ///< four-legged robot from Anybotics
+    ROBOT_COUNT
+  };
 
   RobotModel() = default;
   RobotModel(Robot robot);
 
   KinematicModel::Ptr kinematic_model_;
-  DynamicModel::Ptr   dynamic_model_;
+  DynamicModel::Ptr dynamic_model_;
 };
 
-
-const static std::map<RobotModel::Robot, std::string> robot_names =
-{
-  {RobotModel::Monoped, "Monoped"},
-  {RobotModel::Biped,   "Biped"},
-  {RobotModel::Hyq,     "Hyq"},
-  {RobotModel::Anymal,  "Anymal"}
-};
+const static std::map<RobotModel::Robot, std::string> robot_names = {
+    {RobotModel::Monoped, "Monoped"},
+    {RobotModel::Biped, "Biped"},
+    {RobotModel::Hyq, "Hyq"},
+    {RobotModel::Anymal, "Anymal"}};
 
 } /* namespace towr */
 

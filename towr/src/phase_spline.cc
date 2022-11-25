@@ -27,15 +27,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#include <towr/variables/phase_spline.h>
 #include <towr/variables/phase_durations.h>
+#include <towr/variables/phase_spline.h>
 
 namespace towr {
 
-PhaseSpline::PhaseSpline(
-    NodesVariablesPhaseBased::Ptr const nodes,
-    PhaseDurations* const phase_durations)
-    : NodeSpline(nodes.get(), nodes->ConvertPhaseToPolyDurations(phase_durations->GetPhaseDurations())),
+PhaseSpline::PhaseSpline(NodesVariablesPhaseBased::Ptr const nodes,
+                         PhaseDurations* const phase_durations)
+    : NodeSpline(nodes.get(), nodes->ConvertPhaseToPolyDurations(
+                                  phase_durations->GetPhaseDurations())),
       PhaseDurationsObserver(phase_durations)
 {
   phase_nodes_ = nodes;
@@ -47,50 +47,54 @@ PhaseSpline::PhaseSpline(
   // and must make sure that Jacobian structure never changes during
   // the iterations.
   // assume every global time time can fall into every polynomial
-  for (int i=0; i<nodes->GetPolynomialCount(); ++i)
+  for (int i = 0; i < nodes->GetPolynomialCount(); ++i)
     FillJacobianWrtNodes(i, 0.0, kPos, jac_wrt_nodes_structure_, true);
 }
 
-void
-PhaseSpline::UpdatePolynomialDurations()
+void PhaseSpline::UpdatePolynomialDurations()
 {
   auto phase_duration = phase_durations_->GetPhaseDurations();
-  auto poly_durations = phase_nodes_->ConvertPhaseToPolyDurations(phase_duration);
+  auto poly_durations =
+      phase_nodes_->ConvertPhaseToPolyDurations(phase_duration);
 
-  for (int i=0; i<cubic_polys_.size(); ++i) {
+  for (int i = 0; i < cubic_polys_.size(); ++i) {
     cubic_polys_.at(i).SetDuration(poly_durations.at(i));
   }
 
   UpdatePolynomialCoeff();
 }
 
-PhaseSpline::Jacobian
-PhaseSpline::GetJacobianOfPosWrtDurations (double t_global) const
+PhaseSpline::Jacobian PhaseSpline::GetJacobianOfPosWrtDurations(
+    double t_global) const
 {
-  VectorXd dx_dT  = GetDerivativeOfPosWrtPhaseDuration(t_global);
-  VectorXd xd     = GetPoint(t_global).v();
-  int current_phase = GetSegmentID(t_global, phase_durations_->GetPhaseDurations());
+  VectorXd dx_dT = GetDerivativeOfPosWrtPhaseDuration(t_global);
+  VectorXd xd    = GetPoint(t_global).v();
+  int current_phase =
+      GetSegmentID(t_global, phase_durations_->GetPhaseDurations());
 
   return phase_durations_->GetJacobianOfPos(current_phase, dx_dT, xd);
 }
 
-Eigen::VectorXd
-PhaseSpline::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
+Eigen::VectorXd PhaseSpline::GetDerivativeOfPosWrtPhaseDuration(
+    double t_global) const
 {
-  int poly_id; double t_local;
+  int poly_id;
+  double t_local;
   std::tie(poly_id, t_local) = GetLocalTime(t_global, GetPolyDurations());
 
-  VectorXd vel  = GetPoint(t_global).v();
-  VectorXd dxdT = cubic_polys_.at(poly_id).GetDerivativeOfPosWrtDuration(t_local);
+  VectorXd vel = GetPoint(t_global).v();
+  VectorXd dxdT =
+      cubic_polys_.at(poly_id).GetDerivativeOfPosWrtDuration(t_local);
 
-  double inner_derivative = phase_nodes_->GetDerivativeOfPolyDurationWrtPhaseDuration(poly_id);
-  double prev_polys_in_phase = phase_nodes_->GetNumberOfPrevPolynomialsInPhase(poly_id);
+  double inner_derivative =
+      phase_nodes_->GetDerivativeOfPolyDurationWrtPhaseDuration(poly_id);
+  double prev_polys_in_phase =
+      phase_nodes_->GetNumberOfPrevPolynomialsInPhase(poly_id);
 
   // where this minus term comes from:
   // from number of polynomials before current polynomial that
   // cause shifting of entire spline
-  return inner_derivative*(dxdT - prev_polys_in_phase*vel);
+  return inner_derivative * (dxdT - prev_polys_in_phase * vel);
 }
-
 
 } /* namespace towr */

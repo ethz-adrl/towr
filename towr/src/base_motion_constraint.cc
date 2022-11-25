@@ -28,16 +28,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include <towr/constraints/base_motion_constraint.h>
-#include <towr/variables/variable_names.h>
 #include <towr/variables/cartesian_dimensions.h>
 #include <towr/variables/spline_holder.h>
+#include <towr/variables/variable_names.h>
 
 namespace towr {
 
-
-BaseMotionConstraint::BaseMotionConstraint (double T, double dt,
-                                            const SplineHolder& spline_holder)
-    :TimeDiscretizationConstraint(T, dt, "baseMotion")
+BaseMotionConstraint::BaseMotionConstraint(double T, double dt,
+                                           const SplineHolder& spline_holder)
+    : TimeDiscretizationConstraint(T, dt, "baseMotion")
 {
   base_linear_  = spline_holder.base_linear_;
   base_angular_ = spline_holder.base_angular_;
@@ -46,48 +45,48 @@ BaseMotionConstraint::BaseMotionConstraint (double T, double dt,
   node_bounds_.resize(k6D);
   node_bounds_.at(AX) = Bounds(-dev_rad, dev_rad);
   node_bounds_.at(AY) = Bounds(-dev_rad, dev_rad);
-  node_bounds_.at(AZ) = ifopt::NoBound;//Bounds(-dev_rad, dev_rad);
+  node_bounds_.at(AZ) = ifopt::NoBound;  //Bounds(-dev_rad, dev_rad);
 
-  double z_init = base_linear_->GetPoint(0.0).p().z();
+  double z_init       = base_linear_->GetPoint(0.0).p().z();
   node_bounds_.at(LX) = ifopt::NoBound;
-  node_bounds_.at(LY) = ifopt::NoBound;//Bounds(-0.05, 0.05);
-  node_bounds_.at(LZ) = Bounds(z_init-0.02, z_init+0.1); // allow to move dev_z cm up and down
+  node_bounds_.at(LY) = ifopt::NoBound;  //Bounds(-0.05, 0.05);
+  node_bounds_.at(LZ) = Bounds(
+      z_init - 0.02, z_init + 0.1);  // allow to move dev_z cm up and down
 
   int n_constraints_per_node = node_bounds_.size();
-  SetRows(GetNumberOfNodes()*n_constraints_per_node);
+  SetRows(GetNumberOfNodes() * n_constraints_per_node);
 }
 
-void
-BaseMotionConstraint::UpdateConstraintAtInstance (double t, int k,
-                                                  VectorXd& g) const
+void BaseMotionConstraint::UpdateConstraintAtInstance(double t, int k,
+                                                      VectorXd& g) const
 {
   g.middleRows(GetRow(k, LX), k3D) = base_linear_->GetPoint(t).p();
   g.middleRows(GetRow(k, AX), k3D) = base_angular_->GetPoint(t).p();
 }
 
-void
-BaseMotionConstraint::UpdateBoundsAtInstance (double t, int k, VecBound& bounds) const
+void BaseMotionConstraint::UpdateBoundsAtInstance(double t, int k,
+                                                  VecBound& bounds) const
 {
-  for (int dim=0; dim<node_bounds_.size(); ++dim)
-    bounds.at(GetRow(k,dim)) = node_bounds_.at(dim);
+  for (int dim = 0; dim < node_bounds_.size(); ++dim)
+    bounds.at(GetRow(k, dim)) = node_bounds_.at(dim);
 }
 
-void
-BaseMotionConstraint::UpdateJacobianAtInstance (double t, int k,
-                                                std::string var_set,
-                                                Jacobian& jac) const
+void BaseMotionConstraint::UpdateJacobianAtInstance(double t, int k,
+                                                    std::string var_set,
+                                                    Jacobian& jac) const
 {
   if (var_set == id::base_ang_nodes)
-    jac.middleRows(GetRow(k,AX), k3D) = base_angular_->GetJacobianWrtNodes(t, kPos);
+    jac.middleRows(GetRow(k, AX), k3D) =
+        base_angular_->GetJacobianWrtNodes(t, kPos);
 
   if (var_set == id::base_lin_nodes)
-    jac.middleRows(GetRow(k,LX), k3D) = base_linear_->GetJacobianWrtNodes(t, kPos);
+    jac.middleRows(GetRow(k, LX), k3D) =
+        base_linear_->GetJacobianWrtNodes(t, kPos);
 }
 
-int
-BaseMotionConstraint::GetRow (int node, int dim) const
+int BaseMotionConstraint::GetRow(int node, int dim) const
 {
-  return node*node_bounds_.size() + dim;
+  return node * node_bounds_.size() + dim;
 }
 
 } /* namespace towr */

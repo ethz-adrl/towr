@@ -36,7 +36,6 @@ namespace towr {
 
 using VectorXd = Eigen::VectorXd;
 
-
 TEST(DynamicConstraintTest, UpdateConstraintValues)
 {
   // add dynamic constraint test
