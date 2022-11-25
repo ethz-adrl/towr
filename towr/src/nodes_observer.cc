@@ -40,6 +40,4 @@ NodesObserver::NodesObserver(NodeSubjectPtr subject)
   subject->AddObserver(this);
 };
 
-} // namespace towr
-
-
+}  // namespace towr

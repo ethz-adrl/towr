@@ -48,11 +48,10 @@ namespace towr {
  * @ingroup Variables
  */
 class PhaseDurations : public ifopt::VariableSet {
-public:
+ public:
   using Ptr           = std::shared_ptr<PhaseDurations>;
   using VecDurations  = std::vector<double>;
   using EndeffectorID = uint;
-
 
   /**
    * @brief Constructs a variable set for a specific endeffector
@@ -61,12 +60,10 @@ public:
    * @param min_phase_duration  The minimum allowable time for one phase.
    * @param max_phase_duration  The maximum allowable time for one phase.
    */
-  PhaseDurations (EndeffectorID ee,
-                  const VecDurations& initial_durations,
-                  bool is_first_phase_in_contact,
-                  double min_phase_duration,
-                  double max_phase_duration);
-  virtual ~PhaseDurations () = default;
+  PhaseDurations(EndeffectorID ee, const VecDurations& initial_durations,
+                 bool is_first_phase_in_contact, double min_phase_duration,
+                 double max_phase_duration);
+  virtual ~PhaseDurations() = default;
 
   /**
    * @returns The durations (stance, swing, ...) for each phase of this foot.
@@ -86,7 +83,7 @@ public:
   /**
    * @returns The maximum and minimum time each phase is allowed to take.
    */
-  VecBound GetBounds () const override;
+  VecBound GetBounds() const override;
 
   /**
    * @brief How a change in the phase durations affect the position of a spline.
@@ -103,7 +100,8 @@ public:
    * polynomials through the duration. This method quantifies the sensitivity
    * of the spline position on these durations.
    */
-  Jacobian GetJacobianOfPos(int phase, const VectorXd& dx_dT, const VectorXd& xd) const;
+  Jacobian GetJacobianOfPos(int phase, const VectorXd& dx_dT,
+                            const VectorXd& xd) const;
 
   /**
    * @brief Adds observer that is updated every time new variables are set.
@@ -117,11 +115,11 @@ public:
    */
   bool IsContactPhase(double t) const;
 
-private:
+ private:
   VecDurations durations_;
 
   double t_total_;
-  bool initial_contact_state_; ///< true if first phase in contact
+  bool initial_contact_state_;  ///< true if first phase in contact
   ifopt::Bounds phase_duration_bounds_;
 
   std::vector<PhaseDurationsObserver*> observers_;

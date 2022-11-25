@@ -47,23 +47,23 @@ namespace towr {
  * @ingroup Constraints
  */
 class SwingConstraint : public ifopt::ConstraintSet {
-public:
+ public:
   using Vector2d = Eigen::Vector2d;
 
   /**
    * @brief Links the swing constraint with current foot variables.
    * @param ee_motion_id  The name of the foot variables in the optimization.
    */
-  SwingConstraint (std::string ee_motion_id);
-  virtual ~SwingConstraint () = default;
+  SwingConstraint(std::string ee_motion_id);
+  virtual ~SwingConstraint() = default;
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
-  void FillJacobianBlock (std::string var_set, Jacobian&) const override;
+  void FillJacobianBlock(std::string var_set, Jacobian&) const override;
 
   void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
-private:
+ private:
   NodesVariablesPhaseBased::Ptr ee_motion_;
   double t_swing_avg_ = 0.3;
   std::string ee_motion_id_;

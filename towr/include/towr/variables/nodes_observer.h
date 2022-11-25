@@ -30,7 +30,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_INCLUDE_TOWR_VARIABLES_NODES_OBSERVER_H_
 #define TOWR_TOWR_INCLUDE_TOWR_VARIABLES_NODES_OBSERVER_H_
 
-
 namespace towr {
 
 class NodesVariables;
@@ -48,8 +47,8 @@ class NodesVariables;
  * https://sourcemaking.com/design_patterns/observer
  */
 class NodesObserver {
-public:
-  using NodeSubjectPtr = NodesVariables*; // observer shouldn't own subject
+ public:
+  using NodeSubjectPtr = NodesVariables*;  // observer shouldn't own subject
 
   /**
    * @brief Registers this observer with the subject class to receive updates.
@@ -63,7 +62,7 @@ public:
    */
   virtual void UpdateNodes() = 0;
 
-protected:
+ protected:
   NodeSubjectPtr node_values_;
 };
 

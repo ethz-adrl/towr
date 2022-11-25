@@ -30,8 +30,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_
 #define TOWR_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_
 
-#include <towr/variables/spline_holder.h>
 #include <towr/variables/spline.h>
+#include <towr/variables/spline_holder.h>
 
 #include "time_discretization_constraint.h"
 
@@ -46,26 +46,27 @@ namespace towr {
  * @ingroup Constraints
  */
 class BaseMotionConstraint : public TimeDiscretizationConstraint {
-public:
+ public:
   /**
    * @brief Links the base variables and sets hardcoded bounds on the state.
    * @param T  The total time of the optimization horizon.
    * @param dt The discretization interval of the constraints.
    * @param spline_holder  Holds pointers to the base variables.
    */
-  BaseMotionConstraint (double T, double dt, const SplineHolder& spline_holder);
-  virtual ~BaseMotionConstraint () = default;
+  BaseMotionConstraint(double T, double dt, const SplineHolder& spline_holder);
+  virtual ~BaseMotionConstraint() = default;
 
-  void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;
-  void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
-  void UpdateJacobianAtInstance(double t, int k, std::string, Jacobian&) const override;
+  void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
+  void UpdateBoundsAtInstance(double t, int k, VecBound&) const override;
+  void UpdateJacobianAtInstance(double t, int k, std::string,
+                                Jacobian&) const override;
 
-private:
+ private:
   NodeSpline::Ptr base_linear_;
   NodeSpline::Ptr base_angular_;
 
-  VecBound node_bounds_;     ///< same bounds for each discretized node
-  int GetRow (int node, int dim) const;
+  VecBound node_bounds_;  ///< same bounds for each discretized node
+  int GetRow(int node, int dim) const;
 };
 
 } /* namespace towr */

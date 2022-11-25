@@ -33,8 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-
-PhaseDurationsObserver::PhaseDurationsObserver (PhaseDurationsSubjectPtr subject)
+PhaseDurationsObserver::PhaseDurationsObserver(PhaseDurationsSubjectPtr subject)
 {
   phase_durations_ = subject;
 
@@ -42,5 +41,4 @@ PhaseDurationsObserver::PhaseDurationsObserver (PhaseDurationsSubjectPtr subject
   subject->AddObserver(this);
 }
 
-} // namespace towr
-
+}  // namespace towr

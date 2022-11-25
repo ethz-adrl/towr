@@ -29,13 +29,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/models/robot_model.h>
 
-#include <towr/models/examples/monoped_model.h>
+#include <towr/models/examples/anymal_model.h>
 #include <towr/models/examples/biped_model.h>
 #include <towr/models/examples/hyq_model.h>
-#include <towr/models/examples/anymal_model.h>
+#include <towr/models/examples/monoped_model.h>
 
 namespace towr {
-
 
 RobotModel::RobotModel(Robot robot)
 {
@@ -57,12 +56,9 @@ RobotModel::RobotModel(Robot robot)
       kinematic_model_ = std::make_shared<AnymalKinematicModel>();
       break;
     default:
-      assert(false); // Error: Robot model not implemented.
+      assert(false);  // Error: Robot model not implemented.
       break;
   }
 }
 
-
-} // namespace towr
-
-
+}  // namespace towr

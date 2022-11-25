@@ -40,7 +40,7 @@ namespace towr {
  * @ingroup Constraints
  */
 class LinearEqualityConstraint : public ifopt::ConstraintSet {
-public:
+ public:
   using MatrixXd = Eigen::MatrixXd;
 
   /**
@@ -50,16 +50,15 @@ public:
    * @param v  The vector v defining the constanct offset.
    * @param variable_set  The name of the variables x.
    */
-  LinearEqualityConstraint (const MatrixXd& M,
-                            const VectorXd& v,
-                            const std::string& variable_set);
-  virtual ~LinearEqualityConstraint () = default;
+  LinearEqualityConstraint(const MatrixXd& M, const VectorXd& v,
+                           const std::string& variable_set);
+  virtual ~LinearEqualityConstraint() = default;
 
   VectorXd GetValues() const final;
   VecBound GetBounds() const final;
-  void FillJacobianBlock (std::string var_set, Jacobian&) const final;
+  void FillJacobianBlock(std::string var_set, Jacobian&) const final;
 
-private:
+ private:
   MatrixXd M_;
   VectorXd v_;
   std::string variable_name_;

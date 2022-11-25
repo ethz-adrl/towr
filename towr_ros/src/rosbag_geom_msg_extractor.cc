@@ -32,8 +32,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 
 #include <rosbag/bag.h>
-#include <rosbag/view.h>
 #include <rosbag/message_instance.h>
+#include <rosbag/view.h>
 #include <boost/foreach.hpp>
 
 #include <xpp_msgs/RobotStateCartesian.h>
@@ -45,9 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * See towr/matlab/plot_rosbag.m for an example of how to open these.
  */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  if (argc==1) {
+  if (argc == 1) {
     std::cerr << "Error: Please enter path to bag file\n";
     return 0;
   }
@@ -70,18 +70,19 @@ int main(int argc, char *argv[])
   rosbag::Bag bag_w;
   bag_w.open("/home/winklera/Desktop/matlab_rdy.bag", rosbag::bagmode::Write);
 
-  BOOST_FOREACH(rosbag::MessageInstance const m, view)
-  {
-    ros::Time t = m.getTime();
+  BOOST_FOREACH (rosbag::MessageInstance const m, view) {
+    ros::Time t    = m.getTime();
     auto state_msg = m.instantiate<xpp_msgs::RobotStateCartesian>();
     bag_w.write("base_pose", t, state_msg->base.pose);
     bag_w.write("base_acc", t, state_msg->base.accel.linear);
 
     int n_feet = state_msg->ee_motion.size();
 
-    for (int i=0; i<n_feet; ++i) {
-      bag_w.write("foot_pos_"+std::to_string(i), t, state_msg->ee_motion.at(i).pos);
-      bag_w.write("foot_force_"+std::to_string(i), t, state_msg->ee_forces.at(i));
+    for (int i = 0; i < n_feet; ++i) {
+      bag_w.write("foot_pos_" + std::to_string(i), t,
+                  state_msg->ee_motion.at(i).pos);
+      bag_w.write("foot_force_" + std::to_string(i), t,
+                  state_msg->ee_forces.at(i));
     }
   }
 

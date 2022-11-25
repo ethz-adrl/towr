@@ -51,12 +51,12 @@ namespace towr {
  * derivatives from the coefficient values.
  */
 class Polynomial {
-public:
-  enum Coefficients { A=0, B, C, D, E, F, G, H, I, J};
+ public:
+  enum Coefficients { A = 0, B, C, D, E, F, G, H, I, J };
   using CoeffIDVec = std::vector<Coefficients>;
   using VectorXd   = Eigen::VectorXd;
 
-public:
+ public:
   /**
    * @brief Constructs a polynomial with zero coefficient values.
    * @param poly_order  The highest exponent of t, e.g. 5-th order -> t^5.
@@ -77,15 +77,15 @@ public:
    * @param poly_deriv  Which polynomial derivative f(t), fd(t), function to use.
    * @param coeff  The coefficient with respect to which to calculate the derivative.
    */
-  double GetDerivativeWrtCoeff(double t, Dx poly_deriv, Coefficients coeff) const;
+  double GetDerivativeWrtCoeff(double t, Dx poly_deriv,
+                               Coefficients coeff) const;
 
-protected:
+ protected:
   std::vector<VectorXd> coeff_;
 
-private:
+ private:
   CoeffIDVec coeff_ids_;
 };
-
 
 /**
  * @brief  Represents a Cubic-Hermite-Polynomial
@@ -107,10 +107,9 @@ private:
  * See also matlab/cubic_hermite_polynomial.m for generation of derivatives.
  */
 class CubicHermitePolynomial : public Polynomial {
-public:
+ public:
   CubicHermitePolynomial(int dim);
   virtual ~CubicHermitePolynomial() = default;
-
 
   /**
    * @brief  sets the total duration of the polynomial.
@@ -156,9 +155,9 @@ public:
    */
   const double GetDuration() const { return T_; };
 
-private:
-  double T_;     ///< the total duration of the polynomial.
-  Node n0_, n1_; ///< the start and final node comprising the polynomial.
+ private:
+  double T_;      ///< the total duration of the polynomial.
+  Node n0_, n1_;  ///< the start and final node comprising the polynomial.
 
   // see matlab/cubic_hermite_polynomial.m script for derivation
   double GetDerivativeOfPosWrtStartNode(Dx node_deriv, double t_local) const;
@@ -170,6 +169,6 @@ private:
   double GetDerivativeOfAccWrtEndNode(Dx node_deriv, double t_local) const;
 };
 
-} // namespace towr
+}  // namespace towr
 
-#endif // TOWR_VARIABLES_POLYNOMIAL_H_
+#endif  // TOWR_VARIABLES_POLYNOMIAL_H_

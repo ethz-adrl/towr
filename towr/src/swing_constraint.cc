@@ -32,43 +32,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-SwingConstraint::SwingConstraint (std::string ee_motion)
-    :ConstraintSet(kSpecifyLater, "swing-" + ee_motion)
+SwingConstraint::SwingConstraint(std::string ee_motion)
+    : ConstraintSet(kSpecifyLater, "swing-" + ee_motion)
 {
   ee_motion_id_ = ee_motion;
 }
 
-void
-towr::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
+void towr::SwingConstraint::InitVariableDependedQuantities(
+    const VariablesPtr& x)
 {
   ee_motion_ = x->GetComponent<NodesVariablesPhaseBased>(ee_motion_id_);
 
   pure_swing_node_ids_ = ee_motion_->GetIndicesOfNonConstantNodes();
 
   // constrain xy position and velocity of every swing node
-  int constraint_count =  pure_swing_node_ids_.size()*Node::n_derivatives*k2D;
+  int constraint_count =
+      pure_swing_node_ids_.size() * Node::n_derivatives * k2D;
 
   SetRows(constraint_count);
 }
 
-Eigen::VectorXd
-SwingConstraint::GetValues () const
+Eigen::VectorXd SwingConstraint::GetValues() const
 {
   VectorXd g(GetRows());
 
-  int row = 0;
+  int row    = 0;
   auto nodes = ee_motion_->GetNodes();
   for (int node_id : pure_swing_node_ids_) {
     // assumes two splines per swingphase and starting and ending in stance
     auto curr = nodes.at(node_id);
 
-    Vector2d prev = nodes.at(node_id-1).p().topRows<k2D>();
-    Vector2d next = nodes.at(node_id+1).p().topRows<k2D>();
+    Vector2d prev = nodes.at(node_id - 1).p().topRows<k2D>();
+    Vector2d next = nodes.at(node_id + 1).p().topRows<k2D>();
 
-    Vector2d distance_xy    = next - prev;
-    Vector2d xy_center      = prev + 0.5*distance_xy;
-    Vector2d des_vel_center = distance_xy/t_swing_avg_; // linear interpolation not accurate
-    for (auto dim : {X,Y}) {
+    Vector2d distance_xy = next - prev;
+    Vector2d xy_center   = prev + 0.5 * distance_xy;
+    Vector2d des_vel_center =
+        distance_xy / t_swing_avg_;  // linear interpolation not accurate
+    for (auto dim : {X, Y}) {
       g(row++) = curr.p()(dim) - xy_center(dim);
       g(row++) = curr.v()(dim) - des_vel_center(dim);
     }
@@ -77,30 +78,37 @@ SwingConstraint::GetValues () const
   return g;
 }
 
-SwingConstraint::VecBound
-SwingConstraint::GetBounds () const
+SwingConstraint::VecBound SwingConstraint::GetBounds() const
 {
   return VecBound(GetRows(), ifopt::BoundZero);
 }
 
-void
-SwingConstraint::FillJacobianBlock (std::string var_set,
-                                    Jacobian& jac) const
+void SwingConstraint::FillJacobianBlock(std::string var_set,
+                                        Jacobian& jac) const
 {
   if (var_set == ee_motion_->GetName()) {
     int row = 0;
     for (int node_id : pure_swing_node_ids_) {
-      for (auto dim : {X,Y}) {
+      for (auto dim : {X, Y}) {
         // position constraint
-        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id,   kPos, dim))) =  1.0;  // current node
-        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id+1, kPos, dim))) = -0.5;  // next node
-        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id-1, kPos, dim))) = -0.5;  // previous node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(
+                              node_id, kPos, dim)))     = 1.0;  // current node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(
+                              node_id + 1, kPos, dim))) = -0.5;  // next node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(
+                              node_id - 1, kPos, dim))) =
+            -0.5;  // previous node
         row++;
 
         // velocity constraint
-        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id,   kVel, dim))) =  1.0;              // current node
-        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id+1, kPos, dim))) = -1.0/t_swing_avg_; // next node
-        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(node_id-1, kPos, dim))) = +1.0/t_swing_avg_; // previous node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(
+                              node_id, kVel, dim))) = 1.0;  // current node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(
+                              node_id + 1, kPos, dim))) =
+            -1.0 / t_swing_avg_;  // next node
+        jac.coeffRef(row, ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(
+                              node_id - 1, kPos, dim))) =
+            +1.0 / t_swing_avg_;  // previous node
         row++;
       }
     }

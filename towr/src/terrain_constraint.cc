@@ -29,51 +29,46 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/constraints/terrain_constraint.h>
 
-
 namespace towr {
 
-
-TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
-                                      std::string ee_motion)
-    :ConstraintSet(kSpecifyLater, "terrain-" + ee_motion)
+TerrainConstraint::TerrainConstraint(const HeightMap::Ptr& terrain,
+                                     std::string ee_motion)
+    : ConstraintSet(kSpecifyLater, "terrain-" + ee_motion)
 {
   ee_motion_id_ = ee_motion;
-  terrain_ = terrain;
+  terrain_      = terrain;
 }
 
-void
-TerrainConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
+void TerrainConstraint::InitVariableDependedQuantities(const VariablesPtr& x)
 {
   ee_motion_ = x->GetComponent<NodesVariablesPhaseBased>(ee_motion_id_);
 
   // skip first node, b/c already constrained by initial stance
-  for (int id=1; id<ee_motion_->GetNodes().size(); ++id)
+  for (int id = 1; id < ee_motion_->GetNodes().size(); ++id)
     node_ids_.push_back(id);
 
   int constraint_count = node_ids_.size();
   SetRows(constraint_count);
 }
 
-Eigen::VectorXd
-TerrainConstraint::GetValues () const
+Eigen::VectorXd TerrainConstraint::GetValues() const
 {
   VectorXd g(GetRows());
 
   auto nodes = ee_motion_->GetNodes();
-  int row = 0;
+  int row    = 0;
   for (int id : node_ids_) {
     Vector3d p = nodes.at(id).p();
-    g(row++) = p.z() - terrain_->GetHeight(p.x(), p.y());
+    g(row++)   = p.z() - terrain_->GetHeight(p.x(), p.y());
   }
 
   return g;
 }
 
-TerrainConstraint::VecBound
-TerrainConstraint::GetBounds () const
+TerrainConstraint::VecBound TerrainConstraint::GetBounds() const
 {
   VecBound bounds(GetRows());
-  double max_distance_above_terrain = 1e20; // [m]
+  double max_distance_above_terrain = 1e20;  // [m]
 
   int row = 0;
   for (int id : node_ids_) {
@@ -87,20 +82,23 @@ TerrainConstraint::GetBounds () const
   return bounds;
 }
 
-void
-TerrainConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
+void TerrainConstraint::FillJacobianBlock(std::string var_set,
+                                          Jacobian& jac) const
 {
   if (var_set == ee_motion_->GetName()) {
     auto nodes = ee_motion_->GetNodes();
-    int row = 0;
+    int row    = 0;
     for (int id : node_ids_) {
-      int idx = ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(id, kPos, Z));
+      int idx =
+          ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(id, kPos, Z));
       jac.coeffRef(row, idx) = 1.0;
 
       Vector3d p = nodes.at(id).p();
-      for (auto dim : {X,Y}) {
-        int idx = ee_motion_->GetOptIndex(NodesVariables::NodeValueInfo(id, kPos, dim));
-        jac.coeffRef(row, idx) = -terrain_->GetDerivativeOfHeightWrt(To2D(dim), p.x(), p.y());
+      for (auto dim : {X, Y}) {
+        int idx = ee_motion_->GetOptIndex(
+            NodesVariables::NodeValueInfo(id, kPos, dim));
+        jac.coeffRef(row, idx) =
+            -terrain_->GetDerivativeOfHeightWrt(To2D(dim), p.x(), p.y());
       }
       row++;
     }

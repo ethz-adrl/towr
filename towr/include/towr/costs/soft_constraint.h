@@ -57,7 +57,7 @@ namespace towr {
  * @ingroup Costs
  */
 class SoftConstraint : public ifopt::Component {
-public:
+ public:
   using ConstraintPtr = Component::Ptr;
 
   /**
@@ -67,20 +67,20 @@ public:
    * Weights are set to identity, so each constraint violation contributes
    * equally to the cost.
    */
-  SoftConstraint (const ConstraintPtr& constraint);
-  virtual ~SoftConstraint () = default;
+  SoftConstraint(const ConstraintPtr& constraint);
+  virtual ~SoftConstraint() = default;
 
-private:
+ private:
   ConstraintPtr constraint_;
-  VectorXd W_; ///< weights how each constraint violation contributes to the cost.
-  VectorXd b_; /// average value of each upper and lower bound.
+  VectorXd W_;  ///< weight each constraint violation contributes to the cost.
+  VectorXd b_;  /// average value of each upper and lower bound.
 
   /**
    * @brief The quadratic constraint violation transformed to a cost.
    *
    * c(x) = 0.5 * (g-b)^T * W * (g-b)
    */
-  VectorXd GetValues () const override;
+  VectorXd GetValues() const override;
 
   /**
    * @brief The row-vector of derivatives of the cost term.
@@ -90,7 +90,10 @@ private:
   Jacobian GetJacobian() const override;
 
   // doesn't exist for cost, generated run-time error when used
-  VecBound GetBounds() const final { return VecBound(GetRows(), ifopt::NoBound); };
+  VecBound GetBounds() const final
+  {
+    return VecBound(GetRows(), ifopt::NoBound);
+  };
   void SetVariables(const VectorXd& x) final { assert(false); };
 };
 

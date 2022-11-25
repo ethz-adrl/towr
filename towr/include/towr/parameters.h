@@ -30,9 +30,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_OPTIMIZATION_PARAMETERS_H_
 #define TOWR_OPTIMIZATION_PARAMETERS_H_
 
-#include <vector>
 #include <array>
-#include <utility> // std::pair, std::make_pair
+#include <utility>  // std::pair, std::make_pair
+#include <vector>
 
 namespace towr {
 
@@ -131,32 +131,34 @@ namespace towr {
  * @ingroup Parameters
  */
 class Parameters {
-public:
+ public:
   /**
    * @brief Identifiers to be used to add certain constraints to the
    * optimization problem.
    */
-  enum ConstraintName { Dynamic,        ///< sets DynamicConstraint
-                        EndeffectorRom, ///< sets RangeOfMotionConstraint
-                        TotalTime,      ///< sets TotalDurationConstraint
-                        Terrain,        ///< sets TerrainConstraint
-                        Force,          ///< sets ForceConstraint
-                        Swing,          ///< sets SwingConstraint
-                        BaseRom,        ///< sets BaseMotionConstraint
-                        BaseAcc         ///< sets SplineAccConstraint
+  enum ConstraintName {
+    Dynamic,         ///< sets DynamicConstraint
+    EndeffectorRom,  ///< sets RangeOfMotionConstraint
+    TotalTime,       ///< sets TotalDurationConstraint
+    Terrain,         ///< sets TerrainConstraint
+    Force,           ///< sets ForceConstraint
+    Swing,           ///< sets SwingConstraint
+    BaseRom,         ///< sets BaseMotionConstraint
+    BaseAcc          ///< sets SplineAccConstraint
   };
   /**
    *  @brief Indentifiers to be used to add certain costs to the optimization
    *  problem.
    */
-  enum CostName       { ForcesCostID,    ///< sets NodeCost on force nodes
-                        EEMotionCostID   ///< sets NodeCost on endeffector velocity
+  enum CostName {
+    ForcesCostID,   ///< sets NodeCost on force nodes
+    EEMotionCostID  ///< sets NodeCost on endeffector velocity
   };
 
-  using CostWeights      = std::vector<std::pair<CostName, double>>;
-  using UsedConstraints  = std::vector<ConstraintName>;
-  using VecTimes         = std::vector<double>;
-  using EEID             = unsigned int;
+  using CostWeights     = std::vector<std::pair<CostName, double>>;
+  using UsedConstraints = std::vector<ConstraintName>;
+  using VecTimes        = std::vector<double>;
+  using EEID            = unsigned int;
 
   /**
    * @brief Default parameters to get started.
@@ -198,10 +200,8 @@ public:
   double force_limit_in_normal_direction_;
 
   /// which dimensions (x,y,z) of the final base state should be bounded
-  std::vector<int> bounds_final_lin_pos_,
-                   bounds_final_lin_vel_,
-                   bounds_final_ang_pos_,
-                   bounds_final_ang_vel_;
+  std::vector<int> bounds_final_lin_pos_, bounds_final_lin_vel_,
+      bounds_final_ang_pos_, bounds_final_ang_vel_;
 
   /** Minimum and maximum time [s] for each phase (swing,stance).
    *
@@ -209,7 +209,7 @@ public:
    *  Make sure max time is less than total duration of trajectory, or segfault.
    *  limiting this range can help convergence when optimizing gait.
    */
-  std::pair<double,double> bound_phase_duration_;
+  std::pair<double, double> bound_phase_duration_;
 
   /// Specifies that timings of all feet, so the gait, should be optimized.
   void OptimizePhaseDurations();
@@ -230,6 +230,6 @@ public:
   double GetTotalTime() const;
 };
 
-} // namespace towr
+}  // namespace towr
 
 #endif /* TOWR_OPTIMIZATION_PARAMETERS_H_ */

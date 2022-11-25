@@ -54,7 +54,7 @@ namespace towr {
  * @ingroup Robots
  */
 class SingleRigidBodyDynamics : public DynamicModel {
-public:
+ public:
   /**
    * @brief Constructs a specific model.
    * @param mass         The mass of the robot.
@@ -63,7 +63,8 @@ public:
    *                     This matrix maps angular accelerations expressed in
    *                     base frame to moments in base frame.
    */
-  SingleRigidBodyDynamics (double mass, const Eigen::Matrix3d& inertia_b, int ee_count);
+  SingleRigidBodyDynamics(double mass, const Eigen::Matrix3d& inertia_b,
+                          int ee_count);
 
   /**
    * @brief Constructs a specific model.
@@ -71,12 +72,10 @@ public:
    * @param I..       Elements of the 3x3 Inertia matrix
    * @param ee_count  Number of endeffectors/forces.
    */
-  SingleRigidBodyDynamics (double mass,
-                   double Ixx, double Iyy, double Izz,
-                   double Ixy, double Ixz, double Iyz,
-                   int ee_count);
+  SingleRigidBodyDynamics(double mass, double Ixx, double Iyy, double Izz,
+                          double Ixy, double Ixz, double Iyz, int ee_count);
 
-  virtual ~SingleRigidBodyDynamics () = default;
+  virtual ~SingleRigidBodyDynamics() = default;
 
   BaseAcc GetDynamicViolation() const override;
 
@@ -88,13 +87,12 @@ public:
 
   Jac GetJacobianWrtEEPos(const Jac& jac_ee_pos, EE) const override;
 
-private:
+ private:
   /** Inertia of entire robot around the CoM expressed in a frame anchored
    *  in the base.
    */
   Eigen::SparseMatrix<double, Eigen::RowMajor> I_b;
 };
-
 
 } /* namespace towr */
 

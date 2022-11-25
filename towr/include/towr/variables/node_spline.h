@@ -30,11 +30,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_TOWR_SRC_NODE_SPLINE_H_
 #define TOWR_TOWR_SRC_NODE_SPLINE_H_
 
-#include <memory>
 #include <Eigen/Sparse>
+#include <memory>
 
-#include "spline.h"
 #include "nodes_observer.h"
+#include "spline.h"
 
 namespace towr {
 
@@ -47,8 +47,8 @@ namespace towr {
  * polynomials accordingly.
  */
 class NodeSpline : public Spline, public NodesObserver {
-public:
-  using Ptr = std::shared_ptr<NodeSpline>;
+ public:
+  using Ptr      = std::shared_ptr<NodeSpline>;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
   /**
@@ -98,10 +98,12 @@ public:
    *             p: Number of dimensions of the spline
    *             n: Number of optimized durations.
    */
-  virtual Jacobian
-  GetJacobianOfPosWrtDurations(double t) const { assert(false); } // durations are fixed here
+  virtual Jacobian GetJacobianOfPosWrtDurations(double t) const
+  {
+    assert(false);
+  }  // durations are fixed here
 
-protected:
+ protected:
   /**
    * The size and non-zero elements of the Jacobian of the position w.r.t nodes.
    */
@@ -115,8 +117,8 @@ protected:
    * @param jac[in/out] The correctly sized Jacobian to fill.
    * @param fill_with_zeros True if only sparsity pattern should be set.
    */
-  void FillJacobianWrtNodes (int poly_id, double t_local, Dx dxdt,
-                             Jacobian& jac, bool fill_with_zeros) const;
+  void FillJacobianWrtNodes(int poly_id, double t_local, Dx dxdt, Jacobian& jac,
+                            bool fill_with_zeros) const;
 };
 
 } /* namespace towr */

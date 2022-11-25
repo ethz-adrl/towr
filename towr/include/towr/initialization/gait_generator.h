@@ -44,32 +44,48 @@ namespace towr {
  * initialize the towr optimization problem.
  */
 class GaitGenerator {
-public:
+ public:
   using Ptr           = std::shared_ptr<GaitGenerator>;
   using VecTimes      = std::vector<double>;
   using FootDurations = std::vector<VecTimes>;
   using ContactState  = std::vector<bool>;
-  using GaitInfo      = std::pair<VecTimes,std::vector<ContactState>>;
+  using GaitInfo      = std::pair<VecTimes, std::vector<ContactState>>;
   using EE            = uint;
 
   /**
    * @brief Predefined combinations of different strides.
    */
-  enum Combos { C0, C1, C2, C3, C4, COMBO_COUNT};
+  enum Combos { C0, C1, C2, C3, C4, COMBO_COUNT };
 
   /**
    * @brief Predefined strides, each with a different gait diagram.
    */
-  enum Gaits  {Stand=0, Flight,
-               Walk1, Walk2, Walk2E,
-               Run2, Run2E, Run1, Run1E, Run3, Run3E,
-               Hop1, Hop1E, Hop2, Hop3, Hop3E, Hop5, Hop5E,
-               GAIT_COUNT};
+  enum Gaits {
+    Stand = 0,
+    Flight,
+    Walk1,
+    Walk2,
+    Walk2E,
+    Run2,
+    Run2E,
+    Run1,
+    Run1E,
+    Run3,
+    Run3E,
+    Hop1,
+    Hop1E,
+    Hop2,
+    Hop3,
+    Hop3E,
+    Hop5,
+    Hop5E,
+    GAIT_COUNT
+  };
 
   static Ptr MakeGaitGenerator(int leg_count);
 
-  GaitGenerator () = default;
-  virtual ~GaitGenerator () = default;
+  GaitGenerator()          = default;
+  virtual ~GaitGenerator() = default;
 
   /**
    * @returns the swing and stance durations for the set gait.
@@ -98,7 +114,7 @@ public:
    */
   void SetGaits(const std::vector<Gaits>& gaits);
 
-protected:
+ protected:
   /// Phase times for the complete robot during which no contact state changes.
   std::vector<double> times_;
 
@@ -114,7 +130,7 @@ protected:
    */
   GaitInfo RemoveTransition(const GaitInfo& g) const;
 
-private:
+ private:
   FootDurations GetPhaseDurations() const;
   virtual GaitInfo GetGait(Gaits gait) const = 0;
   VecTimes GetNormalizedPhaseDurations(EE ee) const;

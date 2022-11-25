@@ -43,7 +43,6 @@ static const std::string nlp_iterations_count("/towr/nlp_iterations_count");
 // the base topic names of each nlp iteration
 static const std::string nlp_iterations_name("/towr/nlp_iterations_name");
 
-} // namespace towr_msgs
-
+}  // namespace towr_msgs
 
 #endif /* TOWR_ROS_TOPIC_NAMES_H_ */

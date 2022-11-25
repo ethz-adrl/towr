@@ -33,37 +33,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-
-TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
-                                                            std::string name)
-    :ConstraintSet(kSpecifyLater, name)
+TimeDiscretizationConstraint::TimeDiscretizationConstraint(double T, double dt,
+                                                           std::string name)
+    : ConstraintSet(kSpecifyLater, name)
 {
   double t = 0.0;
-  dts_ = {t};
+  dts_     = {t};
 
-  for (int i=0; i<floor(T/dt); ++i) {
+  for (int i = 0; i < floor(T / dt); ++i) {
     t += dt;
     dts_.push_back(t);
   }
 
-  dts_.push_back(T); // also ensure constraints at very last node/time.
+  dts_.push_back(T);  // also ensure constraints at very last node/time.
 }
 
-TimeDiscretizationConstraint::TimeDiscretizationConstraint (const VecTimes& times,
-                                                            std::string name)
-   :ConstraintSet(kSpecifyLater, name) // just placeholder
+TimeDiscretizationConstraint::TimeDiscretizationConstraint(
+    const VecTimes& times, std::string name)
+    : ConstraintSet(kSpecifyLater, name)  // just placeholder
 {
   dts_ = times;
 }
 
-int
-TimeDiscretizationConstraint::GetNumberOfNodes () const
+int TimeDiscretizationConstraint::GetNumberOfNodes() const
 {
   return dts_.size();
 }
 
-TimeDiscretizationConstraint::VectorXd
-TimeDiscretizationConstraint::GetValues () const
+TimeDiscretizationConstraint::VectorXd TimeDiscretizationConstraint::GetValues()
+    const
 {
   VectorXd g = VectorXd::Zero(GetRows());
 
@@ -74,8 +72,8 @@ TimeDiscretizationConstraint::GetValues () const
   return g;
 }
 
-TimeDiscretizationConstraint::VecBound
-TimeDiscretizationConstraint::GetBounds () const
+TimeDiscretizationConstraint::VecBound TimeDiscretizationConstraint::GetBounds()
+    const
 {
   VecBound bounds(GetRows());
 
@@ -86,9 +84,8 @@ TimeDiscretizationConstraint::GetBounds () const
   return bounds;
 }
 
-void
-TimeDiscretizationConstraint::FillJacobianBlock (std::string var_set,
-                                                  Jacobian& jac) const
+void TimeDiscretizationConstraint::FillJacobianBlock(std::string var_set,
+                                                     Jacobian& jac) const
 {
   int k = 0;
   for (double t : dts_)
@@ -96,5 +93,3 @@ TimeDiscretizationConstraint::FillJacobianBlock (std::string var_set,
 }
 
 } /* namespace towr */
-
-

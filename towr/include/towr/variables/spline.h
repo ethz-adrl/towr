@@ -42,13 +42,13 @@ namespace towr {
  * This class is responsible for stitching together multiple individual
  * polynomials into one spline.
  */
-class Spline  {
-public:
+class Spline {
+ public:
   using VecTimes = std::vector<double>;
   using VecPoly  = std::vector<CubicHermitePolynomial>;
 
   Spline(const VecTimes& poly_durations, int n_dim);
-  virtual ~Spline () = default;
+  virtual ~Spline() = default;
 
   /**
    * @returns The state of the spline at time t.
@@ -85,8 +85,8 @@ public:
    */
   VecTimes GetPolyDurations() const;
 
-protected:
-  VecPoly cubic_polys_; ///< the sequence of polynomials making up the spline.
+ protected:
+  VecPoly cubic_polys_;  ///< the sequence of polynomials making up the spline.
 
   /**
    * @brief How much time of the current segment has passed at t_global.
@@ -94,7 +94,7 @@ protected:
    * @param d The durations of each segment.
    * @return The segment id and the time passed in this segment.
    */
-  std::pair<int,double> GetLocalTime(double t_global, const VecTimes& d) const;
+  std::pair<int, double> GetLocalTime(double t_global, const VecTimes& d) const;
 
   /**
    * @brief Updates the cubic-Hermite polynomial coefficients using the

@@ -43,12 +43,12 @@ namespace towr {
  * keyboard input into a goal state), which terrain to visualize, etc.
  */
 class TowrUserInterface {
-public:
+ public:
   /**
    * @brief  Constructs default object to interact with framework.
    */
-  TowrUserInterface ();
-  virtual ~TowrUserInterface () = default;
+  TowrUserInterface();
+  virtual ~TowrUserInterface() = default;
 
   /**
    * Called whenever a keyboard key is pressed.
@@ -56,9 +56,8 @@ public:
    */
   void CallbackKey(int c);
 
-private:
-  ::ros::Publisher  user_command_pub_; ///< the output message to TOWR.
-
+ private:
+  ::ros::Publisher user_command_pub_;  ///< the output message to TOWR.
 
   void PublishCommand();
 

@@ -40,11 +40,11 @@ namespace towr {
  * @sa GaitGenerator for more documentation
  */
 class QuadrupedGaitGenerator : public GaitGenerator {
-public:
-  QuadrupedGaitGenerator ();
-  virtual ~QuadrupedGaitGenerator () = default;
+ public:
+  QuadrupedGaitGenerator();
+  virtual ~QuadrupedGaitGenerator() = default;
 
-private:
+ private:
   GaitInfo GetGait(Gaits gait) const override;
 
   GaitInfo GetStrideStand() const;
@@ -53,36 +53,35 @@ private:
   GaitInfo GetStrideWalkOverlap() const;
   GaitInfo GetStrideTrot() const;
   GaitInfo GetStrideTrotFly() const;
-  GaitInfo GetStrideTrotFlyEnd () const;
+  GaitInfo GetStrideTrotFlyEnd() const;
   GaitInfo GetStridePace() const;
   GaitInfo GetStridePaceEnd() const;
   GaitInfo GetStrideBound() const;
-  GaitInfo GetStrideBoundEnd () const;
+  GaitInfo GetStrideBoundEnd() const;
   GaitInfo GetStrideGallop() const;
   GaitInfo GetStridePronk() const;
   GaitInfo GetStrideLimp() const;
 
   void SetCombo(Combos combo) override;
 
-
   // naming convention:, where the circle is is contact, front is right ->.
   // so RF and LH in contact is (Pb):  o .
   //                                   . o
   // flight-phase
   ContactState II_;
-  // 1 swingleg
+  // 1 swing leg
   ContactState PI_;
   ContactState bI_;
   ContactState IP_;
   ContactState Ib_;
-  // 2 swinglegs
+  // 2 swing legs
   ContactState Pb_;
   ContactState bP_;
   ContactState BI_;
   ContactState IB_;
   ContactState PP_;
   ContactState bb_;
-  // 3 swinglegs
+  // 3 swing legs
   ContactState Bb_;
   ContactState BP_;
   ContactState bB_;

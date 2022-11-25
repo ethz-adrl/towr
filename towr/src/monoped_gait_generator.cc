@@ -34,86 +34,94 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-void
-MonopedGaitGenerator::SetCombo (Combos combo)
+void MonopedGaitGenerator::SetCombo(Combos combo)
 {
   switch (combo) {
-    case C0: SetGaits({Stand, Hop1, Hop1, Hop1, Hop1, Stand});       break;
-    case C1: SetGaits({Stand, Hop1, Hop1, Hop1, Stand});             break;
-    case C2: SetGaits({Stand, Hop1, Hop1, Hop1, Hop1, Stand});       break;
-    case C3: SetGaits({Stand, Hop2, Hop2, Hop2, Stand});             break;
-    case C4: SetGaits({Stand, Hop2, Hop2, Hop2, Hop2, Hop2, Stand}); break;
-    default: assert(false); std::cout << "Gait not defined\n";       break;
+    case C0:
+      SetGaits({Stand, Hop1, Hop1, Hop1, Hop1, Stand});
+      break;
+    case C1:
+      SetGaits({Stand, Hop1, Hop1, Hop1, Stand});
+      break;
+    case C2:
+      SetGaits({Stand, Hop1, Hop1, Hop1, Hop1, Stand});
+      break;
+    case C3:
+      SetGaits({Stand, Hop2, Hop2, Hop2, Stand});
+      break;
+    case C4:
+      SetGaits({Stand, Hop2, Hop2, Hop2, Hop2, Hop2, Stand});
+      break;
+    default:
+      assert(false);
+      std::cout << "Gait not defined\n";
+      break;
   }
 }
 
-MonopedGaitGenerator::GaitInfo
-MonopedGaitGenerator::GetGait (Gaits gait) const
+MonopedGaitGenerator::GaitInfo MonopedGaitGenerator::GetGait(Gaits gait) const
 {
   switch (gait) {
-    case Stand:   return GetStrideStand();
-    case Flight:  return GetStrideFlight();
-    case Hop1:    return GetStrideHop();
-    case Hop2:    return GetStrideHopLong();
-    default: assert(false); // gait not implemented
+    case Stand:
+      return GetStrideStand();
+    case Flight:
+      return GetStrideFlight();
+    case Hop1:
+      return GetStrideHop();
+    case Hop2:
+      return GetStrideHopLong();
+    default:
+      assert(false);  // gait not implemented
   }
 }
 
-MonopedGaitGenerator::GaitInfo
-MonopedGaitGenerator::GetStrideStand () const
+MonopedGaitGenerator::GaitInfo MonopedGaitGenerator::GetStrideStand() const
 {
-  auto times =
-  {
+  auto times = {
       0.5,
   };
-  auto contacts =
-  {
+  auto contacts = {
       o_,
   };
 
   return std::make_pair(times, contacts);
 }
 
-MonopedGaitGenerator::GaitInfo
-MonopedGaitGenerator::GetStrideFlight () const
+MonopedGaitGenerator::GaitInfo MonopedGaitGenerator::GetStrideFlight() const
 {
-  auto times =
-  {
+  auto times = {
       0.5,
   };
-  auto contacts =
-  {
+  auto contacts = {
       x_,
   };
 
   return std::make_pair(times, contacts);
 }
 
-MonopedGaitGenerator::GaitInfo
-MonopedGaitGenerator::GetStrideHop () const
+MonopedGaitGenerator::GaitInfo MonopedGaitGenerator::GetStrideHop() const
 {
-  auto times =
-  {
-      0.3, 0.3,
+  auto times = {
+      0.3,
+      0.3,
   };
-  auto contacts =
-  {
-      o_, x_,
+  auto contacts = {
+      o_,
+      x_,
   };
 
   return std::make_pair(times, contacts);
 }
 
-MonopedGaitGenerator::GaitInfo
-MonopedGaitGenerator::GetStrideHopLong () const
+MonopedGaitGenerator::GaitInfo MonopedGaitGenerator::GetStrideHopLong() const
 {
-  auto times =
-  {
-      0.2, 0.3,
+  auto times = {
+      0.2,
+      0.3,
   };
-  auto contacts =
-  {
-      o_, x_,
+  auto contacts = {
+      o_,
+      x_,
   };
 
   return std::make_pair(times, contacts);

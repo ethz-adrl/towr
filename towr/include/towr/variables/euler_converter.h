@@ -60,17 +60,17 @@ namespace towr {
  * See matlab script "matlab/euler_converter.m" for derivation.
  */
 class EulerConverter {
-public:
+ public:
   using Vector3d    = Eigen::Vector3d;
-  using EulerAngles = Vector3d; ///< roll, pitch, yaw.
-  using EulerRates  = Vector3d; ///< derivative of the above
+  using EulerAngles = Vector3d;  ///< roll, pitch, yaw.
+  using EulerRates  = Vector3d;  ///< derivative of the above
 
-  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
-  using MatrixSXd   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-  using Jacobian    = MatrixSXd;
+  using JacobianRow  = Eigen::SparseVector<double, Eigen::RowMajor>;
+  using MatrixSXd    = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+  using Jacobian     = MatrixSXd;
   using JacRowMatrix = std::array<std::array<JacobianRow, k3D>, k3D>;
 
-  EulerConverter () = default;
+  EulerConverter() = default;
 
   /**
    * @brief Constructs and links this object to the Euler angle values
@@ -87,15 +87,15 @@ public:
    * double pitch = euler_angles->GetPoint(t).y();
    * double yaw   = euler_angles->GetPoint(t).z();
    */
-  EulerConverter (const NodeSpline::Ptr& euler_angles);
-  virtual ~EulerConverter () = default;
+  EulerConverter(const NodeSpline::Ptr& euler_angles);
+  virtual ~EulerConverter() = default;
 
   /**
    * @brief Converts the Euler angles at time t to a Quaternion.
    * @param t The current time in the euler angles spline.
    * @return A Quaternion the maps a vector from base to world frame.
    */
-  Eigen::Quaterniond GetQuaternionBaseToWorld (double t) const;
+  Eigen::Quaterniond GetQuaternionBaseToWorld(double t) const;
 
   /**
    * @brief Converts the Euler angles at time t to a rotation matrix.
@@ -155,7 +155,7 @@ public:
   /** @see GetQuaternionBaseToWorld(t)  */
   static Eigen::Quaterniond GetQuaternionBaseToWorld(const EulerAngles& pos);
 
-private:
+ private:
   NodeSpline::Ptr euler_;
 
   // Internal calculations for the conversion from euler rates to angular

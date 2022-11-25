@@ -31,59 +31,57 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace towr {
 
-SplineAccConstraint::SplineAccConstraint (const NodeSpline::Ptr& spline,
-                                          std::string node_variable_name)
-    :ConstraintSet(kSpecifyLater, "splineacc-" + node_variable_name)
+SplineAccConstraint::SplineAccConstraint(const NodeSpline::Ptr& spline,
+                                         std::string node_variable_name)
+    : ConstraintSet(kSpecifyLater, "splineacc-" + node_variable_name)
 {
-  spline_ = spline;
+  spline_            = spline;
   node_variables_id_ = node_variable_name;
 
   n_dim_       = spline->GetPoint(0.0).p().rows();
   n_junctions_ = spline->GetPolynomialCount() - 1;
   T_           = spline->GetPolyDurations();
 
-  SetRows(n_dim_*n_junctions_);
+  SetRows(n_dim_ * n_junctions_);
 }
 
-Eigen::VectorXd
-SplineAccConstraint::GetValues () const
+Eigen::VectorXd SplineAccConstraint::GetValues() const
 {
   VectorXd g(GetRows());
 
-  for (int j=0; j<n_junctions_; ++j) {
-    int p_prev = j; // id of previous polynomial
+  for (int j = 0; j < n_junctions_; ++j) {
+    int p_prev        = j;  // id of previous polynomial
     VectorXd acc_prev = spline_->GetPoint(p_prev, T_.at(p_prev)).a();
 
-    int p_next = j+1;
+    int p_next        = j + 1;
     VectorXd acc_next = spline_->GetPoint(p_next, 0.0).a();
 
-    g.segment(j*n_dim_, n_dim_) = acc_prev - acc_next;
+    g.segment(j * n_dim_, n_dim_) = acc_prev - acc_next;
   }
 
   return g;
 }
 
-void
-SplineAccConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
+void SplineAccConstraint::FillJacobianBlock(std::string var_set,
+                                            Jacobian& jac) const
 {
   if (var_set == node_variables_id_) {
-    for (int j=0; j<n_junctions_; ++j) {
-      int p_prev = j; // id of previous polynomial
-      Jacobian acc_prev = spline_->GetJacobianWrtNodes(p_prev, T_.at(p_prev), kAcc);
+    for (int j = 0; j < n_junctions_; ++j) {
+      int p_prev = j;  // id of previous polynomial
+      Jacobian acc_prev =
+          spline_->GetJacobianWrtNodes(p_prev, T_.at(p_prev), kAcc);
 
-      int p_next = j+1;
+      int p_next        = j + 1;
       Jacobian acc_next = spline_->GetJacobianWrtNodes(p_next, 0.0, kAcc);
 
-      jac.middleRows(j*n_dim_, n_dim_) = acc_prev - acc_next;
+      jac.middleRows(j * n_dim_, n_dim_) = acc_prev - acc_next;
     }
   }
 }
 
-SplineAccConstraint::VecBound
-SplineAccConstraint::GetBounds () const
+SplineAccConstraint::VecBound SplineAccConstraint::GetBounds() const
 {
   return VecBound(GetRows(), ifopt::BoundZero);
 }
 
-} /* namespace xpp */
-
+}  // namespace towr
