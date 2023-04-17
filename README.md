@@ -5,7 +5,7 @@
 *A light-weight and extensible C++ library for trajectory optimization for legged robots.*
 
 [![Build Status](http://build.ros.org/buildStatus/icon?job=Mdev__towr__ubuntu_bionic_amd64)](http://build.ros.org/view/Mdev/job/Mdev__towr__ubuntu_bionic_amd64/)
-[![Documentation](https://img.shields.io/badge/docs-generated-brightgreen.svg)](http://docs.ros.org/kinetic/api/towr/html/)
+[![Documentation](https://img.shields.io/badge/docs-generated-brightgreen.svg)](https://docs.ros.org/en/melodic/api/towr/html/)
 [![ROS hosting](https://img.shields.io/badge/ROS-integration-blue.svg)](http://wiki.ros.org/towr)
 ![](https://tokei.rs/b1/github/ethz-adrl/towr?category=code)
 [![CodeFactor](https://www.codefactor.io/repository/github/ethz-adrl/towr/badge)](https://www.codefactor.io/repository/github/ethz-adrl/towr)
@@ -114,13 +114,13 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   ```
   Click in the xterm terminal and hit 'o'. 
   
-  Information about how to tune the paramters can be found [here](http://docs.ros.org/api/towr/html/group__Parameters.html). 
+  Information about how to tune the paramters can be found [here](https://docs.ros.org/en/melodic/api/towr/html/group__Parameters.html). 
   
 ## Develop
 #### Library overview
- * The relevant classes and parameters to build on are collected [modules](http://docs.ros.org/api/towr/html/modules.html).
- * A nice graphical overview as UML can be seen [here](http://docs.ros.org/api/towr/html/inherits.html).
- * The [doxygen documentation](http://docs.ros.org/api/towr/html/) provides helpful information for developers.
+ * The relevant classes and parameters to build on are collected [modules](https://docs.ros.org/en/melodic/api/towr/html/modules.html).
+ * A nice graphical overview as UML can be seen [here](https://docs.ros.org/en/melodic/api/towr/html/inherits.html).
+ * The [doxygen documentation](https://docs.ros.org/en/melodic/api/towr/) provides helpful information for developers.
 
 #### Problem formulation
  * This code formulates the variables, costs and constraints using ifopt, so it makes sense to briefly familiarize with the syntax using [this example].
@@ -132,7 +132,7 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
  * This library provides a set of variables, costs and constraints to formulate the trajectory optimization problem. An [example formulation](towr/include/towr/nlp_formulation.h) of how to combine these is given, however, this formulation can probably be improved. To add your own e.g. constraint-set, define a class with it's values and derivatives, and then add it to the formulation ```nlp.AddConstraintSet(your_custom_constraints);``` as shown [here](towr/test/hopper_example.cc).
 
 #### Add your own robot
- * Want to add your own robot to towr? Start [here](http://docs.ros.org/en/melodic/api/towr/html/group__Robots.html).
+ * Want to add your own robot to towr? Start [here](https://docs.ros.org/en/melodic/api/towr/html/group__Robots.html).
  * To visualize that robot in rviz, see [xpp].
 
 ## Contribute
