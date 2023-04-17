@@ -6,7 +6,7 @@
 
 [![Build Status](http://build.ros.org/buildStatus/icon?job=Mdev__towr__ubuntu_bionic_amd64)](http://build.ros.org/view/Mdev/job/Mdev__towr__ubuntu_bionic_amd64/)
 [![Documentation](https://img.shields.io/badge/docs-generated-brightgreen.svg)](http://docs.ros.org/kinetic/api/towr/html/)
-[![ROS hosting](https://img.shields.io/badge/ROS-integration-blue.svg)](http://wiki.ros.org/towr)
+[![ROS hosting](https://img.shields.io/badge/ROS-integration-blue.svg)](https://wiki.ros.org/towr)
 ![](https://tokei.rs/b1/github/ethz-adrl/towr?category=code)
 [![CodeFactor](https://www.codefactor.io/repository/github/ethz-adrl/towr/badge)](https://www.codefactor.io/repository/github/ethz-adrl/towr)
 [![License BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29#fulltext)
@@ -34,7 +34,7 @@ Features:
 [<img src="https://i.imgur.com/8M4v4aP.gif" />](https://youtu.be/0jE46GqzxMM "Show more examples on Youtube")
 
 ## Install
-The easiest way to install is through the [ROS binaries](http://wiki.ros.org/towr):
+The easiest way to install is through the [ROS binaries](https://wiki.ros.org/towr):
 ```bash
 sudo apt-get install ros-<ros-distro>-towr-ros
 ```
@@ -114,13 +114,13 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
   ```
   Click in the xterm terminal and hit 'o'. 
   
-  Information about how to tune the paramters can be found [here](http://docs.ros.org/api/towr/html/group__Parameters.html). 
+  Information about how to tune the paramters can be found [here](https://wiki.ros.org/api/towr/html/group__Parameters.html). 
   
 ## Develop
 #### Library overview
- * The relevant classes and parameters to build on are collected [modules](http://docs.ros.org/api/towr/html/modules.html).
- * A nice graphical overview as UML can be seen [here](http://docs.ros.org/api/towr/html/inherits.html).
- * The [doxygen documentation](http://docs.ros.org/api/towr/html/) provides helpful information for developers.
+ * The relevant classes and parameters to build on are collected [modules](https://wiki.ros.org/api/towr/html/modules.html).
+ * A nice graphical overview as UML can be seen [here](https://wiki.ros.org/api/towr/html/inherits.html).
+ * The [doxygen documentation](https://wiki.ros.org/api/towr/html/) provides helpful information for developers.
 
 #### Problem formulation
  * This code formulates the variables, costs and constraints using ifopt, so it makes sense to briefly familiarize with the syntax using [this example].
@@ -132,7 +132,7 @@ We provide a [ROS]-wrapper for the pure cmake towr library, which adds a keyboar
  * This library provides a set of variables, costs and constraints to formulate the trajectory optimization problem. An [example formulation](towr/include/towr/nlp_formulation.h) of how to combine these is given, however, this formulation can probably be improved. To add your own e.g. constraint-set, define a class with it's values and derivatives, and then add it to the formulation ```nlp.AddConstraintSet(your_custom_constraints);``` as shown [here](towr/test/hopper_example.cc).
 
 #### Add your own robot
- * Want to add your own robot to towr? Start [here](http://docs.ros.org/en/melodic/api/towr/html/group__Robots.html).
+ * Want to add your own robot to towr? Start [here](https://wiki.ros.org/melodic/api/towr/html/group__Robots.html).
  * To visualize that robot in rviz, see [xpp].
 
 ## Contribute
@@ -174,22 +174,22 @@ The work was carried out at the following institutions:
 
 [A. W. Winkler]: https://awinkler.github.io/publications.html
 [CMake]: https://cmake.org/cmake/help/v3.0/
-[std_msgs]: http://wiki.ros.org/std_msgs
-[roscpp]: http://wiki.ros.org/roscpp
-[message_generation]: http://wiki.ros.org/message_generation
-[rosbag]: http://wiki.ros.org/rosbag 
+[std_msgs]: https://wiki.ros.org/std_msgs
+[roscpp]: https://wiki.ros.org/roscpp
+[message_generation]: https://wiki.ros.org/message_generation
+[rosbag]: https://wiki.ros.org/rosbag 
 [HyQ]: https://www.iit.it/research/lines/dynamic-legged-systems
 [ANYmal]: http://www.rsl.ethz.ch/robots-media/anymal.html
 [ROS]: http://www.ros.org
-[xpp]: http://wiki.ros.org/xpp
+[xpp]: https://wiki.ros.org/xpp
 [ifopt_core]: https://github.com/ethz-adrl/ifopt
 [ifopt]: https://github.com/ethz-adrl/ifopt
 [Ipopt]: https://projects.coin-or.org/Ipopt
 [ncurses]: http://invisible-island.net/ncurses/man/ncurses.3x.html
 [xterm]: https://linux.die.net/man/1/xterm
 [Snopt]: http://www.sbsi-sol-optimize.com/asp/sol_product_snopt.htm
-[rviz]: http://wiki.ros.org/rviz
-[catkin]: http://wiki.ros.org/catkin
+[rviz]: https://wiki.ros.org/rviz
+[catkin]: https://wiki.ros.org/catkin
 [catkin tools]: http://catkin-tools.readthedocs.org/
 [Eigen]: http://eigen.tuxfamily.org
 [this example]: https://github.com/ethz-adrl/ifopt/blob/master/ifopt_core/test/ifopt/test_vars_constr_cost.h
